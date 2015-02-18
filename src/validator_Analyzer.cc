@@ -218,9 +218,9 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
   // edm::Handle<edm::ValueMap<double> >            VMPhPUPPI;
 
   //RHO INFORMATION
-  PUNtuple_->rho = 0.0;
+  Ntuple_->rho = 0.0;
   if (iEvent.getByLabel(srcRho_,rho)) {
-    PUNtuple_->rho = *rho;
+    Ntuple_->rho = *rho;
   }
  
   // //NPV INFORMATION
