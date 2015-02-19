@@ -194,7 +194,7 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
   // std::cout << "puppiParticles size = " << puppiParticles->size() << std::endl;
 
   // // EVENT DATA HANDLES
-  // nref_=0;
+  nref_=0;
   edm::Handle<GenEventInfoProduct>               genInfo;
   edm::Handle<vector<PileupSummaryInfo> >        puInfos;  
   edm::Handle<reco::CandidateView>               refs;
@@ -239,14 +239,14 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
   // REFERENCES & RECOJETS
   iEvent.getByLabel(srcJet_, jets);
   
-  // //loop over the jets and fill the ntuple
-  // size_t nJet=(nJetMax_==0) ? jets->size() : std::min(nJetMax_,(unsigned int)jets->size());
-  // Ntuple_->nref=nJet;
-  // for (size_t iJet=0;iJet<nJet;iJet++) {
+  //loop over the jets and fill the ntuple
+  size_t nJet=(nJetMax_==0) ? jets->size() : std::min(nJetMax_,(unsigned int)jets->size());
+  Ntuple_->nref=nJet;
+  for (size_t iJet=0;iJet<nJet;iJet++) {
 
-  //    //cout << "Doing jet " << iJet << endl;
+  // //    //cout << "Doing jet " << iJet << endl;
 
-  //    pat::Jet jet = jets->at(iJet);
+     pat::Jet jet = jets->at(iJet);
   //    const reco::GenJet* ref = jet.genJet();
 
   //    if(ref) {
@@ -330,12 +330,12 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
   //       Ntuple_->jtjec[nref_]=1.0;
   //    }
 
-  //    Ntuple_->jte[nref_]    =jet.energy()*Ntuple_->jtjec[nref_];
-  //    Ntuple_->jtpt[nref_]   =jet.pt()*Ntuple_->jtjec[nref_];
-  //    Ntuple_->jteta[nref_]  =jet.eta()*Ntuple_->jtjec[nref_];
-  //    Ntuple_->jtphi[nref_]  =jet.phi()*Ntuple_->jtjec[nref_];
-  //    Ntuple_->jty[nref_]    =jet.rapidity();
-  //    Ntuple_->jtarea[nref_] =jet.jetArea();
+     Ntuple_->jte[nref_]    =jet.energy()*Ntuple_->jtjec[nref_];
+     Ntuple_->jtpt[nref_]   =jet.pt()*Ntuple_->jtjec[nref_];
+     Ntuple_->jteta[nref_]  =jet.eta()*Ntuple_->jtjec[nref_];
+     Ntuple_->jtphi[nref_]  =jet.phi()*Ntuple_->jtjec[nref_];
+     Ntuple_->jty[nref_]    =jet.rapidity();
+     Ntuple_->jtarea[nref_] =jet.jetArea();
      
   //    if (doComposition_) {        
   //       Ntuple_->jtchf[nref_] =jet.chargedHadronEnergyFraction()*Ntuple_->jtjec[nref_];
@@ -347,8 +347,8 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
   //       Ntuple_->jthfef[nref_]=jet.HFEMEnergyFraction()*Ntuple_->jtjec[nref_];
   //   }
 
-  //    nref_++;
-  // }
+     nref_++;
+  }
   
 
   // // MUON SECTION

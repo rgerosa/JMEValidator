@@ -29,7 +29,7 @@ process = cms.Process("JRA")
 #! Conditions
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "START53_V7F::All"
+process.GlobalTag.globaltag = "PHYS14_25_V2::All"
 
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -70,19 +70,17 @@ process.load('CommonTools.PileupAlgos.Puppi_cff');
 process.puppi.candName = cms.InputTag('packedPFCandidates')
 process.puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
 
-from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
-process.ak8GenJets = ak4GenJets.clone( rParam = 0.8 )
-process.ak8GenJets.src = cms.InputTag('packedGenParticles');
+process.load('JMEAnalysis.JMEValidator.makeJets_cff')
+puppi_onMiniAOD = cms.Sequence(process.puppi * process.pfCHS * process.AK4GenJets * process.AK8GenJets * process.AK4PFchsJets * process.AK8PFchsJets * process.AK4PFJetsPuppi * process.AK8PFJetsPuppi)
+setattr(process,'puppi_onMiniAOD',puppi_onMiniAOD)
 
-from RecoJets.JetProducers.ak4PFJetsPuppi_cfi import ak4PFJetsPuppi
-process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi');
-process.ak4PFJetsPuppi.src =  cms.InputTag('puppi','','JRA') #PFJetParameters
-
-process.ak8PFJetsPuppi = ak4PFJetsPuppi.clone( rParam = 0.8 )
-process.ak8PFJetsPuppi.src =  cms.InputTag('puppi','','JRA') #PFJetParameters
-process.puppi_onMiniAOD = cms.Sequence(process.puppi + process.ak8GenJets + process.ak4PFJetsPuppi + process.ak8PFJetsPuppi)
-
-process.p = cms.Path( process.puppi_onMiniAOD );
+#! convert the PUPPI jets into pat::jets
+from JMEAnalysis.JMEValidator.convertPFToPATJet_cff import convertPFToPATJet
+convertPFToPATJet(process,'AK4PFchsJets','AK4PFchsJets','ak4',0.4,'AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])
+convertPFToPATJet(process,'AK8PFchsJets','AK8PFchsJets','ak8',0.8,'AK8PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])
+convertPFToPATJet(process,'AK4PFJetsPuppi','AK4PFJetsPuppi','ak4',0.4,'AK4PFchs', [])
+convertPFToPATJet(process,'AK8PFJetsPuppi','AK8PFJetsPuppi','ak8',0.8,'AK8PFchs', [])
+conversion_sequence = cms.Sequence(process.patJetsAK4PFchsJets*process.patJetsAK8PFchsJets*process.patJetsAK4PFJetsPuppi*process.patJetsAK8PFJetsPuppi)
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #! JME stuff (analyzer)
@@ -94,20 +92,22 @@ jetSrcName = [];
 
 jetCollections.append('AK4PFchs');
 correctionLevels.append(['L1FastJet']);
-jetSrcName.append('slimmedJets');
+jetSrcName.append('patJetsAK4PFchsJets');
 
 jetCollections.append('AK8PFchs');
 correctionLevels.append(['L1FastJet']);
-jetSrcName.append('slimmedJetsAK8');
+jetSrcName.append('patJetsAK8PFchsJets');
 
 jetCollections.append('AK4PUPPI');
 correctionLevels.append([]);
-jetSrcName.append('ak4PFJetsPuppi');
+jetSrcName.append('patJetsAK4PFJetsPuppi');
 
 jetCollections.append('AK8PUPPI');
 correctionLevels.append([]);
-jetSrcName.append('ak8PFJetsPuppi');
+jetSrcName.append('patJetsAK8PFJetsPuppi');
 
+validator_sequence = cms.Sequence()
+setattr(process,"validator_sequence",validator_sequence)
 for i in range(len(jetCollections)):
 	pnm = cms.EDAnalyzer('validatorTreeMaker',
 	                    PileupNtupleMakerParameters,
@@ -120,11 +120,11 @@ for i in range(len(jetCollections)):
 			 )
 
 	#process.myseq = cms.Sequence(process.pnm)
-	setattr(process,jetCollections[i],pnm)
-	sequence = cms.Sequence(pnm)
-	sequence = cms.Sequence(sequence)
-	setattr(process, jetCollections[i] + 'Sequence', sequence)
-	process.p *= sequence;
+	setattr(process,'nt_'+jetCollections[i],pnm)
+	validator_sequence = cms.Sequence(validator_sequence*pnm)
+
+process.p = cms.Path( puppi_onMiniAOD * conversion_sequence * validator_sequence );
+
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #! Output and Log
