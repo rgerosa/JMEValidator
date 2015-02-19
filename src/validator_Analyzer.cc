@@ -130,15 +130,6 @@ validatorTreeMaker::validatorTreeMaker(const edm::ParameterSet& iConfig)
   , srcRho_        (iConfig.getParameter<edm::InputTag>                 ("srcRho"))
   , srcVtx_        (iConfig.getParameter<edm::InputTag>                 ("srcVtx"))
   , srcMuons_      (iConfig.getParameter<edm::InputTag>               ("srcMuons"))
-  , srcVMCHSTAND_  (iConfig.getParameter<edm::InputTag>           ("srcVMCHSTAND"))
-  , srcVMNHSTAND_  (iConfig.getParameter<edm::InputTag>           ("srcVMNHSTAND"))
-  , srcVMPhSTAND_  (iConfig.getParameter<edm::InputTag>           ("srcVMPhSTAND"))
-  , srcVMPUSTAND_  (iConfig.getParameter<edm::InputTag>           ("srcVMPUSTAND"))
-  , srcVMNHPFWGT_  (iConfig.getParameter<edm::InputTag>           ("srcVMNHPFWGT"))
-  , srcVMPhPFWGT_  (iConfig.getParameter<edm::InputTag>           ("srcVMPhPFWGT"))
-  , srcVMCHPUPPI_  (iConfig.getParameter<edm::InputTag>           ("srcVMCHPUPPI"))
-  , srcVMNHPUPPI_  (iConfig.getParameter<edm::InputTag>           ("srcVMNHPUPPI"))
-  , srcVMPhPUPPI_  (iConfig.getParameter<edm::InputTag>           ("srcVMPhPUPPI"))
   , doComposition_ (iConfig.getParameter<bool>                   ("doComposition"))
   , doFlavor_      (iConfig.getParameter<bool>                        ("doFlavor"))
   , nJetMax_       (iConfig.getParameter<unsigned int>                 ("nJetMax"))
@@ -196,8 +187,12 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
                                   const edm::EventSetup& iSetup)
 {
 
-  std::cout << "hi!" << std::endl;
-  
+  // std::cout << "hi!" << std::endl;
+  // edm::Handle<vector<reco::PFCandidate>> puppiParticles;
+  // edm::InputTag srcPUPPI_ = edm::InputTag("puppi","","JRA");
+  // iEvent.getByLabel(srcPUPPI_,puppiParticles);
+  // std::cout << "puppiParticles size = " << puppiParticles->size() << std::endl;
+
   // // EVENT DATA HANDLES
   // nref_=0;
   edm::Handle<GenEventInfoProduct>               genInfo;
@@ -207,15 +202,6 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
   edm::Handle<double>                            rho;
   edm::Handle<std::vector<reco::Vertex> >        vtx;
   edm::Handle<edm::View<pat::Muon> >             muons;
-  // edm::Handle<edm::ValueMap<double> >            VMCHSTAND;
-  // edm::Handle<edm::ValueMap<double> >            VMNHSTAND;
-  // edm::Handle<edm::ValueMap<double> >            VMPhSTAND;
-  // edm::Handle<edm::ValueMap<double> >            VMPUSTAND;
-  // edm::Handle<edm::ValueMap<double> >            VMNHPFWGT;
-  // edm::Handle<edm::ValueMap<double> >            VMPhPFWGT;
-  // edm::Handle<edm::ValueMap<double> >            VMCHPUPPI;
-  // edm::Handle<edm::ValueMap<double> >            VMNHPUPPI;
-  // edm::Handle<edm::ValueMap<double> >            VMPhPUPPI;
 
   //RHO INFORMATION
   Ntuple_->rho = 0.0;
@@ -223,39 +209,39 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
     Ntuple_->rho = *rho;
   }
  
-  // //NPV INFORMATION
-  // PUNtuple_->npv = 0;
-  // if (iEvent.getByLabel(srcVtx_,vtx)) {
-  //    const reco::VertexCollection::const_iterator vtxEnd = vtx->end();
-  //    for (reco::VertexCollection::const_iterator vtxIter = vtx->begin(); vtxEnd != vtxIter; ++vtxIter) {
-  //       if (!vtxIter->isFake() && vtxIter->ndof()>=4 && fabs(vtxIter->z())<=24)
-  //          PUNtuple_->npv++;
-  //    }
-  // }
+  //NPV INFORMATION
+  Ntuple_->npv = 0;
+  if (iEvent.getByLabel(srcVtx_,vtx)) {
+     const reco::VertexCollection::const_iterator vtxEnd = vtx->end();
+     for (reco::VertexCollection::const_iterator vtxIter = vtx->begin(); vtxEnd != vtxIter; ++vtxIter) {
+        if (!vtxIter->isFake() && vtxIter->ndof()>=4 && fabs(vtxIter->z())<=24)
+           Ntuple_->npv++;
+     }
+  }
  
-  // //EVENT INFORMATION
-  // PUNtuple_->run = iEvent.id().run();
-  // PUNtuple_->lumi = iEvent.id().luminosityBlock();
-  // PUNtuple_->evt = iEvent.id().event();
+  //EVENT INFORMATION
+  Ntuple_->run = iEvent.id().run();
+  Ntuple_->lumi = iEvent.id().luminosityBlock();
+  Ntuple_->evt = iEvent.id().event();
 
-  // // MC PILEUP INFORMATION
-  // PUNtuple_->npus->clear();
-  // PUNtuple_->tnpus->clear();
-  // PUNtuple_->bxns->clear();
-  // if (iEvent.getByLabel("addPileupInfo",puInfos)) {
-  //    for(unsigned int i=0; i<puInfos->size(); i++) {
-  //       PUNtuple_->npus->push_back((*puInfos)[i].getPU_NumInteractions());
-  //       PUNtuple_->tnpus->push_back((*puInfos)[i].getTrueNumInteractions());
-  //       PUNtuple_->bxns->push_back((*puInfos)[i].getBunchCrossing());
-  //    }
-  // }
+  // MC PILEUP INFORMATION
+  Ntuple_->npus->clear();
+  Ntuple_->tnpus->clear();
+  Ntuple_->bxns->clear();
+  if (iEvent.getByLabel("addPileupInfo",puInfos)) {
+     for(unsigned int i=0; i<puInfos->size(); i++) {
+        Ntuple_->npus->push_back((*puInfos)[i].getPU_NumInteractions());
+        Ntuple_->tnpus->push_back((*puInfos)[i].getTrueNumInteractions());
+        Ntuple_->bxns->push_back((*puInfos)[i].getBunchCrossing());
+     }
+  }
 
-  // // REFERENCES & RECOJETS
-  // iEvent.getByLabel(srcJet_, jets);
+  // REFERENCES & RECOJETS
+  iEvent.getByLabel(srcJet_, jets);
   
   // //loop over the jets and fill the ntuple
   // size_t nJet=(nJetMax_==0) ? jets->size() : std::min(nJetMax_,(unsigned int)jets->size());
-  // PUNtuple_->nref=nJet;
+  // Ntuple_->nref=nJet;
   // for (size_t iJet=0;iJet<nJet;iJet++) {
 
   //    //cout << "Doing jet " << iJet << endl;
@@ -264,16 +250,16 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
   //    const reco::GenJet* ref = jet.genJet();
 
   //    if(ref) {
-  //      PUNtuple_->refdrjt[nref_]  =reco::deltaR(jet.eta(),jet.phi(),ref->eta(),ref->phi());
-  //      if (PUNtuple_->refdrjt[nref_]>deltaRMax_) continue;
+  //      Ntuple_->refdrjt[nref_]  =reco::deltaR(jet.eta(),jet.phi(),ref->eta(),ref->phi());
+  //      if (Ntuple_->refdrjt[nref_]>deltaRMax_) continue;
   //    }
   //    else {
-  //      PUNtuple_->refdrjt[nref_] = 0;
+  //      Ntuple_->refdrjt[nref_] = 0;
   //    }
      
   //    // Beta/Beta Star Calculation
-  //    PUNtuple_->beta = 0.0;
-  //    PUNtuple_->betaStar = 0.0;
+  //    Ntuple_->beta = 0.0;
+  //    Ntuple_->betaStar = 0.0;
   //    //---- vertex association -----------
   //    //---- get the vector of tracks -----
   //    reco::TrackRefVector vTrks(jet.associatedTracks());
@@ -305,30 +291,30 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
   //       }
   //    }
   //    if (sumTrkPt > 0) {
-  //       PUNtuple_->beta     = sumTrkPtBeta/sumTrkPt;
-  //       PUNtuple_->betaStar = sumTrkPtBetaStar/sumTrkPt;
+  //       Ntuple_->beta     = sumTrkPtBeta/sumTrkPt;
+  //       Ntuple_->betaStar = sumTrkPtBetaStar/sumTrkPt;
   //    }
 
-  //    PUNtuple_->refrank[nref_]=nref_;
-  //    PUNtuple_->refpdgid_algorithmicDef[nref_] = 0;
-  //    PUNtuple_->refpdgid_physicsDef[nref_] = 0;
+  //    Ntuple_->refrank[nref_]=nref_;
+  //    Ntuple_->refpdgid_algorithmicDef[nref_] = 0;
+  //    Ntuple_->refpdgid_physicsDef[nref_] = 0;
   //    if(ref) { 
-  //       PUNtuple_->refpdgid[nref_] = ref->pdgId();
-  //       PUNtuple_->refe[nref_]     = ref->energy();
-  //       PUNtuple_->refpt[nref_]    = ref->pt();
-  //       PUNtuple_->refeta[nref_]   = ref->eta();
-  //       PUNtuple_->refphi[nref_]   = ref->phi();
-  //       PUNtuple_->refy[nref_]     = ref->rapidity();
-  //       PUNtuple_->refarea[nref_]  = ref->jetArea();
+  //       Ntuple_->refpdgid[nref_] = ref->pdgId();
+  //       Ntuple_->refe[nref_]     = ref->energy();
+  //       Ntuple_->refpt[nref_]    = ref->pt();
+  //       Ntuple_->refeta[nref_]   = ref->eta();
+  //       Ntuple_->refphi[nref_]   = ref->phi();
+  //       Ntuple_->refy[nref_]     = ref->rapidity();
+  //       Ntuple_->refarea[nref_]  = ref->jetArea();
   //    }
   //    else {
-  //       PUNtuple_->refpdgid[nref_] = 0;
-  //       PUNtuple_->refe[nref_]     = 0;
-  //       PUNtuple_->refpt[nref_]    = 0;
-  //       PUNtuple_->refeta[nref_]   = 0;
-  //       PUNtuple_->refphi[nref_]   = 0;
-  //       PUNtuple_->refy[nref_]     = 0;
-  //       PUNtuple_->refarea[nref_]  = 0;      
+  //       Ntuple_->refpdgid[nref_] = 0;
+  //       Ntuple_->refe[nref_]     = 0;
+  //       Ntuple_->refpt[nref_]    = 0;
+  //       Ntuple_->refeta[nref_]   = 0;
+  //       Ntuple_->refphi[nref_]   = 0;
+  //       Ntuple_->refy[nref_]     = 0;
+  //       Ntuple_->refarea[nref_]  = 0;      
   //    }
 
   //    if (0!=jetCorrector_) {
@@ -336,29 +322,29 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
   //       jetCorrector_->setJetPt(jet.pt());
   //       jetCorrector_->setJetE(jet.energy());
   //       jetCorrector_->setJetA(jet.jetArea());
-  //       jetCorrector_->setRho(PUNtuple_->rho);
-  //       jetCorrector_->setNPV(PUNtuple_->npv);
-  //       PUNtuple_->jtjec[nref_]=jetCorrector_->getCorrection();
+  //       jetCorrector_->setRho(Ntuple_->rho);
+  //       jetCorrector_->setNPV(Ntuple_->npv);
+  //       Ntuple_->jtjec[nref_]=jetCorrector_->getCorrection();
   //    }
   //    else {
-  //       PUNtuple_->jtjec[nref_]=1.0;
+  //       Ntuple_->jtjec[nref_]=1.0;
   //    }
 
-  //    PUNtuple_->jte[nref_]    =jet.energy()*PUNtuple_->jtjec[nref_];
-  //    PUNtuple_->jtpt[nref_]   =jet.pt()*PUNtuple_->jtjec[nref_];
-  //    PUNtuple_->jteta[nref_]  =jet.eta()*PUNtuple_->jtjec[nref_];
-  //    PUNtuple_->jtphi[nref_]  =jet.phi()*PUNtuple_->jtjec[nref_];
-  //    PUNtuple_->jty[nref_]    =jet.rapidity();
-  //    PUNtuple_->jtarea[nref_] =jet.jetArea();
+  //    Ntuple_->jte[nref_]    =jet.energy()*Ntuple_->jtjec[nref_];
+  //    Ntuple_->jtpt[nref_]   =jet.pt()*Ntuple_->jtjec[nref_];
+  //    Ntuple_->jteta[nref_]  =jet.eta()*Ntuple_->jtjec[nref_];
+  //    Ntuple_->jtphi[nref_]  =jet.phi()*Ntuple_->jtjec[nref_];
+  //    Ntuple_->jty[nref_]    =jet.rapidity();
+  //    Ntuple_->jtarea[nref_] =jet.jetArea();
      
   //    if (doComposition_) {        
-  //       PUNtuple_->jtchf[nref_] =jet.chargedHadronEnergyFraction()*PUNtuple_->jtjec[nref_];
-  //       PUNtuple_->jtnhf[nref_] =jet.neutralHadronEnergyFraction()*PUNtuple_->jtjec[nref_];
-  //       PUNtuple_->jtnef[nref_] =jet.photonEnergyFraction()*PUNtuple_->jtjec[nref_];
-  //       PUNtuple_->jtcef[nref_] =jet.electronEnergyFraction()*PUNtuple_->jtjec[nref_];
-  //       PUNtuple_->jtmuf[nref_] =jet.muonEnergyFraction()*PUNtuple_->jtjec[nref_];
-  //       PUNtuple_->jthfhf[nref_]=jet.HFHadronEnergyFraction()*PUNtuple_->jtjec[nref_];
-  //       PUNtuple_->jthfef[nref_]=jet.HFEMEnergyFraction()*PUNtuple_->jtjec[nref_];
+  //       Ntuple_->jtchf[nref_] =jet.chargedHadronEnergyFraction()*Ntuple_->jtjec[nref_];
+  //       Ntuple_->jtnhf[nref_] =jet.neutralHadronEnergyFraction()*Ntuple_->jtjec[nref_];
+  //       Ntuple_->jtnef[nref_] =jet.photonEnergyFraction()*Ntuple_->jtjec[nref_];
+  //       Ntuple_->jtcef[nref_] =jet.electronEnergyFraction()*Ntuple_->jtjec[nref_];
+  //       Ntuple_->jtmuf[nref_] =jet.muonEnergyFraction()*Ntuple_->jtjec[nref_];
+  //       Ntuple_->jthfhf[nref_]=jet.HFHadronEnergyFraction()*Ntuple_->jtjec[nref_];
+  //       Ntuple_->jthfef[nref_]=jet.HFEMEnergyFraction()*Ntuple_->jtjec[nref_];
   //   }
 
   //    nref_++;
@@ -377,31 +363,31 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
   // iEvent.getByLabel(srcVMNHPUPPI_, VMNHPUPPI);
   // iEvent.getByLabel(srcVMPhPUPPI_, VMPhPUPPI);
 
-  // PUNtuple_->nmu = muons->size();
+  // Ntuple_->nmu = muons->size();
   // //for(auto iMuon = muons->begin(); iMuon!=muons->end(); ++iMuon) {
   // for(size_t i = 0, n = muons->size(); i < n; ++i) {
   //   edm::Ptr<pat::Muon> muPtr = muons->ptrAt(i);
-  //   PUNtuple_->mupt[i]  = muPtr->pt();
-  //   PUNtuple_->mueta[i] = muPtr->eta();
-  //   PUNtuple_->muphi[i] = muPtr->phi();
-  //   PUNtuple_->mue[i]   = muPtr->energy();
+  //   Ntuple_->mupt[i]  = muPtr->pt();
+  //   Ntuple_->mueta[i] = muPtr->eta();
+  //   Ntuple_->muphi[i] = muPtr->phi();
+  //   Ntuple_->mue[i]   = muPtr->energy();
 
   //   //Raw Isolation
   //   //I = [sumChargedHadronPt+ max(0.,sumNeutralHadronPt+sumPhotonPt]/pt
-  //   PUNtuple_->muIsoSTAND[i] = ((*VMCHSTAND)[muPtr] + max(0.0,(*VMNHSTAND)[muPtr]+(*VMPhSTAND)[muPtr]))/muPtr->pt();
+  //   Ntuple_->muIsoSTAND[i] = ((*VMCHSTAND)[muPtr] + max(0.0,(*VMNHSTAND)[muPtr]+(*VMPhSTAND)[muPtr]))/muPtr->pt();
 
   //   //Delta Beta (see https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMuonId#Muon_Isolation for more details)
   //   //I = [sumChargedHadronPt+ max(0.,sumNeutralHadronPt+sumPhotonPt-0.5sumPUPt]/pt
-  //   PUNtuple_->muIsoSTAND[i] = ((*VMCHSTAND)[muPtr] + max(0.0,(*VMNHSTAND)[muPtr]+(*VMPhSTAND)[muPtr]-(0.5*(*VMPUSTAND)[muPtr])))/muPtr->pt();
+  //   Ntuple_->muIsoSTAND[i] = ((*VMCHSTAND)[muPtr] + max(0.0,(*VMNHSTAND)[muPtr]+(*VMPhSTAND)[muPtr]-(0.5*(*VMPUSTAND)[muPtr])))/muPtr->pt();
     
   //   // PF Weighted (see https://twiki.cern.ch/twiki/bin/viewauth/CMS/MuonIsolationForRun2 for more details)
-  //   PUNtuple_->muIsoPFWGT[i] = ((*VMCHSTAND)[muPtr]+(*VMNHPFWGT)[muPtr]+(*VMPhPFWGT)[muPtr])/muPtr->pt();
+  //   Ntuple_->muIsoPFWGT[i] = ((*VMCHSTAND)[muPtr]+(*VMNHPFWGT)[muPtr]+(*VMPhPFWGT)[muPtr])/muPtr->pt();
     
   //   // PUPPI Weighted (see https://twiki.cern.ch/twiki/bin/viewauth/CMS/MuonIsolationForRun2 for more details)
-  //   PUNtuple_->muIsoPUPPI[i] = ((*VMCHPUPPI)[muPtr]+(*VMNHPUPPI)[muPtr]+(*VMPhPUPPI)[muPtr])/muPtr->pt();;
+  //   Ntuple_->muIsoPUPPI[i] = ((*VMCHPUPPI)[muPtr]+(*VMNHPUPPI)[muPtr]+(*VMPhPUPPI)[muPtr])/muPtr->pt();;
   // }
 
-  // tree_->Fill();
+  tree_->Fill();
   
   return;
 }

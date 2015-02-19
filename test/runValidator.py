@@ -2,13 +2,9 @@
 
 import FWCore.ParameterSet.Config as cms
 
-#!       _ ______ _______            _____  ______ ______ ______ _____  ______ _   _  _____ ______   _  _______ _   _ ______ __  __       _______ _____ _____    _____ _    _ _______ _____ 
-#!      | |  ____|__   __|   ___    |  __ \|  ____|  ____|  ____|  __ \|  ____| \ | |/ ____|  ____| | |/ /_   _| \ | |  ____|  \/  |   /\|__   __|_   _/ ____|  / ____| |  | |__   __/ ____|
-#!      | | |__     | |     ( _ )   | |__) | |__  | |__  | |__  | |__) | |__  |  \| | |    | |__    | ' /  | | |  \| | |__  | \  / |  /  \  | |    | || |      | |    | |  | |  | | | (___  
-#!  _   | |  __|    | |     / _ \/\ |  _  /|  __| |  __| |  __| |  _  /|  __| | . ` | |    |  __|   |  <   | | | . ` |  __| | |\/| | / /\ \ | |    | || |      | |    | |  | |  | |  \___ \ 
-#! | |__| | |____   | |    | (_>  < | | \ \| |____| |    | |____| | \ \| |____| |\  | |____| |____  | . \ _| |_| |\  | |____| |  | |/ ____ \| |   _| || |____  | |____| |__| |  | |  ____) |
-#!  \____/|______|  |_|     \___/\/ |_|  \_\______|_|    |______|_|  \_\______|_| \_|\_____|______| |_|\_\_____|_| \_|______|_|  |_/_/    \_\_|  |_____\_____|  \_____|\____/   |_| |_____/ 
-
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#! Jet and reference kinematics
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 PileupNtupleMakerParameters = cms.PSet(
     # record flavor information, consider both RefPt and JetPt
     doComposition   = cms.bool(True),
@@ -23,33 +19,22 @@ PileupNtupleMakerParameters = cms.PSet(
     nJetMax         = cms.uint32(0),
 )
  
-#!  _____  _____   ____   _____ ______  _____ _____ 
-#! |  __ \|  __ \ / __ \ / ____|  ____|/ ____/ ____|
-#! | |__) | |__) | |  | | |    | |__  | (___| (___  
-#! |  ___/|  _  /| |  | | |    |  __|  \___ \\___ \ 
-#! | |    | | \ \| |__| | |____| |____ ____) |___) |
-#! |_|    |_|  \_\\____/ \_____|______|_____/_____/ 
-
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#! Process
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 process = cms.Process("JRA")
 
 
-#!   _____ ____  _   _ _____ _____ _______ _____ ____  _   _  _____ 
-#!  / ____/ __ \| \ | |  __ \_   _|__   __|_   _/ __ \| \ | |/ ____|
-#! | |   | |  | |  \| | |  | || |    | |    | || |  | |  \| | (___  
-#! | |   | |  | | . ` | |  | || |    | |    | || |  | | . ` |\___ \ 
-#! | |___| |__| | |\  | |__| || |_   | |   _| || |__| | |\  |____) |
-#!  \_____\____/|_| \_|_____/_____|  |_|  |_____\____/|_| \_|_____/ 
-                                                                  
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#! Conditions
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = "START53_V7F::All"
 
 
-#!  _____ _   _ _____  _    _ _______ 
-#! |_   _| \ | |  __ \| |  | |__   __|
-#!   | | |  \| | |__) | |  | |  | |   
-#!   | | | . ` |  ___/| |  | |  | |   
-#!  _| |_| |\  | |    | |__| |  | |   
-#! |_____|_| \_|_|     \____/   |_|   
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#! Input
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
                                     
 dyFiles = cms.untracked.vstring(
 #######
@@ -112,126 +97,85 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 process.source = cms.Source("PoolSource", fileNames = dyFiles )
 
 
-#!   _____ ______ _______      _______ _____ ______  _____ 
-#!  / ____|  ____|  __ \ \    / /_   _/ ____|  ____|/ ____|
-#! | (___ | |__  | |__) \ \  / /  | || |    | |__  | (___  
-#!  \___ \|  __| |  _  / \ \/ /   | || |    |  __|  \___ \ 
-#!  ____) | |____| | \ \  \  /   _| || |____| |____ ____) |
-#! |_____/|______|_|  \_\  \/   |_____\_____|______|_____/ 
-                                                         
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#! Services
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 process.load('CommonTools.UtilAlgos.TFileService_cfi')
 process.TFileService.fileName=cms.string('test.root')
 
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#! PUPPI (in fancy letters)
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-#!  __  __ _    _  ____  _   _   _____  _____  ____  _            _______ _____ ____  _   _ 
-#! |  \/  | |  | |/ __ \| \ | | |_   _|/ ____|/ __ \| |        /\|__   __|_   _/ __ \| \ | |
-#! | \  / | |  | | |  | |  \| |   | | | (___ | |  | | |       /  \  | |    | || |  | |  \| |
-#! | |\/| | |  | | |  | | . ` |   | |  \___ \| |  | | |      / /\ \ | |    | || |  | | . ` |
-#! | |  | | |__| | |__| | |\  |  _| |_ ____) | |__| | |____ / ____ \| |   _| || |__| | |\  |
-#! |_|  |_|\____/ \____/|_| \_| |_____|_____/ \____/|______/_/    \_\_|  |_____\____/|_| \_|
-                                                                                                                                                                                    
-# from Analysis.JMEDAS.run2muoniso_cff import run2muoniso
-# run2muoniso(process)
+# from CommonTools.PileupAlgos.Puppi_cff import puppi
+process.load('CommonTools.PileupAlgos.Puppi_cff');
+process.puppi.candName = cms.InputTag('packedPFCandidates')
+process.puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
 
+from RecoJets.JetProducers.ak4PFJetsPuppi_cfi import ak4PFJetsPuppi
+process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi');
+process.ak4PFJetsPuppi.src =  cms.InputTag('puppi','','JRA') #PFJetParameters
+process.ak8PFJetsPuppi = ak4PFJetsPuppi.clone( rParam = 0.8 )
+process.ak8PFJetsPuppi.src =  cms.InputTag('puppi','','JRA') #PFJetParameters
+process.puppi_onMiniAOD = cms.Sequence(process.puppi + process.ak4PFJetsPuppi + process.ak8PFJetsPuppi)
+process.p = cms.Path( process.puppi_onMiniAOD );
 
-#!           _      _____  ____  _____  _____ _______ _    _ __  __  _____ 
-#!     /\   | |    / ____|/ __ \|  __ \|_   _|__   __| |  | |  \/  |/ ____|
-#!    /  \  | |   | |  __| |  | | |__) | | |    | |  | |__| | \  / | (___  
-#!   / /\ \ | |   | | |_ | |  | |  _  /  | |    | |  |  __  | |\/| |\___ \ 
-#!  / ____ \| |___| |__| | |__| | | \ \ _| |_   | |  | |  | | |  | |____) |
-#! /_/    \_\______\_____|\____/|_|  \_\_____|  |_|  |_|  |_|_|  |_|_____/                                                                        
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#! JME stuff (analyzer)
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-# algsizetype = {'AK':[4,8]}
-# jettype = ['PFchs','PUPPI']
-# #jettype = ['PFchs']
-# corrs = ['','l1']
-# prefix = 'slimmedJets'
+jetCollections = [];
+correctionLevels = [];
+jetSrcName = [];
 
-# algorithms = {}
+jetCollections.append('AK4PFchs');
+correctionLevels.append(['L1FastJet']);
+jetSrcName.append('slimmedJets');
 
-# for k, v in algsizetype.iteritems():
-# 	for s in v:
-# 		for j in jettype:
-# 			for c in corrs:
-# 				corrLevels = []
-# 				if 'l1' in c:
-# 					corrLevels.append('L1FastJet')
-# 				if 'l2' in c:
-# 					corrLevels.append('L2Relative')
-# 				if 'l3' in c:
-# 					corrLevels.append('L3Relative')
+jetCollections.append('AK8PFchs');
+correctionLevels.append(['L1FastJet']);
+jetSrcName.append('slimmedJetsAK8');
 
-# 				if j=='PUPPI' and 'l1' in c:
-# 					continue
-# 				elif j=='PUPPI':
-# 					algorithms[str(k+str(s)+j+c)]='patJets'+k+str(s)+'PUPPIJets',corrLevels
-# 				elif s!=4:
-# 					algorithms[str(k+str(s)+j+c)]=prefix+k+str(s),corrLevels
-# 				else:
-# 					algorithms[str(k+str(s)+j+c)]=prefix,corrLevels
+jetCollections.append('AK4PUPPI');
+correctionLevels.append([]);
+jetSrcName.append('ak4PFJetsPuppi');
 
-# print "{:<15} {:<20} {:<30}".format('Algorithm','Jet Collection',"Correction Levels")
-# print "{:<15} {:<20} {:<30}".format('---------','--------------',"-----------------")
-# for algorithm, tup in algorithms.iteritems():
+jetCollections.append('AK8PUPPI');
+correctionLevels.append([]);
+jetSrcName.append('ak8PFJetsPuppi');
 
-#     jetCollection, corrLevels = tup
+for i in range(len(jetCollections)):
+	pnm = cms.EDAnalyzer('validatorTreeMaker',
+	                    PileupNtupleMakerParameters,
+						JetCorLabel       = cms.string(jetCollections[i]),
+						JetCorLevels      = cms.vstring(correctionLevels[i]),
+						srcJet            = cms.InputTag(jetSrcName[i]),
+						srcRho            = cms.InputTag('fixedGridRhoAll'),
+						srcVtx            = cms.InputTag('offlineSlimmedPrimaryVertices'),
+						srcMuons          = cms.InputTag('selectedPatMuons'),
+			 )
 
-    # pnm = cms.EDAnalyzer('pileupTreeMaker',
-    #                      PileupNtupleMakerParameters,
-			 # 			 JetCorLabel       = cms.string(algorithm),
-			 # 			 JetCorLevels      = cms.vstring(corrLevels),
-    #                      srcJet            = cms.InputTag(jetCollection),
-    #                      srcRho            = cms.InputTag('fixedGridRhoAll'),
-    #                      srcVtx            = cms.InputTag('offlineSlimmedPrimaryVertices'),
-    #                      srcMuons          = cms.InputTag('selectedPatMuons'),
-    #                      srcVMCHSTAND      = cms.InputTag('muPFIsoValueCHR04STAND'),
-    #                      srcVMNHSTAND      = cms.InputTag('muPFIsoValueNHR04STAND'),
-    #                      srcVMPhSTAND      = cms.InputTag('muPFIsoValuePhR04STAND'),
-    #                      srcVMPUSTAND      = cms.InputTag('muPFIsoValuePUR04STAND'),
-    #                      srcVMCHPFWGT      = cms.InputTag('muPFIsoValueCHR04PFWGT'),
-    #                      srcVMNHPFWGT      = cms.InputTag('muPFIsoValueNHR04PFWGT'),
-    #                      srcVMPhPFWGT      = cms.InputTag('muPFIsoValuePhR04PFWGT'),
-    #                      srcVMCHPUPPI      = cms.InputTag('muPFIsoValueCHR04PUPPI'),
-    #                      srcVMNHPUPPI      = cms.InputTag('muPFIsoValueNHR04PUPPI'),
-    #                      srcVMPhPUPPI      = cms.InputTag('muPFIsoValuePhR04PUPPI')
-			 # )
-    # setattr(process,algorithm,pnm)
-    # sequence = cms.Sequence(pnm)
+	#process.myseq = cms.Sequence(process.pnm)
+	setattr(process,jetCollections[i],pnm)
+	sequence = cms.Sequence(pnm)
+	sequence = cms.Sequence(sequence)
+	setattr(process, jetCollections[i] + 'Sequence', sequence)
+	process.p *= sequence;
 
-    # sequence = cms.Sequence(sequence)
-    # setattr(process, algorithm + 'Sequence', sequence)
-    # #path = cms.Path( sequence )
-    # path = process.p.copy()
-    # path *= sequence
-    # setattr(process, algorithm + 'Path', path)
-    # print "{:<15} {:<20} {:<30}".format(algorithm,jetCollection,corrLevels)
-
-process.pnm = cms.EDAnalyzer('validatorTreeMaker',
-                    PileupNtupleMakerParameters,
-					JetCorLabel       = cms.string('AK4PFchs'),
-					JetCorLevels      = cms.vstring(['L1FastJet','L2Relative','L3Relative']),
-					srcJet            = cms.InputTag('slimmedJets'),
-					srcRho            = cms.InputTag('fixedGridRhoAll'),
-					srcVtx            = cms.InputTag('offlineSlimmedPrimaryVertices'),
-					srcMuons          = cms.InputTag('selectedPatMuons'),
-					srcVMCHSTAND      = cms.InputTag('muPFIsoValueCHR04STAND'),
-					srcVMNHSTAND      = cms.InputTag('muPFIsoValueNHR04STAND'),
-					srcVMPhSTAND      = cms.InputTag('muPFIsoValuePhR04STAND'),
-					srcVMPUSTAND      = cms.InputTag('muPFIsoValuePUR04STAND'),
-					srcVMCHPFWGT      = cms.InputTag('muPFIsoValueCHR04PFWGT'),
-					srcVMNHPFWGT      = cms.InputTag('muPFIsoValueNHR04PFWGT'),
-					srcVMPhPFWGT      = cms.InputTag('muPFIsoValuePhR04PFWGT'),
-					srcVMCHPUPPI      = cms.InputTag('muPFIsoValueCHR04PUPPI'),
-					srcVMNHPUPPI      = cms.InputTag('muPFIsoValueNHR04PUPPI'),
-					srcVMPhPUPPI      = cms.InputTag('muPFIsoValuePhR04PUPPI')
-		 )
-
-process.myseq = cms.Sequence(process.pnm )
-process.p = cms.Path( process.myseq)
-
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#! Output and Log
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
+
+process.output = cms.OutputModule("PoolOutputModule",                                                                                                                                                     
+                                  #outputCommands = cms.untracked.vstring('drop *','keep *_puppi_*_*'),
+                                  outputCommands = cms.untracked.vstring('keep *'),
+                                  fileName       = cms.untracked.string ("Output.root")                                                                                                                   
+)
+# schedule definition                                                                                                       
+process.outpath  = cms.EndPath(process.output) 
 
 #!
 #! THAT'S ALL! CAN YOU BELIEVE IT? :-D
