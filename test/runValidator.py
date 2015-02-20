@@ -80,6 +80,7 @@ convertPFToPATJet(process,'AK4PFchsJets','AK4PFchsJets','ak4',0.4,'AK4PFchs', ['
 convertPFToPATJet(process,'AK8PFchsJets','AK8PFchsJets','ak8',0.8,'AK8PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])
 convertPFToPATJet(process,'AK4PFJetsPuppi','AK4PFJetsPuppi','ak4',0.4,'AK4PFchs', [])
 convertPFToPATJet(process,'AK8PFJetsPuppi','AK8PFJetsPuppi','ak8',0.8,'AK8PFchs', [])
+corrservices_sequence = cms.Sequence(process.patJetCorrFactorsAK4PFchsJets*process.patJetCorrFactorsAK8PFchsJets);
 conversion_sequence = cms.Sequence(process.patJetsAK4PFchsJets*process.patJetsAK8PFchsJets*process.patJetsAK4PFJetsPuppi*process.patJetsAK8PFJetsPuppi)
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -98,13 +99,13 @@ jetCollections.append('AK8PFchs');
 correctionLevels.append(['L1FastJet']);
 jetSrcName.append('patJetsAK8PFchsJets');
 
-jetCollections.append('AK4PUPPI');
-correctionLevels.append([]);
-jetSrcName.append('patJetsAK4PFJetsPuppi');
+# jetCollections.append('AK4PUPPI');
+# correctionLevels.append([]);
+# jetSrcName.append('patJetsAK4PFJetsPuppi');
 
-jetCollections.append('AK8PUPPI');
-correctionLevels.append([]);
-jetSrcName.append('patJetsAK8PFJetsPuppi');
+# jetCollections.append('AK8PUPPI');
+# correctionLevels.append([]);
+# jetSrcName.append('patJetsAK8PFJetsPuppi');
 
 validator_sequence = cms.Sequence()
 setattr(process,"validator_sequence",validator_sequence)
@@ -123,7 +124,7 @@ for i in range(len(jetCollections)):
 	setattr(process,'nt_'+jetCollections[i],pnm)
 	validator_sequence = cms.Sequence(validator_sequence*pnm)
 
-process.p = cms.Path( puppi_onMiniAOD * conversion_sequence * validator_sequence );
+process.p = cms.Path( puppi_onMiniAOD * corrservices_sequence * conversion_sequence * validator_sequence );
 
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

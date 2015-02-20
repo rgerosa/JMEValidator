@@ -336,6 +336,10 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
      Ntuple_->jtphi[nref_]  =jet.phi()*Ntuple_->jtjec[nref_];
      Ntuple_->jty[nref_]    =jet.rapidity();
      Ntuple_->jtarea[nref_] =jet.jetArea();
+
+     // if (nref_ <= 5){
+     //    std::cout << "corrected pt = " << jet.pt() << ", raw pt = " << jet.correctedP4(0).pt() << std::endl;
+     // }
      
   //    if (doComposition_) {        
   //       Ntuple_->jtchf[nref_] =jet.chargedHadronEnergyFraction()*Ntuple_->jtjec[nref_];
