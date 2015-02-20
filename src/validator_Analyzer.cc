@@ -240,6 +240,25 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
   iEvent.getByLabel(srcJet_, jets);
   
   //loop over the jets and fill the ntuple
+  Ntuple_->refdrjt->clear();
+  Ntuple_->refrank->clear();
+  Ntuple_->refpdgid_algorithmicDef->clear();
+  Ntuple_->refpdgid_physicsDef->clear();
+  Ntuple_->refpdgid->clear();
+  Ntuple_->refe->clear();
+  Ntuple_->refpt->clear();
+  Ntuple_->refeta->clear();
+  Ntuple_->refphi->clear();
+  Ntuple_->refy->clear();
+  Ntuple_->refarea->clear();
+  Ntuple_->jte->clear();
+  Ntuple_->jtpt->clear();
+  Ntuple_->jteta->clear();
+  Ntuple_->jtphi->clear();
+  Ntuple_->jty->clear();
+  Ntuple_->jtarea->clear();
+
+
   size_t nJet=(nJetMax_==0) ? jets->size() : std::min(nJetMax_,(unsigned int)jets->size());
   Ntuple_->nref=nJet;
   for (size_t iJet=0;iJet<nJet;iJet++) {
@@ -247,75 +266,38 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
   // //    //cout << "Doing jet " << iJet << endl;
 
      pat::Jet jet = jets->at(iJet);
-  //    const reco::GenJet* ref = jet.genJet();
+     if (jet.pt() < 10) continue;
+     const reco::GenJet* ref = jet.genJet();
 
-  //    if(ref) {
-  //      Ntuple_->refdrjt[nref_]  =reco::deltaR(jet.eta(),jet.phi(),ref->eta(),ref->phi());
-  //      if (Ntuple_->refdrjt[nref_]>deltaRMax_) continue;
-  //    }
-  //    else {
-  //      Ntuple_->refdrjt[nref_] = 0;
-  //    }
-     
-  //    // Beta/Beta Star Calculation
-  //    Ntuple_->beta = 0.0;
-  //    Ntuple_->betaStar = 0.0;
-  //    //---- vertex association -----------
-  //    //---- get the vector of tracks -----
-  //    reco::TrackRefVector vTrks(jet.associatedTracks());
-  //    float sumTrkPt(0.0),sumTrkPtBeta(0.0),sumTrkPtBetaStar(0.0);
-  //    //---- loop over the tracks of the jet ----
-  //    for(reco::TrackRefVector::const_iterator i_trk = vTrks.begin(); i_trk != vTrks.end(); i_trk++) {
-  //       //if (npv_ == 0) break;
-  //       if ((*vtx).size() == 0) break;
-  //       sumTrkPt += (*i_trk)->pt();
-  //       //---- loop over all vertices ----------------------------
-  //       for(unsigned ivtx = 0;ivtx < (*vtx).size();ivtx++) {
-  //          //---- loop over the tracks associated with the vertex ---
-  //          if (!((*vtx)[ivtx].isFake()) && (*vtx)[ivtx].ndof() >= 4 && fabs((*vtx)[ivtx].z()) <= 24) {
-  //             for(reco::Vertex::trackRef_iterator i_vtxTrk = (*vtx)[ivtx].tracks_begin(); i_vtxTrk != (*vtx)[ivtx].tracks_end(); ++i_vtxTrk) {
-  //                //---- match the jet track to the track from the vertex ----
-  //                reco::TrackRef trkRef(i_vtxTrk->castTo<reco::TrackRef>());
-  //                //---- check if the tracks match -------------------------
-  //                if (trkRef == (*i_trk)) {
-  //                   if (ivtx == 0) {
-  //                      sumTrkPtBeta += (*i_trk)->pt();
-  //                   }
-  //                   else {
-  //                      sumTrkPtBetaStar += (*i_trk)->pt();
-  //                   }   
-  //                   break;
-  //                }
-  //             }
-  //          } 
-  //       }
-  //    }
-  //    if (sumTrkPt > 0) {
-  //       Ntuple_->beta     = sumTrkPtBeta/sumTrkPt;
-  //       Ntuple_->betaStar = sumTrkPtBetaStar/sumTrkPt;
-  //    }
+     if(ref) {
+       Ntuple_->refdrjt->push_back( reco::deltaR(jet.eta(),jet.phi(),ref->eta(),ref->phi()) );
+       //if (Ntuple_->refdrjt[nref_] > deltaRMax_) continue;
+     }
+     else {
+       Ntuple_->refdrjt->push_back( 0 );
+     }
 
-  //    Ntuple_->refrank[nref_]=nref_;
-  //    Ntuple_->refpdgid_algorithmicDef[nref_] = 0;
-  //    Ntuple_->refpdgid_physicsDef[nref_] = 0;
-  //    if(ref) { 
-  //       Ntuple_->refpdgid[nref_] = ref->pdgId();
-  //       Ntuple_->refe[nref_]     = ref->energy();
-  //       Ntuple_->refpt[nref_]    = ref->pt();
-  //       Ntuple_->refeta[nref_]   = ref->eta();
-  //       Ntuple_->refphi[nref_]   = ref->phi();
-  //       Ntuple_->refy[nref_]     = ref->rapidity();
-  //       Ntuple_->refarea[nref_]  = ref->jetArea();
-  //    }
-  //    else {
-  //       Ntuple_->refpdgid[nref_] = 0;
-  //       Ntuple_->refe[nref_]     = 0;
-  //       Ntuple_->refpt[nref_]    = 0;
-  //       Ntuple_->refeta[nref_]   = 0;
-  //       Ntuple_->refphi[nref_]   = 0;
-  //       Ntuple_->refy[nref_]     = 0;
-  //       Ntuple_->refarea[nref_]  = 0;      
-  //    }
+     Ntuple_->refrank->push_back( nref_ );
+     Ntuple_->refpdgid_algorithmicDef->push_back( 0 );
+     Ntuple_->refpdgid_physicsDef->push_back( 0 );
+     if(ref) { 
+        Ntuple_->refpdgid->push_back( ref->pdgId() );
+        Ntuple_->refe->push_back( ref->energy() );
+        Ntuple_->refpt->push_back( ref->pt() );
+        Ntuple_->refeta->push_back( ref->eta() );
+        Ntuple_->refphi->push_back( ref->phi() );
+        Ntuple_->refy->push_back( ref->rapidity() );
+        Ntuple_->refarea->push_back( ref->jetArea() );
+     }
+     else {
+        Ntuple_->refpdgid->push_back( 0. );
+        Ntuple_->refe->push_back( 0. );
+        Ntuple_->refpt->push_back( 0. );
+        Ntuple_->refeta->push_back( 0. );
+        Ntuple_->refphi->push_back( 0. );
+        Ntuple_->refy->push_back( 0. );
+        Ntuple_->refarea->push_back( 0. );
+     }
 
   //    if (0!=jetCorrector_) {
   //       jetCorrector_->setJetEta(jet.eta());
@@ -330,12 +312,12 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
   //       Ntuple_->jtjec[nref_]=1.0;
   //    }
 
-     Ntuple_->jte[nref_]    =jet.energy()*Ntuple_->jtjec[nref_];
-     Ntuple_->jtpt[nref_]   =jet.pt()*Ntuple_->jtjec[nref_];
-     Ntuple_->jteta[nref_]  =jet.eta()*Ntuple_->jtjec[nref_];
-     Ntuple_->jtphi[nref_]  =jet.phi()*Ntuple_->jtjec[nref_];
-     Ntuple_->jty[nref_]    =jet.rapidity();
-     Ntuple_->jtarea[nref_] =jet.jetArea();
+     Ntuple_->jte->push_back( jet.energy() );
+     Ntuple_->jtpt->push_back( jet.pt() );
+     Ntuple_->jteta->push_back( jet.eta() );
+     Ntuple_->jtphi->push_back( jet.phi() );
+     Ntuple_->jty->push_back( jet.rapidity() );
+     Ntuple_->jtarea->push_back( jet.jetArea() );
 
      // if (nref_ <= 5){
      //    std::cout << "corrected pt = " << jet.pt() << ", raw pt = " << jet.correctedP4(0).pt() << std::endl;
