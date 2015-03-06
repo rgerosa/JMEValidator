@@ -59,9 +59,63 @@ dyFiles = cms.untracked.vstring(
 	# '/store/mc/Phys14DR/DYJetsToLL_M-50_13TeV-madgraph-pythia8/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/0432E62A-7A6C-E411-87BB-002590DB92A8.root',
 	# '/store/mc/Phys14DR/DYJetsToLL_M-50_13TeV-madgraph-pythia8/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/06C61714-7E6C-E411-9205-002590DB92A8.root',
     )
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
 process.source = cms.Source("PoolSource", fileNames = dyFiles )
 
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#! Run PUPPI, make some new jet collections
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+# # from CommonTools.PileupAlgos.Puppi_cff import puppi
+# process.load('CommonTools.PileupAlgos.Puppi_cff');
+# process.puppi.candName = cms.InputTag('packedPFCandidates')
+# process.puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
+
+# process.load('JMEAnalysis.JMEValidator.makeJets_cff')
+# puppi_onMiniAOD = cms.Sequence(process.puppi * process.pfCHS * process.AK4GenJets * process.AK8GenJets * process.AK4PFchsJets * process.AK8PFchsJets * process.AK4PFJetsPuppi * process.AK8PFJetsPuppi)
+# setattr(process,'puppi_onMiniAOD',puppi_onMiniAOD)
+
+# # set up some stuff for PAT
+# #process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+# process.load("PhysicsTools.PatAlgos.producersLayer1.jetProducer_cff")
+# process.patJetCorrFactors.src = cms.InputTag('AK4PFchsJets')
+# process.patJetCorrFactors.primaryVertices = cms.InputTag('offlineSlimmedPrimaryVertices')
+# process.patJets.addJetCharge   = False
+# process.patJets.addBTagInfo    = False
+# process.patJets.getJetMCFlavour = False
+# process.patJets.addAssociatedTracks = False
+# process.patJets.addGenPartonMatch = False
+# process.patJets.addGenJetMatch = False
+# # process.patJetPartonMatch.matched = "prunedGenParticles"
+# # process.patJetPartonMatch.src = 'AK4PFchsJets'
+# # process.patJets.jetSource = cms.InputTag('AK4PFchsJets')
+# # process.ak4GenJets.src = cms.InputTag('prunedGenParticles')
+# # process.ak4PFJets.src = cms.InputTag('packedPFCandidates')
+# # process.patJetGenJetMatch.src = cms.InputTag('AK4PFchsJets')
+# # process.patJetGenJetMatch.matched = cms.InputTag('AK4GenJets')
+# # process.patJetPartons.particles = cms.InputTag('prunedGenParticles')
+# # process.patJetPartons.particles = cms.InputTag('prunedGenParticles')
+
+
+# #! convert the PUPPI jets into pat::jets
+# from JMEAnalysis.JMEValidator.convertPFToPATJet_cff import convertPFToPATJet
+# convertPFToPATJet(process,'AK4PFchsJets','AK4PFchsJets','ak4',0.4,'AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])
+# convertPFToPATJet(process,'AK8PFchsJets','AK8PFchsJets','ak8',0.8,'AK8PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])
+# convertPFToPATJet(process,'AK4PFJetsPuppi','AK4PFJetsPuppi','ak4',0.4,'AK4PFchs', [])
+# convertPFToPATJet(process,'AK8PFJetsPuppi','AK8PFJetsPuppi','ak8',0.8,'AK8PFchs', [])
+# conversion_sequence = cms.Sequence(process.patJetsAK4PFchsJets*process.patJetsAK8PFchsJets*process.patJetsAK4PFJetsPuppi*process.patJetsAK8PFJetsPuppi)
+# # conversion_sequence = cms.Sequence(process.patJetsAK4PFchsJets*process.patJetCorrFactorsAK8PFchsJets)
+# #corrservices_sequence = cms.Sequence(process.patJetCorrFactorsAK4PFchsJets*process.patJetCorrFactorsAK8PFchsJets);
+
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#! Run PUPPI, make some new jet collections
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+from RecoJets.JetProducers.jetToolbox_cff import *
+jetToolbox( process, 'ak4', 'ak8JetSubs', 'out', PUMethod='Puppi' ) 
+jetToolbox( process, 'ak4', 'ak8JetSubs', 'out') # CHS jets?
+jetToolbox( process, 'ak8', 'ak8JetSubs', 'out', PUMethod='Puppi' ) 
+jetToolbox( process, 'ak8', 'ak8JetSubs', 'out') # CHS jets?
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #! Services
@@ -70,42 +124,6 @@ process.load('FWCore.MessageLogger.MessageLogger_cfi')
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.load('CommonTools.UtilAlgos.TFileService_cfi')
 process.TFileService.fileName=cms.string('test.root')
-
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#! Run PUPPI, make some new jet collections
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-# from CommonTools.PileupAlgos.Puppi_cff import puppi
-process.load('CommonTools.PileupAlgos.Puppi_cff');
-process.puppi.candName = cms.InputTag('packedPFCandidates')
-process.puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
-
-process.load('JMEAnalysis.JMEValidator.makeJets_cff')
-puppi_onMiniAOD = cms.Sequence(process.puppi * process.pfCHS * process.AK4GenJets * process.AK8GenJets * process.AK4PFchsJets * process.AK8PFchsJets * process.AK4PFJetsPuppi * process.AK8PFJetsPuppi)
-setattr(process,'puppi_onMiniAOD',puppi_onMiniAOD)
-
-# set up some stuff for PAT
-process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
-process.patJetCorrFactors.src = cms.InputTag('AK4PFchsJets')
-process.patJetCorrFactors.primaryVertices = cms.InputTag('offlineSlimmedPrimaryVertices')
-process.patJets.addJetCharge   = False
-process.patJets.addBTagInfo    = False
-process.patJets.getJetMCFlavour = False
-process.patJets.addAssociatedTracks = False
-process.patJets.addGenPartonMatch = False
-process.patJets.addGenJetMatch = False
-process.patJetPartonMatch.matched = "prunedGenParticles"
-process.patJetPartonMatch.src = 'AK4PFchsJets'
-
-#! convert the PUPPI jets into pat::jets
-from JMEAnalysis.JMEValidator.convertPFToPATJet_cff import convertPFToPATJet
-convertPFToPATJet(process,'AK4PFchsJets','AK4PFchsJets','ak4',0.4,'AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])
-convertPFToPATJet(process,'AK8PFchsJets','AK8PFchsJets','ak8',0.8,'AK8PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])
-convertPFToPATJet(process,'AK4PFJetsPuppi','AK4PFJetsPuppi','ak4',0.4,'AK4PFchs', [])
-convertPFToPATJet(process,'AK8PFJetsPuppi','AK8PFJetsPuppi','ak8',0.8,'AK8PFchs', [])
-conversion_sequence = cms.Sequence(process.patJetsAK4PFchsJets*process.patJetsAK8PFchsJets*process.patJetsAK4PFJetsPuppi*process.patJetsAK8PFJetsPuppi)
-# conversion_sequence = cms.Sequence(process.patJetsAK4PFchsJets*process.patJetCorrFactorsAK8PFchsJets)
-#corrservices_sequence = cms.Sequence(process.patJetCorrFactorsAK4PFchsJets*process.patJetCorrFactorsAK8PFchsJets);
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #! JME stuff (analyzer)
@@ -117,19 +135,19 @@ jetSrcName = [];
 
 jetCollections.append('AK4PFchs');
 correctionLevels.append(['L1FastJet']);
-jetSrcName.append('patJetsAK4PFchsJets');
+jetSrcName.append('selectedPatJetsAK4PFCHS');
 
 jetCollections.append('AK8PFchs');
 correctionLevels.append(['L1FastJet']);
-jetSrcName.append('patJetsAK8PFchsJets');
+jetSrcName.append('selectedPatJetsAK8PFCHS');
 
 jetCollections.append('AK4PUPPI');
 correctionLevels.append([]);
-jetSrcName.append('patJetsAK4PFJetsPuppi');
+jetSrcName.append('selectedPatJetsAK4PFPuppi');
 
 jetCollections.append('AK8PUPPI');
 correctionLevels.append([]);
-jetSrcName.append('patJetsAK8PFJetsPuppi');
+jetSrcName.append('selectedPatJetsAK8PFPuppi');
 
 validator_sequence = cms.Sequence()
 setattr(process,"validator_sequence",validator_sequence)
@@ -149,7 +167,7 @@ for i in range(len(jetCollections)):
 	validator_sequence = cms.Sequence(validator_sequence*pnm)
 
 # process.p = cms.Path( puppi_onMiniAOD * corrservices_sequence * conversion_sequence * validator_sequence );
-process.p = cms.Path( puppi_onMiniAOD * conversion_sequence * validator_sequence )
+process.p = cms.Path( validator_sequence )
 
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -158,13 +176,13 @@ process.p = cms.Path( puppi_onMiniAOD * conversion_sequence * validator_sequence
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
 process.options.allowUnscheduled = cms.untracked.bool(True)
 
-# process.output = cms.OutputModule("PoolOutputModule",                                                                                                                                                     
-#                                   #outputCommands = cms.untracked.vstring('drop *','keep *_puppi_*_*'),
-#                                   outputCommands = cms.untracked.vstring('keep *'),
-#                                   fileName       = cms.untracked.string ("Output.root")                                                                                                                   
-# )
-# # schedule definition                                                                                                       
-# process.outpath  = cms.EndPath(process.output) 
+process.output = cms.OutputModule("PoolOutputModule",                                                                                                                                                     
+                                  #outputCommands = cms.untracked.vstring('drop *','keep *_puppi_*_*'),
+                                  outputCommands = cms.untracked.vstring('keep *'),
+                                  fileName       = cms.untracked.string ("Output.root")                                                                                                                   
+)
+# schedule definition                                                                                                       
+process.outpath  = cms.EndPath(process.out) 
 
 #!
 #! THAT'S ALL! CAN YOU BELIEVE IT? :-D
