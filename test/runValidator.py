@@ -167,7 +167,10 @@ for i in range(len(jetCollections)):
 	validator_sequence = cms.Sequence(validator_sequence*pnm)
 
 # process.p = cms.Path( puppi_onMiniAOD * corrservices_sequence * conversion_sequence * validator_sequence );
-process.p = cms.Path( validator_sequence )
+
+process.puppiReader = cms.EDAnalyzer("puppiReader")
+
+process.p = cms.Path( process.puppiReader + validator_sequence )
 
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
