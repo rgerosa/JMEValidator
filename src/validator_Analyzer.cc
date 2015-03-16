@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 // validatorTreeMaker
-// ---------------
+// ------------------
 //
 //                        01/07/2014 Alexx Perloff   <aperloff@physics.tamu.edu>
 ////////////////////////////////////////////////////////////////////////////////
@@ -108,7 +108,7 @@ private:
   double        deltaRMax_;
   double        deltaPhiMin_;
   double        deltaRPartonMax_;
-  int           nref_;
+  unsigned int  nref_;
   FactorizedJetCorrector* jetCorrector_;
   
   // tree
@@ -155,6 +155,18 @@ validatorTreeMaker::validatorTreeMaker(const edm::ParameterSet& iConfig)
   //   cout << "DONE" << endl;
   // }
   
+  cout << "|---- validatorTreeMaker: Initialyzing..." << endl;
+  cout << "|---- validatorTreeMaker: Applying these jet corrections: ( " << srcJet_.label();
+  for (unsigned int iLevel=0; iLevel<JetCorLevels_.size(); iLevel++) {
+     cout << ", " << JetCorLevels_[iLevel];
+  }
+  cout << " )" << endl;
+  cout << "|---- validatorTreeMaker: VALIDATORTREEMAKER RUNNING ON " << moduleLabel_ << " FOR "
+       << JetCorLabel_.substr(0,3) << " JETS";
+  if      (JetCorLabel_.find("chs")!=std::string::npos)   cout << " USING CHS" << endl;
+  else if (JetCorLabel_.find("PUPPI")!=std::string::npos) cout << " USING PUPPI" << endl;
+  else                                                    cout << endl;
+  cout << "|---- validatorTreeMaker: Running ." << endl;
 }
 
 
@@ -260,13 +272,12 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
 
 
   size_t nJet=(nJetMax_==0) ? jets->size() : std::min(nJetMax_,(unsigned int)jets->size());
-  Ntuple_->nref=nJet;
   for (size_t iJet=0;iJet<nJet;iJet++) {
 
   // //    //cout << "Doing jet " << iJet << endl;
 
      pat::Jet jet = jets->at(iJet);
-     if (jet.pt() < 10) continue;
+     if (jet.pt() < 5) continue;
      const reco::GenJet* ref = jet.genJet();
 
      if(ref) {
@@ -335,7 +346,7 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
 
      nref_++;
   }
-  
+  Ntuple_->nref = nref_;
 
   // // MUON SECTION
   // iEvent.getByLabel(srcMuons_, muons);
