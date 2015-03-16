@@ -1,12 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// validatorTreeMaker
-// ---------------
+// puppiReader
+// -----------
 //
 //                        01/07/2014 Alexx Perloff   <aperloff@physics.tamu.edu>
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "JMEAnalysis/JMEValidator/interface/validator_Ntuple.h"
+#include "JMEAnalysis/JMEValidator/interface/puppi_Ntuple.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -41,7 +41,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/Common/interface/View.h"
-
 
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
@@ -93,17 +92,7 @@ private:
   
   // tree
   TTree*        tree_;
-  float p_nalgos;
-
-  vector<float> p_px;
-  vector<float> p_py;
-  vector<float> p_pz;
-  vector<float> p_e;
-  vector<float> p_alphas;
-  vector<float> p_id;
-  vector<float> p_charge;
-  vector<float> p_fromPV;
-
+  puppiNtuple*  Ntuple_;
 };
 
 
@@ -137,16 +126,7 @@ void puppiReader::beginJob()
 				"TFileService missing from configuration!");
 
   tree_=fs->make<TTree>("puppiTree","puppiTree");
-  tree_->Branch("nalgos",&p_nalgos,"nalgos/F");
-  tree_->Branch("px",&p_px);
-  tree_->Branch("py",&p_py);
-  tree_->Branch("pz",&p_pz);
-  tree_->Branch("e",&p_e);
-  tree_->Branch("alphas",&p_alphas);
-  tree_->Branch("id",&p_id);
-  tree_->Branch("charge",&p_charge);
-  tree_->Branch("fromPV",&p_fromPV);
-
+  Ntuple_ = new puppiNtuple(tree_,true);
 }
 
 
@@ -170,36 +150,41 @@ void puppiReader::analyze(const edm::Event& iEvent,
   iEvent.getByLabel(src_packedCands,hPFProduct);
   const reco::CandidateView *pfCol = hPFProduct.product();
 
-  // std::cout << "nalgos = " << *nalgos << std::endl;
-  p_nalgos = float(*nalgos);
+  //EVENT INFORMATION
+  Ntuple_->run = iEvent.id().run();
+  Ntuple_->lumi = iEvent.id().luminosityBlock();
+  Ntuple_->evt = iEvent.id().event();
 
-  p_px.clear();
-  p_py.clear();
-  p_pz.clear();
-  p_e.clear();
-  p_alphas.clear();
-  p_id.clear();
-  p_charge.clear();
-  p_fromPV.clear();
+  // std::cout << "nalgos = " << *nalgos << std::endl;
+  Ntuple_->nalgos = float(*nalgos);
+
+  Ntuple_->px->clear();
+  Ntuple_->py->clear();
+  Ntuple_->pz->clear();
+  Ntuple_->e->clear();
+  Ntuple_->alphas->clear();
+  Ntuple_->id->clear();
+  Ntuple_->charge->clear();
+  Ntuple_->fromPV->clear();
 
   // std::cout << "reading candidates..." << std::endl;
   for(reco::CandidateView::const_iterator itPF = pfCol->begin(); itPF!=pfCol->end(); itPF++) {
     //const reco::PFCandidate *pPF = dynamic_cast<const reco::PFCandidate*>(&(*itPF));
-    p_px.push_back( itPF->px() );
-    p_py.push_back( itPF->py() );
-    p_pz.push_back( itPF->pz() );
-    p_e.push_back( itPF->energy() );
-    p_id.push_back( float(itPF->pdgId()) );
-    p_charge.push_back( float(itPF->charge()) );
+    Ntuple_->px->push_back( itPF->px() );
+    Ntuple_->py->push_back( itPF->py() );
+    Ntuple_->pz->push_back( itPF->pz() );
+    Ntuple_->e->push_back( itPF->energy() );
+    Ntuple_->id->push_back( float(itPF->pdgId()) );
+    Ntuple_->charge->push_back( float(itPF->charge()) );
     
     const pat::PackedCandidate *lPack = dynamic_cast<const pat::PackedCandidate*>(&(*itPF));
-    p_fromPV.push_back( float(lPack->fromPV()) );
+    Ntuple_->fromPV->push_back( float(lPack->fromPV()) );
   }
 
 
   // std::cout << "reading alphas..." << std::endl;
   for(unsigned int i = 0; i < alphas->size(); i++){
-    p_alphas.push_back( (*alphas)[i] );
+    Ntuple_->alphas->push_back( (*alphas)[i] );
   }
 
   tree_->Fill();
@@ -209,7 +194,7 @@ void puppiReader::analyze(const edm::Event& iEvent,
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// define validatorTreeMaker as a plugin
+// define puppiReader as a plugin
 ////////////////////////////////////////////////////////////////////////////////
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(puppiReader);
