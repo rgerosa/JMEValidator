@@ -34,7 +34,7 @@ public :
    Long64_t        run;
    Long64_t        lumi;
    Long64_t        evt;
-   UChar_t         nref;
+   UInt_t          nref;
    vector<int>*    refrank;   //[nref]
    vector<int>*    refpdgid;   //[nref]
    vector<int>*    refpdgid_algorithmicDef;   //[nref]
@@ -175,8 +175,6 @@ Long64_t validatorNtuple::LoadTree(Long64_t entry)
 
 void validatorNtuple::MakeTree(TTree *tree)
 {
-   gROOT->ProcessLine("#include <vector>");
-
    // Set object pointer
    npus         = new vector<int>;
    tnpus        = new vector<float>;
@@ -223,7 +221,7 @@ void validatorNtuple::MakeTree(TTree *tree)
    fChain->Branch("lumi", &lumi, "lumi/L");
    fChain->Branch("evt", &evt, "evt/L");
    
-   fChain->Branch("nref", &nref, "nref/b");
+   fChain->Branch("nref", &nref, "nref/I");
    fChain->Branch("refrank", "vector<Int_t>", &refrank);
    fChain->Branch("refpdgid", "vector<Int_t>", &refpdgid);
    fChain->Branch("refpdgid_algorithmicDef", "vector<Int_t>", &refpdgid_algorithmicDef);
@@ -240,16 +238,16 @@ void validatorNtuple::MakeTree(TTree *tree)
    fChain->Branch("jteta", "vector<Float_t>", &jteta);    
    fChain->Branch("jtphi", "vector<Float_t>", &jtphi);    
    fChain->Branch("jty", "vector<Float_t>", &jty);        
-   
-   // fChain->Branch("jtjec", jtjec, "jtjec[nref]/F");
-   // fChain->Branch("jtarea", jtarea, "jtarea[nref]/F");
-   // fChain->Branch("jtchf", jtchf, "jtchf[nref]/F");
-   // fChain->Branch("jtnhf", jtnhf, "jtnhf[nref]/F");
-   // fChain->Branch("jtnef", jtnef, "jtnef[nref]/F");
-   // fChain->Branch("jtcef", jtcef, "jtcef[nref]/F");
-   // fChain->Branch("jtmuf", jtmuf, "jtmuf[nref]/F");
-   // fChain->Branch("jthfhf", jthfhf, "jthfhf[nref]/F");
-   // fChain->Branch("jthfef", jthfef, "jthfef[nref]/F");
+   fChain->Branch("jtjec", "vector<Float_t>", &jtjec);
+   fChain->Branch("jtarea", "vector<Float_t>", &jtarea);
+   fChain->Branch("jtchf", "vector<Float_t>", &jtchf);
+   fChain->Branch("jtnhf", "vector<Float_t>", &jtnhf);
+   fChain->Branch("jtnef", "vector<Float_t>", &jtnef);
+   fChain->Branch("jtcef", "vector<Float_t>", &jtcef);
+   fChain->Branch("jtmuf", "vector<Float_t>", &jtmuf);
+   fChain->Branch("jthfhf", "vector<Float_t>", &jthfhf);
+   fChain->Branch("jthfef", "vector<Float_t>", &jthfef);
+
    fChain->Branch("nmu", &nmu, "nmu/b");
    // fChain->Branch("mupt", mupt, "mupt[nmu]/F");
    // fChain->Branch("mueta", mueta, "mueta[nmu]/F");
@@ -276,6 +274,31 @@ void validatorNtuple::Init(TTree *tree)
    npus         = new vector<int>;
    tnpus        = new vector<float>;
    bxns         = new vector<int>;
+   refrank      = new vector<int>;
+   refpdgid     = new vector<int>;
+   refpdgid_algorithmicDef = new vector<int>;
+   refpdgid_physicsDef = new vector<int>;
+   refe         = new vector<float>;
+   refpt        = new vector<float>;
+   refeta       = new vector<float>;
+   refphi       = new vector<float>;
+   refy         = new vector<float>;
+   refdrjt      = new vector<float>;
+   refarea      = new vector<float>;
+   jte          = new vector<float>;
+   jtpt         = new vector<float>;
+   jteta        = new vector<float>;
+   jtphi        = new vector<float>;
+   jty          = new vector<float>;
+   jtjec        = new vector<float>;
+   jtarea       = new vector<float>;
+   jtchf        = new vector<float>;
+   jtnhf        = new vector<float>;
+   jtnef        = new vector<float>;
+   jtcef        = new vector<float>;
+   jtmuf        = new vector<float>;
+   jthfhf       = new vector<float>;
+   jthfef       = new vector<float>;
 
    // Set branch addresses and branch pointers
    if (!tree) return;
@@ -295,32 +318,31 @@ void validatorNtuple::Init(TTree *tree)
    fChain->SetBranchAddress("evt", &evt, &b_evt);
 
    fChain->SetBranchAddress("nref", &nref, &b_nref);
-   fChain->SetBranchAddress("refrank", refrank, &b_refrank);
-   fChain->SetBranchAddress("refpdgid", refpdgid, &b_refpdgid);
-   fChain->SetBranchAddress("refpdgid_algorithmicDef", refpdgid_algorithmicDef, &b_refpdgid_algorithmicDef);
-   fChain->SetBranchAddress("refpdgid_physicsDef", refpdgid_physicsDef, &b_refpdgid_physicsDef);
-   fChain->SetBranchAddress("refe", refe, &b_refe);
-   fChain->SetBranchAddress("refpt", refpt, &b_refpt);
-   fChain->SetBranchAddress("refeta", refeta, &b_refeta);
-   fChain->SetBranchAddress("refphi", refphi, &b_refphi);
-   fChain->SetBranchAddress("refy", refy, &b_refy);
-   fChain->SetBranchAddress("refdrjt", refdrjt, &b_refdrjt);
-   fChain->SetBranchAddress("refarea", refarea, &b_refarea);
-   fChain->SetBranchAddress("jte", jte, &b_jte);
-   fChain->SetBranchAddress("jtpt", jtpt, &b_jtpt);
-   fChain->SetBranchAddress("jteta", jteta, &b_jteta);
-   fChain->SetBranchAddress("jtphi", jtphi, &b_jtphi);
-   fChain->SetBranchAddress("jty", jty, &b_jty);
-
-   // fChain->SetBranchAddress("jtjec", jtjec, &b_jtjec);
-   // fChain->SetBranchAddress("jtarea", jtarea, &b_jtarea);
-   // fChain->SetBranchAddress("jtchf", jtchf, &b_jtchf);
-   // fChain->SetBranchAddress("jtnhf", jtnhf, &b_jtnhf);
-   // fChain->SetBranchAddress("jtnef", jtnef, &b_jtnef);
-   // fChain->SetBranchAddress("jtcef", jtcef, &b_jtcef);
-   // fChain->SetBranchAddress("jtmuf", jtmuf, &b_jtmuf);
-   // fChain->SetBranchAddress("jthfhf", jthfhf, &b_jthfhf);
-   // fChain->SetBranchAddress("jthfef", jthfef, &b_jthfef);
+   fChain->SetBranchAddress("refrank", &refrank, &b_refrank);
+   fChain->SetBranchAddress("refpdgid", &refpdgid, &b_refpdgid);
+   fChain->SetBranchAddress("refpdgid_algorithmicDef", &refpdgid_algorithmicDef, &b_refpdgid_algorithmicDef);
+   fChain->SetBranchAddress("refpdgid_physicsDef", &refpdgid_physicsDef, &b_refpdgid_physicsDef);
+   fChain->SetBranchAddress("refe", &refe, &b_refe);
+   fChain->SetBranchAddress("refpt", &refpt, &b_refpt);
+   fChain->SetBranchAddress("refeta", &refeta, &b_refeta);
+   fChain->SetBranchAddress("refphi", &refphi, &b_refphi);
+   fChain->SetBranchAddress("refy", &refy, &b_refy);
+   fChain->SetBranchAddress("refdrjt", &refdrjt, &b_refdrjt);
+   fChain->SetBranchAddress("refarea", &refarea, &b_refarea);
+   fChain->SetBranchAddress("jte", &jte, &b_jte);
+   fChain->SetBranchAddress("jtpt", &jtpt, &b_jtpt);
+   fChain->SetBranchAddress("jteta", &jteta, &b_jteta);
+   fChain->SetBranchAddress("jtphi", &jtphi, &b_jtphi);
+   fChain->SetBranchAddress("jty", &jty, &b_jty);
+   fChain->SetBranchAddress("jtjec", &jtjec, &b_jtjec);
+   fChain->SetBranchAddress("jtarea", &jtarea, &b_jtarea);
+   fChain->SetBranchAddress("jtchf", &jtchf, &b_jtchf);
+   fChain->SetBranchAddress("jtnhf", &jtnhf, &b_jtnhf);
+   fChain->SetBranchAddress("jtnef", &jtnef, &b_jtnef);
+   fChain->SetBranchAddress("jtcef", &jtcef, &b_jtcef);
+   fChain->SetBranchAddress("jtmuf", &jtmuf, &b_jtmuf);
+   fChain->SetBranchAddress("jthfhf", &jthfhf, &b_jthfhf);
+   fChain->SetBranchAddress("jthfef", &jthfef, &b_jthfef);
    fChain->SetBranchAddress("nmu", &nmu, &b_nmu);
    // fChain->SetBranchAddress("mupt", mupt, &b_mupt);
    // fChain->SetBranchAddress("mueta", mueta, &b_mueta);
