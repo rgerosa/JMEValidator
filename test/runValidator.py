@@ -66,7 +66,7 @@ process.source = cms.Source("PoolSource", fileNames = dyFiles )
 #! Run PUPPI, make some new jet collections
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-from RecoJets.JetProducers.jetToolbox_cff import *
+from JMEAnalysis.JetToolbox.jetToolbox_cff import *
 jetToolbox( process, 'ak4', 'ak4JetSubs', 'out', PUMethod='Puppi', JETCorrLevels = ['L1FastJet', 'L2Relative', 'L3Absolute'] ) 
 jetToolbox( process, 'ak4', 'ak4JetSubs', 'out', JETCorrLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']) # CHS jets?
 jetToolbox( process, 'ak8', 'ak8JetSubs', 'out', PUMethod='Puppi', JETCorrLevels = ['L1FastJet', 'L2Relative', 'L3Absolute'] ) 
