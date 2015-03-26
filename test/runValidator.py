@@ -38,21 +38,13 @@ process.GlobalTag.globaltag = "PHYS14_25_V2::All"
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #! Input
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
-                                    
-dyFiles = cms.untracked.vstring(
+
+infiles = cms.untracked.vstring(
 #######
 # QCD #
 #######
-	'root://cmsxrootd.fnal.gov//store/mc/Phys14DR/QCD_Pt-15to3000_Tune4C_Flat_13TeV_pythia8/MINIAODSIM/PU20bx25_trkalmb_PHYS14_25_V1-v1/00000/1020E374-B26B-E411-8F91-E0CB4E29C513.root',
-	'root://cmsxrootd.fnal.gov//store/mc/Phys14DR/QCD_Pt-15to3000_Tune4C_Flat_13TeV_pythia8/MINIAODSIM/PU20bx25_trkalmb_PHYS14_25_V1-v1/00000/1EF51024-986B-E411-A6F6-20CF300E9EAF.root',
-	'root://cmsxrootd.fnal.gov//store/mc/Phys14DR/QCD_Pt-15to3000_Tune4C_Flat_13TeV_pythia8/MINIAODSIM/PU20bx25_trkalmb_PHYS14_25_V1-v1/00000/5AE5B0FC-986B-E411-ACED-20CF3027A57B.root',	
-	'root://cmsxrootd.fnal.gov//store/mc/Phys14DR/QCD_Pt-15to3000_Tune4C_Flat_13TeV_pythia8/MINIAODSIM/PU20bx25_trkalmb_PHYS14_25_V1-v1/00000/7A60863A-9A6B-E411-A19D-002590D0AF6E.root',
-	'root://cmsxrootd.fnal.gov//store/mc/Phys14DR/QCD_Pt-15to3000_Tune4C_Flat_13TeV_pythia8/MINIAODSIM/PU20bx25_trkalmb_PHYS14_25_V1-v1/00000/7EADDD13-9B6B-E411-9AC4-E0CB4E29C4F7.root',
-	'root://cmsxrootd.fnal.gov//store/mc/Phys14DR/QCD_Pt-15to3000_Tune4C_Flat_13TeV_pythia8/MINIAODSIM/PU20bx25_trkalmb_PHYS14_25_V1-v1/00000/984A6622-9D6B-E411-849F-E0CB4E1A1149.root',
-	'root://cmsxrootd.fnal.gov//store/mc/Phys14DR/QCD_Pt-15to3000_Tune4C_Flat_13TeV_pythia8/MINIAODSIM/PU20bx25_trkalmb_PHYS14_25_V1-v1/00000/C0587C5C-996B-E411-8388-20CF305B04D2.root',
-	'root://cmsxrootd.fnal.gov//store/mc/Phys14DR/QCD_Pt-15to3000_Tune4C_Flat_13TeV_pythia8/MINIAODSIM/PU20bx25_trkalmb_PHYS14_25_V1-v1/00000/DA3D4205-9A6B-E411-AA7F-20CF3027A57B.root',
-	'root://cmsxrootd.fnal.gov//store/mc/Phys14DR/QCD_Pt-15to3000_Tune4C_Flat_13TeV_pythia8/MINIAODSIM/PU20bx25_trkalmb_PHYS14_25_V1-v1/00000/EE72ECF8-996B-E411-B541-20CF305B057C.root',
-	'root://cmsxrootd.fnal.gov//store/mc/Phys14DR/QCD_Pt-15to3000_Tune4C_Flat_13TeV_pythia8/MINIAODSIM/PU20bx25_trkalmb_PHYS14_25_V1-v1/10000/307D472E-9A6B-E411-BC68-20CF3027A629.root',
+'/store/relval/CMSSW_7_4_0_pre8/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/MCRUN2_74_V7-v1/00000/DE1D7650-53BD-E411-BDEB-0025905A608C.root',
+'/store/relval/CMSSW_7_4_0_pre8/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/MCRUN2_74_V7-v1/00000/ECF8FC53-53BD-E411-BFAE-0025905B85D8.root'
 ###########
 # DY Jets #
 ###########
@@ -60,7 +52,7 @@ dyFiles = cms.untracked.vstring(
 	# '/store/mc/Phys14DR/DYJetsToLL_M-50_13TeV-madgraph-pythia8/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/06C61714-7E6C-E411-9205-002590DB92A8.root',
     )
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
-process.source = cms.Source("PoolSource", fileNames = dyFiles )
+process.source = cms.Source("PoolSource", fileNames = infiles )
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #! Run PUPPI, make some new jet collections
