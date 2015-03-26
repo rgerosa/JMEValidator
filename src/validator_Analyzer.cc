@@ -269,14 +269,14 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
   Ntuple_->jtphi->clear();
   Ntuple_->jty->clear();
   Ntuple_->jtarea->clear();
-
+  Ntuple_->jtjec->clear();
 
   size_t nJet=(nJetMax_==0) ? jets->size() : std::min(nJetMax_,(unsigned int)jets->size());
   for (size_t iJet=0;iJet<nJet;iJet++) {
 
   // //    //cout << "Doing jet " << iJet << endl;
 
-     pat::Jet jet = jets->at(iJet);
+     pat::Jet const & jet = jets->at(iJet);
      if (jet.pt() < 5) continue;
      const reco::GenJet* ref = jet.genJet();
 
@@ -329,6 +329,7 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
      Ntuple_->jtphi->push_back( jet.phi() );
      Ntuple_->jty->push_back( jet.rapidity() );
      Ntuple_->jtarea->push_back( jet.jetArea() );
+     Ntuple_->jtjec->push_back( jet.jecFactor(0) );
 
      // if (nref_ <= 5){
      //    std::cout << "corrected pt = " << jet.pt() << ", raw pt = " << jet.correctedP4(0).pt() << std::endl;
