@@ -30,9 +30,9 @@ process = cms.Process("JRA")
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.EventContent.EventContent_cff")
-process.load('Configuration.StandardSequences.Geometry_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.GlobalTag.globaltag = "PHYS14_25_V2::All"
+process.GlobalTag.globaltag = "MCRUN2_74_V7::All"
 
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -43,8 +43,7 @@ infiles = cms.untracked.vstring(
 #######
 # QCD #
 #######
-'/store/relval/CMSSW_7_4_0_pre8/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/MCRUN2_74_V7-v1/00000/DE1D7650-53BD-E411-BDEB-0025905A608C.root',
-'/store/relval/CMSSW_7_4_0_pre8/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/MCRUN2_74_V7-v1/00000/ECF8FC53-53BD-E411-BFAE-0025905B85D8.root'
+    '/store/relval/CMSSW_7_4_0_pre9_ROOT6/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/MCRUN2_74_V7-v1/00000/5CCC0483-C9D1-E411-BD1E-0025905A60DE.root',
 ###########
 # DY Jets #
 ###########
