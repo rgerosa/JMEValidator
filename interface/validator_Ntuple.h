@@ -43,6 +43,7 @@ public :
    vector<float>*  refpt;   //[nref]
    vector<float>*  refeta;   //[nref]
    vector<float>*  refphi;   //[nref]
+   vector<float>*  refm;   //[nref]
    vector<float>*  refy;   //[nref]
    vector<float>*  refdrjt;   //[nref]
    vector<float>*  refarea;   //[nref]
@@ -50,6 +51,7 @@ public :
    vector<float>*  jtpt;   //[nref]
    vector<float>*  jteta;   //[nref]
    vector<float>*  jtphi;   //[nref]
+   vector<float>*  jtm;   //[nref]
    vector<float>*  jty;   //[nref]
    vector<float>*  jtjec;   //[nref]
    vector<float>*  jtarea;   //[nref]
@@ -90,6 +92,7 @@ public :
    TBranch        *b_refpt;   //!
    TBranch        *b_refeta;   //!
    TBranch        *b_refphi;   //!
+   TBranch        *b_refm;   //!
    TBranch        *b_refy;   //!
    TBranch        *b_refdrjt;   //!
    TBranch        *b_refarea;   //!
@@ -97,6 +100,7 @@ public :
    TBranch        *b_jtpt;   //!
    TBranch        *b_jteta;   //!
    TBranch        *b_jtphi;   //!
+   TBranch        *b_jtm;   //!
    TBranch        *b_jty;   //!
    TBranch        *b_jtjec;   //!
    TBranch        *b_jtarea;   //!
@@ -187,6 +191,7 @@ void validatorNtuple::MakeTree(TTree *tree)
    refpt        = new vector<float>;
    refeta       = new vector<float>;
    refphi       = new vector<float>;
+   refm         = new vector<float>;
    refy         = new vector<float>;
    refdrjt      = new vector<float>;
    refarea      = new vector<float>;
@@ -194,6 +199,7 @@ void validatorNtuple::MakeTree(TTree *tree)
    jtpt         = new vector<float>;
    jteta        = new vector<float>;
    jtphi        = new vector<float>;
+   jtm          = new vector<float>;
    jty          = new vector<float>;
    jtjec        = new vector<float>;
    jtarea       = new vector<float>;
@@ -230,6 +236,7 @@ void validatorNtuple::MakeTree(TTree *tree)
    fChain->Branch("refpt", "vector<Float_t>", &refpt);    
    fChain->Branch("refeta", "vector<Float_t>", &refeta);  
    fChain->Branch("refphi", "vector<Float_t>", &refphi);  
+   fChain->Branch("refm", "vector<Float_t>", &refm);  
    fChain->Branch("refy", "vector<Float_t>", &refy);      
    fChain->Branch("refdrjt", "vector<Float_t>", &refdrjt);
    fChain->Branch("refarea", "vector<Float_t>", &refarea);
@@ -237,6 +244,7 @@ void validatorNtuple::MakeTree(TTree *tree)
    fChain->Branch("jtpt", "vector<Float_t>", &jtpt);      
    fChain->Branch("jteta", "vector<Float_t>", &jteta);    
    fChain->Branch("jtphi", "vector<Float_t>", &jtphi);    
+   fChain->Branch("jtm", "vector<Float_t>", &jtm);    
    fChain->Branch("jty", "vector<Float_t>", &jty);        
    fChain->Branch("jtjec", "vector<Float_t>", &jtjec);
    fChain->Branch("jtarea", "vector<Float_t>", &jtarea);
@@ -282,6 +290,7 @@ void validatorNtuple::Init(TTree *tree)
    refpt        = new vector<float>;
    refeta       = new vector<float>;
    refphi       = new vector<float>;
+   refm         = new vector<float>;
    refy         = new vector<float>;
    refdrjt      = new vector<float>;
    refarea      = new vector<float>;
@@ -289,6 +298,7 @@ void validatorNtuple::Init(TTree *tree)
    jtpt         = new vector<float>;
    jteta        = new vector<float>;
    jtphi        = new vector<float>;
+   jtm          = new vector<float>;
    jty          = new vector<float>;
    jtjec        = new vector<float>;
    jtarea       = new vector<float>;
@@ -326,6 +336,7 @@ void validatorNtuple::Init(TTree *tree)
    fChain->SetBranchAddress("refpt", &refpt, &b_refpt);
    fChain->SetBranchAddress("refeta", &refeta, &b_refeta);
    fChain->SetBranchAddress("refphi", &refphi, &b_refphi);
+   fChain->SetBranchAddress("refm", &refm, &b_refm);
    fChain->SetBranchAddress("refy", &refy, &b_refy);
    fChain->SetBranchAddress("refdrjt", &refdrjt, &b_refdrjt);
    fChain->SetBranchAddress("refarea", &refarea, &b_refarea);
@@ -333,6 +344,7 @@ void validatorNtuple::Init(TTree *tree)
    fChain->SetBranchAddress("jtpt", &jtpt, &b_jtpt);
    fChain->SetBranchAddress("jteta", &jteta, &b_jteta);
    fChain->SetBranchAddress("jtphi", &jtphi, &b_jtphi);
+   fChain->SetBranchAddress("jtm", &jtm, &b_jtm);
    fChain->SetBranchAddress("jty", &jty, &b_jty);
    fChain->SetBranchAddress("jtjec", &jtjec, &b_jtjec);
    fChain->SetBranchAddress("jtarea", &jtarea, &b_jtarea);

@@ -261,12 +261,14 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
   Ntuple_->refpt->clear();
   Ntuple_->refeta->clear();
   Ntuple_->refphi->clear();
+  Ntuple_->refm->clear();
   Ntuple_->refy->clear();
   Ntuple_->refarea->clear();
   Ntuple_->jte->clear();
   Ntuple_->jtpt->clear();
   Ntuple_->jteta->clear();
   Ntuple_->jtphi->clear();
+  Ntuple_->jtm->clear();
   Ntuple_->jty->clear();
   Ntuple_->jtarea->clear();
   Ntuple_->jtjec->clear();
@@ -297,6 +299,7 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
         Ntuple_->refpt->push_back( ref->pt() );
         Ntuple_->refeta->push_back( ref->eta() );
         Ntuple_->refphi->push_back( ref->phi() );
+        Ntuple_->refm->push_back( ref->mass() );
         Ntuple_->refy->push_back( ref->rapidity() );
         Ntuple_->refarea->push_back( ref->jetArea() );
      }
@@ -306,6 +309,7 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
         Ntuple_->refpt->push_back( 0. );
         Ntuple_->refeta->push_back( 0. );
         Ntuple_->refphi->push_back( 0. );
+        Ntuple_->refm->push_back( 0. );
         Ntuple_->refy->push_back( 0. );
         Ntuple_->refarea->push_back( 0. );
      }
@@ -327,6 +331,7 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
      Ntuple_->jtpt->push_back( jet.pt() );
      Ntuple_->jteta->push_back( jet.eta() );
      Ntuple_->jtphi->push_back( jet.phi() );
+     Ntuple_->jtphi->push_back( jet.mass() );
      Ntuple_->jty->push_back( jet.rapidity() );
      Ntuple_->jtarea->push_back( jet.jetArea() );
      Ntuple_->jtjec->push_back( jet.jecFactor(0) );
