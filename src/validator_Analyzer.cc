@@ -331,7 +331,7 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
      Ntuple_->jtpt->push_back( jet.pt() );
      Ntuple_->jteta->push_back( jet.eta() );
      Ntuple_->jtphi->push_back( jet.phi() );
-     Ntuple_->jtm>push_back( jet.mass() );
+     Ntuple_->jtm->push_back( jet.mass() );
      Ntuple_->jty->push_back( jet.rapidity() );
      Ntuple_->jtarea->push_back( jet.jetArea() );
      Ntuple_->jtjec->push_back( jet.jecFactor(0) );
