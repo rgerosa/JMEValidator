@@ -34,6 +34,9 @@ public :
    vector<float>   *pz;
    vector<float>   *e;
    vector<float>   *alphas;
+   vector<float>   *thealphas;
+   vector<float>   *thealphasmed;
+   vector<float>   *thealphasrms;
    vector<float>   *id;
    vector<float>   *charge;
    vector<float>   *fromPV;
@@ -48,6 +51,9 @@ public :
    TBranch        *b_pz;   //!
    TBranch        *b_e;   //!
    TBranch        *b_alphas;   //!
+   TBranch        *b_thealphas;   //!
+   TBranch        *b_thealphasmed;   //!
+   TBranch        *b_thealphasrms;   //!
    TBranch        *b_id;   //!
    TBranch        *b_charge;   //!
    TBranch        *b_fromPV;   //!
@@ -112,6 +118,9 @@ void puppiNtuple::MakeTree(TTree *tree)
    pz     = new vector<float>;
    e      = new vector<float>;
    alphas = new vector<float>;
+   thealphas = new vector<float>;
+   thealphasmed = new vector<float>;
+   thealphasrms = new vector<float>;
    id     = new vector<float>;
    charge = new vector<float>;
    fromPV = new vector<float>;   
@@ -130,6 +139,9 @@ void puppiNtuple::MakeTree(TTree *tree)
    fChain->Branch("pz",     "vector<float>", &pz);
    fChain->Branch("e",      "vector<float>", &e);
    fChain->Branch("alphas", "vector<float>", &alphas);
+   fChain->Branch("thealphas", "vector<float>", &thealphas);
+   fChain->Branch("thealphasmed", "vector<float>", &thealphasmed);
+   fChain->Branch("thealphasrms", "vector<float>", &thealphasrms);
    fChain->Branch("id",     "vector<float>", &id);
    fChain->Branch("charge", "vector<float>", &charge);
    fChain->Branch("fromPV", "vector<float>", &fromPV);
@@ -170,6 +182,9 @@ void puppiNtuple::Init(TTree *tree)
    fChain->SetBranchAddress("pz", &pz, &b_pz);
    fChain->SetBranchAddress("e", &e, &b_e);
    fChain->SetBranchAddress("alphas", &alphas, &b_alphas);
+   fChain->SetBranchAddress("thealphas", &thealphas, &b_thealphas);
+   fChain->SetBranchAddress("thealphasmed", &thealphasmed, &b_thealphasmed);
+   fChain->SetBranchAddress("thealphasrms", &thealphasrms, &b_thealphasrms);
    fChain->SetBranchAddress("id", &id, &b_id);
    fChain->SetBranchAddress("charge", &charge, &b_charge);
    fChain->SetBranchAddress("fromPV", &fromPV, &b_fromPV);

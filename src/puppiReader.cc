@@ -89,6 +89,8 @@ private:
   std::string   moduleLabel_;
   std::string   JetCorLabel_;
   std::vector<std::string> JetCorLevels_;
+  int eventCounter_; 
+  int eventLimit_; 
   
   // tree
   TTree*        tree_;
@@ -103,7 +105,7 @@ private:
 //______________________________________________________________________________
 puppiReader::puppiReader(const edm::ParameterSet& iConfig)
 {
-
+    eventLimit_     = iConfig.getParameter<int>("maxEvents");
 }
 
 
@@ -127,6 +129,8 @@ void puppiReader::beginJob()
 
   tree_=fs->make<TTree>("puppiTree","puppiTree");
   Ntuple_ = new puppiNtuple(tree_,true);
+
+  eventCounter_ = 0;
 }
 
 
@@ -135,6 +139,8 @@ void puppiReader::analyze(const edm::Event& iEvent,
                                   const edm::EventSetup& iSetup)
 {
 
+  if (eventCounter_ > eventLimit_) return;
+
   edm::Handle<double> nalgos;
   edm::InputTag src_nalgos = edm::InputTag("puppi","PuppiNAlgos","JRA");
   iEvent.getByLabel(src_nalgos,nalgos);
@@ -142,6 +148,18 @@ void puppiReader::analyze(const edm::Event& iEvent,
   edm::Handle<std::vector<double>> alphas;
   edm::InputTag src_alphas = edm::InputTag("puppi","PuppiRawAlphas","JRA");
   iEvent.getByLabel(src_alphas,alphas);
+
+  edm::Handle<std::vector<double>> TheAlphas;
+  edm::InputTag src_thealphas = edm::InputTag("puppi","PuppiAlphas","JRA");
+  iEvent.getByLabel(src_thealphas,TheAlphas);
+
+  edm::Handle<std::vector<double>> TheAlphasMed;
+  edm::InputTag src_thealphasmed = edm::InputTag("puppi","PuppiAlphasMed","JRA");
+  iEvent.getByLabel(src_thealphasmed,TheAlphasMed);
+
+  edm::Handle<std::vector<double>> TheAlphasRms;
+  edm::InputTag src_thealphasrms = edm::InputTag("puppi","PuppiAlphasRms","JRA");
+  iEvent.getByLabel(src_thealphasrms,TheAlphasRms);
 
   // edm::Handle< std::vector< pat::PackedCandidate > > packedCands;
   edm::InputTag src_packedCands = edm::InputTag("packedPFCandidates","","PAT");
@@ -163,11 +181,15 @@ void puppiReader::analyze(const edm::Event& iEvent,
   Ntuple_->pz->clear();
   Ntuple_->e->clear();
   Ntuple_->alphas->clear();
+  Ntuple_->thealphas->clear();
+  Ntuple_->thealphasmed->clear();
+  Ntuple_->thealphasrms->clear();
   Ntuple_->id->clear();
   Ntuple_->charge->clear();
   Ntuple_->fromPV->clear();
 
   // std::cout << "reading candidates..." << std::endl;
+  int ctr = 0;
   for(reco::CandidateView::const_iterator itPF = pfCol->begin(); itPF!=pfCol->end(); itPF++) {
     //const reco::PFCandidate *pPF = dynamic_cast<const reco::PFCandidate*>(&(*itPF));
     Ntuple_->px->push_back( itPF->px() );
@@ -176,9 +198,14 @@ void puppiReader::analyze(const edm::Event& iEvent,
     Ntuple_->e->push_back( itPF->energy() );
     Ntuple_->id->push_back( float(itPF->pdgId()) );
     Ntuple_->charge->push_back( float(itPF->charge()) );
+
+    Ntuple_->thealphas->push_back( (*TheAlphas)[ctr] );
+    Ntuple_->thealphasmed->push_back( (*TheAlphasMed)[ctr] );
+    Ntuple_->thealphasrms->push_back( (*TheAlphasRms)[ctr] );
     
     const pat::PackedCandidate *lPack = dynamic_cast<const pat::PackedCandidate*>(&(*itPF));
     Ntuple_->fromPV->push_back( float(lPack->fromPV()) );
+    ctr++;
   }
 
 
@@ -189,6 +216,7 @@ void puppiReader::analyze(const edm::Event& iEvent,
 
   tree_->Fill();
   
+  eventCounter_++;
   return;
 }
 
