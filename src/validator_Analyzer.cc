@@ -273,24 +273,24 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
   Ntuple_->jtarea->clear();
   Ntuple_->jtjec->clear();
 
-  Ntuple_->mybeta->clear();
-  Ntuple_->mybetaStar->clear();
-  Ntuple_->mybetaClassic->clear();
-  Ntuple_->mybetaStarClassic->clear();
-  Ntuple_->mydZ->clear();
-  Ntuple_->myDRweighted->clear();
-  Ntuple_->myfRing0->clear();
-  Ntuple_->myfRing1->clear();
-  Ntuple_->myfRing2->clear();
-  Ntuple_->myfRing3->clear();
-  Ntuple_->myfRing4->clear();
-  Ntuple_->myfRing5->clear();
-  Ntuple_->myfRing6->clear();
-  Ntuple_->myfRing7->clear();
-  Ntuple_->myfRing8->clear();
-  Ntuple_->mynCh->clear();
-  Ntuple_->mynNeutrals->clear();
-  Ntuple_->myptD->clear();
+  Ntuple_->beta->clear();
+  Ntuple_->betaStar->clear();
+  Ntuple_->betaClassic->clear();
+  Ntuple_->betaStarClassic->clear();
+  Ntuple_->dZ->clear();
+  Ntuple_->DRweighted->clear();
+  Ntuple_->fRing0->clear();
+  Ntuple_->fRing1->clear();
+  Ntuple_->fRing2->clear();
+  Ntuple_->fRing3->clear();
+  Ntuple_->fRing4->clear();
+  Ntuple_->fRing5->clear();
+  Ntuple_->fRing6->clear();
+  Ntuple_->fRing7->clear();
+  Ntuple_->fRing8->clear();
+  Ntuple_->nCh->clear();
+  Ntuple_->nNeutrals->clear();
+  Ntuple_->ptD->clear();
   Ntuple_->isMatched->clear();
 
   size_t nJet=(nJetMax_==0) ? jets->size() : std::min(nJetMax_,(unsigned int)jets->size());
@@ -382,13 +382,13 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
 	 float etaJet = jet.eta();
 //	 cout<<"phi and eta of jet: "<<phiJet<<" "<<etaJet<<endl;
 
-	 int nCh(0), nNeutrals(0);
+	 int nCh_tmp(0), nNeutrals_tmp(0);
 	 float sumTkPt(0.0);
-	 float beta(0.0), betaStar(0.0), betaStarClassic(0.0), betaClassic(0.0);
+	 float beta_tmp(0.0), betaStar_tmp(0.0), betaStarClassic_tmp(0.0), betaClassic_tmp(0.0);
 	 float pTMax(0.0),dZ2(-999);
 	 float sumW(0.0),sumW2(0.0),sumWdR2(0.0);
 	 float sum_ring0(0.0),sum_ring1(0.0),sum_ring2(0.0),sum_ring3(0.0),sum_ring4(0.0),sum_ring5(0.0),sum_ring6(0.0),sum_ring7(0.0),sum_ring8(0.0);
-	 float ptD(-1.0),DR_weighted(0.0);
+	 float ptD_tmp(-1.0),DR_weighted_tmp(0.0);
 
 	 for(int j=0;j<n_pf;j++) {
 //		 cout<<"constituent: "<<j<<endl;
@@ -401,10 +401,10 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
 //       cout<<"charge: "<<part->charge()<<endl;
 
 		 if (fabs(part->charge()) > 0) {
-			 nCh++;
+			 nCh_tmp++;
 		 }
 		 else if(fabs(part->charge())==0){
-			 nNeutrals++;
+			 nNeutrals_tmp++;
 		 }
 
 		 float deta = part->eta() - etaJet;
@@ -468,28 +468,28 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
                  bool inVtx0 = (lPack->fromPV()==3);
                  bool inAnyOther = (lPack->fromPV()==0);
                  double dZ0 = lPack->dz();
-                 double dZ = dZ0;
+                 double dZ_tmp = dZ0;
 
                  for(reco::VertexCollection::const_iterator  vi=vtx->begin(); vi!=vtx->end(); ++vi ) {
                      const reco::Vertex & iv = *vi;
                      if( iv.isFake() ) { continue; }
-                     if(fabs(lPack->dz(iv.position()))<fabs(dZ)){dZ=lPack->dz(iv.position());}
+                     if(fabs(lPack->dz(iv.position()))<fabs(dZ_tmp)){dZ_tmp=lPack->dz(iv.position());}
                  }
 
                  if( inVtx0 && ! inAnyOther ) {
-                     betaClassic += tkpt;
+                     betaClassic_tmp += tkpt;
                      //std::cout<< " bc "<<std::endl;
                  }
                  else if( ! inVtx0 && inAnyOther ) {
-                     betaStarClassic += tkpt;
+                     betaStarClassic_tmp += tkpt;
                      //std::cout<< " bsc "<<std::endl;
                  }
                  if( fabs(dZ0) < 0.2 ) {
-                     beta += tkpt;
+                     beta_tmp += tkpt;
                      //std::cout<< " b "<<std::endl;
                  }
-                 else if( fabs(dZ) < 0.2 ) {
-                     betaStar += tkpt;
+                 else if( fabs(dZ_tmp) < 0.2 ) {
+                     betaStar_tmp += tkpt;
                      //std::cout<< " bs "<<std::endl;
                  }                                                                   
 			 }
@@ -497,8 +497,8 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
 	 }// loop over the constituents
 
      if (sumW > 0) {
-         DR_weighted = (sumWdR2)/sumW2;
-         ptD = sqrt(sumW2)/sumW;
+         DR_weighted_tmp = (sumWdR2)/sumW2;
+         ptD_tmp = sqrt(sumW2)/sumW;
 
 //         cout<<"DR_weighted="<<DR_weighted<<endl;
 //         cout<<"fring0="<<(sum_ring0/sumW)<<endl;
@@ -514,46 +514,46 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
 //         cout<<"nNeutrals="<<nNeutrals<<endl;
 //         cout<<"ptD="<<ptD<<endl;
 
-         Ntuple_->myDRweighted->push_back(DR_weighted);
-         Ntuple_->myfRing0->push_back(sum_ring0/sumW);
-         Ntuple_->myfRing1->push_back(sum_ring1/sumW);
-         Ntuple_->myfRing2->push_back(sum_ring2/sumW);
-         Ntuple_->myfRing3->push_back(sum_ring3/sumW);
-         Ntuple_->myfRing4->push_back(sum_ring4/sumW);
-         Ntuple_->myfRing5->push_back(sum_ring5/sumW);
-         Ntuple_->myfRing6->push_back(sum_ring6/sumW);
-         Ntuple_->myfRing7->push_back(sum_ring7/sumW);
-         Ntuple_->myfRing8->push_back(sum_ring8/sumW);
-         Ntuple_->myptD->push_back(ptD);
+         Ntuple_->DRweighted->push_back(DR_weighted_tmp);
+         Ntuple_->fRing0->push_back(sum_ring0/sumW);
+         Ntuple_->fRing1->push_back(sum_ring1/sumW);
+         Ntuple_->fRing2->push_back(sum_ring2/sumW);
+         Ntuple_->fRing3->push_back(sum_ring3/sumW);
+         Ntuple_->fRing4->push_back(sum_ring4/sumW);
+         Ntuple_->fRing5->push_back(sum_ring5/sumW);
+         Ntuple_->fRing6->push_back(sum_ring6/sumW);
+         Ntuple_->fRing7->push_back(sum_ring7/sumW);
+         Ntuple_->fRing8->push_back(sum_ring8/sumW);
+         Ntuple_->ptD->push_back(ptD_tmp);
      }
      else{
-         Ntuple_->myDRweighted->push_back(-999);
-         Ntuple_->myfRing0->push_back(-999);
-         Ntuple_->myfRing1->push_back(-999);
-         Ntuple_->myfRing2->push_back(-999);
-         Ntuple_->myfRing3->push_back(-999);
-         Ntuple_->myfRing4->push_back(-999);
-         Ntuple_->myfRing5->push_back(-999);
-         Ntuple_->myfRing6->push_back(-999);
-         Ntuple_->myfRing7->push_back(-999);
-         Ntuple_->myfRing8->push_back(-999);
-         Ntuple_->myptD->push_back(-999);
+         Ntuple_->DRweighted->push_back(-999);
+         Ntuple_->fRing0->push_back(-999);
+         Ntuple_->fRing1->push_back(-999);
+         Ntuple_->fRing2->push_back(-999);
+         Ntuple_->fRing3->push_back(-999);
+         Ntuple_->fRing4->push_back(-999);
+         Ntuple_->fRing5->push_back(-999);
+         Ntuple_->fRing6->push_back(-999);
+         Ntuple_->fRing7->push_back(-999);
+         Ntuple_->fRing8->push_back(-999);
+         Ntuple_->ptD->push_back(-999);
      }
      if(sumTkPt>0){
-         Ntuple_->mybeta->push_back(beta/sumTkPt);
-         Ntuple_->mybetaStar->push_back(betaStar/sumTkPt);
-         Ntuple_->mybetaClassic->push_back(betaClassic/sumTkPt);
-         Ntuple_->mybetaStarClassic->push_back(betaStarClassic/sumTkPt);
+         Ntuple_->beta->push_back(beta_tmp/sumTkPt);
+         Ntuple_->betaStar->push_back(betaStar_tmp/sumTkPt);
+         Ntuple_->betaClassic->push_back(betaClassic_tmp/sumTkPt);
+         Ntuple_->betaStarClassic->push_back(betaStarClassic_tmp/sumTkPt);
      }
      else{
-         Ntuple_->mybeta->push_back(-999);
-         Ntuple_->mybetaStar->push_back(-999);
-         Ntuple_->mybetaClassic->push_back(-999);
-         Ntuple_->mybetaStarClassic->push_back(-999);
+         Ntuple_->beta->push_back(-999);
+         Ntuple_->betaStar->push_back(-999);
+         Ntuple_->betaClassic->push_back(-999);
+         Ntuple_->betaStarClassic->push_back(-999);
      }
-     Ntuple_->mydZ->push_back(dZ2);
-     Ntuple_->mynCh->push_back(nCh);
-     Ntuple_->mynNeutrals->push_back(nNeutrals);
+     Ntuple_->dZ->push_back(dZ2);
+     Ntuple_->nCh->push_back(nCh_tmp);
+     Ntuple_->nNeutrals->push_back(nNeutrals_tmp);
 
      nref_++;
   }
