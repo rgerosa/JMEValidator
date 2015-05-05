@@ -273,6 +273,26 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
   Ntuple_->jtarea->clear();
   Ntuple_->jtjec->clear();
 
+  Ntuple_->beta->clear();
+  Ntuple_->betaStar->clear();
+  Ntuple_->betaClassic->clear();
+  Ntuple_->betaStarClassic->clear();
+  Ntuple_->dZ->clear();
+  Ntuple_->DRweighted->clear();
+  Ntuple_->fRing0->clear();
+  Ntuple_->fRing1->clear();
+  Ntuple_->fRing2->clear();
+  Ntuple_->fRing3->clear();
+  Ntuple_->fRing4->clear();
+  Ntuple_->fRing5->clear();
+  Ntuple_->fRing6->clear();
+  Ntuple_->fRing7->clear();
+  Ntuple_->fRing8->clear();
+  Ntuple_->nCh->clear();
+  Ntuple_->nNeutrals->clear();
+  Ntuple_->ptD->clear();
+  Ntuple_->isMatched->clear();
+
   size_t nJet=(nJetMax_==0) ? jets->size() : std::min(nJetMax_,(unsigned int)jets->size());
   for (size_t iJet=0;iJet<nJet;iJet++) {
 
@@ -285,9 +305,11 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
      if(ref) {
        Ntuple_->refdrjt->push_back( reco::deltaR(jet.eta(),jet.phi(),ref->eta(),ref->phi()) );
        //if (Ntuple_->refdrjt[nref_] > deltaRMax_) continue;
+	   Ntuple_->isMatched->push_back(1);
      }
      else {
        Ntuple_->refdrjt->push_back( 0 );
+	   Ntuple_->isMatched->push_back(0);
      }
 
      Ntuple_->refrank->push_back( nref_ );
@@ -349,6 +371,189 @@ void validatorTreeMaker::analyze(const edm::Event& iEvent,
   //       Ntuple_->jthfhf[nref_]=jet.HFHadronEnergyFraction()*Ntuple_->jtjec[nref_];
   //       Ntuple_->jthfef[nref_]=jet.HFEMEnergyFraction()*Ntuple_->jtjec[nref_];
   //   }
+
+	 cout<<"---- loop over the constituents ---------------"<<endl;
+	 cout<<"jet:"<<nref_<<endl;
+	 cout<<"JetCorLabel_ = "<<JetCorLabel_<<endl;
+
+	 int n_pf = jet.numberOfDaughters();
+//	 cout<<"numberOfDaughters: "<<n_pf<<endl;
+	 float phiJet = jet.phi();
+	 float etaJet = jet.eta();
+//	 cout<<"phi and eta of jet: "<<phiJet<<" "<<etaJet<<endl;
+
+	 int nCh_tmp(0), nNeutrals_tmp(0);
+	 float sumTkPt(0.0);
+	 float beta_tmp(0.0), betaStar_tmp(0.0), betaStarClassic_tmp(0.0), betaClassic_tmp(0.0);
+	 float pTMax(0.0),dZ2(-999);
+	 float sumW(0.0),sumW2(0.0),sumWdR2(0.0);
+	 float sum_ring0(0.0),sum_ring1(0.0),sum_ring2(0.0),sum_ring3(0.0),sum_ring4(0.0),sum_ring5(0.0),sum_ring6(0.0),sum_ring7(0.0),sum_ring8(0.0);
+	 float ptD_tmp(-1.0),DR_weighted_tmp(0.0);
+
+	 for(int j=0;j<n_pf;j++) {
+//		 cout<<"constituent: "<<j<<endl;
+		 auto part = jet.daughterPtr(j);
+		 if (!( part.isAvailable() && part.isNonnull()) ){
+			 continue;	
+		 }
+//       cout<<part.key()<<endl;
+//       cout<<part->pt()<<endl;
+//       cout<<"charge: "<<part->charge()<<endl;
+
+		 if (fabs(part->charge()) > 0) {
+			 nCh_tmp++;
+		 }
+		 else if(fabs(part->charge())==0){
+			 nNeutrals_tmp++;
+		 }
+
+		 float deta = part->eta() - etaJet;
+		 float dphi = 2*atan(tan((part->phi()-phiJet)/2));
+		 float dR = sqrt(deta*deta + dphi*dphi);
+		 float weight = part->pt();
+		 float weight2 = weight * weight;
+		 sumWdR2      +=weight2*dR*dR;
+		 sumW         += weight;
+		 sumW2        += weight2;
+
+         if (dR < 0.1) {
+             sum_ring0 += weight;
+         }
+         else if (dR >= 0.1 && dR < 0.2) {
+             sum_ring1 += weight;
+         }
+         else if (dR >= 0.2 && dR < 0.3) {
+             sum_ring2 += weight;
+         }
+         else if (dR >= 0.3 && dR < 0.4){
+             sum_ring3 += weight;
+         }
+         else if (dR >= 0.4 && dR < 0.5){
+             sum_ring4 += weight;
+         }
+         else if (dR >= 0.5 && dR < 0.6){
+             sum_ring5 += weight;
+         }
+         else if (dR >= 0.6 && dR < 0.7){
+             sum_ring6 += weight;
+         }
+         else if (dR >= 0.7 && dR < 0.8){
+             sum_ring7 += weight;
+         }
+         else{
+             sum_ring8 += weight;
+         }
+
+		 reco::CandidatePtr pfJetConstituent = jet.sourceCandidatePtr(j);
+		 const reco::Candidate* icand = pfJetConstituent.get();
+		 //cout<<icand->charge()<<endl;
+		 const pat::PackedCandidate* lPack = dynamic_cast<const pat::PackedCandidate *>( icand );
+		 if(lPack == nullptr){
+			 cout<<j<<" init failed!! "<<endl;
+		 }
+		 else{
+			 //cout<<j<<endl;
+			 //cout<<" fromPV() = "<<lPack->fromPV()<<endl;
+			 //cout<<" dz() = "<<lPack->dz()<<endl;
+
+			 if(fabs(lPack->charge()) > 0){
+			 
+				 if(lPack->pt() > pTMax){
+					 pTMax = lPack->pt();
+					 dZ2 = lPack->dz();
+				 }
+
+                 float tkpt = lPack->pt();
+                 sumTkPt += tkpt;
+                 bool inVtx0 = (lPack->fromPV()==3);
+                 bool inAnyOther = (lPack->fromPV()==0);
+                 double dZ0 = lPack->dz();
+                 double dZ_tmp = dZ0;
+
+                 for(reco::VertexCollection::const_iterator  vi=vtx->begin(); vi!=vtx->end(); ++vi ) {
+                     const reco::Vertex & iv = *vi;
+                     if( iv.isFake() ) { continue; }
+                     if(fabs(lPack->dz(iv.position()))<fabs(dZ_tmp)){dZ_tmp=lPack->dz(iv.position());}
+                 }
+
+                 if( inVtx0 && ! inAnyOther ) {
+                     betaClassic_tmp += tkpt;
+                     //std::cout<< " bc "<<std::endl;
+                 }
+                 else if( ! inVtx0 && inAnyOther ) {
+                     betaStarClassic_tmp += tkpt;
+                     //std::cout<< " bsc "<<std::endl;
+                 }
+                 if( fabs(dZ0) < 0.2 ) {
+                     beta_tmp += tkpt;
+                     //std::cout<< " b "<<std::endl;
+                 }
+                 else if( fabs(dZ_tmp) < 0.2 ) {
+                     betaStar_tmp += tkpt;
+                     //std::cout<< " bs "<<std::endl;
+                 }                                                                   
+			 }
+		 }
+	 }// loop over the constituents
+
+     if (sumW > 0) {
+         DR_weighted_tmp = (sumWdR2)/sumW2;
+         ptD_tmp = sqrt(sumW2)/sumW;
+
+//         cout<<"DR_weighted="<<DR_weighted<<endl;
+//         cout<<"fring0="<<(sum_ring0/sumW)<<endl;
+//         cout<<"fring1="<<(sum_ring1/sumW)<<endl;
+//         cout<<"fring2="<<(sum_ring2/sumW)<<endl;
+//         cout<<"fring3="<<(sum_ring3/sumW)<<endl;
+//         cout<<"fring4="<<(sum_ring4/sumW)<<endl;
+//         cout<<"fring5="<<(sum_ring5/sumW)<<endl;
+//         cout<<"fring6="<<(sum_ring6/sumW)<<endl;
+//         cout<<"fring7="<<(sum_ring7/sumW)<<endl;
+//         cout<<"fring8="<<(sum_ring8/sumW)<<endl;
+//         cout<<"nCh="<<nCh<<endl;
+//         cout<<"nNeutrals="<<nNeutrals<<endl;
+//         cout<<"ptD="<<ptD<<endl;
+
+         Ntuple_->DRweighted->push_back(DR_weighted_tmp);
+         Ntuple_->fRing0->push_back(sum_ring0/sumW);
+         Ntuple_->fRing1->push_back(sum_ring1/sumW);
+         Ntuple_->fRing2->push_back(sum_ring2/sumW);
+         Ntuple_->fRing3->push_back(sum_ring3/sumW);
+         Ntuple_->fRing4->push_back(sum_ring4/sumW);
+         Ntuple_->fRing5->push_back(sum_ring5/sumW);
+         Ntuple_->fRing6->push_back(sum_ring6/sumW);
+         Ntuple_->fRing7->push_back(sum_ring7/sumW);
+         Ntuple_->fRing8->push_back(sum_ring8/sumW);
+         Ntuple_->ptD->push_back(ptD_tmp);
+     }
+     else{
+         Ntuple_->DRweighted->push_back(-999);
+         Ntuple_->fRing0->push_back(-999);
+         Ntuple_->fRing1->push_back(-999);
+         Ntuple_->fRing2->push_back(-999);
+         Ntuple_->fRing3->push_back(-999);
+         Ntuple_->fRing4->push_back(-999);
+         Ntuple_->fRing5->push_back(-999);
+         Ntuple_->fRing6->push_back(-999);
+         Ntuple_->fRing7->push_back(-999);
+         Ntuple_->fRing8->push_back(-999);
+         Ntuple_->ptD->push_back(-999);
+     }
+     if(sumTkPt>0){
+         Ntuple_->beta->push_back(beta_tmp/sumTkPt);
+         Ntuple_->betaStar->push_back(betaStar_tmp/sumTkPt);
+         Ntuple_->betaClassic->push_back(betaClassic_tmp/sumTkPt);
+         Ntuple_->betaStarClassic->push_back(betaStarClassic_tmp/sumTkPt);
+     }
+     else{
+         Ntuple_->beta->push_back(-999);
+         Ntuple_->betaStar->push_back(-999);
+         Ntuple_->betaClassic->push_back(-999);
+         Ntuple_->betaStarClassic->push_back(-999);
+     }
+     Ntuple_->dZ->push_back(dZ2);
+     Ntuple_->nCh->push_back(nCh_tmp);
+     Ntuple_->nNeutrals->push_back(nNeutrals_tmp);
 
      nref_++;
   }

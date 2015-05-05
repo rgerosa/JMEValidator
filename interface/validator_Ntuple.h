@@ -28,8 +28,8 @@ public :
    vector<float>*  tnpus;
    vector<int>*    bxns;
    Float_t         rho;
-   Float_t         beta;
-   Float_t         betaStar;
+//   Float_t         beta;
+//   Float_t         betaStar;
    Long64_t        npv;
    Long64_t        run;
    Long64_t        lumi;
@@ -71,14 +71,33 @@ public :
    Float_t         muIsoSTAND[92];   //[nmu]
    Float_t         muIsoPFWGT[92];   //[nmu]
    Float_t         muIsoPUPPI[92];   //[nmu]
+   vector<float>* beta;
+   vector<float>* betaStar;
+   vector<float>* betaClassic;
+   vector<float>* betaStarClassic;
+   vector<float>* dZ;
+   vector<float>* DRweighted;
+   vector<float>* fRing0;
+   vector<float>* fRing1;
+   vector<float>* fRing2;
+   vector<float>* fRing3;
+   vector<float>* fRing4;
+   vector<float>* fRing5;
+   vector<float>* fRing6;
+   vector<float>* fRing7;
+   vector<float>* fRing8;
+   vector<float>* nCh;
+   vector<float>* nNeutrals;
+   vector<float>* ptD;
+   vector<bool>* isMatched;
 
    // List of branches
    TBranch        *b_npus;   //!
    TBranch        *b_tnpus;   //!
    TBranch        *b_bxns;   //!
    TBranch        *b_rho;   //!
-   TBranch        *b_beta;   //!
-   TBranch        *b_betaStar;   //!
+//   TBranch        *b_beta;   //!
+//   TBranch        *b_betaStar;   //!
    TBranch        *b_npv;   //!
    TBranch        *b_run;   //!
    TBranch        *b_lumi;   //!
@@ -120,6 +139,25 @@ public :
    TBranch        *b_muIsoSTAND;   //!
    TBranch        *b_muIsoPFWGT;   //!
    TBranch        *b_muIsoPUPPI;   //!
+   TBranch        *b_beta;
+   TBranch        *b_betaStar;
+   TBranch        *b_betaClassic;
+   TBranch        *b_betaStarClassic;
+   TBranch        *b_dZ;
+   TBranch        *b_DRweighted;
+   TBranch        *b_fRing0;
+   TBranch        *b_fRing1;
+   TBranch        *b_fRing2;
+   TBranch        *b_fRing3;
+   TBranch        *b_fRing4;
+   TBranch        *b_fRing5;
+   TBranch        *b_fRing6;
+   TBranch        *b_fRing7;
+   TBranch        *b_fRing8;
+   TBranch        *b_nCh;
+   TBranch        *b_nNeutrals;
+   TBranch        *b_ptD;
+   TBranch        *b_isMatched;
 
    validatorNtuple(TTree *tree=0, bool newTree = false);
    virtual ~validatorNtuple();
@@ -210,6 +248,26 @@ void validatorNtuple::MakeTree(TTree *tree)
    jtmuf        = new vector<float>;
    jthfhf       = new vector<float>;
    jthfef       = new vector<float>;
+   beta       = new vector<float>;
+   betaStar   = new vector<float>;
+   betaClassic= new vector<float>;
+   betaStarClassic = new vector<float>;
+   dZ         = new vector<float>;
+   DRweighted = new vector<float>;
+   fRing0     = new vector<float>;
+   fRing1     = new vector<float>;
+   fRing2     = new vector<float>;
+   fRing3     = new vector<float>;
+   fRing4     = new vector<float>;
+   fRing5     = new vector<float>;
+   fRing6     = new vector<float>;
+   fRing7     = new vector<float>;
+   fRing8     = new vector<float>;
+   nCh        = new vector<float>;
+   nNeutrals  = new vector<float>;
+   ptD        = new vector<float>;
+   isMatched    = new vector<bool>;
+
    // Set branch addresses and branch pointers
    if (!tree) return;
    fChain = tree;
@@ -220,8 +278,8 @@ void validatorNtuple::MakeTree(TTree *tree)
    fChain->Branch("tnpus", "vector<Float_t>", &tnpus);
    fChain->Branch("bxns", "vector<Int_t>", &bxns);
    fChain->Branch("rho", &rho, "rho/F");
-   fChain->Branch("beta", &beta, "beta/F");
-   fChain->Branch("betaStar", &betaStar, "betaStar/F");
+//   fChain->Branch("beta", &beta, "beta/F");
+//   fChain->Branch("betaStar", &betaStar, "betaStar/F");
    fChain->Branch("npv", &npv, "npv/L");
    fChain->Branch("run", &run, "run/L");
    fChain->Branch("lumi", &lumi, "lumi/L");
@@ -265,6 +323,26 @@ void validatorNtuple::MakeTree(TTree *tree)
    // fChain->Branch("muIsoSTAND", muIsoSTAND, "muIsoSTAND[nmu]/F");
    // fChain->Branch("muIsoPFWGT", muIsoPFWGT, "muIsoPFWGT[nmu]/F");
    // fChain->Branch("muIsoPUPPI", muIsoPUPPI, "muIsoPUPPI[nmu]/F");
+   
+   fChain->Branch("beta"      , "vector<Float_t>" , &beta       );
+   fChain->Branch("betaStar"  , "vector<Float_t>" , &betaStar   );
+   fChain->Branch("betaClassic", "vector<Float_t>" , &betaClassic);
+   fChain->Branch("betaStarClassic", "vector<Float_t>" , &betaStarClassic);
+   fChain->Branch("dZ"        , "vector<Float_t>" , &dZ         );
+   fChain->Branch("DRweighted", "vector<Float_t>" , &DRweighted );
+   fChain->Branch("fRing0"    , "vector<Float_t>" , &fRing0     );
+   fChain->Branch("fRing1"    , "vector<Float_t>" , &fRing1     );
+   fChain->Branch("fRing2"    , "vector<Float_t>" , &fRing2     );
+   fChain->Branch("fRing3"    , "vector<Float_t>" , &fRing3     );
+   fChain->Branch("fRing4"    , "vector<Float_t>" , &fRing4     );
+   fChain->Branch("fRing5"    , "vector<Float_t>" , &fRing5     );
+   fChain->Branch("fRing6"    , "vector<Float_t>" , &fRing6     );
+   fChain->Branch("fRing7"    , "vector<Float_t>" , &fRing7     );
+   fChain->Branch("fRing8"    , "vector<Float_t>" , &fRing8     );
+   fChain->Branch("nCh"       , "vector<Float_t>" , &nCh        );
+   fChain->Branch("nNeutrals" , "vector<Float_t>" , &nNeutrals  );
+   fChain->Branch("ptD"       , "vector<Float_t>" , &ptD        );
+   fChain->Branch("isMatched"       , "vector<Bool_t>" , &isMatched        ); 
    Notify();
 }
 
@@ -309,6 +387,25 @@ void validatorNtuple::Init(TTree *tree)
    jtmuf        = new vector<float>;
    jthfhf       = new vector<float>;
    jthfef       = new vector<float>;
+   beta       = new vector<float>;
+   betaStar   = new vector<float>;
+   betaClassic= new vector<float>;
+   betaStarClassic = new vector<float>;
+   dZ         = new vector<float>;
+   DRweighted = new vector<float>;
+   fRing0     = new vector<float>;
+   fRing1     = new vector<float>;
+   fRing2     = new vector<float>;
+   fRing3     = new vector<float>;
+   fRing4     = new vector<float>;
+   fRing5     = new vector<float>;
+   fRing6     = new vector<float>;
+   fRing7     = new vector<float>;
+   fRing8     = new vector<float>;
+   nCh        = new vector<float>;
+   nNeutrals  = new vector<float>;
+   ptD        = new vector<float>;
+   isMatched    = new vector<bool>;
 
    // Set branch addresses and branch pointers
    if (!tree) return;
@@ -320,8 +417,8 @@ void validatorNtuple::Init(TTree *tree)
    fChain->SetBranchAddress("tnpus", &tnpus, &b_tnpus);
    fChain->SetBranchAddress("bxns", &bxns, &b_bxns);
    fChain->SetBranchAddress("rho", &rho, &b_rho);
-   fChain->SetBranchAddress("beta", &beta, &b_beta);
-   fChain->SetBranchAddress("betaStar", &betaStar, &b_betaStar);
+ //  fChain->SetBranchAddress("beta", &beta, &b_beta);
+ //  fChain->SetBranchAddress("betaStar", &betaStar, &b_betaStar);
    fChain->SetBranchAddress("npv", &npv, &b_npv);
    fChain->SetBranchAddress("run", &run, &b_run);
    fChain->SetBranchAddress("lumi", &lumi, &b_lumi);
@@ -364,6 +461,27 @@ void validatorNtuple::Init(TTree *tree)
    // fChain->SetBranchAddress("muIsoSTAND", muIsoSTAND, &b_muIsoSTAND);
    // fChain->SetBranchAddress("muIsoPFWGT", muIsoPFWGT, &b_muIsoPFWGT);
    // fChain->SetBranchAddress("muIsoPUPPI", muIsoPUPPI, &b_muIsoPUPPI);
+
+   fChain->SetBranchAddress("beta"      , &beta      , &b_beta      );
+   fChain->SetBranchAddress("betaStar"  , &betaStar  , &b_betaStar  );
+   fChain->SetBranchAddress("betaClassic"      , &betaClassic      , &b_betaClassic      );
+   fChain->SetBranchAddress("betaStarClassic"  , &betaStarClassic  , &b_betaStarClassic  );
+   fChain->SetBranchAddress("dZ"        , &dZ        , &b_dZ        );
+   fChain->SetBranchAddress("DRweighted", &DRweighted, &b_DRweighted);
+   fChain->SetBranchAddress("fRing0"    , &fRing0    , &b_fRing0    );
+   fChain->SetBranchAddress("fRing1"    , &fRing1    , &b_fRing1    );
+   fChain->SetBranchAddress("fRing2"    , &fRing2    , &b_fRing2    );
+   fChain->SetBranchAddress("fRing3"    , &fRing3    , &b_fRing3    );
+   fChain->SetBranchAddress("fRing4"    , &fRing4    , &b_fRing4    );
+   fChain->SetBranchAddress("fRing5"    , &fRing5    , &b_fRing5    );
+   fChain->SetBranchAddress("fRing6"    , &fRing6    , &b_fRing6    );
+   fChain->SetBranchAddress("fRing7"    , &fRing7    , &b_fRing7    );
+   fChain->SetBranchAddress("fRing8"    , &fRing8    , &b_fRing8    );
+   fChain->SetBranchAddress("nCh"       , &nCh       , &b_nCh       );
+   fChain->SetBranchAddress("nNeutrals" , &nNeutrals , &b_nNeutrals );
+   fChain->SetBranchAddress("ptD"       , &ptD       , &b_ptD       );
+   fChain->SetBranchAddress("isMatched"       , &isMatched       , &b_isMatched       );
+
    Notify();
 }
 
