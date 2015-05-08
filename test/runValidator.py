@@ -43,7 +43,7 @@ infiles = cms.untracked.vstring(
 #######
 # QCD #
 #######
-    '/store/relval/CMSSW_7_4_0_pre9_ROOT6/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/MCRUN2_74_V7-v1/00000/5CCC0483-C9D1-E411-BD1E-0025905A60DE.root',
+    '/store/relval/CMSSW_7_4_1/RelValFS_TTbar_13_PUAVE35/MINIAODSIM/PU25ns_MCRUN2_74_V9_FastSim-v1/00000/1868AA47-19ED-E411-9D57-0025905A6080.root'
 ###########
 # DY Jets #
 ###########
@@ -147,13 +147,13 @@ process.p = cms.Path( process.puppiReader + validator_sequence )
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.options.allowUnscheduled = cms.untracked.bool(True)
 
-process.output = cms.OutputModule("PoolOutputModule",                                                                                                                                                     
-                                  #outputCommands = cms.untracked.vstring('drop *','keep *_puppi_*_*'),
-                                  outputCommands = cms.untracked.vstring('keep *'),
-                                  fileName       = cms.untracked.string ("Output.root")                                                                                                                   
-)
+#process.output = cms.OutputModule("PoolOutputModule",                                                                                                                                                     
+#                                  #outputCommands = cms.untracked.vstring('drop *','keep *_puppi_*_*'),
+#                                  outputCommands = cms.untracked.vstring('keep *'),
+#                                  fileName       = cms.untracked.string ("Output.root")                                                                                                                   
+#)
 # schedule definition                                                                                                       
-process.outpath  = cms.EndPath(process.out) 
+#process.outpath  = cms.EndPath(process.out) 
 
 #!
 #! THAT'S ALL! CAN YOU BELIEVE IT? :-D
