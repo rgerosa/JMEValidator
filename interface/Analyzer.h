@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "JMEAnalysis/TreeWrapper/interface/TreeWrapper.h"
 
-
 namespace JME {
     class Analyzer : public edm::EDAnalyzer {
         public:

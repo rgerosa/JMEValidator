@@ -58,7 +58,7 @@
 
 //______________________________________________________________________________
 JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& iConfig)
-  : JME::Analyzer(iConfig)
+  : JME::PhysicsObjectAnalyzer(iConfig)
   , JetCorLabel_   (iConfig.getParameter<std::string>("JetCorLabel"))
   , JetCorLevels_  (iConfig.getParameter<std::vector<std::string>>("JetCorLevels"))
   , srcJet_        (consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("srcJet")))
@@ -209,12 +209,8 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent,
         refarea.push_back( 0. );
      }
 
-     jte.push_back( jet.energy() );
-     jtpt.push_back( jet.pt() );
-     jteta.push_back( jet.eta() );
-     jtphi.push_back( jet.phi() );
-     jtm.push_back( jet.mass() );
-     jty.push_back( jet.rapidity() );
+     extractBasicProperties(jet);
+
      jtarea.push_back( jet.jetArea() );
      jtjec.push_back( jet.jecFactor(0) );
 
