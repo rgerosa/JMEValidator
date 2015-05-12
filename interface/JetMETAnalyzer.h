@@ -23,11 +23,8 @@ class JetMETAnalyzer : public JME::PhysicsObjectAnalyzer
         std::vector<std::string> JetCorLevels_;
 
         edm::EDGetTokenT<std::vector<pat::Jet>> srcJet_;
-        edm::EDGetTokenT<double> srcRho_;
         edm::EDGetTokenT<std::vector<reco::Vertex>> srcVtx_;
         edm::EDGetTokenT<std::vector<pat::Muon>> srcMuons_;
-
-        edm::EDGetTokenT<std::vector<PileupSummaryInfo>> m_puInfoToken;
 
         bool          doComposition_;
         bool          doFlavor_;
@@ -38,14 +35,6 @@ class JetMETAnalyzer : public JME::PhysicsObjectAnalyzer
         FactorizedJetCorrector* jetCorrector_;
 
         // Tree branches
-        float& rho_ = tree["rho"].write<float>();
-        ULong64_t& npv = tree["npv"].write<ULong64_t>();
-        ULong64_t& run = tree["run"].write<ULong64_t>();
-        ULong64_t& lumiBlock = tree["lumi"].write<ULong64_t>();
-        ULong64_t& event = tree["evt"].write<ULong64_t>();
-        std::vector<int>& npus = tree["npus"].write<std::vector<int>>();
-        std::vector<float>& tnpus = tree["tnpus"].write<std::vector<float>>();
-        std::vector<int>& bxns = tree["bxns"].write<std::vector<int>>();
         int& nref = tree["nref"].write<int>();
         std::vector<int>& refrank = tree["refrank"].write<std::vector<int>>();
         std::vector<int>& refpdgid_algorithmicDef = tree["refpdgid_algorithmicDef"].write<std::vector<int>>();

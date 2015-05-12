@@ -43,8 +43,6 @@
 #include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
 
 #include "SimDataFormats/JetMatching/interface/JetMatchedPartons.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 #include "JMEAnalysis/JMEValidator/interface/JetMETAnalyzer.h"
 
@@ -62,7 +60,6 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& iConfig)
   , JetCorLabel_   (iConfig.getParameter<std::string>("JetCorLabel"))
   , JetCorLevels_  (iConfig.getParameter<std::vector<std::string>>("JetCorLevels"))
   , srcJet_        (consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("srcJet")))
-  , srcRho_        (consumes<double>(iConfig.getParameter<edm::InputTag>("srcRho")))
   , srcVtx_        (consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("srcVtx")))
   , srcMuons_      (consumes<std::vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("srcMuons")))
   , doComposition_ (iConfig.getParameter<bool>("doComposition"))
@@ -101,8 +98,6 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& iConfig)
   if      (JetCorLabel_.find("chs") != std::string::npos)   std::cout << " USING CHS" << std::endl;
   else if (JetCorLabel_.find("PUPPI") != std::string::npos) std::cout << " USING PUPPI" << std::endl;
   else                                                      std::cout << std::endl;
-
-  m_puInfoToken = consumes<std::vector<PileupSummaryInfo>>(edm::InputTag("addPileupInfo"));
 }
 
 
@@ -125,43 +120,12 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent,
 {
 
   // // EVENT DATA HANDLES
-  edm::Handle<GenEventInfoProduct>               genInfo;
-  edm::Handle<std::vector<PileupSummaryInfo> >        puInfos;  
   edm::Handle<reco::CandidateView>               refs;
   edm::Handle<std::vector<pat::Jet> >            jets;
-  edm::Handle<double>                            rho;
-  edm::Handle<std::vector<reco::Vertex> >        vtx;
+  edm::Handle<std::vector<reco::Vertex>>         vtx;
   edm::Handle<edm::View<pat::Muon> >             muons;
 
-  //RHO INFORMATION
-  rho_ = 0;
-  if (iEvent.getByToken(srcRho_, rho)) {
-    rho_ = *rho;
-  }
- 
-  //NPV INFORMATION
-  npv = 0;
-  if (iEvent.getByToken(srcVtx_, vtx)) {
-     const reco::VertexCollection::const_iterator vtxEnd = vtx->end();
-     for (reco::VertexCollection::const_iterator vtxIter = vtx->begin(); vtxEnd != vtxIter; ++vtxIter) {
-        if (!vtxIter->isFake() && vtxIter->ndof()>=4 && fabs(vtxIter->z())<=24)
-           npv++;
-     }
-  }
- 
-  //EVENT INFORMATION
-  run = iEvent.id().run();
-  lumiBlock = iEvent.id().luminosityBlock();
-  event = iEvent.id().event();
-
-  // MC PILEUP INFORMATION
-  if (iEvent.getByToken(m_puInfoToken, puInfos)) {
-     for(unsigned int i=0; i<puInfos->size(); i++) {
-        npus.push_back((*puInfos)[i].getPU_NumInteractions());
-        tnpus.push_back((*puInfos)[i].getTrueNumInteractions());
-        bxns.push_back((*puInfos)[i].getBunchCrossing());
-     }
-  }
+  iEvent.getByToken(srcVtx_, vtx);
 
   // REFERENCES & RECOJETS
   iEvent.getByToken(srcJet_, jets);
