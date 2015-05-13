@@ -70,4 +70,7 @@ class JetMETAnalyzer : public JME::PhysicsObjectAnalyzer
         std::vector<float>& ptD = tree["ptD"].write<std::vector<float>>();
         std::vector<bool>& isMatched = tree["isMatched"].write<std::vector<bool>>();
         std::vector<std::pair<std::string, float>>& btagDiscri = tree["btagDiscriminators"].write<std::vector<std::pair<std::string, float>>>();
+        std::vector<float>& pujetid_fulldiscriminant = tree["PUJetId_fullDiscriminant"].write<std::vector<float>>();
+        std::vector<int>& pujetid_cutbasedid = tree["PUJetId_cutBasedId"].write<std::vector<int>>();
+        std::vector<int>& pujetid_fullid = tree["PUJetId_fullId"].write<std::vector<int>>();
 };

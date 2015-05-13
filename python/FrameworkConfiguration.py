@@ -31,7 +31,7 @@ def createProcess(isMC, globalTag):
     #! Input
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
+    process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
     process.source = cms.Source("PoolSource")
 
     # Services
@@ -53,6 +53,7 @@ def createProcess(isMC, globalTag):
     #      "pu_methods" : array of strings ; which PU method to use
     #      "jec_payloads" : array of strings ; which JEC payload to use for making the JEC. The size must match the size of pu_methods
     #      "jec_levels" : array of strings ; which JEC levels to apply
+    #      "pu_jet_id": run the pu jet id or not. Very time consuming
     #  }
 
     jetsCollections = {
@@ -60,79 +61,110 @@ def createProcess(isMC, globalTag):
                 'algo': 'ak1',
                 'pu_methods': ['Puppi', 'CHS', ''],
                 'jec_payloads': ['AK1PFPUPPI', 'AK1PFchs', 'AK1PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute']
+                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+                'pu_jet_id': False,
                 },
 
             'AK2': {
                 'algo': 'ak2',
                 'pu_methods': ['Puppi', 'CHS', ''],
                 'jec_payloads': ['AK2PFPUPPI', 'AK2PFchs', 'AK2PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute']
+                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+                'pu_jet_id': False,
                 },
 
             'AK3': {
                 'algo': 'ak3',
                 'pu_methods': ['Puppi', 'CHS', ''],
                 'jec_payloads': ['AK3PFPUPPI', 'AK3PFchs', 'AK3PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute']
+                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+                'pu_jet_id': False,
                 },
 
             'AK4': {
                 'algo': 'ak4',
                 'pu_methods': ['Puppi', 'CHS', ''],
                 'jec_payloads': ['AK4PFPUPPI', 'AK4PFchs', 'AK4PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute']
+                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+                'pu_jet_id': True,
                 },
 
             'AK5': {
                 'algo': 'ak5',
                 'pu_methods': ['Puppi', 'CHS', ''],
                 'jec_payloads': ['AK5PFPUPPI', 'AK5PFchs', 'AK5PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute']
+                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+                'pu_jet_id': False,
                 },
 
             'AK6': {
                 'algo': 'ak6',
                 'pu_methods': ['Puppi', 'CHS', ''],
                 'jec_payloads': ['AK6PFPUPPI', 'AK6PFchs', 'AK6PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute']
+                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+                'pu_jet_id': False,
                 },
 
             'AK7': {
                 'algo': 'ak7',
                 'pu_methods': ['Puppi', 'CHS', ''],
                 'jec_payloads': ['AK7PFPUPPI', 'AK7PFchs', 'AK7PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute']
+                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+                'pu_jet_id': False,
                 },
 
             'AK8': {
                 'algo': 'ak8',
                 'pu_methods': ['Puppi', 'CHS', ''],
                 'jec_payloads': ['AK8PFPUPPI', 'AK8PFchs', 'AK8PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute']
+                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+                'pu_jet_id': False,
                 },
 
             'AK9': {
                 'algo': 'ak9',
                 'pu_methods': ['Puppi', 'CHS', ''],
                 'jec_payloads': ['AK9PFPUPPI', 'AK9PFchs', 'AK9PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute']
+                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+                'pu_jet_id': False,
                 },
 
             'AK10': {
                 'algo': 'ak10',
                 'pu_methods': ['Puppi', 'CHS', ''],
                 'jec_payloads': ['AK10PFPUPPI', 'AK10PFchs', 'AK10PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute']
+                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+                'pu_jet_id': False,
                 },
             }
 
     from JMEAnalysis.JetToolbox.jetToolbox_cff import jetToolbox
+    from PhysicsTools.PatAlgos.tools.helpers import loadWithPostfix, applyPostfix
+
 
     for name, params in jetsCollections.items():
         for index, pu_method in enumerate(params['pu_methods']):
             # Add the jet collection
             jetToolbox(process, params['algo'], 'dummy', 'out', PUMethod = pu_method, JETCorrPayload = params['jec_payloads'][index], JETCorrLevels = params['jec_levels'])
+
+            # FIXME: PU Jet id is not working with puppi jets
+            if params['pu_jet_id'] and pu_method != 'Puppi':
+                algo = params['algo'].upper()
+                jetCollection = '%sPFJets%s' % (params['algo'], pu_method)
+                postfix = '%sPF%s' % (algo, pu_method)
+
+                # PU jet Id
+                loadWithPostfix(process, 'RecoJets.JetProducers.pileupjetidproducer_cfi', postfix)
+                applyPostfix(process, "pileupJetIdEvaluator", postfix).jets = cms.InputTag(jetCollection)
+                applyPostfix(process, "pileupJetIdCalculator", postfix).jets = cms.InputTag(jetCollection)
+                applyPostfix(process, "pileupJetIdEvaluator", postfix).rho = cms.InputTag("fixedGridRhoFastjetAll")
+                applyPostfix(process, "pileupJetIdEvaluator", postfix).vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
+                applyPostfix(process, "pileupJetIdCalculator", postfix).rho = cms.InputTag("fixedGridRhoFastjetAll")
+                applyPostfix(process, "pileupJetIdCalculator", postfix).vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
+
+                # Add informations as userdata: easily accessible
+                applyPostfix(process, 'patJets', postfix).userData.userFloats.src += ['pileupJetIdEvaluator%s:fullDiscriminant' % postfix]
+                applyPostfix(process, 'patJets', postfix).userData.userInts.src += ['pileupJetIdEvaluator%s:cutbasedId' % postfix, 'pileupJetIdEvaluator%s:fullId' % postfix]
 
 
     # Configure the analyzers
@@ -174,6 +206,7 @@ def createProcess(isMC, globalTag):
                     )
 
             setattr(process, 'jmfw_%s' % params['jec_payloads'][index], analyzer)
+
             process.jmfw_analyzers += analyzer
 
     process.puppiReader = cms.EDAnalyzer("puppiAnalyzer",
@@ -193,7 +226,7 @@ def createProcess(isMC, globalTag):
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #! Output and Log
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+    process.options   = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
     process.options.allowUnscheduled = cms.untracked.bool(True)
 
     process.out.outputCommands  = cms.untracked.vstring('drop *')

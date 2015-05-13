@@ -48,6 +48,7 @@
 
 #include <vector>
 #include <iostream>
+#include <regex>
 #include <string>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -174,6 +175,24 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent,
 
      // b-tagging discriminators
      btagDiscri = jet.getPairDiscri();
+
+     // PU Jet Id
+     for (const std::string& userFloatName: jet.userFloatNames()) {
+        // Look for a string starting with 'pileupJetIdEvaluator'
+        if (userFloatName.find("pileupJetIdEvaluator") == 0)
+            pujetid_fulldiscriminant.push_back(jet.userFloat(userFloatName));
+     }
+
+     for (const std::string& userIntName: jet.userIntNames()) {
+         static std::regex cutbasedIdRegex("pileupJetIdEvaluator(.*):cutbasedId");
+         static std::regex fullIdRegex("pileupJetIdEvaluator(.*):fullId");
+
+         if (std::regex_match(userIntName, cutbasedIdRegex))
+             pujetid_cutbasedid.push_back(jet.userInt(userIntName));
+
+         if (std::regex_match(userIntName, fullIdRegex))
+             pujetid_fullid.push_back(jet.userInt(userIntName));
+     }
 
      extractBasicProperties(jet);
 
