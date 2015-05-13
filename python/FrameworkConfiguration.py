@@ -87,6 +87,7 @@ def createProcess(isMC, globalTag):
                 'jec_payloads': ['AK4PFPUPPI', 'AK4PFchs', 'AK4PF'],
                 'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
                 'pu_jet_id': True,
+                'qg_tagger': True,
                 },
 
             'AK5': {
@@ -141,17 +142,19 @@ def createProcess(isMC, globalTag):
     from JMEAnalysis.JetToolbox.jetToolbox_cff import jetToolbox
     from PhysicsTools.PatAlgos.tools.helpers import loadWithPostfix, applyPostfix
 
+    process.load('RecoJets.JetProducers.QGTagger_cfi')
 
     for name, params in jetsCollections.items():
         for index, pu_method in enumerate(params['pu_methods']):
             # Add the jet collection
             jetToolbox(process, params['algo'], 'dummy', 'out', PUMethod = pu_method, JETCorrPayload = params['jec_payloads'][index], JETCorrLevels = params['jec_levels'])
 
+            algo = params['algo'].upper()
+            jetCollection = '%sPFJets%s' % (params['algo'], pu_method)
+            postfix = '%sPF%s' % (algo, pu_method)
+
             # FIXME: PU Jet id is not working with puppi jets
             if params['pu_jet_id'] and pu_method != 'Puppi':
-                algo = params['algo'].upper()
-                jetCollection = '%sPFJets%s' % (params['algo'], pu_method)
-                postfix = '%sPF%s' % (algo, pu_method)
 
                 # PU jet Id
                 loadWithPostfix(process, 'RecoJets.JetProducers.pileupjetidproducer_cfi', postfix)
@@ -165,6 +168,19 @@ def createProcess(isMC, globalTag):
                 # Add informations as userdata: easily accessible
                 applyPostfix(process, 'patJets', postfix).userData.userFloats.src += ['pileupJetIdEvaluator%s:fullDiscriminant' % postfix]
                 applyPostfix(process, 'patJets', postfix).userData.userInts.src += ['pileupJetIdEvaluator%s:cutbasedId' % postfix, 'pileupJetIdEvaluator%s:fullId' % postfix]
+
+            # Quark / gluon discriminator
+            # FIXME: Puppi needs some love
+            if 'qg_tagger' in params and params['qg_tagger'] and pu_method != 'Puppi':
+
+                taggerPayload = 'QGL_%sPF%s' % (algo, pu_method.lower())
+
+                setattr(process, 'QGTagger%s' % postfix, process.QGTagger.clone(
+                        srcJets = cms.InputTag(jetCollection),
+                        jetsLabel = cms.string(taggerPayload)
+                    ))
+
+                applyPostfix(process, "patJets", postfix).userData.userFloats.src += ['QGTagger%s:qgLikelihood' % postfix]
 
 
     # Configure the analyzers
