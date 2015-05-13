@@ -6,7 +6,6 @@ EventAnalyzer::EventAnalyzer(const edm::ParameterSet& iConfig): JME::Analyzer(iC
     puInfoToken_     (consumes<std::vector<PileupSummaryInfo>>(edm::InputTag("addPileupInfo"))),
     genInfoToken_    (consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
     verticesToken_   (consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("vertices")))
-
 {
     // Empty
 }
