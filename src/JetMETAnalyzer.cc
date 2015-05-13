@@ -141,42 +141,44 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent,
      const reco::GenJet* ref = jet.genJet();
 
      if (ref) {
-       refdrjt.push_back( reco::deltaR(jet.eta(),jet.phi(),ref->eta(),ref->phi()) );
-       isMatched.push_back(true);
+         isMatched.push_back(true);
+         refdrjt.push_back(reco::deltaR(jet, *ref));
+         refpdgid.push_back(ref->pdgId());
+         refe.push_back(ref->energy());
+         refpt.push_back(ref->pt());
+         refeta.push_back(ref->eta());
+         refphi.push_back(ref->phi());
+         refm.push_back(ref->mass());
+         refy.push_back(ref->rapidity());
+         refarea.push_back(ref->jetArea());
      }
      else {
-       refdrjt.push_back(0);
-       isMatched.push_back(false);
+         isMatched.push_back(false);
+         refdrjt.push_back(0);
+         refpdgid.push_back(0.);
+         refe.push_back(0.);
+         refpt.push_back(0.);
+         refeta.push_back(0.);
+         refphi.push_back(0.);
+         refm.push_back(0.);
+         refy.push_back(0.);
+         refarea.push_back(0.);
      }
 
-     refrank.push_back( nref );
-     refpdgid_algorithmicDef.push_back( 0 );
-     refpdgid_physicsDef.push_back( 0 );
-     if(ref) { 
-        refpdgid.push_back( ref->pdgId() );
-        refe.push_back( ref->energy() );
-        refpt.push_back( ref->pt() );
-        refeta.push_back( ref->eta() );
-        refphi.push_back( ref->phi() );
-        refm.push_back( ref->mass() );
-        refy.push_back( ref->rapidity() );
-        refarea.push_back( ref->jetArea() );
-     }
-     else {
-        refpdgid.push_back( 0. );
-        refe.push_back( 0. );
-        refpt.push_back( 0. );
-        refeta.push_back( 0. );
-        refphi.push_back( 0. );
-        refm.push_back( 0. );
-        refy.push_back( 0. );
-        refarea.push_back( 0. );
-     }
+     refrank.push_back(nref);
+
+     // New jet flavor informations
+     // See https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideBTagMCTools
+     partonFlavor.push_back(jet.partonFlavour());
+     hadronFlavor.push_back(jet.hadronFlavour());
+
+     // b-tagging discriminators
+     btagDiscri = jet.getPairDiscri();
 
      extractBasicProperties(jet);
 
-     jtarea.push_back( jet.jetArea() );
-     jtjec.push_back( jet.jecFactor(0) );
+     jtarea.push_back(jet.jetArea());
+     jtjec.push_back(jet.jecFactor(0));
 
      computeBetaStar(jet, *vtx);
 
@@ -301,6 +303,7 @@ void JetMETAnalyzer::computeBetaStar(const pat::Jet& jet, const std::vector<reco
         betaClassic.push_back(-999);
         betaStarClassic.push_back(-999);
     }
+
     dZ.push_back(dZ2);
     nCh.push_back(nCh_tmp);
     nNeutrals.push_back(nNeutrals_tmp);
