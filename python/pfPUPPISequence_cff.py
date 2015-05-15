@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Dummy.Puppi.Puppi_cff import *
+from CommonTools.PileupAlgos.Puppi_cff import *
 
 from CommonTools.ParticleFlow.ParticleSelectors.pfAllChargedHadrons_cfi import *
 from CommonTools.ParticleFlow.ParticleSelectors.pfAllNeutralHadrons_cfi import *
@@ -15,7 +15,7 @@ def load_pfPUPPI_sequence(proc, seq_name, algo, src_puppi='particleFlow', src_vt
     )
 
     setattr(proc, 'particleFlow'+algo,
-      puppi.clone( PuppiName = '',
+      puppi.clone( 
         candName   = src_puppi,
         vertexName = src_vtx
       )

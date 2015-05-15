@@ -2,6 +2,8 @@
 
 #include "JMEAnalysis/JMEValidator/interface/Analyzer.h"
 
+#include <vector>
+
 class LeptonsAndMETAnalyzer : public JME::Analyzer
 {
 public:
@@ -26,6 +28,21 @@ private:
   edm::EDGetTokenT<std::vector<pat::MET>> srcMET_;
   edm::EDGetTokenT<std::vector<reco::PFMET>> srcPUPPET_;
 
+  edm::InputTag srcVtx_;
+  edm::InputTag srcMuons_;
+  edm::InputTag srcVMCHSTAND_;
+  edm::InputTag srcVMNHSTAND_;
+  edm::InputTag srcVMPhSTAND_;
+  edm::InputTag srcVMPUSTAND_;
+  edm::InputTag srcVMNHPFWGT_;
+  edm::InputTag srcVMPhPFWGT_;
+  edm::InputTag srcVMCHPUPPI_;
+  edm::InputTag srcVMNHPUPPI_;
+  edm::InputTag srcVMPhPUPPI_;
+  edm::InputTag srcVMCHNOMUONPUPPI_;
+  edm::InputTag srcVMNHNOMUONPUPPI_;
+  edm::InputTag srcVMPhNOMUONPUPPI_;
+
   // Tree branches
   ULong64_t& run = tree["run"].write<ULong64_t>();
   ULong64_t& lumiBlock = tree["lumi"].write<ULong64_t>();
@@ -44,5 +61,29 @@ private:
   float& pfMET_uPerp = tree["pfMET_uPerp"].write<float>();
   float& puppET_uPara = tree["puppET_uPara"].write<float>();
   float& puppET_uPerp = tree["puppET_uPerp"].write<float>();
+
+  // Muon isolation analysis
+  std::vector<float> & mupt  = tree["mupt" ].write<std::vector<float> >();
+  std::vector<float> & mueta = tree["mueta"].write<std::vector<float> >();
+  std::vector<float> & muphi = tree["muphi"].write<std::vector<float> >();
+  std::vector<float> & mue   = tree["mue"  ].write<std::vector<float> >();
+  std::vector<float> & muIsoRAW   = tree["muIsoRAW"]  .write<std::vector<float> >();
+  std::vector<float> & muIsoSTAND = tree["muIsoSTAND"].write<std::vector<float> >();
+  std::vector<float> & muIsoPFWGT = tree["muIsoPFWGT"].write<std::vector<float> >();
+  std::vector<float> & muIsoPUPPI = tree["muIsoPUPPI"].write<std::vector<float> >();
+  std::vector<float> & muIsoNOMUONPUPPI = tree["muIsoNOMUONPUPPI"].write<std::vector<float> >();
+  std::vector<float> & muIso_CH     	 = tree["muIso_CH"           ].write<std::vector<float> >();
+  std::vector<float> & muIso_NU     	 = tree["muIso_NU"	   ].write<std::vector<float> >();     
+  std::vector<float> & muIso_PH     	 = tree["muIso_PH"	   ].write<std::vector<float> >();     
+  std::vector<float> & muIso_PU     	 = tree["muIso_PU"	   ].write<std::vector<float> >();     
+  std::vector<float> & muIso_NUPFW  	 = tree["muIso_NUPFW"        ].write<std::vector<float> >();
+  std::vector<float> & muIso_PHPFW  	 = tree["muIso_PHPFW"        ].write<std::vector<float> >();
+  std::vector<float> & muIso_CHPUPPI	 = tree["muIso_CHPUPPI"      ].write<std::vector<float> >();
+  std::vector<float> & muIso_NUPUPPI	 = tree["muIso_NUPUPPI"      ].write<std::vector<float> >();
+  std::vector<float> & muIso_PHPUPPI	 = tree["muIso_PHPUPPI"      ].write<std::vector<float> >();
+  std::vector<float> & muIso_CHNOMUONPUPPI = tree["muIso_CHNOMUONPUPPI"].write<std::vector<float> >();
+  std::vector<float> & muIso_NUNOMUONPUPPI = tree["muIso_NUNOMUONPUPPI"].write<std::vector<float> >();
+  std::vector<float> & muIso_PHNOMUONPUPPI = tree["muIso_PHNOMUONPUPPI"].write<std::vector<float> >();
+
 
 };
