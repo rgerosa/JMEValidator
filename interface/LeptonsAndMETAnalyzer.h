@@ -63,6 +63,7 @@ private:
   float& puppET_uPerp = tree["puppET_uPerp"].write<float>();
 
   // Muon isolation analysis
+  float& npv= tree["npv"].write<float>();
   std::vector<float> & mupt  = tree["mupt" ].write<std::vector<float> >();
   std::vector<float> & mueta = tree["mueta"].write<std::vector<float> >();
   std::vector<float> & muphi = tree["muphi"].write<std::vector<float> >();

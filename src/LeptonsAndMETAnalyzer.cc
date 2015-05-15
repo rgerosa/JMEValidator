@@ -176,10 +176,11 @@ void LeptonsAndMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
   }
 
 
-
-
+  // - - - - - - - - - - - - - - - - - 
   // - - Muon Isolation Calculation - -
+  // - - - - - - - - - - - - - - - - - 
 
+  npv = 0 ; 
   mupt             .clear();
   mueta 	  .clear();
   muphi 	  .clear();
@@ -217,6 +218,13 @@ void LeptonsAndMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
   edm::Handle<edm::ValueMap<double> > VMPhNOMUONPUPPI   ;
   edm::Handle<std::vector<reco::Vertex> >        vtx;
 
+  iEvent.getByLabel(srcVtx_,vtx ); 
+  const reco::VertexCollection::const_iterator vtxEnd = vtx->end();
+  for (reco::VertexCollection::const_iterator vtxIter = vtx->begin(); vtxEnd != vtxIter; ++vtxIter) {
+    if (!vtxIter->isFake() && vtxIter->ndof()>=4 && fabs(vtxIter->z())<=24)
+      npv++;
+  }
+
   iEvent.getByLabel(srcMuons_, muons);
   iEvent.getByLabel(srcVMNHPFWGT_, VMNHPFWGT);
   iEvent.getByLabel(srcVMPhPFWGT_, VMPhPFWGT);
@@ -231,7 +239,6 @@ void LeptonsAndMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
   iEvent.getByLabel(srcVMNHNOMUONPUPPI_, VMNHNOMUONPUPPI);
   iEvent.getByLabel(srcVMPhNOMUONPUPPI_, VMPhNOMUONPUPPI);
 
-
   for(size_t i = 0, n = muons->size(); i < n; ++i) {
     edm::Ptr<pat::Muon> muPtr = muons->ptrAt(i);
 
@@ -240,10 +247,8 @@ void LeptonsAndMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
     // - - - - - - - - - - - - - - - - 
     if( ! muPtr->isPFMuon() ) continue ;
     if( ! muPtr->isGlobalMuon() ) continue ; 
-    if (iEvent.getByLabel(srcVtx_,vtx)) {
-      if( abs(muPtr->muonBestTrack()->dxy(vtx->at(0).position()) ) > 0.2 ) continue ;
-      if( abs(muPtr->muonBestTrack()->dz (vtx->at(0).position()) ) > 0.5 ) continue ; 
-    }else{continue ;}
+    if( abs(muPtr->muonBestTrack()->dxy(vtx->at(0).position()) ) > 0.2 ) continue ;
+    if( abs(muPtr->muonBestTrack()->dz (vtx->at(0).position()) ) > 0.5 ) continue ; 
     if( muPtr->globalTrack()->normalizedChi2() > 10. ) continue ;
     if( muPtr->globalTrack()->hitPattern().numberOfValidMuonHits() == 0 ) continue ;
     if( muPtr->innerTrack()->hitPattern().numberOfValidPixelHits() == 0 ) continue ;
