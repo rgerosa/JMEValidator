@@ -30,7 +30,6 @@ process.GlobalTag.globaltag = "PHYS14_25_V2::All"
                                     
 inputFiles = cms.untracked.vstring(
         # 'root://cmsxrootd.fnal.gov//store/mc/Phys14DR/QCD_Pt-15to3000_Tune4C_Flat_13TeV_pythia8/MINIAODSIM/PU20bx25_trkalmb_PHYS14_25_V1-v1/00000/1020E374-B26B-E411-8F91-E0CB4E29C513.root'
-       'file:///tmp/0432E62A-7A6C-E411-87BB-002590DB92A8.root'
 #        'root://cmsxrootd.fnal.gov//store/mc/Phys14DR/DYJetsToLL_M-50_13TeV-madgraph-pythia8/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/0432E62A-7A6C-E411-87BB-002590DB92A8.root',
         # 'root://cmsxrootd.fnal.gov//store/mc/Phys14DR/Neutrino_Pt-2to20_gun/MINIAODSIM/AVE20BX25_tsg_PHYS14_25_V3-v1/00000/007B75A0-538F-E411-B87D-00259059649C.root',
 
@@ -150,13 +149,13 @@ inputFiles = cms.untracked.vstring(
        ##################
        #  DY
        ##################
-#	 '/store/mc/Phys14DR/DYJetsToLL_M-50_13TeV-madgraph-pythia8/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/0432E62A-7A6C-E411-87BB-002590DB92A8.root',#
-#	 '/store/mc/Phys14DR/DYJetsToLL_M-50_13TeV-madgraph-pythia8/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/06C61714-7E6C-E411-9205-002590DB92A8.root',
+	 '/store/mc/Phys14DR/DYJetsToLL_M-50_13TeV-madgraph-pythia8/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/0432E62A-7A6C-E411-87BB-002590DB92A8.root',
+	 '/store/mc/Phys14DR/DYJetsToLL_M-50_13TeV-madgraph-pythia8/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/06C61714-7E6C-E411-9205-002590DB92A8.root',
 
 
     )
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
 process.source = cms.Source("PoolSource", fileNames = inputFiles )
 
 # Services
