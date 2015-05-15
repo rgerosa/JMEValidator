@@ -208,6 +208,13 @@ def createProcess(isMC, globalTag):
 
     process.jmfw_analyzers += process.event
 
+    # Muons
+    process.muons = cms.EDAnalyzer('MuonAnalyzer',
+            src = cms.InputTag('slimmedMuons'),
+            vertices = cms.InputTag('offlineSlimmedPrimaryVertices')
+            )
+
+    process.jmfw_analyzers += process.muons
     
     # Jets
     for name, params in jetsCollections.items():
