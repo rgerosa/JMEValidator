@@ -40,17 +40,33 @@ namespace JME {
                 }
 
             template<typename T>
-                void extractGenProperties(const T& genObject) {
-                    PtEtaPhiEVector p(genObject.pt(), genObject.eta(), genObject.phi(), genObject.energy());
-                    gen_p4.push_back(p);
-                    gen_pt.push_back(p.Pt());
-                    gen_eta.push_back(p.Eta());
-                    gen_phi.push_back(p.Phi());
-                    gen_e.push_back(p.E());
+                void extractGenProperties(const T* genObject_) {
+                    if (genObject_) {
+                        const T& genObject = *genObject_;
+                        is_matched.push_back(true);
+                        PtEtaPhiEVector p(genObject.pt(), genObject.eta(), genObject.phi(), genObject.energy());
+                        gen_p4.push_back(p);
+                        gen_pt.push_back(p.Pt());
+                        gen_eta.push_back(p.Eta());
+                        gen_phi.push_back(p.Phi());
+                        gen_e.push_back(p.E());
 
-                    gen_m.push_back(genObject.mass());
-                    gen_y.push_back(genObject.rapidity());
-                    gen_charge.push_back(genObject.charge());
+                        gen_m.push_back(genObject.mass());
+                        gen_y.push_back(genObject.rapidity());
+                        gen_charge.push_back(genObject.charge());
+                    } else {
+                        is_matched.push_back(false);
+                        PtEtaPhiEVector p;
+                        gen_p4.push_back(p);
+                        gen_pt.push_back(0);
+                        gen_eta.push_back(0);
+                        gen_phi.push_back(0);
+                        gen_e.push_back(0);
+
+                        gen_m.push_back(0);
+                        gen_y.push_back(0);
+                        gen_charge.push_back(0);
+                    }
                 }
 
 
@@ -64,6 +80,7 @@ namespace JME {
             std::vector<float>& y = tree["y"].write<std::vector<float>>();
             std::vector<int>& charge = tree["charge"].write<std::vector<int>>();
 
+            std::vector<bool>& is_matched = tree["has_gen_particle"].write<std::vector<bool>>();
             std::vector<PtEtaPhiEVector>& gen_p4 = tree["gen_p4"].write<std::vector<PtEtaPhiEVector>>();
             std::vector<float>& gen_pt = tree["gen_pt"].write<std::vector<float>>();
             std::vector<float>& gen_eta = tree["gen_eta"].write<std::vector<float>>();

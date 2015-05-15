@@ -23,6 +23,7 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     // Loop over muons
     for (const pat::Muon& muon: *muonsHandle) {
         extractBasicProperties(muon);
+        extractGenProperties(muon.genLepton());
 
         isLoose_.push_back(muon.isLooseMuon());
         isSoft_.push_back(muon.isSoftMuon(primaryVertex));

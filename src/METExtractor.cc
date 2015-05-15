@@ -55,13 +55,14 @@ void METAnalyzer::analyze(const edm::Event& iEvent,
     uncorrectedPhi.push_back(met.uncorrectedPhi());
     uncorrectedSumEt.push_back(met.uncorrectedSumEt());
 
+    extractGenProperties(met.genMET());
     if (met.genMET()) {
-        const auto& genMET = *met.genMET();
-        extractGenProperties(genMET);
-        gen_sumEt.push_back(genMET.sumEt());
-        gen_significance.push_back(genMET.significance());
+        gen_sumEt.push_back(met.genMET()->sumEt());
+        gen_significance.push_back(met.genMET()->significance());
+    } else {
+        gen_sumEt.push_back(0);
+        gen_significance.push_back(0);
     }
-
 
     // FIXME: Calo met will be removed soon
     caloMET_pt.push_back(met.caloMETPt());

@@ -39,12 +39,6 @@ class JetAnalyzer : public JME::PhysicsObjectAnalyzer
         std::vector<int>& refrank = tree["refrank"].write<std::vector<int>>();
         std::vector<int>& refpdgid = tree["refpdgid"].write<std::vector<int>>();
         std::vector<float>& refdrjt = tree["refdrjt"].write<std::vector<float>>();
-        std::vector<float>& refe = tree["refe"].write<std::vector<float>>();
-        std::vector<float>& refpt = tree["refpt"].write<std::vector<float>>();
-        std::vector<float>& refeta = tree["refeta"].write<std::vector<float>>();
-        std::vector<float>& refphi = tree["refphi"].write<std::vector<float>>();
-        std::vector<float>& refm = tree["refm"].write<std::vector<float>>();
-        std::vector<float>& refy = tree["refy"].write<std::vector<float>>();
         std::vector<float>& refarea = tree["refarea"].write<std::vector<float>>();
         std::vector<int>&   partonFlavor = tree["partonFlavor"].write<std::vector<int>>();
         std::vector<int>&   hadronFlavor = tree["hadronFlavor"].write<std::vector<int>>();
@@ -68,7 +62,6 @@ class JetAnalyzer : public JME::PhysicsObjectAnalyzer
         std::vector<float>& nCh = tree["nCh"].write<std::vector<float>>();
         std::vector<float>& nNeutrals = tree["nNeutrals"].write<std::vector<float>>();
         std::vector<float>& ptD = tree["ptD"].write<std::vector<float>>();
-        std::vector<bool>& isMatched = tree["isMatched"].write<std::vector<bool>>();
         std::vector<std::pair<std::string, float>>& btagDiscri = tree["btagDiscriminators"].write<std::vector<std::pair<std::string, float>>>();
         std::vector<float>& pujetid_fulldiscriminant = tree["PUJetId_fullDiscriminant"].write<std::vector<float>>();
         std::vector<int>& pujetid_cutbasedid = tree["PUJetId_cutBasedId"].write<std::vector<int>>();

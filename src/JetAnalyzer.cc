@@ -142,29 +142,16 @@ void JetAnalyzer::analyze(const edm::Event& iEvent,
      const reco::GenJet* ref = jet.genJet();
 
      if (ref) {
-         isMatched.push_back(true);
          refdrjt.push_back(reco::deltaR(jet, *ref));
          refpdgid.push_back(ref->pdgId());
-         refe.push_back(ref->energy());
-         refpt.push_back(ref->pt());
-         refeta.push_back(ref->eta());
-         refphi.push_back(ref->phi());
-         refm.push_back(ref->mass());
-         refy.push_back(ref->rapidity());
          refarea.push_back(ref->jetArea());
-     }
-     else {
-         isMatched.push_back(false);
+     } else {
          refdrjt.push_back(0);
          refpdgid.push_back(0.);
-         refe.push_back(0.);
-         refpt.push_back(0.);
-         refeta.push_back(0.);
-         refphi.push_back(0.);
-         refm.push_back(0.);
-         refy.push_back(0.);
          refarea.push_back(0.);
      }
+
+     extractGenProperties(ref);
 
      refrank.push_back(nref);
 
