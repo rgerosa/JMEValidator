@@ -36,6 +36,7 @@ namespace JME {
 
                     m.push_back(object.mass());
                     y.push_back(object.rapidity());
+                    charge.push_back(object.charge());
                 }
 
 
@@ -47,5 +48,6 @@ namespace JME {
             std::vector<float>& e = tree["e"].write<std::vector<float>>();
             std::vector<float>& m = tree["m"].write<std::vector<float>>();
             std::vector<float>& y = tree["y"].write<std::vector<float>>();
+            std::vector<int>& charge = tree["charge"].write<std::vector<int>>();
     };
 }
