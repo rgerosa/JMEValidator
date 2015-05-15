@@ -3,7 +3,7 @@ def createProcess(isMC, globalTag):
     import FWCore.ParameterSet.Config as cms
 
     # Common parameters used in all modules
-    JetMETAnalyserCommonParameters = cms.PSet(
+    JetAnalyserCommonParameters = cms.PSet(
         # record flavor information, consider both RefPt and JetPt
         doComposition   = cms.bool(True),
         doFlavor        = cms.bool(True),
@@ -185,8 +185,13 @@ def createProcess(isMC, globalTag):
 
     # Configure the analyzers
 
-    # Event
+    process.jmfw_analyzers = cms.Sequence()
 
+    # Run
+    process.run = cms.EDAnalyzer('RunAnalyzer')
+    process.jmfw_analyzers += process.run
+
+    # Event
     from RecoJets.Configuration.RecoPFJets_cff import kt6PFJets
     process.kt6PFJetsRhos = kt6PFJets.clone(
             src = cms.InputTag('packedPFCandidates'),
@@ -201,8 +206,10 @@ def createProcess(isMC, globalTag):
             vertices   = cms.InputTag('offlineSlimmedPrimaryVertices')
             )
 
-    process.jmfw_analyzers = cms.Sequence()
+    process.jmfw_analyzers += process.event
 
+    
+    # Jets
     for name, params in jetsCollections.items():
         for index, pu_method in enumerate(params['pu_methods']):
 
@@ -211,8 +218,8 @@ def createProcess(isMC, globalTag):
 
             print('Adding analyzer for jets collection \'%s\'' % jetCollection)
 
-            analyzer = cms.EDAnalyzer('JetMETAnalyzer',
-                    JetMETAnalyserCommonParameters,
+            analyzer = cms.EDAnalyzer('JetAnalyzer',
+                    JetAnalyserCommonParameters,
                     JetCorLabel   = cms.string(params['jec_payloads'][index]),
                     JetCorLevels  = cms.vstring(params['jec_levels']),
                     srcJet        = cms.InputTag(jetCollection),
@@ -225,6 +232,18 @@ def createProcess(isMC, globalTag):
 
             process.jmfw_analyzers += analyzer
 
+    # MET
+    process.met_chs = cms.EDAnalyzer('METAnalyzer',
+            src = cms.InputTag('slimmedMETs')
+            )
+    process.jmfw_analyzers += process.met_chs
+
+    process.met_puppi = cms.EDAnalyzer('METAnalyzer',
+            src = cms.InputTag('slimmedMETsPuppi')
+            )
+    process.jmfw_analyzers += process.met_puppi
+
+    # Puppi ; only for the first 1000 events of the job
     process.puppiReader = cms.EDAnalyzer("puppiAnalyzer",
                                             treeName = cms.string("puppiTree"),
                                             maxEvents = cms.int32(1000),
@@ -236,7 +255,9 @@ def createProcess(isMC, globalTag):
                                             packedPFCandidates = cms.InputTag("packedPFCandidates", "", "PAT")
                                         )
 
-    process.p = cms.Path( process.puppiReader + process.event + process.jmfw_analyzers )
+    process.jmfw_analyzers += process.puppiReader
+
+    process.p = cms.Path(process.jmfw_analyzers)
 
 
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

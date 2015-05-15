@@ -2,12 +2,12 @@
 
 #include "JMEAnalysis/JMEValidator/interface/PhysicsObjectAnalyzer.h"
 
-class JetMETAnalyzer : public JME::PhysicsObjectAnalyzer
+class JetAnalyzer : public JME::PhysicsObjectAnalyzer
 {
     public:
         // construction/destruction
-        explicit JetMETAnalyzer(const edm::ParameterSet& iConfig);
-        virtual ~JetMETAnalyzer();
+        explicit JetAnalyzer(const edm::ParameterSet& iConfig);
+        virtual ~JetAnalyzer();
 
     private:
 

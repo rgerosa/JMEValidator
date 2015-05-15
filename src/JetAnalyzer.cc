@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// JetMETAnalyzer
+// JetAnalyzer
 // ------------------
 //
 //                        01/07/2014 Alexx Perloff   <aperloff@physics.tamu.edu>
@@ -44,7 +44,7 @@
 
 #include "SimDataFormats/JetMatching/interface/JetMatchedPartons.h"
 
-#include "JMEAnalysis/JMEValidator/interface/JetMETAnalyzer.h"
+#include "JMEAnalysis/JMEValidator/interface/JetAnalyzer.h"
 
 #include <vector>
 #include <iostream>
@@ -56,7 +56,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& iConfig)
+JetAnalyzer::JetAnalyzer(const edm::ParameterSet& iConfig)
   : JME::PhysicsObjectAnalyzer(iConfig)
   , JetCorLabel_   (iConfig.getParameter<std::string>("JetCorLabel"))
   , JetCorLevels_  (iConfig.getParameter<std::vector<std::string>>("JetCorLevels"))
@@ -88,13 +88,13 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& iConfig)
   //   cout << "DONE" << endl;
   // }
   
-  std::cout << "|---- JetMETAnalyzer: Initialyzing..." << std::endl;
-  std::cout << "|---- JetMETAnalyzer: Applying these jet corrections: ( " << JetCorLabel_;
+  std::cout << "|---- JetAnalyzer: Initialyzing..." << std::endl;
+  std::cout << "|---- JetAnalyzer: Applying these jet corrections: ( " << JetCorLabel_;
   for (const std::string& level: JetCorLevels_)
      std::cout << ", " << level;
   std::cout << " )" << std::endl;
 
-  std::cout << "|---- JetMETAnalyzer: RUNNING ON " << moduleLabel_ << " FOR "
+  std::cout << "|---- JetAnalyzer: RUNNING ON " << moduleLabel_ << " FOR "
        << JetCorLabel_.substr(0,3) << " JETS";
   if      (JetCorLabel_.find("chs") != std::string::npos)   std::cout << " USING CHS" << std::endl;
   else if (JetCorLabel_.find("PUPPI") != std::string::npos) std::cout << " USING PUPPI" << std::endl;
@@ -103,7 +103,7 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& iConfig)
 
 
 //______________________________________________________________________________
-JetMETAnalyzer::~JetMETAnalyzer()
+JetAnalyzer::~JetAnalyzer()
 {
 
 }
@@ -116,7 +116,7 @@ JetMETAnalyzer::~JetMETAnalyzer()
 //______________________________________________________________________________
 
 //______________________________________________________________________________
-void JetMETAnalyzer::analyze(const edm::Event& iEvent,
+void JetAnalyzer::analyze(const edm::Event& iEvent,
                                   const edm::EventSetup& iSetup)
 {
 
@@ -214,7 +214,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent,
   tree.fill();
 }
 
-void JetMETAnalyzer::computeBetaStar(const pat::Jet& jet, const std::vector<reco::Vertex>& vertices) {
+void JetAnalyzer::computeBetaStar(const pat::Jet& jet, const std::vector<reco::Vertex>& vertices) {
 
     int nCh_tmp(0), nNeutrals_tmp(0);
     float sumTkPt(0.0);
@@ -337,7 +337,7 @@ void JetMETAnalyzer::computeBetaStar(const pat::Jet& jet, const std::vector<reco
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// define JetMETAnalyzer as a plugin
+// define JetAnalyzer as a plugin
 ////////////////////////////////////////////////////////////////////////////////
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(JetMETAnalyzer);
+DEFINE_FWK_MODULE(JetAnalyzer);
