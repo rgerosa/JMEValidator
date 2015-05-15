@@ -39,6 +39,20 @@ namespace JME {
                     charge.push_back(object.charge());
                 }
 
+            template<typename T>
+                void extractGenProperties(const T& genObject) {
+                    PtEtaPhiEVector p(genObject.pt(), genObject.eta(), genObject.phi(), genObject.energy());
+                    gen_p4.push_back(p);
+                    gen_pt.push_back(p.Pt());
+                    gen_eta.push_back(p.Eta());
+                    gen_phi.push_back(p.Phi());
+                    gen_e.push_back(p.E());
+
+                    gen_m.push_back(genObject.mass());
+                    gen_y.push_back(genObject.rapidity());
+                    gen_charge.push_back(genObject.charge());
+                }
+
 
         protected:
             std::vector<PtEtaPhiEVector>& p4 = tree["p4"].write<std::vector<PtEtaPhiEVector>>();
@@ -49,5 +63,14 @@ namespace JME {
             std::vector<float>& m = tree["m"].write<std::vector<float>>();
             std::vector<float>& y = tree["y"].write<std::vector<float>>();
             std::vector<int>& charge = tree["charge"].write<std::vector<int>>();
+
+            std::vector<PtEtaPhiEVector>& gen_p4 = tree["gen_p4"].write<std::vector<PtEtaPhiEVector>>();
+            std::vector<float>& gen_pt = tree["gen_pt"].write<std::vector<float>>();
+            std::vector<float>& gen_eta = tree["gen_eta"].write<std::vector<float>>();
+            std::vector<float>& gen_phi = tree["gen_phi"].write<std::vector<float>>();
+            std::vector<float>& gen_e = tree["gen_e"].write<std::vector<float>>();
+            std::vector<float>& gen_m = tree["gen_m"].write<std::vector<float>>();
+            std::vector<float>& gen_y = tree["gen_y"].write<std::vector<float>>();
+            std::vector<int>& gen_charge = tree["gen_charge"].write<std::vector<int>>();
     };
 }
