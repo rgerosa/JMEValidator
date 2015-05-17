@@ -53,6 +53,8 @@
 
 #include <vector>
 
+#include <math.h>
+
 ////////////////////////////////////////////////////////////////////////////////
 // construction/destruction
 ////////////////////////////////////////////////////////////////////////////////
@@ -63,7 +65,22 @@ LeptonsAndMETAnalyzer::LeptonsAndMETAnalyzer(const edm::ParameterSet& iConfig)
     , srcIsoMuons_   (consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("srcIsoMuons")))
     , srcMET_        (consumes<std::vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("srcMET")))
     , srcPUPPET_     (consumes<std::vector<reco::PFMET>>(iConfig.getParameter<edm::InputTag>("srcPUPPET")))
+    , srcVtx_        (iConfig.getParameter<edm::InputTag> ("srcVtx"))
+    , srcMuons_      (iConfig.getParameter<edm::InputTag> ("srcMuons"))
+    , srcVMCHSTAND_  (iConfig.getParameter<edm::InputTag> ("srcVMCHSTAND"))
+    , srcVMNHSTAND_  (iConfig.getParameter<edm::InputTag> ("srcVMNHSTAND"))
+    , srcVMPhSTAND_  (iConfig.getParameter<edm::InputTag> ("srcVMPhSTAND"))
+    , srcVMPUSTAND_  (iConfig.getParameter<edm::InputTag> ("srcVMPUSTAND"))
+    , srcVMNHPFWGT_  (iConfig.getParameter<edm::InputTag> ("srcVMNHPFWGT"))
+    , srcVMPhPFWGT_  (iConfig.getParameter<edm::InputTag> ("srcVMPhPFWGT"))
+    , srcVMCHPUPPI_  (iConfig.getParameter<edm::InputTag> ("srcVMCHPUPPI"))
+    , srcVMNHPUPPI_  (iConfig.getParameter<edm::InputTag> ("srcVMNHPUPPI"))
+    , srcVMPhPUPPI_  (iConfig.getParameter<edm::InputTag> ("srcVMPhPUPPI"))
+    , srcVMCHNOMUONPUPPI_  (iConfig.getParameter<edm::InputTag> ("srcVMCHNOMUONPUPPI"))
+    , srcVMNHNOMUONPUPPI_  (iConfig.getParameter<edm::InputTag> ("srcVMNHNOMUONPUPPI"))
+    , srcVMPhNOMUONPUPPI_  (iConfig.getParameter<edm::InputTag> ("srcVMPhNOMUONPUPPI"))
 {
+
 
 }
 
@@ -157,6 +174,129 @@ void LeptonsAndMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
     puppET_uPara = -1;
     puppET_uPerp = -1;
   }
+
+
+  // - - - - - - - - - - - - - - - - - 
+  // - - Muon Isolation Calculation - -
+  // - - - - - - - - - - - - - - - - - 
+
+  npv = 0 ; 
+  mupt             .clear();
+  mueta 	  .clear();
+  muphi 	  .clear();
+  mue   	  .clear();
+  muIsoRAW   	  .clear();
+  muIsoSTAND 	  .clear();
+  muIsoPFWGT 	  .clear();
+  muIsoPUPPI 	  .clear();
+  muIsoNOMUONPUPPI.clear();
+  muIso_CH     	  .clear();
+  muIso_NU     	  .clear();
+  muIso_PH     	  .clear();
+  muIso_PU     	  .clear();
+  muIso_NUPFW  	  .clear();
+  muIso_PHPFW  	  .clear();
+  muIso_CHPUPPI	  .clear();
+  muIso_NUPUPPI	  .clear();
+  muIso_PHPUPPI	  .clear();
+  muIso_CHNOMUONPUPPI.clear();
+  muIso_NUNOMUONPUPPI.clear();
+  muIso_PHNOMUONPUPPI.clear();
+
+  edm::Handle<edm::View<pat::Muon> >  muons;
+  edm::Handle<edm::ValueMap<double> > VMCHSTAND   ;
+  edm::Handle<edm::ValueMap<double> > VMNHSTAND   ;
+  edm::Handle<edm::ValueMap<double> > VMPhSTAND   ;
+  edm::Handle<edm::ValueMap<double> > VMPUSTAND   ;
+  edm::Handle<edm::ValueMap<double> > VMNHPFWGT   ;
+  edm::Handle<edm::ValueMap<double> > VMPhPFWGT   ;
+  edm::Handle<edm::ValueMap<double> > VMCHPUPPI   ;
+  edm::Handle<edm::ValueMap<double> > VMNHPUPPI   ;
+  edm::Handle<edm::ValueMap<double> > VMPhPUPPI   ;
+  edm::Handle<edm::ValueMap<double> > VMCHNOMUONPUPPI   ;
+  edm::Handle<edm::ValueMap<double> > VMNHNOMUONPUPPI   ;
+  edm::Handle<edm::ValueMap<double> > VMPhNOMUONPUPPI   ;
+  edm::Handle<std::vector<reco::Vertex> >        vtx;
+
+  iEvent.getByLabel(srcVtx_,vtx ); 
+  const reco::VertexCollection::const_iterator vtxEnd = vtx->end();
+  for (reco::VertexCollection::const_iterator vtxIter = vtx->begin(); vtxEnd != vtxIter; ++vtxIter) {
+    if (!vtxIter->isFake() && vtxIter->ndof()>=4 && fabs(vtxIter->z())<=24)
+      npv++;
+  }
+
+  iEvent.getByLabel(srcMuons_, muons);
+  iEvent.getByLabel(srcVMNHPFWGT_, VMNHPFWGT);
+  iEvent.getByLabel(srcVMPhPFWGT_, VMPhPFWGT);
+  iEvent.getByLabel(srcVMCHPUPPI_, VMCHPUPPI);
+  iEvent.getByLabel(srcVMNHPUPPI_, VMNHPUPPI);
+  iEvent.getByLabel(srcVMPhPUPPI_, VMPhPUPPI);
+  iEvent.getByLabel(srcVMCHSTAND_, VMCHSTAND);
+  iEvent.getByLabel(srcVMNHSTAND_, VMNHSTAND);
+  iEvent.getByLabel(srcVMPhSTAND_, VMPhSTAND);
+  iEvent.getByLabel(srcVMPUSTAND_, VMPUSTAND);
+  iEvent.getByLabel(srcVMCHNOMUONPUPPI_, VMCHNOMUONPUPPI);
+  iEvent.getByLabel(srcVMNHNOMUONPUPPI_, VMNHNOMUONPUPPI);
+  iEvent.getByLabel(srcVMPhNOMUONPUPPI_, VMPhNOMUONPUPPI);
+
+  for(size_t i = 0, n = muons->size(); i < n; ++i) {
+    edm::Ptr<pat::Muon> muPtr = muons->ptrAt(i);
+
+    // - - - - - - - - - - - - - - - - 
+    // - - - - Require tight-ID - - - -
+    // - - - - - - - - - - - - - - - - 
+    if( ! muPtr->isPFMuon() ) continue ;
+    if( ! muPtr->isGlobalMuon() ) continue ; 
+    if( abs(muPtr->muonBestTrack()->dxy(vtx->at(0).position()) ) > 0.2 ) continue ;
+    if( abs(muPtr->muonBestTrack()->dz (vtx->at(0).position()) ) > 0.5 ) continue ; 
+    if( muPtr->globalTrack()->normalizedChi2() > 10. ) continue ;
+    if( muPtr->globalTrack()->hitPattern().numberOfValidMuonHits() == 0 ) continue ;
+    if( muPtr->innerTrack()->hitPattern().numberOfValidPixelHits() == 0 ) continue ;
+    if( muPtr->track()->hitPattern().trackerLayersWithMeasurement() <= 5 ) continue ;
+    if( muPtr->numberOfMatchedStations() <= 1 ) continue ;
+    // - - - - - - - - - - - - - - - - 
+    // - - - - end of requirement - - - - 
+    // - - - - - - - - - - - - - - - - 
+
+    mupt  . push_back( muPtr->pt());
+    mueta . push_back( muPtr->eta());
+    muphi . push_back( muPtr->phi());
+    mue   . push_back( muPtr->energy());
+
+    //Raw Isolation
+    //I = [sumChargedHadronPt+ max(0.,sumNeutralHadronPt+sumPhotonPt]/pt
+    muIsoRAW . push_back ( ((*VMCHSTAND)[muPtr] + std::max(0.0,(*VMNHSTAND)[muPtr]+(*VMPhSTAND)[muPtr]))/muPtr->pt() ) ;
+    
+    //Delta Beta (see https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMuonId#Muon_Isolation for more details)
+    //I = [sumChargedHadronPt+ max(0.,sumNeutralHadronPt+sumPhotonPt-0.5sumPUPt]/pt
+    muIsoSTAND . push_back( ((*VMCHSTAND)[muPtr] + std::max(0.0,(*VMNHSTAND)[muPtr]+(*VMPhSTAND)[muPtr]-(0.5*(*VMPUSTAND)[muPtr] ) ) )/muPtr->pt() );
+
+    // PF Weighted (see https://twiki.cern.ch/twiki/bin/viewauth/CMS/MuonIsolationForRun2 for more details)
+    muIsoPFWGT . push_back( ((*VMCHSTAND)[muPtr]+(*VMNHPFWGT)[muPtr]+(*VMPhPFWGT)[muPtr])/muPtr->pt() );
+    
+    // PUPPI Weighted (see https://twiki.cern.ch/twiki/bin/viewauth/CMS/MuonIsolationForRun2 for more details)
+    muIsoPUPPI . push_back( ((*VMCHPUPPI)[muPtr]+(*VMNHPUPPI)[muPtr]+(*VMPhPUPPI)[muPtr])/muPtr->pt() );
+
+    // PUPPI Weighted without muons
+    muIsoNOMUONPUPPI . push_back( ((*VMCHNOMUONPUPPI)[muPtr]+(*VMNHNOMUONPUPPI)[muPtr]+(*VMPhNOMUONPUPPI)[muPtr])/muPtr->pt() );
+
+    muIso_CH   .push_back( (*VMCHSTAND)[muPtr] );
+    muIso_NU   .push_back( (*VMNHSTAND)[muPtr] );
+    muIso_PH   .push_back( (*VMPhSTAND)[muPtr] );
+    muIso_PU   .push_back( (*VMPUSTAND)[muPtr] );
+    muIso_NUPFW  .push_back( (*VMNHPFWGT)[muPtr] );
+    muIso_PHPFW  .push_back( (*VMPhPFWGT)[muPtr] );
+    muIso_CHPUPPI .push_back( (*VMCHPUPPI)[muPtr] );
+    muIso_NUPUPPI .push_back( (*VMNHPUPPI)[muPtr] );
+    muIso_PHPUPPI .push_back( (*VMPhPUPPI)[muPtr] );
+    muIso_CHNOMUONPUPPI .push_back( (*VMCHNOMUONPUPPI)[muPtr] );
+    muIso_NUNOMUONPUPPI .push_back( (*VMNHNOMUONPUPPI)[muPtr] );
+    muIso_PHNOMUONPUPPI .push_back( (*VMPhNOMUONPUPPI)[muPtr] );
+
+  }
+
+
+
 
   tree.fill();  
   eventCounter_++;
