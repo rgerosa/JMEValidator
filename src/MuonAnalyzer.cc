@@ -1,6 +1,6 @@
 #include "JMEAnalysis/JMEValidator/interface/MuonAnalyzer.h"
 
-MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& iConfig): JME::PhysicsObjectAnalyzer(iConfig),
+MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& iConfig): JME::IsolatedPhysicsObjectAnalyzer(iConfig),
     muons_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("src"))),
     vertices_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices")))
 {
@@ -24,19 +24,13 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     for (const pat::Muon& muon: *muonsHandle) {
         extractBasicProperties(muon);
         extractGenProperties(muon.genLepton());
+        computeIsolation(muon);
 
         isLoose_.push_back(muon.isLooseMuon());
         isSoft_.push_back(muon.isSoftMuon(primaryVertex));
         isTight_.push_back(muon.isTightMuon(primaryVertex));
         isHighPt_.push_back(muon.isHighPtMuon(primaryVertex));
 
-        // Isolation
-        chargedHadronIso_.push_back(muon.chargedHadronIso());
-        neutralHadronIso_.push_back(muon.neutralHadronIso());
-        photonIso_.push_back(muon.photonIso());
-        puChargedHadronIso_.push_back(muon.puChargedHadronIso());
-        relativeIso.push_back(muon.chargedHadronIso() + muon.neutralHadronIso() + muon.photonIso());
-        relativeIso_deltaBeta.push_back((muon.chargedHadronIso() + std::max((muon.neutralHadronIso() + muon.photonIso()) - 0.5 * muon.puChargedHadronIso(), 0.0)) / muon.pt());
     }
 
     tree.fill();
