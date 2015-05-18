@@ -116,11 +116,6 @@ void puppiAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   iEvent.getByToken(packedPFCandidatesToken_, hPFProduct);
   const reco::CandidateView *pfCol = hPFProduct.product();
 
-  //EVENT INFORMATION
-  run = iEvent.id().run();
-  lumiBlock = iEvent.id().luminosityBlock();
-  event = iEvent.id().event();
-
   nalgos = *nalgosHandle;
 
   int ctr = 0;
