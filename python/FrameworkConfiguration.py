@@ -208,6 +208,15 @@ def createProcess(isMC, globalTag):
 
     process.jmfw_analyzers += process.event
 
+    # HLTs
+    process.hlt = cms.EDAnalyzer('HLTAnalyzer',
+            src = cms.InputTag('TriggerResults', '', 'HLT'),
+            prescales = cms.InputTag('patTrigger'),
+            objects = cms.InputTag("selectedPatTrigger"),
+            )
+
+    process.jmfw_analyzers += process.hlt
+
     # Muons
     process.muons = cms.EDAnalyzer('MuonAnalyzer',
             src = cms.InputTag('slimmedMuons'),
