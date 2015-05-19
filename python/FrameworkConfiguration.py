@@ -234,7 +234,7 @@ def createProcess(isMC, globalTag):
 
             print('Adding analyzer for jets collection \'%s\'' % jetCollection)
 
-            analyzer = cms.EDAnalyzer('JetAnalyzer',
+            analyzer = cms.EDAnalyzer('JMEJetAnalyzer',
                     JetAnalyserCommonParameters,
                     JetCorLabel   = cms.string(params['jec_payloads'][index]),
                     JetCorLevels  = cms.vstring(params['jec_levels']),
@@ -249,12 +249,12 @@ def createProcess(isMC, globalTag):
             process.jmfw_analyzers += analyzer
 
     # MET
-    process.met_chs = cms.EDAnalyzer('METAnalyzer',
+    process.met_chs = cms.EDAnalyzer('JMEMETAnalyzer',
             src = cms.InputTag('slimmedMETs')
             )
     process.jmfw_analyzers += process.met_chs
 
-    process.met_puppi = cms.EDAnalyzer('METAnalyzer',
+    process.met_puppi = cms.EDAnalyzer('JMEMETAnalyzer',
             src = cms.InputTag('slimmedMETsPuppi')
             )
     process.jmfw_analyzers += process.met_puppi

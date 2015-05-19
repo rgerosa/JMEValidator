@@ -1,12 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// METAnalyzer
+// JMEMETAnalyzer
 // ------------------
 //
 //                        05/2015    Sébastien Brochet <sebastien.brochet@cern.ch>
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "JMEAnalysis/JMEValidator/interface/METAnalyzer.h"
+#include "JMEAnalysis/JMEValidator/interface/JMEMETAnalyzer.h"
 
 #include <vector>
 #include <iostream>
@@ -18,14 +18,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-METAnalyzer::METAnalyzer(const edm::ParameterSet& iConfig): JME::PhysicsObjectAnalyzer(iConfig),
+JMEMETAnalyzer::JMEMETAnalyzer(const edm::ParameterSet& iConfig): JME::PhysicsObjectAnalyzer(iConfig),
     src_(consumes<std::vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("src")))
 {
 }
 
 
 //______________________________________________________________________________
-METAnalyzer::~METAnalyzer()
+JMEMETAnalyzer::~JMEMETAnalyzer()
 {
 
 }
@@ -38,7 +38,7 @@ METAnalyzer::~METAnalyzer()
 //______________________________________________________________________________
 
 //______________________________________________________________________________
-void METAnalyzer::analyze(const edm::Event& iEvent,
+void JMEMETAnalyzer::analyze(const edm::Event& iEvent,
         const edm::EventSetup& iSetup)
 {
 
@@ -73,7 +73,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// define METAnalyzer as a plugin
+// define JMEMETAnalyzer as a plugin
 ////////////////////////////////////////////////////////////////////////////////
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(METAnalyzer);
+DEFINE_FWK_MODULE(JMEMETAnalyzer);

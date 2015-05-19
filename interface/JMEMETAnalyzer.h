@@ -4,12 +4,12 @@
 
 #include "DataFormats/PatCandidates/interface/MET.h"
 
-class METAnalyzer : public JME::PhysicsObjectAnalyzer
+class JMEMETAnalyzer : public JME::PhysicsObjectAnalyzer
 {
     public:
         // construction/destruction
-        explicit METAnalyzer(const edm::ParameterSet& iConfig);
-        virtual ~METAnalyzer();
+        explicit JMEMETAnalyzer(const edm::ParameterSet& iConfig);
+        virtual ~JMEMETAnalyzer();
 
     private:
 
