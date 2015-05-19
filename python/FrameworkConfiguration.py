@@ -237,6 +237,23 @@ def createProcess(isMC, globalTag):
 
     process.jmfw_analyzers += process.electrons
 
+    # Photons
+    process.photons = cms.EDAnalyzer('PhotonAnalyzer',
+            src = cms.InputTag('slimmedPhotons'),
+            vertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
+            conversions = cms.InputTag('reducedEgamma:reducedConversions'),
+            beamspot = cms.InputTag('offlineBeamSpot'),
+            rho = cms.InputTag('fixedGridRhoFastjetAll'),
+            phoChargedHadronIsolation = cms.InputTag("photonIDValueMapProducer:phoChargedIsolation"),
+            phoNeutralHadronIsolation = cms.InputTag("photonIDValueMapProducer:phoNeutralHadronIsolation"),
+            phoPhotonIsolation = cms.InputTag("photonIDValueMapProducer:phoPhotonIsolation"),
+            effAreaChHadFile = cms.FileInPath("EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfChargedHadrons_V2.txt"),
+            effAreaNeuHadFile = cms.FileInPath("EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfNeutralHadrons_V2.txt"),
+            effAreaPhoFile = cms.FileInPath("EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfPhotons_V2.txt")
+            )
+
+    process.jmfw_analyzers += process.photons
+
     # Jets
     for name, params in jetsCollections.items():
         for index, pu_method in enumerate(params['pu_methods']):
