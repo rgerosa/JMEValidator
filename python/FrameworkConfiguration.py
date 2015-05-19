@@ -225,7 +225,18 @@ def createProcess(isMC, globalTag):
             )
 
     process.jmfw_analyzers += process.muons
-    
+
+    # Electrons
+    process.electrons = cms.EDAnalyzer('ElectronAnalyzer',
+            src = cms.InputTag('slimmedElectrons'),
+            vertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
+            conversions = cms.InputTag('reducedEgamma:reducedConversions'),
+            beamspot = cms.InputTag('offlineBeamSpot'),
+            rho = cms.InputTag('fixedGridRhoFastjetAll'),
+            )
+
+    process.jmfw_analyzers += process.electrons
+
     # Jets
     for name, params in jetsCollections.items():
         for index, pu_method in enumerate(params['pu_methods']):
