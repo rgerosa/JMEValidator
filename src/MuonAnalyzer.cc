@@ -1,8 +1,11 @@
 #include "JMEAnalysis/JMEValidator/interface/MuonAnalyzer.h"
 
-MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& iConfig): JME::IsolatedPhysicsObjectAnalyzer(iConfig),
+#include "DataFormats/MuonReco/interface/MuonPFIsolation.h"
+
+MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& iConfig): JME::LeptonAnalyzer(iConfig),
     muons_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("src"))),
-    vertices_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices")))
+    vertices_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
+    rhoToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rho")))
 {
     // Empty
 }
@@ -20,11 +23,20 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     iEvent.getByToken(vertices_, verticesHandle);
     const auto& primaryVertex = verticesHandle->at(0);
 
+    edm::Handle<double> rhoHandle;
+    iEvent.getByToken(rhoToken_, rhoHandle);
+    double rho = *rhoHandle;
+
     // Loop over muons
     for (const pat::Muon& muon: *muonsHandle) {
         extractBasicProperties(muon);
         extractGenProperties(muon.genLepton());
-        computeIsolation(muon);
+
+        reco::MuonPFIsolation pfIso = muon.pfIsolationR03();
+        computeRelativeIsolationR03(muon, pfIso.sumChargedHadronPt, pfIso.sumNeutralHadronEt, pfIso.sumPhotonEt, pfIso.sumPUPt, muon.eta(), rho);
+
+        pfIso = muon.pfIsolationR04();
+        computeRelativeIsolationR04(muon, pfIso.sumChargedHadronPt, pfIso.sumNeutralHadronEt, pfIso.sumPhotonEt, pfIso.sumPUPt, muon.eta(), rho);
 
         isLoose_.push_back(muon.isLooseMuon());
         isSoft_.push_back(muon.isSoftMuon(primaryVertex));

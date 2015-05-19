@@ -220,7 +220,8 @@ def createProcess(isMC, globalTag):
     # Muons
     process.muons = cms.EDAnalyzer('MuonAnalyzer',
             src = cms.InputTag('slimmedMuons'),
-            vertices = cms.InputTag('offlineSlimmedPrimaryVertices')
+            vertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
+            rho = cms.InputTag('fixedGridRhoFastjetAll'),
             )
 
     process.jmfw_analyzers += process.muons
