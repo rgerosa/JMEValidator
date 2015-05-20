@@ -32,7 +32,7 @@ inputFiles = cms.untracked.vstring(
         '/store/relval/CMSSW_7_4_1/RelValFS_TTbar_13_PUAVE35/MINIAODSIM/PU25ns_MCRUN2_74_V9_FastSim-v1/00000/1868AA47-19ED-E411-9D57-0025905A6080.root'
     )
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 process.source = cms.Source("PoolSource", fileNames = inputFiles )
 
 # Services
@@ -45,6 +45,12 @@ process.out = cms.OutputModule("PoolOutputModule",
         outputCommands  = cms.untracked.vstring(),
         fileName       = cms.untracked.string("output_edm.root")
         )
+
+#- - - - - - - - - - - 
+# muon isolation study
+#- - - - - - - - - - - 
+from JMEAnalysis.JMEValidator.runMuonIsolation_cff import runMuonIsolation
+runMuonIsolation(process)
 
 # Create all needed jets collections
 
@@ -105,6 +111,7 @@ for name, params in jetsCollections.items():
         setattr(process, 'jmfw_%s' % params['jec_payloads'][index], analyzer)
         process.jmfw_analyzers += analyzer
 
+process.puppi.puppiDiagnostics = True;
 process.puppiReader = cms.EDAnalyzer("puppiAnalyzer",
                                         treeName = cms.string("puppiTree"),
 										maxEvents = cms.int32(1000),
@@ -116,7 +123,40 @@ process.puppiReader = cms.EDAnalyzer("puppiAnalyzer",
                                         packedPFCandidates = cms.InputTag("packedPFCandidates", "", "PAT")
 									)
 
-process.p = cms.Path( process.puppiReader + process.jmfw_analyzers )
+from RecoMET.METProducers.PFMET_cfi import pfMet
+process.pfMetPuppi = pfMet.clone();
+process.pfMetPuppi.src = cms.InputTag('puppi')
+
+process.selectedMuonsForZ = cms.EDFilter("CandPtrSelector", src = cms.InputTag("slimmedMuons"), cut = cms.string('''abs(eta)<2.5 && pt>10. &&
+   (pfIsolationR04().sumChargedHadronPt+
+    max(0.,pfIsolationR04().sumNeutralHadronEt+
+    pfIsolationR04().sumPhotonEt-
+    0.50*pfIsolationR04().sumPUPt))/pt < 0.20 && 
+    (isPFMuon && (isGlobalMuon || isTrackerMuon) )'''))
+
+process.leptonsAndMET = cms.EDAnalyzer("LeptonsAndMETAnalyzer",
+                                       srcIsoMuons = cms.InputTag("selectedMuonsForZ"),
+                                       srcMET = cms.InputTag("slimmedMETs"),
+                                       srcPUPPET = cms.InputTag("pfMetPuppi"),
+                                       srcVtx            = cms.InputTag('offlineSlimmedPrimaryVertices'),
+                                       srcMuons          = cms.InputTag('selectedPatMuons'),
+                                       srcVMCHSTAND      = cms.InputTag('muPFIsoValueCHR04STAND'),
+                                       srcVMNHSTAND      = cms.InputTag('muPFIsoValueNHR04STAND'),
+                                       srcVMPhSTAND      = cms.InputTag('muPFIsoValuePhR04STAND'),
+                                       srcVMPUSTAND      = cms.InputTag('muPFIsoValuePUR04STAND'),
+                                       srcVMCHPFWGT      = cms.InputTag('muPFIsoValueCHR04PFWGT'),
+                                       srcVMNHPFWGT      = cms.InputTag('muPFIsoValueNHR04PFWGT'),
+                                       srcVMPhPFWGT      = cms.InputTag('muPFIsoValuePhR04PFWGT'),
+                                       srcVMCHPUPPI      = cms.InputTag('muPFIsoValueCHR04PUPPI'),
+                                       srcVMNHPUPPI      = cms.InputTag('muPFIsoValueNHR04PUPPI'),
+                                       srcVMPhPUPPI      = cms.InputTag('muPFIsoValuePhR04PUPPI'),
+                                       srcVMCHNOMUONPUPPI      = cms.InputTag('muPFIsoValueCHR04NOMUONPUPPI'),
+                                       srcVMNHNOMUONPUPPI      = cms.InputTag('muPFIsoValueNHR04NOMUONPUPPI'),
+                                       srcVMPhNOMUONPUPPI      = cms.InputTag('muPFIsoValuePhR04NOMUONPUPPI')
+                                       )
+
+process.p *= process.pfMetPuppi + process.selectedMuonsForZ + process.puppiReader + process.leptonsAndMET + process.jmfw_analyzers 
+#process.p = cms.Path( process.puppiReader + process.jmfw_analyzers )
 
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
