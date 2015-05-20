@@ -3,6 +3,7 @@
 This is a small script that does the equivalent of multicrab.
 """
 import os
+from httplib import HTTPException
 from optparse import OptionParser
 
 from CRABAPI.RawCommand import crabCommand
@@ -51,10 +52,13 @@ def main():
         task = os.path.join(options.projDir, task)
         if not os.path.isdir(task):
             continue
-        print ("Executing (the equivalent of): crab %s %s %s" %
-              (options.crabCmd, task, options.crabCmdOptions))
-        crabCommand(options.crabCmd, task, *options.crabCmdOptions.split())
 
+        try :
+            print ("Executing (the equivalent of): crab %s %s %s" %
+                  (options.crabCmd, task, options.crabCmdOptions))
+            crabCommand(options.crabCmd, task, *options.crabCmdOptions.split())
+        except HTTPException, hte :
+            print 'Command not executed'
 
 if __name__ == '__main__':
     main()
