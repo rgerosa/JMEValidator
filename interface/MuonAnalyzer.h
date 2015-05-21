@@ -57,6 +57,7 @@ class MuonAnalyzer: public JME::LeptonAnalyzer {
 
     private:
         std::vector<bool>& isLoose_ = tree["isLoose"].write<std::vector<bool>>();
+        std::vector<bool>& isMedium_ = tree["isMedium"].write<std::vector<bool>>();
         std::vector<bool>& isSoft_ = tree["isSoft"].write<std::vector<bool>>();
         std::vector<bool>& isTight_ = tree["isTight"].write<std::vector<bool>>();
         std::vector<bool>& isHighPt_ = tree["isHighPt"].write<std::vector<bool>>();

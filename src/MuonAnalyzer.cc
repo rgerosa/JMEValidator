@@ -1,6 +1,7 @@
 #include "JMEAnalysis/JMEValidator/interface/MuonAnalyzer.h"
 
 #include "DataFormats/MuonReco/interface/MuonPFIsolation.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& iConfig): JME::LeptonAnalyzer(iConfig),
     muons_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("src"))),
@@ -52,10 +53,11 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         pfIso = muon.pfIsolationR04();
         computeRelativeIsolationR04(muon, pfIso.sumChargedHadronPt, pfIso.sumNeutralHadronEt, pfIso.sumPhotonEt, pfIso.sumPUPt, muon.eta(), rho);
 
-        isLoose_.push_back(muon.isLooseMuon());
-        isSoft_.push_back(muon.isSoftMuon(primaryVertex));
-        isTight_.push_back(muon.isTightMuon(primaryVertex));
-        isHighPt_.push_back(muon.isHighPtMuon(primaryVertex));
+        isLoose_.push_back(muon::isLooseMuon(muon));
+        isMedium_.push_back(muon::isMediumMuon(muon));
+        isSoft_.push_back(muon::isSoftMuon(muon, primaryVertex));
+        isTight_.push_back(muon::isTightMuon(muon, primaryVertex));
+        isHighPt_.push_back(muon::isHighPtMuon(muon, primaryVertex));
 
         // IDs
         const pat::MuonRef muonRef(muonsHandle, index++);
