@@ -46,7 +46,13 @@ PhotonAnalyzer::PhotonAnalyzer(const edm::ParameterSet& iConfig): JME::PhysicsOb
     effAreaNeuHadrons_((iConfig.getParameter<edm::FileInPath>("effAreaNeuHadFile")).fullPath()),
     effAreaPhotons_((iConfig.getParameter<edm::FileInPath>("effAreaPhoFile")).fullPath())
 {
-    // Empty
+    if (iConfig.existsAs<std::vector<edm::InputTag>>("ids")) {
+        const std::vector<edm::InputTag>& ids = iConfig.getParameter<std::vector<edm::InputTag>>("ids");
+
+        for (const edm::InputTag& id: ids) {
+            idTokens_.push_back(std::make_pair(id.instance(), consumes<edm::ValueMap<bool>>(id)));
+        }
+    }
 }
 
 PhotonAnalyzer::~PhotonAnalyzer() {
@@ -84,6 +90,13 @@ void PhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     edm::Handle<edm::ValueMap<float>> phoPhotonIsolationMap;
     iEvent.getByToken(phoPhotonIsolationToken_, phoPhotonIsolationMap);
 
+    std::vector<std::pair<std::string, edm::Handle<edm::ValueMap<bool>>>> idHandles;
+    for (auto& token: idTokens_) {
+        edm::Handle<edm::ValueMap<bool>> idHandle;
+        iEvent.getByToken(token.second, idHandle);
+        idHandles.push_back(std::make_pair(token.first, idHandle));
+    }
+
     // Loop over photons
     int index = 0;
     for (const pat::Photon& photon: *photonsHandle) {
@@ -115,6 +128,13 @@ void PhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         chargedHadronIsoR03EA_.push_back(std::max(0.0, chIso - rho * effAreaChHadrons_.getEffectiveArea(eta)));
         neutralHadronIsoR03EA_.push_back(std::max(0.0, nhIso - rho * effAreaNeuHadrons_.getEffectiveArea(eta)));
         photonIsoR03EA_.push_back(std::max(0.0, phIso - rho * effAreaPhotons_.getEffectiveArea(eta)));
+
+        // IDs
+        std::map<std::string, bool> ids;
+        for (auto& idHandle: idHandles) {
+            ids[idHandle.first] = (*(idHandle.second))[photonRef];
+        }
+        ids_.push_back(ids);
     }
 
     tree.fill();

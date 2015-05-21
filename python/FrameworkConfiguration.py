@@ -182,6 +182,21 @@ def createProcess(isMC, globalTag):
 
                 applyPostfix(process, "patJets", postfix).userData.userFloats.src += ['QGTagger%s:qgLikelihood' % postfix]
 
+    # Compute electrons and photons IDs
+    from PhysicsTools.SelectorUtils.tools.vid_id_tools import switchOnVIDElectronIdProducer, switchOnVIDPhotonIdProducer, DataFormat, setupAllVIDIdsInModule, setupVIDElectronSelection, setupVIDPhotonSelection
+    switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
+    switchOnVIDPhotonIdProducer(process, DataFormat.MiniAOD)
+
+    electronIdModules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff',
+                 'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV51_cff']
+
+    photonIdModules = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_PHYS14_PU20bx25_V2_cff']
+
+    for idMod in electronIdModules:
+        setupAllVIDIdsInModule(process, idMod, setupVIDElectronSelection)
+
+    for idMod in photonIdModules:
+        setupAllVIDIdsInModule(process, idMod, setupVIDPhotonSelection)
 
     # Configure the analyzers
 
@@ -233,6 +248,7 @@ def createProcess(isMC, globalTag):
             conversions = cms.InputTag('reducedEgamma:reducedConversions'),
             beamspot = cms.InputTag('offlineBeamSpot'),
             rho = cms.InputTag('fixedGridRhoFastjetAll'),
+            ids = cms.VInputTag('egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-veto', 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-loose', 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium', 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight', 'egmGsfElectronIDs:heepElectronID-HEEPV51')
             )
 
     process.jmfw_analyzers += process.electrons
@@ -240,6 +256,7 @@ def createProcess(isMC, globalTag):
     # Photons
     process.photons = cms.EDAnalyzer('PhotonAnalyzer',
             src = cms.InputTag('slimmedPhotons'),
+            electrons = cms.InputTag('slimmedElectrons'),
             vertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
             conversions = cms.InputTag('reducedEgamma:reducedConversions'),
             beamspot = cms.InputTag('offlineBeamSpot'),
@@ -249,7 +266,8 @@ def createProcess(isMC, globalTag):
             phoPhotonIsolation = cms.InputTag("photonIDValueMapProducer:phoPhotonIsolation"),
             effAreaChHadFile = cms.FileInPath("EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfChargedHadrons_V2.txt"),
             effAreaNeuHadFile = cms.FileInPath("EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfNeutralHadrons_V2.txt"),
-            effAreaPhoFile = cms.FileInPath("EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfPhotons_V2.txt")
+            effAreaPhoFile = cms.FileInPath("EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfPhotons_V2.txt"),
+            ids = cms.VInputTag('egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-loose', 'egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-medium', 'egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-tight')
             )
 
     process.jmfw_analyzers += process.photons

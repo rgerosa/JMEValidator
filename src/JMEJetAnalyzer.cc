@@ -161,7 +161,7 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
      hadronFlavor.push_back(jet.hadronFlavour());
 
      // b-tagging discriminators
-     btagDiscri = jet.getPairDiscri();
+     btagDiscri.push_back(jet.getPairDiscri());
 
      // PU Jet Id
      for (const std::string& userFloatName: jet.userFloatNames()) {

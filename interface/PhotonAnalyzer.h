@@ -28,6 +28,7 @@ class PhotonAnalyzer: public JME::PhysicsObjectAnalyzer {
         edm::EDGetTokenT<edm::ValueMap<float>> phoChargedHadronIsolationToken_; 
         edm::EDGetTokenT<edm::ValueMap<float>> phoNeutralHadronIsolationToken_; 
         edm::EDGetTokenT<edm::ValueMap<float>> phoPhotonIsolationToken_;
+        std::vector<std::pair<std::string, edm::EDGetTokenT<edm::ValueMap<bool>>>> idTokens_;
 
         EffectiveAreas effAreaChHadrons_;
         EffectiveAreas effAreaNeuHadrons_;
@@ -49,5 +50,7 @@ class PhotonAnalyzer: public JME::PhysicsObjectAnalyzer {
         std::vector<float>& chargedHadronIsoR03EA_ = tree["chargedHadronIsoR03_withEA"].write<std::vector<float>>();
         std::vector<float>& neutralHadronIsoR03EA_ = tree["neutralHadronIsoR03_withEA"].write<std::vector<float>>();
         std::vector<float>& photonIsoR03EA_ = tree["photonIsoR03_withEA"].write<std::vector<float>>();
+
+        std::vector<std::map<std::string, bool>>& ids_ = tree["ids"].write<std::vector<std::map<std::string, bool>>>();
 };
 

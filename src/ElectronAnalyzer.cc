@@ -10,7 +10,13 @@ ElectronAnalyzer::ElectronAnalyzer(const edm::ParameterSet& iConfig): JME::Lepto
     beamspot_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamspot"))),
     rhoToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rho")))
 {
-    // Empty
+    if (iConfig.existsAs<std::vector<edm::InputTag>>("ids")) {
+        const std::vector<edm::InputTag>& ids = iConfig.getParameter<std::vector<edm::InputTag>>("ids");
+
+        for (const edm::InputTag& id: ids) {
+            idTokens_.push_back(std::make_pair(id.instance(), consumes<edm::ValueMap<bool>>(id)));
+        }
+    }
 }
 
 ElectronAnalyzer::~ElectronAnalyzer() {
@@ -36,7 +42,15 @@ void ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     iEvent.getByToken(rhoToken_, rhoHandle);
     double rho = *rhoHandle;
 
+    std::vector<std::pair<std::string, edm::Handle<edm::ValueMap<bool>>>> idHandles;
+    for (auto& token: idTokens_) {
+        edm::Handle<edm::ValueMap<bool>> idHandle;
+        iEvent.getByToken(token.second, idHandle);
+        idHandles.push_back(std::make_pair(token.first, idHandle));
+    }
+
     // Loop over electrons
+    size_t index = 0;
     for (const pat::Electron& electron: *electronsHandle) {
         extractBasicProperties(electron);
         extractGenProperties(electron.genLepton());
@@ -66,6 +80,14 @@ void ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
         // Conversion rejection
         passConversionVeto.push_back(!ConversionTools::hasMatchedConversion(electron, conversionsHandle, beamSpotHandle->position()));
+
+        // IDs
+        const pat::ElectronRef electronRef(electronsHandle, index++);
+        std::map<std::string, bool> ids;
+        for (auto& idHandle: idHandles) {
+            ids[idHandle.first] = (*(idHandle.second))[electronRef];
+        }
+        ids_.push_back(ids);
     }
 
     tree.fill();

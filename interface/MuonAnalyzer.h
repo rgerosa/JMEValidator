@@ -53,11 +53,14 @@ class MuonAnalyzer: public JME::LeptonAnalyzer {
         edm::EDGetTokenT<pat::MuonCollection> muons_;
         edm::EDGetTokenT<reco::VertexCollection> vertices_;
         edm::EDGetTokenT<double> rhoToken_;
+        std::vector<std::pair<std::string, edm::EDGetTokenT<edm::ValueMap<bool>>>> idTokens_;
 
     private:
         std::vector<bool>& isLoose_ = tree["isLoose"].write<std::vector<bool>>();
         std::vector<bool>& isSoft_ = tree["isSoft"].write<std::vector<bool>>();
         std::vector<bool>& isTight_ = tree["isTight"].write<std::vector<bool>>();
         std::vector<bool>& isHighPt_ = tree["isHighPt"].write<std::vector<bool>>();
+
+        std::vector<std::map<std::string, bool>>& ids_ = tree["ids"].write<std::vector<std::map<std::string, bool>>>();
 };
 

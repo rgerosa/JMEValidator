@@ -61,6 +61,8 @@ class ElectronAnalyzer: public JME::LeptonAnalyzer {
         edm::EDGetTokenT<reco::BeamSpot> beamspot_;
         edm::EDGetTokenT<double> rhoToken_;
 
+        std::vector<std::pair<std::string, edm::EDGetTokenT<edm::ValueMap<bool>>>> idTokens_;
+
     private:
         std::vector<float>& supercluster_eta = tree["supercluster_eta"].write<std::vector<float>>();
         std::vector<float>& supercluster_phi = tree["supercluster_phi"].write<std::vector<float>>();
@@ -73,6 +75,8 @@ class ElectronAnalyzer: public JME::LeptonAnalyzer {
         std::vector<float>& dz = tree["dz"].write<std::vector<float>>();
         std::vector<int>& expectedMissingInnerHits = tree["expected_missing_inner_hits"].write<std::vector<int>>();
         std::vector<bool>& passConversionVeto = tree["pass_conversion_veto"].write<std::vector<bool>>();
+
+        std::vector<std::map<std::string, bool>>& ids_ = tree["ids"].write<std::vector<std::map<std::string, bool>>>();
 
 
 };

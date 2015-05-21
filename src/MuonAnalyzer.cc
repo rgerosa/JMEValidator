@@ -7,7 +7,13 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& iConfig): JME::LeptonAnalyze
     vertices_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
     rhoToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rho")))
 {
-    // Empty
+    if (iConfig.existsAs<std::vector<edm::InputTag>>("ids")) {
+        const std::vector<edm::InputTag>& ids = iConfig.getParameter<std::vector<edm::InputTag>>("ids");
+
+        for (const edm::InputTag& id: ids) {
+            idTokens_.push_back(std::make_pair(id.instance(), consumes<edm::ValueMap<bool>>(id)));
+        }
+    }
 }
 
 MuonAnalyzer::~MuonAnalyzer() {
@@ -27,7 +33,15 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     iEvent.getByToken(rhoToken_, rhoHandle);
     double rho = *rhoHandle;
 
+    std::vector<std::pair<std::string, edm::Handle<edm::ValueMap<bool>>>> idHandles;
+    for (auto& token: idTokens_) {
+        edm::Handle<edm::ValueMap<bool>> idHandle;
+        iEvent.getByToken(token.second, idHandle);
+        idHandles.push_back(std::make_pair(token.first, idHandle));
+    }
+
     // Loop over muons
+    size_t index = 0;
     for (const pat::Muon& muon: *muonsHandle) {
         extractBasicProperties(muon);
         extractGenProperties(muon.genLepton());
@@ -42,6 +56,14 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         isSoft_.push_back(muon.isSoftMuon(primaryVertex));
         isTight_.push_back(muon.isTightMuon(primaryVertex));
         isHighPt_.push_back(muon.isHighPtMuon(primaryVertex));
+
+        // IDs
+        const pat::MuonRef muonRef(muonsHandle, index++);
+        std::map<std::string, bool> ids;
+        for (auto& idHandle: idHandles) {
+            ids[idHandle.first] = (*(idHandle.second))[muonRef];
+        }
+        ids_.push_back(ids);
 
     }
 
