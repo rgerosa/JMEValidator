@@ -15,6 +15,13 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& iConfig): JME::LeptonAnalyze
             idTokens_.push_back(std::make_pair(id.instance(), consumes<edm::ValueMap<bool>>(id)));
         }
     }
+
+    isoValue_neutralHadrons_pfWeighted_R04_token = consumes<edm::ValueMap<double>>(edm::InputTag("muPFIsoValueNHR04PFWGT"));
+    isoValue_photons_pfWeighted_R04_token = consumes<edm::ValueMap<double>>(edm::InputTag("muPFIsoValuePhR04PFWGT"));
+
+    isoValue_chargedHadrons_puppiWeighted_R04_token = consumes<edm::ValueMap<double>>(edm::InputTag("muPFIsoValueCHR04PUPPI"));
+    isoValue_neutralHadrons_puppiWeighted_R04_token = consumes<edm::ValueMap<double>>(edm::InputTag("muPFIsoValueNHR04PUPPI"));
+    isoValue_photons_puppiWeighted_R04_token = consumes<edm::ValueMap<double>>(edm::InputTag("muPFIsoValuePhR04PUPPI"));
 }
 
 MuonAnalyzer::~MuonAnalyzer() {
@@ -34,6 +41,18 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     iEvent.getByToken(rhoToken_, rhoHandle);
     double rho = *rhoHandle;
 
+    edm::Handle<edm::ValueMap<double>> isoValue_neutralHadrons_pfWeighted_R04;
+    iEvent.getByToken(isoValue_neutralHadrons_pfWeighted_R04_token, isoValue_neutralHadrons_pfWeighted_R04);
+    edm::Handle<edm::ValueMap<double>> isoValue_photons_pfWeighted_R04;
+    iEvent.getByToken(isoValue_photons_pfWeighted_R04_token, isoValue_photons_pfWeighted_R04);
+
+    edm::Handle<edm::ValueMap<double>> isoValue_chargedHadrons_puppiWeighted_R04;
+    iEvent.getByToken(isoValue_chargedHadrons_puppiWeighted_R04_token, isoValue_chargedHadrons_puppiWeighted_R04);
+    edm::Handle<edm::ValueMap<double>> isoValue_neutralHadrons_puppiWeighted_R04;
+    iEvent.getByToken(isoValue_neutralHadrons_puppiWeighted_R04_token, isoValue_neutralHadrons_puppiWeighted_R04);
+    edm::Handle<edm::ValueMap<double>> isoValue_photons_puppiWeighted_R04;
+    iEvent.getByToken(isoValue_photons_puppiWeighted_R04_token, isoValue_photons_puppiWeighted_R04);
+
     std::vector<std::pair<std::string, edm::Handle<edm::ValueMap<bool>>>> idHandles;
     for (auto& token: idTokens_) {
         edm::Handle<edm::ValueMap<bool>> idHandle;
@@ -44,6 +63,8 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     // Loop over muons
     size_t index = 0;
     for (const pat::Muon& muon: *muonsHandle) {
+        const pat::MuonRef muonRef(muonsHandle, index++);
+
         extractBasicProperties(muon);
         extractGenProperties(muon.genLepton());
 
@@ -53,6 +74,17 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         pfIso = muon.pfIsolationR04();
         computeRelativeIsolationR04(muon, pfIso.sumChargedHadronPt, pfIso.sumNeutralHadronEt, pfIso.sumPhotonEt, pfIso.sumPUPt, muon.eta(), rho);
 
+        neutralHadronIsoR04_pfWeighted_.push_back((*isoValue_neutralHadrons_pfWeighted_R04)[muonRef]);
+        photonIsoR04_pfWeighted_.push_back((*isoValue_photons_pfWeighted_R04)[muonRef]);
+
+        relativeIsoR04_pfWeighted_.push_back((pfIso.sumChargedHadronPt + (*isoValue_neutralHadrons_pfWeighted_R04)[muonRef] + (*isoValue_photons_pfWeighted_R04)[muonRef]) / muon.pt());
+
+        chargedHadronIsoR04_puppiWeighted_.push_back((*isoValue_chargedHadrons_puppiWeighted_R04)[muonRef]);
+        neutralHadronIsoR04_puppiWeighted_.push_back((*isoValue_neutralHadrons_puppiWeighted_R04)[muonRef]);
+        photonIsoR04_puppiWeighted_.push_back((*isoValue_photons_puppiWeighted_R04)[muonRef]);
+
+        relativeIsoR04_puppiWeighted_.push_back(((*isoValue_chargedHadrons_puppiWeighted_R04)[muonRef] + (*isoValue_neutralHadrons_puppiWeighted_R04)[muonRef] + (*isoValue_photons_puppiWeighted_R04)[muonRef]) / muon.pt());
+
         isLoose_.push_back(muon::isLooseMuon(muon));
         isMedium_.push_back(muon::isMediumMuon(muon));
         isSoft_.push_back(muon::isSoftMuon(muon, primaryVertex));
@@ -60,7 +92,6 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         isHighPt_.push_back(muon::isHighPtMuon(muon, primaryVertex));
 
         // IDs
-        const pat::MuonRef muonRef(muonsHandle, index++);
         std::map<std::string, bool> ids;
         for (auto& idHandle: idHandles) {
             ids[idHandle.first] = (*(idHandle.second))[muonRef];

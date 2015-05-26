@@ -55,6 +55,14 @@ class MuonAnalyzer: public JME::LeptonAnalyzer {
         edm::EDGetTokenT<double> rhoToken_;
         std::vector<std::pair<std::string, edm::EDGetTokenT<edm::ValueMap<bool>>>> idTokens_;
 
+        // Isolation
+        edm::EDGetTokenT<edm::ValueMap<double>> isoValue_neutralHadrons_pfWeighted_R04_token;
+        edm::EDGetTokenT<edm::ValueMap<double>> isoValue_photons_pfWeighted_R04_token;
+
+        edm::EDGetTokenT<edm::ValueMap<double>> isoValue_chargedHadrons_puppiWeighted_R04_token;
+        edm::EDGetTokenT<edm::ValueMap<double>> isoValue_neutralHadrons_puppiWeighted_R04_token;
+        edm::EDGetTokenT<edm::ValueMap<double>> isoValue_photons_puppiWeighted_R04_token;
+
     private:
         std::vector<bool>& isLoose_ = tree["isLoose"].write<std::vector<bool>>();
         std::vector<bool>& isMedium_ = tree["isMedium"].write<std::vector<bool>>();
@@ -63,5 +71,14 @@ class MuonAnalyzer: public JME::LeptonAnalyzer {
         std::vector<bool>& isHighPt_ = tree["isHighPt"].write<std::vector<bool>>();
 
         std::vector<std::map<std::string, bool>>& ids_ = tree["ids"].write<std::vector<std::map<std::string, bool>>>();
+
+        std::vector<float>& neutralHadronIsoR04_pfWeighted_ = tree["neutralHadronIsoR04_pfWeighted"].write<std::vector<float>>();
+        std::vector<float>& photonIsoR04_pfWeighted_ = tree["photonIsoR04_pfWeighted"].write<std::vector<float>>();
+        std::vector<float>& relativeIsoR04_pfWeighted_ = tree["relativeIsoR04_pfWeighted"].write<std::vector<float>>();
+
+        std::vector<float>& chargedHadronIsoR04_puppiWeighted_ = tree["chargedHadronIsoR04_puppiWeighted"].write<std::vector<float>>();
+        std::vector<float>& neutralHadronIsoR04_puppiWeighted_ = tree["neutralHadronIsoR04_puppiWeighted"].write<std::vector<float>>();
+        std::vector<float>& photonIsoR04_puppiWeighted_ = tree["photonIsoR04_puppiWeighted"].write<std::vector<float>>();
+        std::vector<float>& relativeIsoR04_puppiWeighted_ = tree["relativeIsoR04_puppiWeighted"].write<std::vector<float>>();
 };
 
