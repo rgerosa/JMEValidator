@@ -16,12 +16,16 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& iConfig): JME::LeptonAnalyze
         }
     }
 
-    isoValue_neutralHadrons_pfWeighted_R04_token = consumes<edm::ValueMap<double>>(edm::InputTag("muPFIsoValueNHR04PFWGT"));
-    isoValue_photons_pfWeighted_R04_token = consumes<edm::ValueMap<double>>(edm::InputTag("muPFIsoValuePhR04PFWGT"));
+    isoValue_neutralHadrons_pfWeighted_R04_token = consumes<edm::ValueMap<double>>(iConfig.getParameter<edm::InputTag>("isoValue_NH_pfWeighted_R04"));
+    isoValue_photons_pfWeighted_R04_token = consumes<edm::ValueMap<double>>(iConfig.getParameter<edm::InputTag>("isoValue_Ph_pfWeighted_R04"));
 
-    isoValue_chargedHadrons_puppiWeighted_R04_token = consumes<edm::ValueMap<double>>(edm::InputTag("muPFIsoValueCHR04PUPPI"));
-    isoValue_neutralHadrons_puppiWeighted_R04_token = consumes<edm::ValueMap<double>>(edm::InputTag("muPFIsoValueNHR04PUPPI"));
-    isoValue_photons_puppiWeighted_R04_token = consumes<edm::ValueMap<double>>(edm::InputTag("muPFIsoValuePhR04PUPPI"));
+    isoValue_chargedHadrons_puppiWeighted_R04_token = consumes<edm::ValueMap<double>>(iConfig.getParameter<edm::InputTag>("isoValue_CH_puppiWeighted_R04"));
+    isoValue_neutralHadrons_puppiWeighted_R04_token = consumes<edm::ValueMap<double>>(iConfig.getParameter<edm::InputTag>("isoValue_NH_puppiWeighted_R04"));
+    isoValue_photons_puppiWeighted_R04_token = consumes<edm::ValueMap<double>>(iConfig.getParameter<edm::InputTag>("isoValue_Ph_puppiWeighted_R04"));
+
+    isoValue_chargedHadrons_puppiNoMuonWeighted_R04_token = consumes<edm::ValueMap<double>>(iConfig.getParameter<edm::InputTag>("isoValue_CH_puppiNoMuonWeighted_R04"));
+    isoValue_neutralHadrons_puppiNoMuonWeighted_R04_token = consumes<edm::ValueMap<double>>(iConfig.getParameter<edm::InputTag>("isoValue_NH_puppiNoMuonWeighted_R04"));
+    isoValue_photons_puppiNoMuonWeighted_R04_token = consumes<edm::ValueMap<double>>(iConfig.getParameter<edm::InputTag>("isoValue_Ph_puppiNoMuonWeighted_R04"));
 }
 
 MuonAnalyzer::~MuonAnalyzer() {
@@ -52,6 +56,13 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     iEvent.getByToken(isoValue_neutralHadrons_puppiWeighted_R04_token, isoValue_neutralHadrons_puppiWeighted_R04);
     edm::Handle<edm::ValueMap<double>> isoValue_photons_puppiWeighted_R04;
     iEvent.getByToken(isoValue_photons_puppiWeighted_R04_token, isoValue_photons_puppiWeighted_R04);
+
+    edm::Handle<edm::ValueMap<double>> isoValue_chargedHadrons_puppiNoMuonWeighted_R04;
+    iEvent.getByToken(isoValue_chargedHadrons_puppiNoMuonWeighted_R04_token, isoValue_chargedHadrons_puppiNoMuonWeighted_R04);
+    edm::Handle<edm::ValueMap<double>> isoValue_neutralHadrons_puppiNoMuonWeighted_R04;
+    iEvent.getByToken(isoValue_neutralHadrons_puppiNoMuonWeighted_R04_token, isoValue_neutralHadrons_puppiNoMuonWeighted_R04);
+    edm::Handle<edm::ValueMap<double>> isoValue_photons_puppiNoMuonWeighted_R04;
+    iEvent.getByToken(isoValue_photons_puppiNoMuonWeighted_R04_token, isoValue_photons_puppiNoMuonWeighted_R04);
 
     std::vector<std::pair<std::string, edm::Handle<edm::ValueMap<bool>>>> idHandles;
     for (auto& token: idTokens_) {
@@ -84,6 +95,12 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         photonIsoR04_puppiWeighted_.push_back((*isoValue_photons_puppiWeighted_R04)[muonRef]);
 
         relativeIsoR04_puppiWeighted_.push_back(((*isoValue_chargedHadrons_puppiWeighted_R04)[muonRef] + (*isoValue_neutralHadrons_puppiWeighted_R04)[muonRef] + (*isoValue_photons_puppiWeighted_R04)[muonRef]) / muon.pt());
+
+        chargedHadronIsoR04_puppiNoMuonWeighted_.push_back((*isoValue_chargedHadrons_puppiNoMuonWeighted_R04)[muonRef]);
+        neutralHadronIsoR04_puppiNoMuonWeighted_.push_back((*isoValue_neutralHadrons_puppiNoMuonWeighted_R04)[muonRef]);
+        photonIsoR04_puppiNoMuonWeighted_.push_back((*isoValue_photons_puppiNoMuonWeighted_R04)[muonRef]);
+
+        relativeIsoR04_puppiNoMuonWeighted_.push_back(((*isoValue_chargedHadrons_puppiNoMuonWeighted_R04)[muonRef] + (*isoValue_neutralHadrons_puppiNoMuonWeighted_R04)[muonRef] + (*isoValue_photons_puppiNoMuonWeighted_R04)[muonRef]) / muon.pt());
 
         isLoose_.push_back(muon::isLooseMuon(muon));
         isMedium_.push_back(muon::isMediumMuon(muon));

@@ -202,12 +202,25 @@ def createProcess(isMC, globalTag):
             )
 
     ### Using puppi
-    process.puppiR04 = process.puppi.clone()
-    process.puppiR04.algos[0].puppiAlgos[0].cone = cone_size
+    process.puppiR05 = process.puppi.clone()
+    process.puppiR05.algos[0].puppiAlgos[0].cone = 0.5
 
-    process.pfAllPhotonsPuppi = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR04"), cut = cms.string("pdgId == 22"))
-    process.pfAllNeutralHadronsPuppi = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR04"), cut = cms.string("pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
-    process.pfAllChargedHadronsPuppi = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR04"), cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 2212 || pdgId == -2212"))
+    process.pfAllPhotonsPuppi = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR05"), cut = cms.string("pdgId == 22"))
+    process.pfAllNeutralHadronsPuppi = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR05"), cut = cms.string("pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
+    process.pfAllChargedHadronsPuppi = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR05"), cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 2212 || pdgId == -2212"))
+
+    ### Using puppi, but without muons
+    ### FIXME: Reference code [1] excludes particles no coming from PV. It leads to an inconsistency between the two puppi collections (one is done on all pf candidates, the other only on
+    ### candidates coming from PV)
+    ### [1] https://github.com/cms-jet/JMEValidator/blob/a61ebd818c82dc9eab9d47b616ea85136488e77c/python/runMuonIsolation_cff.py#L16
+    process.packedPFCandidatesNoMuon = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV > 1 && abs(pdgId) != 13"))
+    process.puppiR05NoMu = process.puppiR05.clone(
+            candName = 'packedPFCandidatesNoMuon'
+            )
+
+    process.pfAllPhotonsPuppiNoMuon = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR05NoMu"), cut = cms.string("pdgId == 22"))
+    process.pfAllNeutralHadronsPuppiNoMuon = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR05NoMu"), cut = cms.string("pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
+    process.pfAllChargedHadronsPuppiNoMuon = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR05NoMu"), cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 2212 || pdgId == -2212"))
 
 
     ## Create pf weighted collections
@@ -230,6 +243,15 @@ def createProcess(isMC, globalTag):
             src_charged_hadron = 'pfAllChargedHadronsPuppi',
             src_neutral_hadron = 'pfAllNeutralHadronsPuppi',
             src_photon         = 'pfAllPhotonsPuppi',
+            coneR = cone_size
+            )
+
+    ### PUPPI weighted isolation without muons
+    load_muonPFiso_sequence(process, 'MuonPFIsoSequencePUPPINoMu', algo = 'R04PUPPINoMu',
+            src = muon_src,
+            src_charged_hadron = 'pfAllChargedHadronsPuppiNoMuon',
+            src_neutral_hadron = 'pfAllNeutralHadronsPuppiNoMuon',
+            src_photon         = 'pfAllPhotonsPuppiNoMuon',
             coneR = cone_size
             )
 
@@ -288,6 +310,16 @@ def createProcess(isMC, globalTag):
             src = cms.InputTag('slimmedMuons'),
             vertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
             rho = cms.InputTag('fixedGridRhoFastjetAll'),
+            isoValue_NH_pfWeighted_R04 = cms.InputTag('muPFIsoValueNHR04PFWGT'),
+            isoValue_Ph_pfWeighted_R04 = cms.InputTag('muPFIsoValuePhR04PFWGT'),
+
+            isoValue_CH_puppiWeighted_R04 = cms.InputTag('muPFIsoValueCHR04PUPPI'),
+            isoValue_NH_puppiWeighted_R04 = cms.InputTag('muPFIsoValueNHR04PUPPI'),
+            isoValue_Ph_puppiWeighted_R04 = cms.InputTag('muPFIsoValuePhR04PUPPI'),
+
+            isoValue_CH_puppiNoMuonWeighted_R04 = cms.InputTag('muPFIsoValueCHR04PUPPINoMu'),
+            isoValue_NH_puppiNoMuonWeighted_R04 = cms.InputTag('muPFIsoValueNHR04PUPPINoMu'),
+            isoValue_Ph_puppiNoMuonWeighted_R04 = cms.InputTag('muPFIsoValuePhR04PUPPINoMu'),
             )
 
     process.jmfw_analyzers += process.muons

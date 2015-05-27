@@ -62,6 +62,9 @@ class MuonAnalyzer: public JME::LeptonAnalyzer {
         edm::EDGetTokenT<edm::ValueMap<double>> isoValue_chargedHadrons_puppiWeighted_R04_token;
         edm::EDGetTokenT<edm::ValueMap<double>> isoValue_neutralHadrons_puppiWeighted_R04_token;
         edm::EDGetTokenT<edm::ValueMap<double>> isoValue_photons_puppiWeighted_R04_token;
+        edm::EDGetTokenT<edm::ValueMap<double>> isoValue_chargedHadrons_puppiNoMuonWeighted_R04_token;
+        edm::EDGetTokenT<edm::ValueMap<double>> isoValue_neutralHadrons_puppiNoMuonWeighted_R04_token;
+        edm::EDGetTokenT<edm::ValueMap<double>> isoValue_photons_puppiNoMuonWeighted_R04_token;
 
     private:
         std::vector<bool>& isLoose_ = tree["isLoose"].write<std::vector<bool>>();
@@ -80,5 +83,10 @@ class MuonAnalyzer: public JME::LeptonAnalyzer {
         std::vector<float>& neutralHadronIsoR04_puppiWeighted_ = tree["neutralHadronIsoR04_puppiWeighted"].write<std::vector<float>>();
         std::vector<float>& photonIsoR04_puppiWeighted_ = tree["photonIsoR04_puppiWeighted"].write<std::vector<float>>();
         std::vector<float>& relativeIsoR04_puppiWeighted_ = tree["relativeIsoR04_puppiWeighted"].write<std::vector<float>>();
+
+        std::vector<float>& chargedHadronIsoR04_puppiNoMuonWeighted_ = tree["chargedHadronIsoR04_puppiNoMuonWeighted"].write<std::vector<float>>();
+        std::vector<float>& neutralHadronIsoR04_puppiNoMuonWeighted_ = tree["neutralHadronIsoR04_puppiNoMuonWeighted"].write<std::vector<float>>();
+        std::vector<float>& photonIsoR04_puppiNoMuonWeighted_ = tree["photonIsoR04_puppiNoMuonWeighted"].write<std::vector<float>>();
+        std::vector<float>& relativeIsoR04_puppiNoMuonWeighted_ = tree["relativeIsoR04_puppiNoMuonWeighted"].write<std::vector<float>>();
 };
 
