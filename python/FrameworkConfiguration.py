@@ -40,11 +40,6 @@ def createProcess(isMC, globalTag):
     process.load('CommonTools.UtilAlgos.TFileService_cfi')
     process.TFileService.fileName = cms.string('output_mc.root') if isMC else cms.string('output_data.root')
 
-    process.out = cms.OutputModule("PoolOutputModule",
-            outputCommands  = cms.untracked.vstring(),
-            fileName       = cms.untracked.string("output_edm.root")
-            )
-
     # Create all needed jets collections
 
     # jetsCollections is a dictionnary containing all the informations needed for creating a new jet collection. The format used is :
@@ -418,11 +413,6 @@ def createProcess(isMC, globalTag):
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     process.options   = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
     process.options.allowUnscheduled = cms.untracked.bool(True)
-
-    process.out.outputCommands  = cms.untracked.vstring('drop *')
-
-    # schedule definition
-    process.outpath  = cms.EndPath(process.out)
 
     return process
 
