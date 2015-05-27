@@ -392,6 +392,8 @@ def createProcess(isMC, globalTag):
     process.jmfw_analyzers += process.met_puppi
 
     # Puppi ; only for the first 1000 events of the job
+    ## Turn on diagnostic
+    process.puppi.puppiDiagnostics = cms.bool(True)
     process.puppiReader = cms.EDAnalyzer("puppiAnalyzer",
                                             treeName = cms.string("puppiTree"),
                                             maxEvents = cms.int32(1000),
@@ -400,7 +402,7 @@ def createProcess(isMC, globalTag):
                                             alphas = cms.InputTag("puppi", "PuppiAlphas", "JRA"),
                                             alphasMed = cms.InputTag("puppi", "PuppiAlphasMed", "JRA"),
                                             alphasRms = cms.InputTag("puppi", "PuppiAlphasRms", "JRA"),
-                                            packedPFCandidates = cms.InputTag("packedPFCandidates", "", "PAT")
+                                            packedPFCandidates = cms.InputTag("packedPFCandidates")
                                         )
 
     process.jmfw_analyzers += process.puppiReader
