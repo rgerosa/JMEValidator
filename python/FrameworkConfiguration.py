@@ -305,6 +305,13 @@ def createProcess(isMC, globalTag):
 
     process.jmfw_analyzers += process.hlt
 
+    # Vertices
+    process.vertex = cms.EDAnalyzer('VertexAnalyzer',
+            src = cms.InputTag('offlineSlimmedPrimaryVertices')
+            )
+
+    process.jmfw_analyzers += process.vertex
+
     # Muons
     process.muons = cms.EDAnalyzer('MuonAnalyzer',
             src = cms.InputTag('slimmedMuons'),
