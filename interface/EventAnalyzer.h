@@ -41,4 +41,12 @@ class EventAnalyzer: public JME::Analyzer {
         std::vector<int>& ntrks_lowpt_ = tree["pu_ntrks_lowpt"].write<std::vector<int>>();
         std::vector<int>& ntrks_highpt_ = tree["pu_ntrks_highpt"].write<std::vector<int>>();
         std::vector<std::vector<float>>& pu_zpositions_ = tree["pu_zpositions"].write<std::vector<std::vector<float>>>();
+
+        float& alphaQCD_ = tree["alphaQCD"].write<float>();
+        float& alphaQED_ = tree["alphaQED"].write<float>();
+        float& qScale_ = tree["qScale"].write<float>();
+        std::pair<int, int>& pdfID_ = tree["pdf_id"].write<std::pair<int, int>>();
+        std::pair<float, float>& pdfX_ = tree["pdf_x"].write<std::pair<float, float>>();
+        int& nMEPartons_ = tree["nMEPartons"].write<int>();
+        int& nMEPartonsFiltered_ = tree["nMEPartonsFiltered"].write<int>();
 };

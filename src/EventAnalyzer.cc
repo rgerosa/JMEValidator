@@ -30,6 +30,19 @@ void EventAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         pthat_ = genInfo->binningValues()[0];
 
     weight_ = genInfo->weight();
+
+    nMEPartons_ = genInfo->nMEPartons();
+    nMEPartonsFiltered_ = genInfo->nMEPartonsFiltered();
+
+    alphaQCD_ = genInfo->alphaQCD();
+    alphaQED_ = genInfo->alphaQED();
+    qScale_ = genInfo->qScale();
+
+    if (genInfo->hasPDF()) {
+        pdfID_ = genInfo->pdf()->id;
+        pdfX_.first = genInfo->pdf()->x.first;
+        pdfX_.second = genInfo->pdf()->x.second;
+    }
   }
 
   //RHO INFORMATION
