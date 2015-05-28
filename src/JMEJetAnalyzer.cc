@@ -161,7 +161,11 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
      hadronFlavor.push_back(jet.hadronFlavour());
 
      // b-tagging discriminators
-     btagDiscri.push_back(jet.getPairDiscri());
+     // Create one branch per discriminators for disk-space reasons (more than 50% smaller)
+     for (const auto& btag: jet.getPairDiscri()) {
+         std::vector<float>& discr = tree[btag.first].write<std::vector<float>>();
+         discr.push_back(btag.second);
+     }
 
      // PU Jet Id
      for (const std::string& userFloatName: jet.userFloatNames()) {
