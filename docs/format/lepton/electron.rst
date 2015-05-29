@@ -32,3 +32,7 @@ Electron
       p &= \frac{\text{electron.ecalEnergy()}}{\text{electron.eSuperClusterOverP()}}
 
 .. cpp:member:: bool pass_conversion_veto
+
+.. cpp:member:: std::map<std::string, bool> ids
+
+   See the :ref:`ids` page

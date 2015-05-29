@@ -30,3 +30,7 @@ Muon
                 float relativeIsoR04_puppiNoMuonWeighted
 
    Charged hadrons, neutral hadrons, photon and relative isolation using PUPPI reweighting, excluding all the muons from the particles contributing to the isolation. See `this twiki page <https://twiki.cern.ch/twiki/bin/viewauth/CMS/MuonIsolationForRun2#PUPPI>`__ for a detailled description.
+
+.. cpp:member:: std::map<std::string, bool> ids
+
+   See the :ref:`ids` page
