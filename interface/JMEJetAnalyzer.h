@@ -35,13 +35,11 @@ class JMEJetAnalyzer : public JME::PhysicsObjectAnalyzer
         FactorizedJetCorrector* jetCorrector_;
 
         // Tree branches
-        int& nref = tree["nref"].write<int>();
-        std::vector<int>& refrank = tree["refrank"].write<std::vector<int>>();
         std::vector<int>& refpdgid = tree["refpdgid"].write<std::vector<int>>();
         std::vector<float>& refdrjt = tree["refdrjt"].write<std::vector<float>>();
         std::vector<float>& refarea = tree["refarea"].write<std::vector<float>>();
-        std::vector<int>&   partonFlavor = tree["partonFlavor"].write<std::vector<int>>();
-        std::vector<int>&   hadronFlavor = tree["hadronFlavor"].write<std::vector<int>>();
+        std::vector<int8_t>&   partonFlavor = tree["partonFlavor"].write<std::vector<int8_t>>();
+        std::vector<int8_t>&   hadronFlavor = tree["hadronFlavor"].write<std::vector<int8_t>>();
         std::vector<float>& jtarea = tree["jtarea"].write<std::vector<float>>();
         std::vector<float>& jtjec = tree["jtjec"].write<std::vector<float>>();
         std::vector<float>& beta = tree["beta"].write<std::vector<float>>();

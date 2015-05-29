@@ -153,8 +153,6 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
 
      extractGenProperties(ref);
 
-     refrank.push_back(nref);
-
      // New jet flavor informations
      // See https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideBTagMCTools
      partonFlavor.push_back(jet.partonFlavour());
@@ -198,8 +196,6 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
      jtjec.push_back(jet.jecFactor(0));
 
      computeBetaStar(jet, *vtx);
-
-     nref++;
   }
 
   tree.fill();
