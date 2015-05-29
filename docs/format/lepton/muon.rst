@@ -3,6 +3,8 @@
 Muon
 ####
 
+All the branches for this analyzer are stored inside ``std::vector<>`` of the corresping type listed below.
+
 .. cpp:member:: bool isLoose
                 bool isSoft
                 bool isMedium

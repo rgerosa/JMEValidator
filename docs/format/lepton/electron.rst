@@ -3,6 +3,8 @@
 Electron
 ########
 
+All the branches for this analyzer are stored inside ``std::vector<>`` of the corresping type listed below.
+
 .. cpp:member:: float supercluster_eta
                 float supercluster_phi
 
