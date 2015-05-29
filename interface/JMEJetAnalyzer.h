@@ -59,8 +59,8 @@ class JMEJetAnalyzer : public JME::PhysicsObjectAnalyzer
         std::vector<float>& fRing6 = tree["fRing6"].write<std::vector<float>>();
         std::vector<float>& fRing7 = tree["fRing7"].write<std::vector<float>>();
         std::vector<float>& fRing8 = tree["fRing8"].write<std::vector<float>>();
-        std::vector<float>& nCh = tree["nCh"].write<std::vector<float>>();
-        std::vector<float>& nNeutrals = tree["nNeutrals"].write<std::vector<float>>();
+        std::vector<uint16_t>& nCh = tree["nCh"].write<std::vector<uint16_t>>();
+        std::vector<uint16_t>& nNeutrals = tree["nNeutrals"].write<std::vector<uint16_t>>();
         std::vector<float>& ptD = tree["ptD"].write<std::vector<float>>();
         std::vector<float>& pujetid_fulldiscriminant = tree["PUJetId_fullDiscriminant"].write<std::vector<float>>();
         std::vector<int>& pujetid_cutbasedid = tree["PUJetId_cutBasedId"].write<std::vector<int>>();
