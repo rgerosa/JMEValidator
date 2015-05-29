@@ -107,3 +107,9 @@ All the branches for this analyzer are stored inside ``std::vector<>`` of the co
 
 b-tagging
 ---------
+
+Additionnaly, a set of branches are created dynamically, one for each b-tagging algorithm available. The name of these branches are by definition not known in advance because the available b-tagging algorithm may change. However, all these branches name ends with ``BJetsTag`` so they are easily identifiable.
+
+.. cpp:member:: float *BJetsTag
+
+   b-tagging algorithm discriminant. The name of the branch is the actual name of the b-tagging algorithm.
