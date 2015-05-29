@@ -142,7 +142,7 @@ def createProcess(isMC, globalTag):
     for name, params in jetsCollections.items():
         for index, pu_method in enumerate(params['pu_methods']):
             # Add the jet collection
-            jetToolbox(process, params['algo'], 'dummy', 'out', PUMethod = pu_method, JETCorrPayload = params['jec_payloads'][index], JETCorrLevels = params['jec_levels'])
+            jetToolbox(process, params['algo'], 'dummy', 'out', PUMethod = pu_method, JETCorrPayload = params['jec_payloads'][index], JETCorrLevels = params['jec_levels'], addPUJetID = False)
 
             algo = params['algo'].upper()
             jetCollection = '%sPFJets%s' % (params['algo'], pu_method)
