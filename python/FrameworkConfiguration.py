@@ -376,7 +376,7 @@ def createProcess(isMC, globalTag):
                     srcMuons      = cms.InputTag('selectedPatMuons')
                     )
 
-            setattr(process, 'jmfw_%s' % params['jec_payloads'][index], analyzer)
+            setattr(process, params['jec_payloads'][index], analyzer)
 
             process.jmfw_analyzers += analyzer
 
