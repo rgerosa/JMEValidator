@@ -51,6 +51,9 @@ def createProcess(isMC, globalTag):
     #      "pu_jet_id": run the pu jet id or not. Very time consuming
     #  }
 
+    # Jet corrections
+    process.load('JetMETCorrections.Configuration.JetCorrectors_cff')
+
     jetsCollections = {
             'AK1': {
                 'algo': 'ak1',
