@@ -18,6 +18,7 @@ class JMEMETAnalyzer : public JME::PhysicsObjectAnalyzer
 
     private:
         edm::EDGetTokenT<std::vector<pat::MET>> src_;
+        edm::EDGetTokenT<std::vector<pat::MET>> caloMETToken_;
 
         // Tree branches
         std::vector<float>& sumEt = tree["sumEt"].write<std::vector<float>>();

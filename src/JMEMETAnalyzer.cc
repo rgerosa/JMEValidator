@@ -21,6 +21,8 @@
 JMEMETAnalyzer::JMEMETAnalyzer(const edm::ParameterSet& iConfig): JME::PhysicsObjectAnalyzer(iConfig),
     src_(consumes<std::vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("src")))
 {
+    if (iConfig.existsAs<edm::InputTag>("caloMET"))
+        caloMETToken_ = consumes<std::vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("caloMET"));
 }
 
 
@@ -64,10 +66,16 @@ void JMEMETAnalyzer::analyze(const edm::Event& iEvent,
         gen_significance.push_back(0);
     }
 
-    // FIXME: Calo met will be removed soon
-    caloMET_pt.push_back(met.caloMETPt());
-    caloMET_phi.push_back(met.caloMETPhi());
-    caloMET_sumEt.push_back(met.caloMETSumEt());
+    if (!caloMETToken_.isUninitialized()) {
+
+    edm::Handle<std::vector<pat::MET>> caloMETHandle;
+        iEvent.getByToken(caloMETToken_, caloMETHandle);
+        const pat::MET& caloMet = caloMETHandle->at(0);
+        // FIXME: Calo met will be removed soon
+        caloMET_pt.push_back(caloMet.caloMETPt());
+        caloMET_phi.push_back(caloMet.caloMETPhi());
+        caloMET_sumEt.push_back(caloMet.caloMETSumEt());
+    }
 
     tree.fill();
 }
