@@ -18,6 +18,9 @@ def getOptions() :
     parser.add_option("-d", "--dir", dest="dir",
         help=("The crab directory you want to use "),
         metavar="DIR")
+    parser.add_option("-f", "--datasets", dest="datasets",
+        help=("File listing datasets to run over"),
+        metavar="FILE")
     (options, args) = parser.parse_args()
 
 
@@ -52,7 +55,7 @@ def main():
     config.Data.splitting = 'FileBased'
     config.Data.unitsPerJob = 1
     config.Data.ignoreLocality = True
-    config.Data.publication = False    
+    config.Data.publication = True    
     
     config.section_("Site")
     config.Site.storageSite = 'T3_US_FNALLPC'
@@ -66,40 +69,37 @@ def main():
         try:
             crabCommand('submit', config = config)
         except HTTPException, hte:
+            print 'Cannot execute commend'
             print hte.headers
 
     #############################################################################################
     ## From now on that's what users should modify: this is the a-la-CRAB2 configuration part. ##
     #############################################################################################
 
+    datasetsFile = open( options.datasets )
+    jobsLines = datasetsFile.readlines()
+    jobs = []
+    for ijob in jobsLines :
+        s = ijob.rstrip()
+        jobs.append( s )
+        print '  --> added ' + s
 
-    jobs = [
-        '/QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8/RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/MINIAODSIM',
-        '/QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8/RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/MINIAODSIM',
-        '/QCD_Pt_80to120_TuneCUETP8M1_13TeV_pythia8/RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/MINIAODSIM',
-        '/QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM',
-        '/QCD_Pt_120to170_TuneCUETP8M1_13TeV_pythia8/RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/MINIAODSIM',
-        '/QCD_Pt_1400to1800_TuneCUETP8M1_13TeV_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM',
-        '/QCD_Pt_1400to1800_TuneCUETP8M1_13TeV_pythia8/RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/MINIAODSIM',
-        '/QCD_Pt_15to30_TuneCUETP8M1_13TeV_pythia8/RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/MINIAODSIM',
-        '/QCD_Pt_1800to2400_TuneCUETP8M1_13TeV_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM',
-        '/QCD_Pt_1800to2400_TuneCUETP8M1_13TeV_pythia8/RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/MINIAODSIM',
-        '/QCD_Pt_2400to3200_TuneCUETP8M1_13TeV_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM',
-        '/QCD_Pt_120to170_TuneCUETP8M1_13TeV_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM',
-        '/QCD_Pt_1000to1400_TuneCUETP8M1_13TeV_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM',
-        '/QCD_Pt_2400to3200_TuneCUETP8M1_13TeV_pythia8/RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/MINIAODSIM',
-        '/QCD_Pt_300to470_TuneCUETP8M1_13TeV_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM',
-        '/QCD_Pt_300to470_TuneCUETP8M1_13TeV_pythia8/RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/MINIAODSIM',
-        ]
+        
     for ijob, job in enumerate(jobs) :
 
         ptbin = job.split('/')[1]
         cond = job.split('/')[2]
-        config.General.requestName = 'jmevalidator741_' + ptbin + '_' + cond
+        config.General.requestName = 'b2ganafw741_' + ptbin + '_' + cond
         config.Data.inputDataset = job
         print 'Submitting ' + config.General.requestName + ', dataset = ' + job
+        print 'Configuration :'
+        #print config
         try :
-            submit(config)
+            from multiprocessing import Process
+            p = Process(target=submit, args=(config,))
+            p.start()
+            p.join()
+            #submit(config)
         except :
             print 'Not submitted.'
         
