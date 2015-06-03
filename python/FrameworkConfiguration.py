@@ -31,7 +31,7 @@ def createProcess(isMC, globalTag):
     #! Input
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
+    process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
     process.source = cms.Source("PoolSource")
 
     # Services
@@ -81,8 +81,8 @@ def createProcess(isMC, globalTag):
 
             'AK4': {
                 'algo': 'ak4',
-                'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK4PFPUPPI', 'AK4PFchs', 'AK4PF'],
+                'pu_methods': ['Puppi', 'CHS', 'SK', ''],
+                'jec_payloads': ['AK4PFPUPPI', 'AK4PFchs', 'AK4PFSK', 'AK4PF'],
                 'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
                 'pu_jet_id': True,
                 'qg_tagger': True,
@@ -114,8 +114,8 @@ def createProcess(isMC, globalTag):
 
             'AK8': {
                 'algo': 'ak8',
-                'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK8PFPUPPI', 'AK8PFchs', 'AK8PF'],
+                'pu_methods': ['Puppi', 'CHS', 'SK', ''],
+                'jec_payloads': ['AK8PFPUPPI', 'AK8PFchs', 'AK8PFSK', 'AK8PF'],
                 'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
                 'pu_jet_id': False,
                 },
@@ -151,8 +151,8 @@ def createProcess(isMC, globalTag):
             jetCollection = '%sPFJets%s' % (params['algo'], pu_method)
             postfix = '%sPF%s' % (algo, pu_method)
 
-            # FIXME: PU Jet id is not working with puppi jets
-            if params['pu_jet_id'] and pu_method != 'Puppi':
+            # FIXME: PU Jet id is not working with puppi jets or SK jets
+            if params['pu_jet_id'] and pu_method != 'Puppi' and pu_method != 'SK':
 
                 # PU jet Id
                 loadWithPostfix(process, 'RecoJets.JetProducers.pileupjetidproducer_cfi', postfix)
@@ -169,7 +169,8 @@ def createProcess(isMC, globalTag):
 
             # Quark / gluon discriminator
             # FIXME: Puppi needs some love
-            if 'qg_tagger' in params and params['qg_tagger'] and pu_method != 'Puppi':
+            # FIXME: So does SK
+            if 'qg_tagger' in params and params['qg_tagger'] and pu_method != 'Puppi' and pu_method != 'SK':
 
                 taggerPayload = 'QGL_%sPF%s' % (algo, pu_method.lower())
 
@@ -535,7 +536,7 @@ def createProcess(isMC, globalTag):
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #! Output and Log
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    process.options   = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
+    process.options   = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
     process.options.allowUnscheduled = cms.untracked.bool(True)
 
     return process
