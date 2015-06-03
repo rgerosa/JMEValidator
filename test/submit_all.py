@@ -56,7 +56,7 @@ def main():
     config.Data.unitsPerJob = 1
     config.Data.ignoreLocality = True
     config.Data.publication = False
-    config.Data.outLFNDirBase = '/store/user/lpcjme/JMEValidator742/'
+    config.Data.outLFNDirBase = '/store/group/lpcjme/JMEValidator742/'
     
     config.section_("Site")
     config.Site.storageSite = 'T3_US_FNALLPC'
