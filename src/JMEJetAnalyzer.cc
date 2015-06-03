@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// JetMETAnalyzer
+// JMEJetAnalyzer
 // ------------------
 //
 //                        01/07/2014 Alexx Perloff   <aperloff@physics.tamu.edu>
@@ -43,13 +43,12 @@
 #include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
 
 #include "SimDataFormats/JetMatching/interface/JetMatchedPartons.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
-#include "JMEAnalysis/JMEValidator/interface/JetMETAnalyzer.h"
+#include "JMEAnalysis/JMEValidator/interface/JMEJetAnalyzer.h"
 
 #include <vector>
 #include <iostream>
+#include <regex>
 #include <string>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,12 +56,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& iConfig)
-  : JME::Analyzer(iConfig)
+JMEJetAnalyzer::JMEJetAnalyzer(const edm::ParameterSet& iConfig)
+  : JME::PhysicsObjectAnalyzer(iConfig)
   , JetCorLabel_   (iConfig.getParameter<std::string>("JetCorLabel"))
   , JetCorLevels_  (iConfig.getParameter<std::vector<std::string>>("JetCorLevels"))
   , srcJet_        (consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("srcJet")))
-  , srcRho_        (consumes<double>(iConfig.getParameter<edm::InputTag>("srcRho")))
   , srcVtx_        (consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("srcVtx")))
   , srcMuons_      (consumes<std::vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("srcMuons")))
   , doComposition_ (iConfig.getParameter<bool>("doComposition"))
@@ -90,24 +88,22 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& iConfig)
   //   cout << "DONE" << endl;
   // }
   
-  std::cout << "|---- JetMETAnalyzer: Initialyzing..." << std::endl;
-  std::cout << "|---- JetMETAnalyzer: Applying these jet corrections: ( " << JetCorLabel_;
+  std::cout << "|---- JMEJetAnalyzer: Initialyzing..." << std::endl;
+  std::cout << "|---- JMEJetAnalyzer: Applying these jet corrections: ( " << JetCorLabel_;
   for (const std::string& level: JetCorLevels_)
      std::cout << ", " << level;
   std::cout << " )" << std::endl;
 
-  std::cout << "|---- JetMETAnalyzer: RUNNING ON " << moduleLabel_ << " FOR "
+  std::cout << "|---- JMEJetAnalyzer: RUNNING ON " << moduleLabel_ << " FOR "
        << JetCorLabel_.substr(0,3) << " JETS";
   if      (JetCorLabel_.find("chs") != std::string::npos)   std::cout << " USING CHS" << std::endl;
   else if (JetCorLabel_.find("PUPPI") != std::string::npos) std::cout << " USING PUPPI" << std::endl;
   else                                                      std::cout << std::endl;
-
-  m_puInfoToken = consumes<std::vector<PileupSummaryInfo>>(edm::InputTag("addPileupInfo"));
 }
 
 
 //______________________________________________________________________________
-JetMETAnalyzer::~JetMETAnalyzer()
+JMEJetAnalyzer::~JMEJetAnalyzer()
 {
 
 }
@@ -120,48 +116,17 @@ JetMETAnalyzer::~JetMETAnalyzer()
 //______________________________________________________________________________
 
 //______________________________________________________________________________
-void JetMETAnalyzer::analyze(const edm::Event& iEvent,
+void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
                                   const edm::EventSetup& iSetup)
 {
 
   // // EVENT DATA HANDLES
-  edm::Handle<GenEventInfoProduct>               genInfo;
-  edm::Handle<std::vector<PileupSummaryInfo> >        puInfos;  
   edm::Handle<reco::CandidateView>               refs;
   edm::Handle<std::vector<pat::Jet> >            jets;
-  edm::Handle<double>                            rho;
-  edm::Handle<std::vector<reco::Vertex> >        vtx;
+  edm::Handle<std::vector<reco::Vertex>>         vtx;
   edm::Handle<edm::View<pat::Muon> >             muons;
 
-  //RHO INFORMATION
-  rho_ = 0;
-  if (iEvent.getByToken(srcRho_, rho)) {
-    rho_ = *rho;
-  }
- 
-  //NPV INFORMATION
-  npv = 0;
-  if (iEvent.getByToken(srcVtx_, vtx)) {
-     const reco::VertexCollection::const_iterator vtxEnd = vtx->end();
-     for (reco::VertexCollection::const_iterator vtxIter = vtx->begin(); vtxEnd != vtxIter; ++vtxIter) {
-        if (!vtxIter->isFake() && vtxIter->ndof()>=4 && fabs(vtxIter->z())<=24)
-           npv++;
-     }
-  }
- 
-  //EVENT INFORMATION
-  run = iEvent.id().run();
-  lumiBlock = iEvent.id().luminosityBlock();
-  event = iEvent.id().event();
-
-  // MC PILEUP INFORMATION
-  if (iEvent.getByToken(m_puInfoToken, puInfos)) {
-     for(unsigned int i=0; i<puInfos->size(); i++) {
-        npus.push_back((*puInfos)[i].getPU_NumInteractions());
-        tnpus.push_back((*puInfos)[i].getTrueNumInteractions());
-        bxns.push_back((*puInfos)[i].getBunchCrossing());
-     }
-  }
+  iEvent.getByToken(srcVtx_, vtx);
 
   // REFERENCES & RECOJETS
   iEvent.getByToken(srcJet_, jets);
@@ -177,56 +142,66 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent,
      const reco::GenJet* ref = jet.genJet();
 
      if (ref) {
-       refdrjt.push_back( reco::deltaR(jet.eta(),jet.phi(),ref->eta(),ref->phi()) );
-       isMatched.push_back(true);
-     }
-     else {
-       refdrjt.push_back(0);
-       isMatched.push_back(false);
-     }
-
-     refrank.push_back( nref );
-     refpdgid_algorithmicDef.push_back( 0 );
-     refpdgid_physicsDef.push_back( 0 );
-     if(ref) { 
-        refpdgid.push_back( ref->pdgId() );
-        refe.push_back( ref->energy() );
-        refpt.push_back( ref->pt() );
-        refeta.push_back( ref->eta() );
-        refphi.push_back( ref->phi() );
-        refm.push_back( ref->mass() );
-        refy.push_back( ref->rapidity() );
-        refarea.push_back( ref->jetArea() );
-     }
-     else {
-        refpdgid.push_back( 0. );
-        refe.push_back( 0. );
-        refpt.push_back( 0. );
-        refeta.push_back( 0. );
-        refphi.push_back( 0. );
-        refm.push_back( 0. );
-        refy.push_back( 0. );
-        refarea.push_back( 0. );
+         refdrjt.push_back(reco::deltaR(jet, *ref));
+         refpdgid.push_back(ref->pdgId());
+         refarea.push_back(ref->jetArea());
+     } else {
+         refdrjt.push_back(0);
+         refpdgid.push_back(0.);
+         refarea.push_back(0.);
      }
 
-     jte.push_back( jet.energy() );
-     jtpt.push_back( jet.pt() );
-     jteta.push_back( jet.eta() );
-     jtphi.push_back( jet.phi() );
-     jtm.push_back( jet.mass() );
-     jty.push_back( jet.rapidity() );
-     jtarea.push_back( jet.jetArea() );
-     jtjec.push_back( jet.jecFactor(0) );
+     extractGenProperties(ref);
+
+     // New jet flavor informations
+     // See https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideBTagMCTools
+     partonFlavor.push_back(jet.partonFlavour());
+     hadronFlavor.push_back(jet.hadronFlavour());
+
+     // b-tagging discriminators
+     // Create one branch per discriminators for disk-space reasons (more than 50% smaller)
+     for (const auto& btag: jet.getPairDiscri()) {
+         std::vector<float>& discr = tree[btag.first].write<std::vector<float>>();
+         discr.push_back(btag.second);
+     }
+
+     // PU Jet Id
+     for (const std::string& userFloatName: jet.userFloatNames()) {
+        // Look for a string starting with 'pileupJetIdEvaluator'
+        if (userFloatName.find("pileupJetIdEvaluator") == 0) {
+            pujetid_fulldiscriminant.push_back(jet.userFloat(userFloatName));
+            continue;
+        }
+
+        if (userFloatName.find("QGTagger") == 0)
+            qg_tagger.push_back(jet.userFloat(userFloatName));
+     }
+
+     for (const std::string& userIntName: jet.userIntNames()) {
+         static std::regex cutbasedIdRegex("pileupJetIdEvaluator(.*):cutbasedId");
+         static std::regex fullIdRegex("pileupJetIdEvaluator(.*):fullId");
+
+         if (std::regex_match(userIntName, cutbasedIdRegex)) {
+             pujetid_cutbasedid.push_back(jet.userInt(userIntName));
+             continue;
+         }
+
+         if (std::regex_match(userIntName, fullIdRegex))
+             pujetid_fullid.push_back(jet.userInt(userIntName));
+     }
+
+     extractBasicProperties(jet);
+
+     jtarea.push_back(jet.jetArea());
+     jtjec.push_back(jet.jecFactor(0));
 
      computeBetaStar(jet, *vtx);
-
-     nref++;
   }
 
   tree.fill();
 }
 
-void JetMETAnalyzer::computeBetaStar(const pat::Jet& jet, const std::vector<reco::Vertex>& vertices) {
+void JMEJetAnalyzer::computeBetaStar(const pat::Jet& jet, const std::vector<reco::Vertex>& vertices) {
 
     int nCh_tmp(0), nNeutrals_tmp(0);
     float sumTkPt(0.0);
@@ -341,6 +316,7 @@ void JetMETAnalyzer::computeBetaStar(const pat::Jet& jet, const std::vector<reco
         betaClassic.push_back(-999);
         betaStarClassic.push_back(-999);
     }
+
     dZ.push_back(dZ2);
     nCh.push_back(nCh_tmp);
     nNeutrals.push_back(nNeutrals_tmp);
@@ -348,7 +324,7 @@ void JetMETAnalyzer::computeBetaStar(const pat::Jet& jet, const std::vector<reco
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// define JetMETAnalyzer as a plugin
+// define JMEJetAnalyzer as a plugin
 ////////////////////////////////////////////////////////////////////////////////
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(JetMETAnalyzer);
+DEFINE_FWK_MODULE(JMEJetAnalyzer);
