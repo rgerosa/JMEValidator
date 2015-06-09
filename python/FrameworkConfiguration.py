@@ -1,6 +1,14 @@
+import FWCore.ParameterSet.Config as cms
+
 def createProcess(isMC, globalTag):
 
-    import FWCore.ParameterSet.Config as cms
+    process = cms.Process("JRA")
+
+    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+    process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+    process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+
+    process.GlobalTag.globaltag = globalTag
 
     # Common parameters used in all modules
     JetAnalyserCommonParameters = cms.PSet(
@@ -14,33 +22,27 @@ def createProcess(isMC, globalTag):
         # deltaR(ref,parton) IF doFlavor is True
         deltaRPartonMax = cms.double(0.25),
         # consider all matched references
-        nJetMax         = cms.uint32(0),
+        nJetMax         = cms.uint32( 0),
     )
-
-    process = cms.Process("JRA")
-
-    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-    process.load("Configuration.EventContent.EventContent_cff")
-    process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-    process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-
-    process.GlobalTag.globaltag = globalTag
 
 
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #! Input
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
     process.source = cms.Source("PoolSource")
 
-    # Services
-    process.load('FWCore.MessageLogger.MessageLogger_cfi')
-    process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+    ## TFile service for the output 
     process.load('CommonTools.UtilAlgos.TFileService_cfi')
     process.TFileService.fileName = cms.string('output_mc.root') if isMC else cms.string('output_data.root')
 
-    # Create all needed jets collections
+    # Jet corrections
+    process.load('JetMETCorrections.Configuration.JetCorrectors_cff')
+    process.load('RecoJets.JetProducers.QGTagger_cfi')
+
+
+    #######################
+    ### JET COLLECTIONS ###
+    #######################
 
     # jetsCollections is a dictionnary containing all the informations needed for creating a new jet collection. The format used is :
     #  "name": {
@@ -51,34 +53,7 @@ def createProcess(isMC, globalTag):
     #      "pu_jet_id": run the pu jet id or not. Very time consuming
     #  }
 
-    # Jet corrections
-    process.load('JetMETCorrections.Configuration.JetCorrectors_cff')
-
     jetsCollections = {
-            'AK1': {
-                'algo': 'ak1',
-                'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK1PFPUPPI', 'AK1PFchs', 'AK1PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                'pu_jet_id': False,
-                },
-
-            'AK2': {
-                'algo': 'ak2',
-                'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK2PFPUPPI', 'AK2PFchs', 'AK2PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                'pu_jet_id': False,
-                },
-
-            'AK3': {
-                'algo': 'ak3',
-                'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK3PFPUPPI', 'AK3PFchs', 'AK3PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                'pu_jet_id': False,
-                },
-
             'AK4': {
                 'algo': 'ak4',
                 'pu_methods': ['Puppi', 'CHS', 'SK', ''],
@@ -87,85 +62,37 @@ def createProcess(isMC, globalTag):
                 'pu_jet_id': True,
                 'qg_tagger': True,
                 },
-
-            'AK5': {
-                'algo': 'ak5',
-                'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK5PFPUPPI', 'AK5PFchs', 'AK5PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                'pu_jet_id': False,
-                },
-
-            'AK6': {
-                'algo': 'ak6',
-                'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK6PFPUPPI', 'AK6PFchs', 'AK6PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                'pu_jet_id': False,
-                },
-
-            'AK7': {
-                'algo': 'ak7',
-                'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK7PFPUPPI', 'AK7PFchs', 'AK7PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                'pu_jet_id': False,
-                },
-
-            'AK8': {
-                'algo': 'ak8',
-                'pu_methods': ['Puppi', 'CHS', 'SK', ''],
-                'jec_payloads': ['AK8PFPUPPI', 'AK8PFchs', 'AK8PFSK', 'AK8PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                'pu_jet_id': False,
-                },
-
-            'AK9': {
-                'algo': 'ak9',
-                'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK9PFPUPPI', 'AK9PFchs', 'AK9PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                'pu_jet_id': False,
-                },
-
-            'AK10': {
-                'algo': 'ak10',
-                'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK10PFPUPPI', 'AK10PFchs', 'AK10PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                'pu_jet_id': False,
-                },
             }
-
+    
     from JMEAnalysis.JetToolbox.jetToolbox_cff import jetToolbox
-    from PhysicsTools.PatAlgos.tools.helpers import loadWithPostfix, applyPostfix
+    from PhysicsTools.PatAlgos.tools.helpers   import loadWithPostfix, applyPostfix
 
-    process.load('RecoJets.JetProducers.QGTagger_cfi')
-
+    ## loop on the jet collections : generic container just defined by clustering algorithm and cone dimension
     for name, params in jetsCollections.items():
+        ## loop on the pileup methos
         for index, pu_method in enumerate(params['pu_methods']):
-            # Add the jet collection
+            # Add the jet collection via the jetToolBox
             jetToolbox(process, params['algo'], 'dummy', 'out', PUMethod = pu_method, JETCorrPayload = params['jec_payloads'][index], JETCorrLevels = params['jec_levels'], addPUJetID = False)
 
-            algo = params['algo'].upper()
+            algo          = params['algo'].upper()
             jetCollection = '%sPFJets%s' % (params['algo'], pu_method)
-            postfix = '%sPF%s' % (algo, pu_method)
+            postfix       = '%sPF%s' % (algo, pu_method)
 
             # FIXME: PU Jet id is not working with puppi jets or SK jets
             if params['pu_jet_id'] and pu_method != 'Puppi' and pu_method != 'SK':
 
-                # PU jet Id
+                # PU jet Id  .. the pileup jet id is run at posteriori since it does not work in the jet tool box for puppi and SK jets
                 loadWithPostfix(process, 'RecoJets.JetProducers.pileupjetidproducer_cfi', postfix)
-                applyPostfix(process, "pileupJetIdEvaluator", postfix).jets = cms.InputTag(jetCollection)
-                applyPostfix(process, "pileupJetIdCalculator", postfix).jets = cms.InputTag(jetCollection)
-                applyPostfix(process, "pileupJetIdEvaluator", postfix).rho = cms.InputTag("fixedGridRhoFastjetAll")
-                applyPostfix(process, "pileupJetIdEvaluator", postfix).vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
-                applyPostfix(process, "pileupJetIdCalculator", postfix).rho = cms.InputTag("fixedGridRhoFastjetAll")
+                applyPostfix(process, "pileupJetIdEvaluator", postfix).jets      = cms.InputTag(jetCollection)
+                applyPostfix(process, "pileupJetIdCalculator", postfix).jets     = cms.InputTag(jetCollection)
+                applyPostfix(process, "pileupJetIdEvaluator", postfix).rho       = cms.InputTag("fixedGridRhoFastjetAll")
+                applyPostfix(process, "pileupJetIdEvaluator", postfix).vertexes  = cms.InputTag("offlineSlimmedPrimaryVertices")
+                applyPostfix(process, "pileupJetIdCalculator", postfix).rho      = cms.InputTag("fixedGridRhoFastjetAll")
                 applyPostfix(process, "pileupJetIdCalculator", postfix).vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
 
                 # Add informations as userdata: easily accessible
                 applyPostfix(process, 'patJets', postfix).userData.userFloats.src += ['pileupJetIdEvaluator%s:fullDiscriminant' % postfix]
-                applyPostfix(process, 'patJets', postfix).userData.userInts.src += ['pileupJetIdEvaluator%s:cutbasedId' % postfix, 'pileupJetIdEvaluator%s:fullId' % postfix]
+                applyPostfix(process, 'patJets', postfix).userData.userInts.src   += ['pileupJetIdEvaluator%s:cutbasedId' % postfix, 'pileupJetIdEvaluator%s:fullId' % postfix]
 
             # Quark / gluon discriminator
             # FIXME: Puppi needs some love
@@ -176,10 +103,14 @@ def createProcess(isMC, globalTag):
 
                 setattr(process, 'QGTagger%s' % postfix, process.QGTagger.clone(
                         srcJets = cms.InputTag(jetCollection),
-                        jetsLabel = cms.string(taggerPayload)
-                    ))
+                        jetsLabel = cms.string(taggerPayload)))
 
                 applyPostfix(process, "patJets", postfix).userData.userFloats.src += ['QGTagger%s:qgLikelihood' % postfix]
+
+
+    ############
+    ### MUONS ##
+    ############
 
     # Compute PF-weighted and PUPPI-weighted isolation
     # See https://twiki.cern.ch/twiki/bin/viewauth/CMS/MuonIsolationForRun2 for details
@@ -188,38 +119,55 @@ def createProcess(isMC, globalTag):
 
     ## Create PF candidate collections from packed PF candidates
     ### Using CHS
-    process.pfPileUpIso = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV <= 1"))
-    process.pfNoPileUpIso = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV > 1"))
+ 
+    process.pfPileUpIso   = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV <= 1")) ## cut away PV particles
+    process.pfNoPileUpIso = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV > 1"))  ## take particles from PV only
 
-    process.pfAllPhotons = cms.EDFilter("CandPtrSelector", src = cms.InputTag("pfNoPileUpIso"), cut = cms.string("pdgId == 22"))
-    process.pfAllNeutralHadrons = cms.EDFilter("CandPtrSelector", src = cms.InputTag("pfNoPileUpIso"), cut = cms.string("pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
-    process.pfAllChargedParticles = cms.EDFilter("CandPtrSelector", src = cms.InputTag("pfNoPileUpIso"), cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 2212 || pdgId == -2212 || pdgId == 11 || pdgId == -11 || pdgId == 13 || pdgId == -13"))
-    process.pfAllChargedHadrons = cms.EDFilter("CandPtrSelector", src = cms.InputTag("pfNoPileUpIso"), cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 2212 || pdgId == -2212"))
+    process.pfAllPhotons          = cms.EDFilter("CandPtrSelector", 
+                                               src = cms.InputTag("pfNoPileUpIso"), 
+                                               cut = cms.string("pdgId == 22")) ## take from PV only (photons by definition)
 
-    process.pfPileUpAllChargedParticles = process.pfAllChargedParticles.clone(
-            src = 'pfPileUpIso'
-            )
+    process.pfAllNeutralHadrons   = cms.EDFilter("CandPtrSelector", 
+                                               src = cms.InputTag("pfNoPileUpIso"), 
+                                               cut = cms.string("pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
 
-    ### Using puppi
+    process.pfAllChargedParticles = cms.EDFilter("CandPtrSelector", 
+                                                 src = cms.InputTag("pfNoPileUpIso"), 
+                                                 cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 2212 || pdgId == -2212 || pdgId == 11 || pdgId == -11 || pdgId == 13 || pdgId == -13"))
+
+    process.pfAllChargedHadrons   = cms.EDFilter("CandPtrSelector", 
+                                                 src = cms.InputTag("pfNoPileUpIso"), 
+                                                 cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 2212 || pdgId == -2212"))
+
+    process.pfPileUpAllChargedParticles = process.pfAllChargedParticles.clone( src = 'pfPileUpIso')
+
+    ### Using puppi with R05 for muons isolation, is not the once of jets but the puppi cone in the barrel region
     process.puppiR05 = process.puppi.clone()
     process.puppiR05.algos[0].puppiAlgos[0].cone = 0.5
 
-    process.pfAllPhotonsPuppi = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR05"), cut = cms.string("pdgId == 22"))
+    process.pfAllPhotonsPuppi        = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR05"), cut = cms.string("pdgId == 22"))
     process.pfAllNeutralHadronsPuppi = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR05"), cut = cms.string("pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
     process.pfAllChargedHadronsPuppi = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR05"), cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 2212 || pdgId == -2212"))
 
     ### Using puppi, but without muons
-    ### FIXME: Reference code [1] excludes particles no coming from PV. It leads to an inconsistency between the two puppi collections (one is done on all pf candidates, the other only on
-    ### candidates coming from PV)
+    ### FIXME: Reference code [1] excludes particles no coming from PV. It leads to an inconsistency between the two puppi collections (one is done on all pf candidates, the other only on candidates coming from PV)
     ### [1] https://github.com/cms-jet/JMEValidator/blob/a61ebd818c82dc9eab9d47b616ea85136488e77c/python/runMuonIsolation_cff.py#L16
-    process.packedPFCandidatesNoMuon = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV > 1 && abs(pdgId) != 13"))
+    process.packedPFCandidatesNoMuon = cms.EDFilter("CandPtrSelector", 
+                                                    src = cms.InputTag("packedPFCandidates"), 
+                                                    cut = cms.string("fromPV > 1 && abs(pdgId) != 13"))
     process.puppiR05NoMu = process.puppiR05.clone(
             candName = 'packedPFCandidatesNoMuon'
             )
 
-    process.pfAllPhotonsPuppiNoMuon = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR05NoMu"), cut = cms.string("pdgId == 22"))
-    process.pfAllNeutralHadronsPuppiNoMuon = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR05NoMu"), cut = cms.string("pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
-    process.pfAllChargedHadronsPuppiNoMuon = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR05NoMu"), cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 2212 || pdgId == -2212"))
+    process.pfAllPhotonsPuppiNoMuon        = cms.EDFilter("CandPtrSelector", 
+                                                          src = cms.InputTag("puppiR05NoMu"), 
+                                                          cut = cms.string("pdgId == 22"))
+    process.pfAllNeutralHadronsPuppiNoMuon = cms.EDFilter("CandPtrSelector", 
+                                                          src = cms.InputTag("puppiR05NoMu"), 
+                                                          cut = cms.string("pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
+    process.pfAllChargedHadronsPuppiNoMuon = cms.EDFilter("CandPtrSelector", 
+                                                          src = cms.InputTag("puppiR05NoMu"), 
+                                                          cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 2212 || pdgId == -2212"))
 
 
     ## Create pf weighted collections
@@ -229,29 +177,33 @@ def createProcess(isMC, globalTag):
     from JMEAnalysis.JMEValidator.MuonIsolationTools import load_muonPFiso_sequence
 
     ### PF weighted isolation
-    load_muonPFiso_sequence(process, 'MuonPFIsoSequencePFWGT', algo = 'R04PFWGT',
-            src = muon_src,
-            src_neutral_hadron = 'pfWeightedNeutralHadrons',
-            src_photon         = 'pfWeightedPhotons',
-            coneR = cone_size
+    load_muonPFiso_sequence(process, 
+                            'MuonPFIsoSequencePFWGT', 
+                            algo = 'R04PFWGT',
+                            src = muon_src,
+                            src_neutral_hadron = 'pfWeightedNeutralHadrons',
+                            src_photon         = 'pfWeightedPhotons',
+                            coneR = cone_size
             )
 
     ### PUPPI weighted isolation
-    load_muonPFiso_sequence(process, 'MuonPFIsoSequencePUPPI', algo = 'R04PUPPI',
-            src = muon_src,
-            src_charged_hadron = 'pfAllChargedHadronsPuppi',
-            src_neutral_hadron = 'pfAllNeutralHadronsPuppi',
-            src_photon         = 'pfAllPhotonsPuppi',
-            coneR = cone_size
-            )
-
+    load_muonPFiso_sequence(process, 
+                            'MuonPFIsoSequencePUPPI', 
+                            algo = 'R04PUPPI',
+                            src = muon_src,
+                            src_charged_hadron = 'pfAllChargedHadronsPuppi',
+                            src_neutral_hadron = 'pfAllNeutralHadronsPuppi',
+                            src_photon         = 'pfAllPhotonsPuppi',
+                            coneR = cone_size
+                            )
+    
     ### PUPPI weighted isolation without muons
     load_muonPFiso_sequence(process, 'MuonPFIsoSequencePUPPINoMu', algo = 'R04PUPPINoMu',
-            src = muon_src,
-            src_charged_hadron = 'pfAllChargedHadronsPuppiNoMuon',
-            src_neutral_hadron = 'pfAllNeutralHadronsPuppiNoMuon',
-            src_photon         = 'pfAllPhotonsPuppiNoMuon',
-            coneR = cone_size
+                        src = muon_src,
+                        src_charged_hadron = 'pfAllChargedHadronsPuppiNoMuon',
+                        src_neutral_hadron = 'pfAllNeutralHadronsPuppiNoMuon',
+                        src_photon         = 'pfAllPhotonsPuppiNoMuon',
+                        coneR = cone_size
             )
 
     # Compute electrons and photons IDs
@@ -260,7 +212,7 @@ def createProcess(isMC, globalTag):
     switchOnVIDPhotonIdProducer(process, DataFormat.MiniAOD)
 
     electronIdModules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff',
-                 'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV51_cff']
+                         'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV51_cff']
 
     photonIdModules = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_PHYS14_PU20bx25_V2_cff']
 
@@ -298,14 +250,14 @@ def createProcess(isMC, globalTag):
 
     ## Raw PF METs
     process.load('RecoMET.METProducers.PFMET_cfi')
-    process.pfMetCHS = process.pfMet.clone()
-    process.pfMetCHS.src = cms.InputTag("chs")
-    process.pfMetCHS.alias = cms.string('pfMetCHS')
+    process.pfMetCHS        = process.pfMet.clone()
+    process.pfMetCHS.src    = cms.InputTag("chs")
+    process.pfMetCHS.alias  = cms.string('pfMetCHS')
     addMETCollection(process, labelName='patPFMetCHS', metSource='pfMetCHS') # RAW CHS MET
     process.patPFMetCHS.addGenMET = False
 
-    process.pfMetPuppi = process.pfMet.clone()
-    process.pfMetPuppi.src = cms.InputTag("puppi")
+    process.pfMetPuppi       = process.pfMet.clone()
+    process.pfMetPuppi.src   = cms.InputTag("puppi")
     process.pfMetPuppi.alias = cms.string('pfMetPuppi')
     addMETCollection(process, labelName='patPFMetPuppi', metSource='pfMetPuppi') # RAW puppi MET
     process.patPFMetPuppi.addGenMET = False
@@ -336,8 +288,8 @@ def createProcess(isMC, globalTag):
         print("WARNING: No AK4 CHS jets produced. Type 1 corrections for CHS MET are not available.")
     else:
         process.corrPfMetType1CHS = corrPfMetType1.clone(
-            src = 'ak4PFJetsCHS',
-            jetCorrLabel = 'ak4PFL1FastL2L3Corrector',
+            src             = 'ak4PFJetsCHS',
+            jetCorrLabel    = 'ak4PFL1FastL2L3Corrector',
             offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
         )
         process.pfMetT1CHS = pfMetT1.clone(
