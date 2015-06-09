@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-def createProcess(isMC, globalTag):
+def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone):
 
     process = cms.Process("JRA")
 
@@ -37,7 +37,12 @@ def createProcess(isMC, globalTag):
 
     # Jet corrections
     process.load('JetMETCorrections.Configuration.JetCorrectors_cff')
-    process.load('RecoJets.JetProducers.QGTagger_cfi')
+    # QG tagger
+    from RecoJets.JetProducers.QGTagger_cfi import QGTagger
+    # tool box
+    from JMEAnalysis.JetToolbox.jetToolbox_cff import jetToolbox
+    # manipulate post fix
+    from PhysicsTools.PatAlgos.tools.helpers   import loadWithPostfix, applyPostfix
 
 
     #######################
@@ -54,29 +59,28 @@ def createProcess(isMC, globalTag):
     #  }
 
     jetsCollections = {
-            'AK4': {
+             'AK4': {
                 'algo': 'ak4',
-                'pu_methods': ['Puppi', 'CHS', 'SK', ''],
-                'jec_payloads': ['AK4PFPUPPI', 'AK4PFchs', 'AK4PFSK', 'AK4PF'],
+                'pu_methods': ['Puppi', 'CHS', ''],
+                'jec_payloads': ['AK4PFPUPPI', 'AK4PFchs', 'AK4PF'],
                 'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
                 'pu_jet_id': True,
                 'qg_tagger': True,
                 },
             }
     
-    from JMEAnalysis.JetToolbox.jetToolbox_cff import jetToolbox
-    from PhysicsTools.PatAlgos.tools.helpers   import loadWithPostfix, applyPostfix
 
     ## loop on the jet collections : generic container just defined by clustering algorithm and cone dimension
     for name, params in jetsCollections.items():
         ## loop on the pileup methos
         for index, pu_method in enumerate(params['pu_methods']):
-            # Add the jet collection via the jetToolBox
-            jetToolbox(process, params['algo'], 'dummy', 'out', PUMethod = pu_method, JETCorrPayload = params['jec_payloads'][index], JETCorrLevels = params['jec_levels'], addPUJetID = False)
 
             algo          = params['algo'].upper()
             jetCollection = '%sPFJets%s' % (params['algo'], pu_method)
             postfix       = '%sPF%s' % (algo, pu_method)
+
+            # Add the jet collection via the jetToolBox
+            jetToolbox(process, params['algo'], postfix+"Sequence", 'out', PUMethod = pu_method, JETCorrPayload = params['jec_payloads'][index], JETCorrLevels = params['jec_levels'], addPUJetID = False)
 
             # FIXME: PU Jet id is not working with puppi jets or SK jets
             if params['pu_jet_id'] and pu_method != 'Puppi' and pu_method != 'SK':
@@ -101,73 +105,62 @@ def createProcess(isMC, globalTag):
 
                 taggerPayload = 'QGL_%sPF%s' % (algo, pu_method.lower())
 
-                setattr(process, 'QGTagger%s' % postfix, process.QGTagger.clone(
+                setattr(process, 'QGTagger%s' % postfix, QGTagger.clone(
                         srcJets = cms.InputTag(jetCollection),
                         jetsLabel = cms.string(taggerPayload)))
 
                 applyPostfix(process, "patJets", postfix).userData.userFloats.src += ['QGTagger%s:qgLikelihood' % postfix]
 
-
-    ############
-    ### MUONS ##
-    ############
+    ######################
+    ### MUONS ISOLATION ##
+    ######################
 
     # Compute PF-weighted and PUPPI-weighted isolation
     # See https://twiki.cern.ch/twiki/bin/viewauth/CMS/MuonIsolationForRun2 for details
 
-    muon_src, cone_size = 'slimmedMuons', 0.4
-
-    ## Create PF candidate collections from packed PF candidates
-    ### Using CHS
- 
+    ## Create PF candidate collections from packed PF candidates Using CHS
     process.pfPileUpIso   = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV <= 1")) ## cut away PV particles
     process.pfNoPileUpIso = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV > 1"))  ## take particles from PV only
 
-    process.pfAllPhotons          = cms.EDFilter("CandPtrSelector", 
-                                               src = cms.InputTag("pfNoPileUpIso"), 
-                                               cut = cms.string("pdgId == 22")) ## take from PV only (photons by definition)
-
-    process.pfAllNeutralHadrons   = cms.EDFilter("CandPtrSelector", 
-                                               src = cms.InputTag("pfNoPileUpIso"), 
+    process.pfAllPhotons        = cms.EDFilter("CandPtrSelector", src = cms.InputTag("pfNoPileUpIso"), cut = cms.string("pdgId == 22"))
+    process.pfAllNeutralHadrons = cms.EDFilter("CandPtrSelector", src = cms.InputTag("pfNoPileUpIso"), 
                                                cut = cms.string("pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
-
-    process.pfAllChargedParticles = cms.EDFilter("CandPtrSelector", 
-                                                 src = cms.InputTag("pfNoPileUpIso"), 
+    
+    process.pfAllChargedParticles = cms.EDFilter("CandPtrSelector",src = cms.InputTag("pfNoPileUpIso"),
                                                  cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 2212 || pdgId == -2212 || pdgId == 11 || pdgId == -11 || pdgId == 13 || pdgId == -13"))
-
-    process.pfAllChargedHadrons   = cms.EDFilter("CandPtrSelector", 
-                                                 src = cms.InputTag("pfNoPileUpIso"), 
+    process.pfAllChargedHadrons   = cms.EDFilter("CandPtrSelector",src = cms.InputTag("pfNoPileUpIso"), 
                                                  cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 2212 || pdgId == -2212"))
-
     process.pfPileUpAllChargedParticles = process.pfAllChargedParticles.clone( src = 'pfPileUpIso')
-
+    
     ### Using puppi with R05 for muons isolation, is not the once of jets but the puppi cone in the barrel region
-    process.puppiR05 = process.puppi.clone()
-    process.puppiR05.algos[0].puppiAlgos[0].cone = 0.5
+    if runPuppiMuonIso :
 
-    process.pfAllPhotonsPuppi        = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR05"), cut = cms.string("pdgId == 22"))
-    process.pfAllNeutralHadronsPuppi = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR05"), cut = cms.string("pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
-    process.pfAllChargedHadronsPuppi = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR05"), cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 2212 || pdgId == -2212"))
+        process.puppiR05 = process.puppi.clone()
+        process.puppiR05.algos[0].puppiAlgos[0].cone = 0.5
 
-    ### Using puppi, but without muons
-    ### FIXME: Reference code [1] excludes particles no coming from PV. It leads to an inconsistency between the two puppi collections (one is done on all pf candidates, the other only on candidates coming from PV)
-    ### [1] https://github.com/cms-jet/JMEValidator/blob/a61ebd818c82dc9eab9d47b616ea85136488e77c/python/runMuonIsolation_cff.py#L16
-    process.packedPFCandidatesNoMuon = cms.EDFilter("CandPtrSelector", 
-                                                    src = cms.InputTag("packedPFCandidates"), 
-                                                    cut = cms.string("fromPV > 1 && abs(pdgId) != 13"))
-    process.puppiR05NoMu = process.puppiR05.clone(
+        process.pfAllPhotonsPuppi        = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR05"), cut = cms.string("pdgId == 22"))
+        process.pfAllNeutralHadronsPuppi = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR05"), cut = cms.string("pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
+        process.pfAllChargedHadronsPuppi = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR05"), cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 2212 || pdgId == -2212"))
+
+        ### Using puppi, but without muons
+        ### FIXME: Reference code [1] excludes particles no coming from PV. It leads to an inconsistency between the two puppi collections (one is done on all pf candidates, the other only on candidates coming from PV)
+        ### [1] https://github.com/cms-jet/JMEValidator/blob/a61ebd818c82dc9eab9d47b616ea85136488e77c/python/runMuonIsolation_cff.py#L16
+        process.packedPFCandidatesNoMuon = cms.EDFilter("CandPtrSelector", 
+                                                        src = cms.InputTag("packedPFCandidates"), 
+                                                        cut = cms.string("fromPV > 1 && abs(pdgId) != 13"))
+        process.puppiR05NoMu = process.puppiR05.clone(
             candName = 'packedPFCandidatesNoMuon'
             )
 
-    process.pfAllPhotonsPuppiNoMuon        = cms.EDFilter("CandPtrSelector", 
-                                                          src = cms.InputTag("puppiR05NoMu"), 
-                                                          cut = cms.string("pdgId == 22"))
-    process.pfAllNeutralHadronsPuppiNoMuon = cms.EDFilter("CandPtrSelector", 
-                                                          src = cms.InputTag("puppiR05NoMu"), 
-                                                          cut = cms.string("pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
-    process.pfAllChargedHadronsPuppiNoMuon = cms.EDFilter("CandPtrSelector", 
-                                                          src = cms.InputTag("puppiR05NoMu"), 
-                                                          cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 2212 || pdgId == -2212"))
+        process.pfAllPhotonsPuppiNoMuon        = cms.EDFilter("CandPtrSelector", 
+                                                              src = cms.InputTag("puppiR05NoMu"), 
+                                                              cut = cms.string("pdgId == 22"))
+        process.pfAllNeutralHadronsPuppiNoMuon = cms.EDFilter("CandPtrSelector", 
+                                                              src = cms.InputTag("puppiR05NoMu"), 
+                                                              cut = cms.string("pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
+        process.pfAllChargedHadronsPuppiNoMuon = cms.EDFilter("CandPtrSelector", 
+                                                              src = cms.InputTag("puppiR05NoMu"), 
+                                                              cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 2212 || pdgId == -2212"))
 
 
     ## Create pf weighted collections
@@ -180,34 +173,74 @@ def createProcess(isMC, globalTag):
     load_muonPFiso_sequence(process, 
                             'MuonPFIsoSequencePFWGT', 
                             algo = 'R04PFWGT',
-                            src = muon_src,
+                            src = muonCollection,
                             src_neutral_hadron = 'pfWeightedNeutralHadrons',
                             src_photon         = 'pfWeightedPhotons',
-                            coneR = cone_size
-            )
-
-    ### PUPPI weighted isolation
-    load_muonPFiso_sequence(process, 
-                            'MuonPFIsoSequencePUPPI', 
-                            algo = 'R04PUPPI',
-                            src = muon_src,
-                            src_charged_hadron = 'pfAllChargedHadronsPuppi',
-                            src_neutral_hadron = 'pfAllNeutralHadronsPuppi',
-                            src_photon         = 'pfAllPhotonsPuppi',
-                            coneR = cone_size
+                            coneR = muonIsoCone
                             )
+    if runPuppiMuonIso :
+
+        ### PUPPI weighted isolation
+        load_muonPFiso_sequence(process, 
+                                'MuonPFIsoSequencePUPPI', 
+                                algo = 'R04PUPPI',
+                                src =  muonCollection,
+                                src_charged_hadron = 'pfAllChargedHadronsPuppi',
+                                src_neutral_hadron = 'pfAllNeutralHadronsPuppi',
+                                src_photon         = 'pfAllPhotonsPuppi',
+                                coneR = muonIsoCone
+                                )
     
-    ### PUPPI weighted isolation without muons
-    load_muonPFiso_sequence(process, 'MuonPFIsoSequencePUPPINoMu', algo = 'R04PUPPINoMu',
-                        src = muon_src,
-                        src_charged_hadron = 'pfAllChargedHadronsPuppiNoMuon',
-                        src_neutral_hadron = 'pfAllNeutralHadronsPuppiNoMuon',
-                        src_photon         = 'pfAllPhotonsPuppiNoMuon',
-                        coneR = cone_size
-            )
+        ### PUPPI weighted isolation without muons
+        load_muonPFiso_sequence(process, 'MuonPFIsoSequencePUPPINoMu', algo = 'R04PUPPINoMu',
+                                src =  muonCollection,
+                                src_charged_hadron = 'pfAllChargedHadronsPuppiNoMuon',
+                                src_neutral_hadron = 'pfAllNeutralHadronsPuppiNoMuon',
+                                src_photon         = 'pfAllPhotonsPuppiNoMuon',
+                                coneR = muonIsoCone
+                                )
+
+    
+    from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import applyMuonID
+
+    ## apply muon ID : label is used to form the name, tight indicates the id to be applied from POGs, iso map are non standard iso info, typeIsoval is related to what apply: 0 no PU correction, 1 dBeta correction, 2 is rho*Area, 3 is PFWeighted correction, 4 is puppi
+    applyMuonID(process, label = "Tight", src  = muonCollection, type = 'tightID',
+                iso_map_charged_hadron  = '', 
+                iso_map_neutral_hadron  = '', 
+                iso_map_photon          = '',                 
+                rho = 'fixedGridRhoFastjetAll',
+                typeIsoVal = 1
+                )
+
+    applyMuonID(process, label = "TightDBeta", src  = muonCollection, type = 'tightID',
+                iso_map_charged_hadron  = '', 
+                iso_map_neutral_hadron  = 'muPFIsoValueNHR04PFWGT', 
+                iso_map_photon          = 'muPFIsoValuePhR04PFWGT',                 
+                rho = 'fixedGridRhoFastjetAll',
+                typeIsoVal = 3
+                )
+
+    if runPuppiMuonIso :
+
+        applyMuonID(process, label = "TightPuppi", src  = muonCollection, type = 'tightID',
+                    iso_map_charged_hadron  = 'muPFIsoValueCHR04PUPPI', 
+                    iso_map_neutral_hadron  = 'muPFIsoValueNHR04PUPPI', 
+                    iso_map_photon          = 'muPFIsoValuePhR04PUPPI',                 
+                    rho = 'fixedGridRhoFastjetAll',
+                    typeIsoVal = 4
+                    )
+
+        applyMuonID(process, label = "TightPuppiNoMu", src  = muonCollection, type = 'tightID',
+                    iso_map_charged_hadron  = 'muPFIsoValueCHR04PUPPINoMu', 
+                    iso_map_neutral_hadron  = 'muPFIsoValueNHR04PUPPINoMu', 
+                    iso_map_photon          = 'muPFIsoValuePhR04PUPPINoMu',                 
+                    rho = 'fixedGridRhoFastjetAll',
+                    typeIsoVal = 4
+                    )
 
     # Compute electrons and photons IDs
     from PhysicsTools.SelectorUtils.tools.vid_id_tools import switchOnVIDElectronIdProducer, switchOnVIDPhotonIdProducer, DataFormat, setupAllVIDIdsInModule, setupVIDElectronSelection, setupVIDPhotonSelection
+
     switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
     switchOnVIDPhotonIdProducer(process, DataFormat.MiniAOD)
 
@@ -221,6 +254,16 @@ def createProcess(isMC, globalTag):
 
     for idMod in photonIdModules:
         setupAllVIDIdsInModule(process, idMod, setupVIDPhotonSelection)
+    
+    '''
+    applyElectronID(process, label = "Tight", src  = electronCollection, 
+                    identification_map = 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight'
+                    rho = 'fixedGridRhoFastjetAll')
+    applyElectronID(process, label = "HEEP", src  = electronCollection,
+                    identificatio_map = 'egmGsfElectronIDs:heepElectronID-HEEPV51'
+                    rho = 'fixedGridRhoFastjetAll')
+
+    '''
 
     # Create METs from CHS and PUPPI
     from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
@@ -339,8 +382,10 @@ def createProcess(isMC, globalTag):
     del process.slimmedMETsCHS.type1Uncertainties # not available
     del process.slimmedMETsCHS.type1p2Uncertainties # not available
 
-    # Configure the analyzers
+    return process
 
+    # Configure the analyzers
+'''
     process.jmfw_analyzers = cms.Sequence()
 
     # Run
@@ -483,16 +528,8 @@ def createProcess(isMC, globalTag):
     process.jmfw_analyzers += process.puppiReader
 
     process.p = cms.Path(process.jmfw_analyzers)
-
-
-    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    #! Output and Log
-    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    process.options   = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
-    process.options.allowUnscheduled = cms.untracked.bool(True)
-
-    return process
-
+'''
     #!
     #! THAT'S ALL! CAN YOU BELIEVE IT? :-D
     #!
+

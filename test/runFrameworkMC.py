@@ -9,11 +9,14 @@ options = VarParsing ('python')
 
 options.register ('globalTag',   "MCRUN2_74_V7",  VarParsing.multiplicity.singleton, VarParsing.varType.string, 'input global tag to be used');
 options.register ('isMC'     ,   True,            VarParsing.multiplicity.singleton, VarParsing.varType.bool,   'flag to indicate data or MC');
+options.register ('runPuppiMuonIso',   True,      VarParsing.multiplicity.singleton, VarParsing.varType.bool,   'flag to indicate to run or not puppi iso for mons');
+options.register ('muonIsoCone',     0.4,         VarParsing.multiplicity.singleton, VarParsing.varType.float,  'value to be used for muon isolation cone');
+options.register ('muonCollection',  "slimmedMuons",  VarParsing.multiplicity.singleton, VarParsing.varType.string,  'default benchmark of muons to be considered');
 
 options.parseArguments()
 
 ## create the process instance
-process = createProcess(options.isMC, options.globalTag)
+process = createProcess(options.isMC, options.globalTag, options.muonCollection, options.runPuppiMuonIso, options.muonIsoCone)
 
 if len(options.inputFiles) == 0 and options.isMC == True:
     options.inputFiles.append('/store/relval/CMSSW_7_4_1/RelValFS_TTbar_13_PUAVE35/MINIAODSIM/PU25ns_MCRUN2_74_V9_FastSim-v1/00000/1868AA47-19ED-E411-9D57-0025905A6080.root');
@@ -32,3 +35,13 @@ else:
 ## logger
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+
+#! Output and Log                                                                                                                                                            
+process.options   = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
+process.options.allowUnscheduled = cms.untracked.bool(True)
+ 
+
+process.output = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('output.root'),
+    outputCommands = cms.untracked.vstring('keep *_slimmedMuons*_*')
+)
