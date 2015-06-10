@@ -69,7 +69,7 @@ private:
   edm::EDGetTokenT<double>                  rhoToken_ ;
   edm::EDGetTokenT<reco::VertexCollection>  vertexToken_ ;
 
-  edm::EDGetTokenT<edm::ValueMap<double> > electron_idToken_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > electron_idToken_;
 
   edm::EDGetTokenT<edm::ValueMap<double> > charged_hadron_isoToken_ ;
   edm::EDGetTokenT<edm::ValueMap<double> > neutral_hadron_isoToken_ ;
@@ -156,7 +156,7 @@ patElectronIDIsoSelector::patElectronIDIsoSelector(const edm::ParameterSet& iCon
     photon_isoToken_ = consumes<edm::ValueMap<double> >(photon_iso_);
 
   if(!(electron_id_ == edm::InputTag(""))) 
-    electron_idToken_ = consumes<edm::ValueMap<double> >(electron_id_);
+    electron_idToken_ = consumes<edm::ValueMap<bool> >(electron_id_);
 
 
    produces<pat::ElectronCollection>();
@@ -225,7 +225,7 @@ void patElectronIDIsoSelector::produce(edm::Event& iEvent,const edm::EventSetup&
 
   // take the value map for ele ID
   bool isGoodEleValueMap = false;
-  edm::Handle<edm::ValueMap<double>> electronIDHandle;
+  edm::Handle<edm::ValueMap<bool>> electronIDHandle;
   if(!(electron_id_ == edm::InputTag(""))){
     iEvent.getByToken(electron_idToken_,electronIDHandle);
     if(!electronIDHandle.failedToGet())

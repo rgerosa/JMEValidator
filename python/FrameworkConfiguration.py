@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone):
+def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone, electronCollection, tauCollection, runTauID):
 
     process = cms.Process("JRA")
 
@@ -38,7 +38,7 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone)
     # Jet corrections
     process.load('JetMETCorrections.Configuration.JetCorrectors_cff')
     # QG tagger
-    from RecoJets.JetProducers.QGTagger_cfi import QGTagger
+    process.load('RecoJets.JetProducers.QGTagger_cfi')
     # tool box
     from JMEAnalysis.JetToolbox.jetToolbox_cff import jetToolbox
     # manipulate post fix
@@ -105,7 +105,7 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone)
 
                 taggerPayload = 'QGL_%sPF%s' % (algo, pu_method.lower())
 
-                setattr(process, 'QGTagger%s' % postfix, QGTagger.clone(
+                setattr(process, 'QGTagger%s' % postfix, process.QGTagger.clone(
                         srcJets = cms.InputTag(jetCollection),
                         jetsLabel = cms.string(taggerPayload)))
 
@@ -204,6 +204,7 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone)
     from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import applyMuonID
 
     ## apply muon ID : label is used to form the name, tight indicates the id to be applied from POGs, iso map are non standard iso info, typeIsoval is related to what apply: 0 no PU correction, 1 dBeta correction, 2 is rho*Area, 3 is PFWeighted correction, 4 is puppi
+
     applyMuonID(process, label = "Tight", src  = muonCollection, type = 'tightID',
                 iso_map_charged_hadron  = '', 
                 iso_map_neutral_hadron  = '', 
@@ -238,7 +239,10 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone)
                     typeIsoVal = 4
                     )
 
-    # Compute electrons and photons IDs
+    ###########################
+    ## Electrons and photons ##
+    ###########################
+
     from PhysicsTools.SelectorUtils.tools.vid_id_tools import switchOnVIDElectronIdProducer, switchOnVIDPhotonIdProducer, DataFormat, setupAllVIDIdsInModule, setupVIDElectronSelection, setupVIDPhotonSelection
 
     switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
@@ -254,22 +258,84 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone)
 
     for idMod in photonIdModules:
         setupAllVIDIdsInModule(process, idMod, setupVIDPhotonSelection)
-    
-    '''
-    applyElectronID(process, label = "Tight", src  = electronCollection, 
-                    identification_map = 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight'
-                    rho = 'fixedGridRhoFastjetAll')
-    applyElectronID(process, label = "HEEP", src  = electronCollection,
-                    identificatio_map = 'egmGsfElectronIDs:heepElectronID-HEEPV51'
-                    rho = 'fixedGridRhoFastjetAll')
 
-    '''
+
+    from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import applyElectronID
+
+    applyElectronID(process, label = "Tight", src  = electronCollection, 
+                    iso_map_charged_hadron  = '', 
+                    iso_map_neutral_hadron  = '', 
+                    iso_map_photon          = '',                 
+                    rho = 'fixedGridRhoFastjetAll',
+                    typeIsoVal = 0,
+                    electron_id_map = 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight'
+                    )
+
+    applyElectronID(process, label = "Medium", src  = electronCollection, 
+                    iso_map_charged_hadron  = '', 
+                    iso_map_neutral_hadron  = '', 
+                    iso_map_photon          = '',                 
+                    rho = 'fixedGridRhoFastjetAll',
+                    typeIsoVal = 0,
+                    electron_id_map = 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium'
+                    )
+
+    ##################
+    #### TAU ID ######
+    ##################
+
+    if runTauID : 
+        
+        process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
+        from PhysicsTools.PatAlgos.tools.tauTools import *
+        switchToPFTauHPS(process)
+
+
+    ##################
+    ### clean jets ###
+    ##################
+
+    from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import cleanJetsFromLeptons
+
+    muonIDLabelForCleaning     = ["Tight","TightDBeta","TightPuppi","TightPuppiNoMu"]                    
+    electronIDLabelForCleaning = ["Tight"]
+    tauIDLabelForCleaning      = [""]
+    
+    for name, params in jetsCollections.items():
+        ## loop on the pileup methos                                                                                                                                            
+        for index, pu_method in enumerate(params['pu_methods']):
+            postfix       = '%sPF%s' % (algo, pu_method)
+
+            for muon in muonIDLabelForCleaning :
+                for electron in electronIDLabelForCleaning :
+            
+                    if not runTauID :
+                        cleanJetsFromLeptons(process,"Cleaned"+"Mu"+muon+"Ele"+electron,                                 
+                                             jetCollection      = "patJets"+postfix,
+                                             muonCollection     = muonCollection+muon,
+                                             electronCollection = electronCollection+electron,
+                                             tauCollection      = '',
+                                             jetPtCut  = 10.,
+                                             jetEtaCut = 5.,
+                                             dRCleaning = 0.3) 
+
+                    else :
+                        for tau in tauIDLabelForCleaning :
+                            cleanJetsFromLeptons(process,"Cleaned"+"Mu"+muon+"Ele"+electron+"Tau"+tau,                                 
+                                                 jetCollection      = "patJets"+postfix,
+                                                 muonCollection     = muonCollection+muon,
+                                                 electronCollection = electronCollection+electron,
+                                                 tauCollection      = tauCollection+tau,
+                                                 jetPtCut  = 10.,
+                                                 jetEtaCut = 5.,
+                                                 dRCleaning = 0.3) 
+
+    
 
     # Create METs from CHS and PUPPI
     from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
 
     ## Gen MET
-
     ### Copied from https://github.com/cms-sw/cmssw/blob/2b75137e278b50fc967f95929388d430ef64710b/RecoMET/Configuration/python/GenMETParticles_cff.py#L37
     process.genParticlesForMETAllVisible = cms.EDProducer(
             "InputGenJetsParticleSelector",
