@@ -56,6 +56,18 @@ class MuonAnalyzer: public JME::LeptonAnalyzer {
         std::vector<std::pair<std::string, edm::EDGetTokenT<edm::ValueMap<bool>>>> idTokens_;
 
         // Isolation
+
+	edm::InputTag isoValue_NH_pfWeighted_R04;
+	edm::InputTag isoValue_Ph_pfWeighted_R04;
+
+	edm::InputTag isoValue_CH_puppiWeighted_R04;
+	edm::InputTag isoValue_NH_puppiWeighted_R04;
+	edm::InputTag isoValue_Ph_puppiWeighted_R04;
+
+	edm::InputTag isoValue_CH_puppiNoMuonWeighted_R04;
+	edm::InputTag isoValue_NH_puppiNoMuonWeighted_R04;
+	edm::InputTag isoValue_Ph_puppiNoMuonWeighted_R04;
+
         edm::EDGetTokenT<edm::ValueMap<double>> isoValue_neutralHadrons_pfWeighted_R04_token;
         edm::EDGetTokenT<edm::ValueMap<double>> isoValue_photons_pfWeighted_R04_token;
 
