@@ -524,6 +524,16 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
     process.slimmedMETsPuppiNeutralPU.src = cms.InputTag("patPFMetPuppiNeutralPU")
     process.slimmedMETsPuppiNeutralPU.rawUncertainties = cms.InputTag("patPFMetPuppiNeutralPU") # only central value
     
+    process.mvaPUPPET = cms.EDProducer("mvaPUPPET",
+                                       srcMETs=cms.VInputTag("patPFMetPuppi", "patPFMetCHS", "patMETCHS"),
+                                       referenceMET = cms.InputTag("patPFMetPuppi"),
+                                       srcVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
+                                       srcJets = cms.InputTag("slimmedJetsPuppi"),
+                                       inputFileNames = cms.PSet(
+                                           #PhiCorrectionWeightFile = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrmet_7X_BX50_Jan2015.root'),
+                                           #RecoilCorrectionWeightFile  = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrphi_7X_BX50_Jan2015.root')
+                                       ) )
+    #process.jmfw_analyzers += process.mvaPUPPET
     return process
 
     # Configure the analyzers
@@ -670,7 +680,10 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
     process.jmfw_analyzers += process.puppiReader
 
     process.p = cms.Path(process.jmfw_analyzers)
+
 '''
+
+
     #!
     #! THAT'S ALL! CAN YOU BELIEVE IT? :-D
     #!
