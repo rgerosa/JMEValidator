@@ -359,7 +359,7 @@ def createProcess(isMC, globalTag):
     else:
         process.corrPfMetType1CHS = corrPfMetType1.clone(
             src = 'ak4PFJetsCHS',
-            jetCorrLabel = 'ak4PFL1FastL2L3Corrector',
+            jetCorrLabel = 'ak4PFCHSL1FastL2L3Corrector',
             offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
         )
         process.pfMetT1CHS = pfMetT1.clone(
