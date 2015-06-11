@@ -1,0 +1,44 @@
+{ 
+  "activeTrainings" : ["particleFlow","track","noPileUp","pileUp","pileUpCorrected"],
+  "inputFile": "file:data/mvaTrainingSample.root",
+  "particleFlow":
+  {
+  	  "mode" : 0,
+  	  "friends" : [],
+  	  "desc" : "input Transformation",
+  	  "apply_MVA_to" : "particleFlow",
+  	  "name" : "particleFlowUpdate"
+  },
+  "track":
+  {
+  	  "mode" : 0,
+  	  "friends" : [],
+  	  "desc" : "input Transformation",
+  	  "apply_MVA_to" : "track",
+  	  "name" : "trackUpdate"
+  },
+  "noPileUp":
+  {
+  	  "mode" : 0,
+  	  "friends" : [],
+  	  "desc" : "input Transformation",
+  	  "apply_MVA_to" : "noPileUp",
+  	  "name" : "noPileUpUpdate"
+  },
+  "pileUp":
+  {
+  	  "mode" : 0,
+  	  "friends" : [],
+  	  "desc" : "input Transformation",
+  	  "apply_MVA_to" : "pileUp",
+  	  "name" : "pileUpUpdate"
+  },
+  "pileUpCorrected":
+  {
+  	  "mode" : 0,
+  	  "friends" : [],
+  	  "desc" : "input Transformation",
+  	  "apply_MVA_to" : "pileUpCorrected",
+  	  "name" : "pileUpCorrectedUpdate"
+  }
+}
