@@ -41,6 +41,8 @@ private:
 	edm::EDGetTokenT<pat::METCollection> referenceMET_;
 	std::string referenceMET_name_;
 	edm::EDGetTokenT<pat::JetCollection> srcJets_;
+	std::vector<edm::EDGetTokenT<reco::CandidateView > > srcLeptons_;
+
 
 	unsigned int countVertices(const reco::VertexCollection& vertices);
 	unsigned int countJets(const pat::JetCollection& jets, const float maxPt);
@@ -51,8 +53,8 @@ private:
 
 	const GBRForest* loadMVAfromFile(const edm::FileInPath& inputFileName, std::vector<std::string>& trainingVariableNames);
 	const Float_t GetResponse(const GBRForest * Reader, std::vector<std::string> &variableNames );
-	void addToMap(pat::MET &met, std::string &name, std::string &type);
-	void addToMap(pat::MET &met, std::string &name, std::string &type, double divisor);
+	void addToMap(reco::Candidate::LorentzVector p4, double sumEt, std::string &name, std::string &type);
+	void addToMap(reco::Candidate::LorentzVector p4, double sumEt, std::string &name, std::string &type, double divisor);
 
 	const GBRForest* mvaReaderPhiCorrection_;
 	const GBRForest* mvaReaderRecoilCorrection_;

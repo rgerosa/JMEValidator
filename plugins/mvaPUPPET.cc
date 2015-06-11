@@ -18,6 +18,13 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg)
 	srcVertices_ = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("srcVertices"));
 	srcJets_     = consumes<pat::JetCollection>(cfg.getParameter<edm::InputTag>("srcJets"));
 
+
+	//get leptons to calculate Z vector 
+	vInputTag srcLeptonsTags = cfg.getParameter<vInputTag>("srcLeptons");
+	for(vInputTag::const_iterator it=srcLeptonsTags.begin();it!=srcLeptonsTags.end();it++) {
+	    srcLeptons_.push_back( consumes<reco::CandidateView >( *it ) );
+	}
+
 	edm::ParameterSet cfgInputFileNames = cfg.getParameter<edm::ParameterSet>("inputFileNames");
 
 //	edm::FileInPath inputFileNamePhiCorrection = cfgInputFileNames.getParameter<edm::FileInPath>("PhiCorrectionWeightFile");
@@ -39,13 +46,27 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es)
 	std::cout << "produce" << std::endl;
 	var_.clear();
 
+	// calculate Z for recoil
+	reco::Candidate::LorentzVector Z(0, 0, 0, 0);
+	for ( std::vector<edm::EDGetTokenT<reco::CandidateView > >::const_iterator srcLeptons_i = srcLeptons_.begin();
+		srcLeptons_i != srcLeptons_.end(); ++srcLeptons_i )
+	{
+		edm::Handle<reco::CandidateView> leptons;
+		evt.getByToken(*srcLeptons_i, leptons);
+		for ( reco::CandidateView::const_iterator lepton = leptons->begin();
+		      lepton != leptons->end(); ++lepton )
+		{
+			Z += lepton->p4();
+		}
+	}
 
 	edm::Handle<pat::METCollection> referenceMETs;
 	evt.getByToken(referenceMET_, referenceMETs);
 	assert((*referenceMETs).size() == 1);
 	auto referenceMET = (*referenceMETs)[0];
+	reco::Candidate::LorentzVector referenceNegRecoil = Z - referenceMET.p4();
 	std::string reference = "reference";
-	addToMap(referenceMET, reference, referenceMET_name_);
+	addToMap(referenceNegRecoil, referenceMET.sumEt(), reference, referenceMET_name_);
 
 	std::cout << "map" << std::endl;
 
@@ -61,7 +82,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es)
 		std::string string_input = "input"; 
 		std::cout << "tomap: " << collection_name << std::endl;
 		for(auto met: (*MET))
-			addToMap(met, string_input, collection_name, referenceMET.sumEt());
+			addToMap(met.p4(), met.sumEt(), string_input, collection_name, referenceMET.sumEt());
 		++i;
 	}
 	
@@ -78,21 +99,28 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es)
 	var_["nJets"] = countJets(*jets, 30);
 
 
+
+//	reco::Candidate::LorentzVector negRecoil = -referenceMET.p4() + Z;
 	// evaluate training
 	Float_t PhiAngle = GetResponse(mvaReaderPhiCorrection_, variablesForPhiTraining_);
 
 	//calculate phi corrected MET and store it in new pat::MET
 	auto metDir = TVector2(referenceMET.px(), referenceMET.py());
-	metDir.Rotate(PhiAngle);
+	metDir = metDir.Rotate(PhiAngle);
 
 	pat::MET phiCorrectedMET(referenceMET);
 	reco::Candidate::LorentzVector lv(metDir.Px(), metDir.Py(), 0, referenceMET.sumEt());
 	phiCorrectedMET.setP4(lv);
 
-	std::cout << "dphi: " << referenceMET.phi() - phiCorrectedMET.phi() << std::endl;
+	std::cout << "refmet: " << referenceMET.phi() << ", cormet: " << phiCorrectedMET.phi() << "diff: " << PhiAngle << std::endl;
 
-	Float_t result2 = GetResponse(mvaReaderRecoilCorrection_, variablesForRecoilTraining_);
-	std::cout << result2 << std::endl;
+	Float_t RecoilCorrection = GetResponse(mvaReaderRecoilCorrection_, variablesForRecoilTraining_);
+	metDir *= RecoilCorrection;
+
+	pat::MET recoilCorrectedMET(phiCorrectedMET);
+	reco::Candidate::LorentzVector lv2(metDir.Px(), metDir.Py(), 0, referenceMET.sumEt());
+	phiCorrectedMET.setP4(lv2);
+	std::cout << RecoilCorrection << std::endl;
 	// evaluieren des GBR Trees
 	// funktion : string zu float Wert aus PAT::MET bzw. andere grÃsse
 	// Name: input_collection_value, input_ak4pfjets_
@@ -105,17 +133,17 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es)
 
 }
 
-void mvaPUPPET::addToMap(pat::MET &met, std::string &name, std::string &type)
+void mvaPUPPET::addToMap(reco::Candidate::LorentzVector p4, double sumEt, std::string &name, std::string &type)
 {
-	addToMap(met, name, type, 1);
+	addToMap(p4, sumEt, name, type, 1);
 }
 
-void mvaPUPPET::addToMap(pat::MET &met, std::string &name, std::string &type, double divisor)
+void mvaPUPPET::addToMap(reco::Candidate::LorentzVector p4, double sumEt, std::string &name, std::string &type, double divisor)
 {
 	std::cout << "hier" << name << ", " << type << std::endl;
-	var_[type + "_" + name + "_pt" ] = met.pt();
-	var_[type + "_" + name + "_phi" ] = met.phi();
-	var_[type + "_" + name + "_sumEt" ] = met.sumEt()/divisor;
+	var_[type + "_" + name + "_pt" ] = p4.pt();
+	var_[type + "_" + name + "_phi" ] = p4.phi();
+	var_[type + "_" + name + "_sumEt" ] = sumEt/divisor;
 	std::cout << "end" << std::endl;
 }
 
@@ -137,7 +165,7 @@ unsigned int mvaPUPPET::countJets(const pat::JetCollection& jets, const float ma
 
 const Float_t mvaPUPPET::GetResponse(const GBRForest * Reader, std::vector<std::string> &variableNames )
 {
-	return 1.0; // return dummy until weightfile is there
+	return 0.5; // return dummy until weightfile is there
     Float_t * mvaInputVector = createFloatVector(variableNames);
     double result = Reader->GetResponse(mvaInputVector);
     delete mvaInputVector;
