@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from PhysicsTools.PatAlgos.tools.tauTools import *
 
-def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone, electronCollection, tauCollection, runTauID):
+def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone, electronCollection, tauCollection):
 
     process = cms.Process("JRA")
 
@@ -202,8 +203,10 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
 
     
     from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import applyMuonID
-
+    
+    ##############
     ## apply muon ID : label is used to form the name, tight indicates the id to be applied from POGs, iso map are non standard iso info, typeIsoval is related to what apply: 0 no PU correction, 1 dBeta correction, 2 is rho*Area, 3 is PFWeighted correction, 4 is puppi
+    ##############
 
     applyMuonID(process, label = "Tight", src  = muonCollection, type = 'tightID',
                 iso_map_charged_hadron  = '', 
@@ -283,12 +286,15 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
     ##################
     #### TAU ID ######
     ##################
+    from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import applyTauID
 
-    if runTauID : 
-        
-        process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
-        from PhysicsTools.PatAlgos.tools.tauTools import *
-        switchToPFTauHPS(process)
+    applyTauID( process, label = "Loose", src = tauCollection,
+                muonCollection     = "slimmedMuonsTight",
+                electronCollection = "slimmedElectronsTight")
+
+    applyTauID( process, label = "Tight", src = tauCollection,
+                muonCollection     = "slimmedMuonsTight",
+                electronCollection = "slimmedElectronsTight")
 
 
     ##################
@@ -308,35 +314,44 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
 
             for muon in muonIDLabelForCleaning :
                 for electron in electronIDLabelForCleaning :
-            
-                    if not runTauID :
-                        cleanJetsFromLeptons(process,"Cleaned"+"Mu"+muon+"Ele"+electron,                                 
-                                             jetCollection      = "patJets"+postfix,
-                                             muonCollection     = muonCollection+muon,
-                                             electronCollection = electronCollection+electron,
-                                             tauCollection      = '',
-                                             jetPtCut  = 10.,
-                                             jetEtaCut = 5.,
-                                             dRCleaning = 0.3) 
-
-                    else :
-                        for tau in tauIDLabelForCleaning :
+                  for tau in tauIDLabelForCleaning :
+                      if tau != "" :
                             cleanJetsFromLeptons(process,"Cleaned"+"Mu"+muon+"Ele"+electron+"Tau"+tau,                                 
                                                  jetCollection      = "patJets"+postfix,
                                                  muonCollection     = muonCollection+muon,
                                                  electronCollection = electronCollection+electron,
                                                  tauCollection      = tauCollection+tau,
-                                                 jetPtCut  = 10.,
+                                                 jetPtCut  = 15.,
+                                                 jetEtaCut = 5.,
+                                                 dRCleaning = 0.3) 
+                      else:
+                            cleanJetsFromLeptons(process,"Cleaned"+"Mu"+muon+"Ele"+electron+"Tau"+tau,                                 
+                                                 jetCollection      = "patJets"+postfix,
+                                                 muonCollection     = muonCollection+muon,
+                                                 electronCollection = electronCollection+electron,
+                                                 tauCollection      = "",
+                                                 jetPtCut  = 15.,
                                                  jetEtaCut = 5.,
                                                  dRCleaning = 0.3) 
 
     
 
+    ##################################                    
+    ##### run pu puppi for PUPPET ####
+    ##################################
+    process.pupuppi = process.puppi.clone()
+    process.pupuppi.invertPuppi = True
+
+
+
     # Create METs from CHS and PUPPI
     from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
 
-    ## Gen MET
+    ## Gen MET ###
     ### Copied from https://github.com/cms-sw/cmssw/blob/2b75137e278b50fc967f95929388d430ef64710b/RecoMET/Configuration/python/GenMETParticles_cff.py#L37
+
+    process.load('RecoMET.METProducers.genMetTrue_cfi')
+
     process.genParticlesForMETAllVisible = cms.EDProducer(
             "InputGenJetsParticleSelector",
             src = cms.InputTag("prunedGenParticles"),
@@ -355,17 +370,17 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
                 39, 12, 14, 16
                 )
             )
-    process.load('RecoMET.METProducers.genMetTrue_cfi')
 
-    ## Raw PF METs
-    process.load('RecoMET.METProducers.PFMET_cfi')
-    process.pfMetCHS        = process.pfMet.clone()
-    process.pfMetCHS.src    = cms.InputTag("chs")
+    ## CHS pat MET; raw PF is the slimmedMet in miniAOD + typeI correction
+    from RecoMET.METProducers.PFMET_cfi import pfMet
+    process.pfMetCHS        = pfMet.clone()
+    process.pfMetCHS.src    = cms.InputTag("chs") ## packed candidates without fromPV < 1
     process.pfMetCHS.alias  = cms.string('pfMetCHS')
-    addMETCollection(process, labelName='patPFMetCHS', metSource='pfMetCHS') # RAW CHS MET
+    addMETCollection(process, labelName='patPFMetCHS', metSource='pfMetCHS') # Convert the CHS PFMet in PAT MET
     process.patPFMetCHS.addGenMET = False
 
-    process.pfMetPuppi       = process.pfMet.clone()
+    ### puppi raw met
+    process.pfMetPuppi       = pfMet.clone()
     process.pfMetPuppi.src   = cms.InputTag("puppi")
     process.pfMetPuppi.alias = cms.string('pfMetPuppi')
     addMETCollection(process, labelName='patPFMetPuppi', metSource='pfMetPuppi') # RAW puppi MET
@@ -375,7 +390,7 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
     from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import corrPfMetType1
     from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1
 
-    ### PUPPI
+    ### PUPPI TypeI corrected
     if not hasattr(process, 'ak4PFJetsPuppi'):
         print("WARNING: No AK4 puppi jets produced. Type 1 corrections for puppi MET are not available.")
     else:
@@ -388,7 +403,7 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
             src = 'pfMetPuppi',
             srcCorrections = [ cms.InputTag("corrPfMetType1Puppi","type1") ]
         )
-
+        ## new PAT Met correction
         addMETCollection(process, labelName='patMETPuppi', metSource='pfMetT1Puppi') # T1 puppi MET
         process.patMETPuppi.addGenMET = False
 
@@ -415,7 +430,7 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
     #### CaloMET is not available in MiniAOD
     del slimmedMETs.caloMET
 
-    ### PUPPI
+    ### PUPPI : make slimmed METs in order to embed both corrected and not corrected one after TypeI
     process.slimmedMETsPuppi = slimmedMETs.clone()
 
     if hasattr(process, "patMETPuppi"):
@@ -448,6 +463,67 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
     del process.slimmedMETsCHS.type1Uncertainties # not available
     del process.slimmedMETsCHS.type1p2Uncertainties # not available
 
+
+    ######## add other specific set of particles and MET collections, in this case not TypeI corrected, but we will still use the same workflow
+    
+    ## all charge particles from PUPPI : hadrons + leptons (e,mu,tau) --> trak met
+    process.pfAllChargedParticlesPuppi = cms.EDFilter("CandPtrSelector",
+                                                      src = cms.InputTag("puppi"),
+                                                      cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 22\
+12 || pdgId == -2212 || pdgId == 11 || pdgId == -11 || pdgId == 13 || pdgId ==-13 || pdgId == 15 || pdgId == -15"))
+
+    process.pfMetPuppiChargedPV       = pfMet.clone()
+    process.pfMetPuppiChargedPV.src   = cms.InputTag("pfAllChargedParticlesPuppi") ## packed candidates without fromPV < 1
+    process.pfMetPuppiChargedPV.alias = cms.string('pfMetPuppiChargedPV')
+    addMETCollection(process, labelName='patPFMetPuppiChargedPV', metSource='pfMetPuppiChargedPV') # Convert the CHS PFMet in PAT MET
+    process.patPFMetPuppiChargedPV.addGenMET = True
+
+    process.slimmedMETsPuppiChargedPV = slimmedMETs.clone()
+    process.slimmedMETsPuppiChargedPV.src = cms.InputTag("patPFMetPuppiChargedPV")
+    process.slimmedMETsPuppiChargedPV.rawUncertainties = cms.InputTag("patPFMetPuppiChargedPV") # only central value
+
+    ### charge candidate from PU and build the Met ( we can take the one defined for the isolation)
+    process.pfMetPuppiChargedPU       = pfMet.clone() 
+    process.pfMetPuppiChargedPU.src   = cms.InputTag("pfPileUpIso")
+    process.pfMetPuppiChargedPU.alias = cms.string('pfMetPuppiChargedPU')
+    addMETCollection(process, labelName='patPFMetPuppiChargedPU', metSource='pfMetPuppiChargedPU') 
+    process.patPFMetPuppiChargedPU.addGenMET = True
+
+    process.slimmedMETsPuppiChargedPU = slimmedMETs.clone()
+    process.slimmedMETsPuppiChargedPU.src = cms.InputTag("patPFMetPuppiChargedPU")
+    process.slimmedMETsPuppiChargedPU.rawUncertainties = cms.InputTag("patPFMetPuppiChargedPU") # only central value
+
+    ## neutral particles from PV starting from puppi particles
+    process.pfAllNeutralParticlesPuppi  = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppi"), 
+                                                       cut = cms.string("pdgId == 22 || pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
+    
+
+    process.pfMetPuppiNeutralPV       = pfMet.clone() 
+    process.pfMetPuppiNeutralPV.src   = cms.InputTag("pfAllNeutralParticlesPuppi")
+    process.pfMetPuppiNeutralPV.alias = cms.string('pfMetPuppiNeutralPV')
+    addMETCollection(process, labelName='patPFMetPuppiNeutralPV', metSource='pfMetPuppiNeutralPV') 
+    process.patPFMetPuppiNeutralPV.addGenMET = True
+
+    process.slimmedMETsPuppiNeutralPV = slimmedMETs.clone()
+    process.slimmedMETsPuppiNeutralPV.src = cms.InputTag("patPFMetPuppiNeutralPV")
+    process.slimmedMETsPuppiNeutralPV.rawUncertainties = cms.InputTag("patPFMetPuppiNeutralPV") # only central value
+    
+
+    ## neutral particles from PU starting from inverted puppi particles
+    process.pfAllNeutralParticlesPuppiPU  = cms.EDFilter("CandPtrSelector", src = cms.InputTag("pupuppi"), 
+                                                         cut = cms.string("pdgId == 22 || pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
+    
+
+    process.pfMetPuppiNeutralPU       = pfMet.clone() 
+    process.pfMetPuppiNeutralPU.src   = cms.InputTag("pfAllNeutralParticlesPuppiPU")
+    process.pfMetPuppiNeutralPU.alias = cms.string('pfMetPuppiNeutralPU')
+    addMETCollection(process, labelName='patPFMetPuppiNeutralPU', metSource='pfMetPuppiNeutralPU') 
+    process.patPFMetPuppiNeutralPU.addGenMET = True
+
+    process.slimmedMETsPuppiNeutralPU = slimmedMETs.clone()
+    process.slimmedMETsPuppiNeutralPU.src = cms.InputTag("patPFMetPuppiNeutralPU")
+    process.slimmedMETsPuppiNeutralPU.rawUncertainties = cms.InputTag("patPFMetPuppiNeutralPU") # only central value
+    
     return process
 
     # Configure the analyzers
