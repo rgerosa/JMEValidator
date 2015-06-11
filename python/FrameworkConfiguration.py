@@ -298,6 +298,11 @@ def createProcess(isMC, globalTag):
 
     ## Raw PF METs
     process.load('RecoMET.METProducers.PFMET_cfi')
+
+    process.pfMet.src = cms.InputTag('packedPFCandidates')
+    addMETCollection(process, labelName='patPFMet', metSource='pfMet') # RAW MET
+    process.patPFMet.addGenMET = False
+
     process.pfMetCHS = process.pfMet.clone()
     process.pfMetCHS.src = cms.InputTag("chs")
     process.pfMetCHS.alias = cms.string('pfMetCHS')
@@ -313,6 +318,23 @@ def createProcess(isMC, globalTag):
     ## Type 1 corrections
     from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import corrPfMetType1
     from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1
+
+    ### Standard
+    if not hasattr(process, 'ak4PFJets'):
+        print("WARNING: No AK4 jets produced. Type 1 corrections for MET are not available.")
+    else:
+        process.corrPfMetType1 = corrPfMetType1.clone(
+            src = 'ak4PFJets',
+            jetCorrLabel = 'ak4PFL1FastL2L3Corrector',
+            offsetCorrLabel = 'ak4PFL1FastjetCorrector'
+        )
+        process.pfMetT1 = pfMetT1.clone(
+            src = 'pfMet',
+            srcCorrections = [ cms.InputTag("corrPfMetType1","type1") ]
+        )
+
+        addMETCollection(process, labelName='patMET', metSource='pfMetT1') # T1 MET
+        process.patMET.addGenMET = False
 
     ### PUPPI
     if not hasattr(process, 'ak4PFJetsPuppi'):
@@ -345,7 +367,7 @@ def createProcess(isMC, globalTag):
             srcCorrections = [ cms.InputTag("corrPfMetType1CHS","type1") ]
         )
 
-        addMETCollection(process, labelName='patMETCHS', metSource='pfMetT1CHS') # T1 puppi MET
+        addMETCollection(process, labelName='patMETCHS', metSource='pfMetT1CHS') # T1 CHS MET
         process.patMETCHS.addGenMET = False
 
 
@@ -355,8 +377,23 @@ def createProcess(isMC, globalTag):
     del slimmedMETs.caloMET
 
     ### PUPPI
-    process.slimmedMETsPuppi = slimmedMETs.clone()
+    process.slimmedMETs = slimmedMETs.clone()
+    if hasattr(process, "patMET"):
+        # Create MET from Type 1 PF collection
+        process.patMET.addGenMET = True
+        process.slimmedMETs.src = cms.InputTag("patMET")
+        process.slimmedMETs.rawUncertainties = cms.InputTag("patPFMet") # only central value
+    else:
+        # Create MET from RAW PF collection
+        process.patPFMet.addGenMET = True
+        process.slimmedMETs.src = cms.InputTag("patPFMet")
+        del process.slimmedMETs.rawUncertainties # not available
 
+    del process.slimmedMETs.type1Uncertainties # not available
+    del process.slimmedMETs.type1p2Uncertainties # not available
+
+    ### PUPPI
+    process.slimmedMETsPuppi = slimmedMETs.clone()
     if hasattr(process, "patMETPuppi"):
         # Create MET from Type 1 PF collection
         process.patMETPuppi.addGenMET = True
@@ -502,6 +539,12 @@ def createProcess(isMC, globalTag):
             process.jmfw_analyzers += analyzer
 
     # MET
+    process.met = cms.EDAnalyzer('JMEMETAnalyzer',
+            src = cms.InputTag('slimmedMETs', '', 'JRA'),
+            caloMET = cms.InputTag('slimmedMETs', '', 'PAT')
+            )
+    process.jmfw_analyzers += process.met
+
     process.met_chs = cms.EDAnalyzer('JMEMETAnalyzer',
             src = cms.InputTag('slimmedMETsCHS', '', 'JRA'),
             caloMET = cms.InputTag('slimmedMETs', '', 'PAT')
