@@ -32,6 +32,7 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg)
 
 //	edm::FileInPath inputFileNameRecoilCorrection = cfgInputFileNames.getParameter<edm::FileInPath>("RecoilCorrectionWeightFile");
 //	mvaReaderRecoilCorrection_  = loadMVAfromFile(inputFileNameRecoilCorrection, variablesForRecoilTraining_);
+	produces<pat::METCollection>();
 	std::cout << "init done" << std::endl;
 }
 
@@ -65,7 +66,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es)
 	assert((*referenceMETs).size() == 1);
 	auto referenceMET = (*referenceMETs)[0];
 	reco::Candidate::LorentzVector referenceNegRecoil = Z - referenceMET.p4();
-	std::string reference = "reference";
+	std::string reference = "referenceNegRecoil";
 	addToMap(referenceNegRecoil, referenceMET.sumEt(), reference, referenceMET_name_);
 
 	std::cout << "map" << std::endl;
@@ -79,10 +80,13 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es)
 		edm::Handle<pat::METCollection> MET;
 		evt.getByToken(*srcMET, MET);
 		assert((*MET).size() == 1 );
-		std::string string_input = "input"; 
+		std::string string_input = "negRecoil"; 
 		std::cout << "tomap: " << collection_name << std::endl;
 		for(auto met: (*MET))
-			addToMap(met.p4(), met.sumEt(), string_input, collection_name, referenceMET.sumEt());
+		{
+			reco::Candidate::LorentzVector negRecoil = Z - met.p4();
+			addToMap(negRecoil, met.sumEt(), string_input, collection_name, referenceMET.sumEt());
+		}
 		++i;
 	}
 	
@@ -98,29 +102,24 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es)
 	evt.getByToken(srcJets_, jets);
 	var_["nJets"] = countJets(*jets, 30);
 
-
-
-//	reco::Candidate::LorentzVector negRecoil = -referenceMET.p4() + Z;
 	// evaluate training
 	Float_t PhiAngle = GetResponse(mvaReaderPhiCorrection_, variablesForPhiTraining_);
 
 	//calculate phi corrected MET and store it in new pat::MET
-	auto metDir = TVector2(referenceMET.px(), referenceMET.py());
-	metDir = metDir.Rotate(PhiAngle);
+	auto refNegRecoil = TVector2(referenceNegRecoil.px(), referenceNegRecoil.py());
+	refNegRecoil = refNegRecoil.Rotate(PhiAngle);
 
-	pat::MET phiCorrectedMET(referenceMET);
-	reco::Candidate::LorentzVector lv(metDir.Px(), metDir.Py(), 0, referenceMET.sumEt());
-	phiCorrectedMET.setP4(lv);
-
-	std::cout << "refmet: " << referenceMET.phi() << ", cormet: " << phiCorrectedMET.phi() << "diff: " << PhiAngle << std::endl;
-
+	reco::Candidate::LorentzVector phiCorrectedNegRecoil(refNegRecoil.Px(), refNegRecoil.Py(), 0, referenceMET.sumEt());
+	addToMap(phiCorrectedNegRecoil, referenceMET.sumEt(), reference, referenceMET_name_);
 	Float_t RecoilCorrection = GetResponse(mvaReaderRecoilCorrection_, variablesForRecoilTraining_);
-	metDir *= RecoilCorrection;
+	refNegRecoil *= RecoilCorrection;
 
-	pat::MET recoilCorrectedMET(phiCorrectedMET);
-	reco::Candidate::LorentzVector lv2(metDir.Px(), metDir.Py(), 0, referenceMET.sumEt());
-	phiCorrectedMET.setP4(lv2);
-	std::cout << RecoilCorrection << std::endl;
+	//daraus MET berechnen und speichern
+	
+	pat::MET mvaMET(referenceMET);
+	reco::Candidate::LorentzVector recoilP4(refNegRecoil.Px(), refNegRecoil.Py(), 0, referenceMET.sumEt());
+	reco::Candidate::LorentzVector metP4 = Z - recoilP4;
+	mvaMET.setP4(metP4);
 	// evaluieren des GBR Trees
 	// funktion : string zu float Wert aus PAT::MET bzw. andere grÃsse
 	// Name: input_collection_value, input_ak4pfjets_
@@ -130,7 +129,10 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es)
 	// korrektur anwenden, nochmal evaluieren
 	// anwenden
 	// neues MET Objekt erstellen und als Collection event speichern
-
+	//add MET object to the event
+	std::auto_ptr<pat::METCollection> patMETCollection(new pat::METCollection());
+	patMETCollection->push_back(mvaMET);
+	evt.put(patMETCollection);
 }
 
 void mvaPUPPET::addToMap(reco::Candidate::LorentzVector p4, double sumEt, std::string &name, std::string &type)

@@ -536,11 +536,12 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
                                        inputFileNames = cms.PSet(
                                            #PhiCorrectionWeightFile = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrmet_7X_BX50_Jan2015.root'),
                                            #RecoilCorrectionWeightFile  = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrphi_7X_BX50_Jan2015.root')
-                                       ) )
+                                       ),
+                                       srcLeptons = cms.VInputTag("slimmedMuons") )
+    process.p = cms.Path(process.mvaPUPPET)
 
     if dropAnamyzerDumpEDM:        
         return process
-    
 
     # Configure the analyzers
 
