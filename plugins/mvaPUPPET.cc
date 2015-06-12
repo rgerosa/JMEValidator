@@ -1,6 +1,6 @@
 #include "JMEAnalysis/JMEValidator/plugins/mvaPUPPET.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include <TFile.h>
+
 
 
 mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg)
@@ -34,25 +34,11 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg)
 //	mvaReaderRecoilCorrection_  = loadMVAfromFile(inputFileNameRecoilCorrection, variablesForRecoilTraining_);
 	produces<pat::METCollection>();
 	std::cout << "init done" << std::endl;
-
-	//write out also flat n-tuple. Might work somehow with JME format, but did not figure out yet, how
-	if(writeNtuple_)
-	{
-		varForSkim_.clear();
-	}
-
-
 }
 
 mvaPUPPET::~mvaPUPPET()
 {
 	std::cout << "destructor" << std::endl;
-	if(writeNtuple_)
-	{
-		skimOutputFile_->Write();
-		delete skimOutputFile_;
-		delete skimNTuple_;
-	}
 }
 
 
@@ -75,9 +61,6 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es)
 		}
 	}
 
-	var_["z_pT"] = Z.Pt();
-	var_["z_Phi"] = Z.Phi();
-	var_["z_m"] = Z.M();
 	edm::Handle<pat::METCollection> referenceMETs;
 	evt.getByToken(referenceMET_, referenceMETs);
 	assert((*referenceMETs).size() == 1);
@@ -150,25 +133,6 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es)
 	std::auto_ptr<pat::METCollection> patMETCollection(new pat::METCollection());
 	patMETCollection->push_back(mvaMET);
 	evt.put(patMETCollection);
-	
-	if(writeNtuple_)
-	{
-		if(varForSkim_.empty())
-		{
-			TString skimObjects;
-			for(auto entry : var_)
-			{
-				varForSkim_.push_back(entry.first);
-				skimObjects.Append(entry.first + ":");
-			}
-			std::cout << skimObjects << std::endl;
-			skimObjects.Remove(skimObjects.Length()-1, 1);
-			std::cout << skimObjects << std::endl;
-			skimOutputFile_ = new TFile("mvaPUPPET_flat_n_tuple.root", "RECREATE");	
-			skimNTuple_ = new TNtuple("Flat", "MVA MET Training N-Tuple", skimObjects);
-		}
-		writeSkim();
-	}
 }
 
 void mvaPUPPET::addToMap(reco::Candidate::LorentzVector p4, double sumEt, std::string &name, std::string &type)
@@ -240,13 +204,6 @@ Float_t* mvaPUPPET::createFloatVector(std::vector<std::string> variableNames)
         floatVector[i] = var_[variableNames[i]];
     }
     return floatVector;
-}
-
-void mvaPUPPET::writeSkim()
-{
-  Float_t* skimArray = createFloatVector(varForSkim_);
-  skimNTuple_->Fill( skimArray );
-  delete skimArray;
 }
 
 

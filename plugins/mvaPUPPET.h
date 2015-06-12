@@ -22,7 +22,6 @@
 
 #include <TFile.h>
 #include <TVector2.h>
-#include <TNtuple.h>
 
 class mvaPUPPET : public edm::stream::EDProducer<>
 {
@@ -59,11 +58,5 @@ private:
 
 	const GBRForest* mvaReaderPhiCorrection_;
 	const GBRForest* mvaReaderRecoilCorrection_;
-
-	bool writeNtuple_ = true;
-	std::vector<std::string> varForSkim_;
-	TFile* skimOutputFile_;
-	TNtuple* skimNTuple_;
-	void writeSkim();
 }; 
 #endif
