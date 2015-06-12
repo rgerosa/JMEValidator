@@ -11,7 +11,7 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg)
 	srcMETTags_   = cfg.getParameter<vInputTag>("srcMETs");
 	for(vInputTag::const_iterator it=srcMETTags_.begin();it!=srcMETTags_.end();it++) {
 		srcMETs_.push_back( consumes<pat::METCollection >( *it ) );
-		produces<pat::METCollection>( (*it).label() );
+		produces<pat::METCollection>( "recoil"+(*it).label() );
 	}
 
 	// get MET that the mva is applied on
@@ -46,14 +46,12 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg)
 	std::cout << "init done" << std::endl;
 
 	produces<ParticleCollection>("Z");
-	produces<pat::METCollection>("recoilsForMvaPUPPET");
 }
 
 mvaPUPPET::~mvaPUPPET()
 {
 	std::cout << "destructor" << std::endl;
 }
-
 
 void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es)
 {
@@ -95,7 +93,6 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es)
 
 	// calculate the recoils and save them to MET objects
 	int i = 0;
-	std::auto_ptr<pat::METCollection> patMETRecoilCollection(new pat::METCollection());
 	for ( std::vector<edm::EDGetTokenT<pat::METCollection> >::const_iterator srcMET = srcMETs_.begin();
 		srcMET != srcMETs_.end(); ++srcMET )
 	{
@@ -109,14 +106,14 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es)
 		std::cout << "tomap: " << collection_name << std::endl;
 
 		// calculate recoil
-		pat::MET negRecoil; 
-		//reco::Candidate::LorentzVector negRecoil = Z.p4() - (*MET)[0].p4();
+		pat::MET negRecoil((*MET)[0]); 
 		negRecoil.setP4(Z.p4() - (*MET)[0].p4());
 		addToMap(negRecoil.p4(), (*MET)[0].sumEt(), string_input, collection_name, referenceMET.sumEt());
 
+		std::auto_ptr<pat::METCollection> patMETRecoilCollection(new pat::METCollection());
 		patMETRecoilCollection->push_back(negRecoil);
+		evt.put(patMETRecoilCollection, "recoil"+collection_name);
 	}
-	evt.put(patMETRecoilCollection, "recoilsForMvaPUPPET");
 
 	// print whole map
 	for(auto entry : var_)
@@ -154,9 +151,6 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es)
 	std::auto_ptr<pat::METCollection> patMETCollection(new pat::METCollection());
 	patMETCollection->push_back(mvaMET);
 	evt.put(patMETCollection);
-
-	// Z
-	// recoils
 }
 
 void mvaPUPPET::addToMap(reco::Candidate::LorentzVector p4, double sumEt, std::string &name, std::string &type)
