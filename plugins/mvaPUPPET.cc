@@ -1,7 +1,8 @@
 #include "JMEAnalysis/JMEValidator/plugins/mvaPUPPET.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/Candidate/interface/Particle.h"
 
-
+typedef std::vector<reco::Particle> ParticleCollection;
 
 mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg)
 {
@@ -43,6 +44,9 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg)
 	// prepare for saving the final mvaPUPPET to the event
 	produces<pat::METCollection>();
 	std::cout << "init done" << std::endl;
+
+	produces<ParticleCollection>("Z");
+	produces<pat::METCollection>("recoilsForMvaPUPPET");
 }
 
 mvaPUPPET::~mvaPUPPET()
@@ -57,7 +61,9 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es)
 	var_.clear();
 
 	// calculate Z for recoil
-	reco::Candidate::LorentzVector Z(0, 0, 0, 0);
+	//reco::Particle Z;
+	reco::Particle Z;
+	Z.setP4(reco::Candidate::LorentzVector(0, 0, 0, 0));
 	for ( std::vector<edm::EDGetTokenT<reco::CandidateView > >::const_iterator srcLeptons_i = srcLeptons_.begin();
 		srcLeptons_i != srcLeptons_.end(); ++srcLeptons_i )
 	{
@@ -66,42 +72,51 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es)
 		for ( reco::CandidateView::const_iterator lepton = leptons->begin();
 		      lepton != leptons->end(); ++lepton )
 		{
-			Z += lepton->p4();
+			Z.setP4(Z.p4()+ lepton->p4());
 		}
 	}
-	var_["z_pT"] = Z.Pt();
-	var_["z_Phi"] = Z.Phi();
-	var_["z_m"] = Z.M();
+	var_["z_pT"] = Z.pt();
+	var_["z_Phi"] = Z.phi();
+	var_["z_m"] = Z.mass();
+	// and save the Z back to the event 
+	std::auto_ptr<ParticleCollection> recoZParticleCollection(new ParticleCollection());
+	recoZParticleCollection->push_back(Z);
+	evt.put(recoZParticleCollection, "Z");
 
 	// get reference MET and calculate its recoil
 	edm::Handle<pat::METCollection> referenceMETs;
 	evt.getByToken(referenceMET_, referenceMETs);
 	assert((*referenceMETs).size() == 1);
 	auto referenceMET = (*referenceMETs)[0];
-	reco::Candidate::LorentzVector referenceNegRecoil = Z - referenceMET.p4();
+	reco::Candidate::LorentzVector referenceNegRecoil = Z.p4() - referenceMET.p4();
 	std::string reference = "referenceNegRecoil";
 	addToMap(referenceNegRecoil, referenceMET.sumEt(), reference, referenceMET_name_);
 
 
 	// calculate the recoils and save them to MET objects
 	int i = 0;
+	std::auto_ptr<pat::METCollection> patMETRecoilCollection(new pat::METCollection());
 	for ( std::vector<edm::EDGetTokenT<pat::METCollection> >::const_iterator srcMET = srcMETs_.begin();
 		srcMET != srcMETs_.end(); ++srcMET )
 	{
-		std::string collection_name = srcMETTags_[i].label();
+		//get inputs
+		std::string collection_name = srcMETTags_[i++].label();
 		std::cout << "colname: " << collection_name << std::endl;
 		edm::Handle<pat::METCollection> MET;
 		evt.getByToken(*srcMET, MET);
 		assert((*MET).size() == 1 );
 		std::string string_input = "negRecoil"; 
 		std::cout << "tomap: " << collection_name << std::endl;
-		for(auto met: (*MET))
-		{
-			reco::Candidate::LorentzVector negRecoil = Z - met.p4();
-			addToMap(negRecoil, met.sumEt(), string_input, collection_name, referenceMET.sumEt());
-		}
-		++i;
+
+		// calculate recoil
+		pat::MET negRecoil; 
+		//reco::Candidate::LorentzVector negRecoil = Z.p4() - (*MET)[0].p4();
+		negRecoil.setP4(Z.p4() - (*MET)[0].p4());
+		addToMap(negRecoil.p4(), (*MET)[0].sumEt(), string_input, collection_name, referenceMET.sumEt());
+
+		patMETRecoilCollection->push_back(negRecoil);
 	}
+	evt.put(patMETRecoilCollection, "recoilsForMvaPUPPET");
 
 	// print whole map
 	for(auto entry : var_)
@@ -131,7 +146,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es)
 	// calculate new mvaPUPPET
 	pat::MET mvaMET(referenceMET);
 	reco::Candidate::LorentzVector recoilP4(refNegRecoil.Px(), refNegRecoil.Py(), 0, referenceMET.sumEt());
-	reco::Candidate::LorentzVector metP4 = Z - recoilP4;
+	reco::Candidate::LorentzVector metP4 = Z.p4() - recoilP4;
 	mvaMET.setP4(metP4);
 
 	//// save results to event

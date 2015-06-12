@@ -52,8 +52,10 @@ if options.dropAnamyzerDumpEDM :
                                                                              'keep *_slimmedElectrons*_*_*',
                                                                              'keep *_patJets*Cleaned*_*_*',
                                                                              'keep *_slimmed*Tau*_*_*',
-                                                                             'keep *_slimmed*MET*_*_*')
-                                      )
+                                                                             'keep *_slimmed*MET*_*_*', 
+                                                                             'keep *_mvaPUPPET_Z_*',
+                                                                             'keep *_mvaPUPPET_recoilsForMvaPUPPET_*',
+                                                                             'keep *_mvaPUPPET__*') )
     
     process.out = cms.EndPath(process.output)
     
