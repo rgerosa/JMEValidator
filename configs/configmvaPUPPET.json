@@ -1,0 +1,51 @@
+{ 
+  "activeTrainings" : ["phiTraining", "recoilTraining"],
+  "activeReweightings" : [],
+  "inputFile": "file:data/test.root",
+  "phiTraining":
+  {
+  	  "mode" : 1,
+  	  "friends" : [],
+  	  "desc" : "First training on phi",
+  	  "apply_MVA_to" : "patPFMetCHS_negRecoil",
+  	  "weight" : "1",
+  	  "name" : "PhiCor",
+  	  "folder" : "Flat",
+  	  "minEvents" : 250,
+  	  "shrinkage" : 0.05,
+  	  "minCutSignificance" : 2.0,
+  	  "nTrees" : 1000,
+  	  "weightfilename" : "PhiCor_13TeV.root",
+  	  "targetVariable" : "(z_Phi-patPFMetCHS_negReciol_phi) + 2.*TMath::Pi()*((z_Phi-patPFMetCHS_negReciol_phi) < -TMath::Pi()) - 2.*TMath::Pi()*((z_Phi-patPFMetCHS_negReciol_phi) > TMath::Pi())",
+  	  "trainingVariables" : 
+  	  [ "patMETCHS_negRecoil_phi", "patMETCHS_negRecoil_pt", "patMETCHS_negRecoil_sumEt",
+		"patPFMetCHS_negRecoil_phi", "patPFMetCHS_negRecoil_pt", "patPFMetCHS_negRecoil_sumEt",
+		"patPFMetPuppi_negRecoil_phi", "patPFMetPuppi_negRecoil_phi", "patPFMetPuppi_negRecoil_phi",
+    	"nJets",
+    	"nVertices"
+  	  ]
+  },
+  "recoilTraining":
+  {
+  	  "mode" : 2,
+  	  "friends" : ["PhiCor" ],
+  	  "desc" : "Second training on Recoil",
+  	  "apply_MVA_to" : "PhiCor",
+  	  "weight" : "1",
+  	  "name" : "RecoilCor",
+  	  "folder" : "Flat",
+  	  "minEvents" : 250,
+  	  "shrinkage" : 0.05,
+  	  "minCutSignificance" : 3.0,
+  	  "nTrees" : 1000,
+  	  "weightfilename" : "RecoilCor_13TeV.root",
+  	  "targetVariable" : "-z_pT/PhiCor_Upar",
+  	  "trainingVariables" : 
+  	  [ "patMETCHS_negRecoil_phi", "patMETCHS_negRecoil_pt", "patMETCHS_negRecoil_sumEt",
+		"patPFMetCHS_negRecoil_phi", "patPFMetCHS_negRecoil_pt", "patPFMetCHS_negRecoil_sumEt",
+		"patPFMetPuppi_negRecoil_phi", "patPFMetPuppi_negRecoil_phi", "patPFMetPuppi_negRecoil_phi",
+    	"nJets",
+    	"nVertices"
+  	  ]
+  }
+}

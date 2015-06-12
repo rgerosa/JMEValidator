@@ -74,14 +74,8 @@ void applyTraining::wireInputs()
   for (int ivar = 0; ivar<_lN; ++ivar) {
     printf("%i: %s\n",ivar, _lVars->at(ivar).c_str());
   }
-  std::string extension = "_U";
-  if(_applyMVAto=="pileUp")
-  {
-    std::cout << " changing...... to MET" << std::endl;
-    extension = "_MET";
-  }
-  _lTree->SetBranchAddress( (_applyMVAto + extension).c_str()      ,&_old_U);
-  _lTree->SetBranchAddress( (_applyMVAto + extension + "Phi").c_str()   ,&_old_UPhi);
+  _lTree->SetBranchAddress( (_applyMVAto + "_pt").c_str()      ,&_old_U);
+  _lTree->SetBranchAddress( (_applyMVAto + "_phi").c_str()   ,&_old_UPhi);
 
   _lTree->SetBranchAddress( "z_pT"                ,&_z_pT);
   _lTree->SetBranchAddress( "z_Phi"               ,&_z_Phi);

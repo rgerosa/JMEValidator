@@ -130,7 +130,7 @@ private:
   TTreeFormula *variableExpr;
   std::vector<float> binBoundaries;
   std::map<int, float> binWeights;
-  ifstream boundariesFile;
+  //ifstream boundariesFile;
   int type;
   float sum;
   std::string outputFilename;
