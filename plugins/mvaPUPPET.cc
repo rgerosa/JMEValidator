@@ -45,7 +45,7 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg)
 	produces<pat::METCollection>();
 	std::cout << "init done" << std::endl;
 
-	produces<ParticleCollection>("Z");
+	produces<ParticleCollection>("ZtagBoson");
 }
 
 mvaPUPPET::~mvaPUPPET()
@@ -79,7 +79,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es)
 	// and save the Z back to the event 
 	std::auto_ptr<ParticleCollection> recoZParticleCollection(new ParticleCollection());
 	recoZParticleCollection->push_back(Z);
-	evt.put(recoZParticleCollection, "Z");
+	evt.put(recoZParticleCollection, "ZtagBoson");
 
 	// get reference MET and calculate its recoil
 	edm::Handle<pat::METCollection> referenceMETs;

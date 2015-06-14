@@ -1,7 +1,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "../interface/GBRTrainer.h"
-#include "../../../CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
 //#include "Cintex/Cintex.h"
 
 #include <boost/property_tree/json_parser.hpp>

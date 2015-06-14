@@ -6,8 +6,8 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TTreeFormula.h"
-#include "../interface/GBRTrainer.h"
-#include "../../../CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "GBRTrainer.h"
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
 //#include "Cintex/Cintex.h"
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>

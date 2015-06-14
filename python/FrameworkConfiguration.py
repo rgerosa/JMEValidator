@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.tauTools import *
 
-def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone, electronCollection, tauCollection, dropAnamyzerDumpEDM):
+def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone, electronCollection, tauCollection, dropAnalyzerDumpEDM, runMVAPUPPETAnalysis):
 
     process = cms.Process("JRA")
 
@@ -32,7 +32,6 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     process.source = cms.Source("PoolSource")
 
-    ## TFile service for the output 
     process.load('CommonTools.UtilAlgos.TFileService_cfi')
     process.TFileService.fileName = cms.string('output_mc.root') if isMC else cms.string('output_data.root')
 
@@ -202,37 +201,41 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
                                 )
 
     
-    from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import applyMuonID
     
-    ##############
-    ## apply muon ID : label is used to form the name, tight indicates the id to be applied from POGs, iso map are non standard iso info, typeIsoval is related to what apply: 0 no PU correction, 1 dBeta correction, 2 is rho*Area, 3 is PFWeighted correction, 4 is puppi
-    ##############
 
-    applyMuonID(process, label = "Tight", src  = muonCollection, type = 'tightID',
-                iso_map_charged_hadron  = '', 
-                iso_map_neutral_hadron  = '', 
-                iso_map_photon          = '',                 
-                rho = 'fixedGridRhoFastjetAll',
-                typeIsoVal = 1
-                )
+    if runMVAPUPPETAnalysis :
 
-    applyMuonID(process, label = "TightDBeta", src  = muonCollection, type = 'tightID',
-                iso_map_charged_hadron  = '', 
-                iso_map_neutral_hadron  = 'muPFIsoValueNHR04PFWGT', 
-                iso_map_photon          = 'muPFIsoValuePhR04PFWGT',                 
-                rho = 'fixedGridRhoFastjetAll',
-                typeIsoVal = 3
-                )
+        ##############
+        ## apply muon ID : label is used to form the name, tight indicates the id to be applied from POGs, iso map are non standard iso info, typeIsoval is related to what apply: 0 no PU correction, 1 dBeta correction, 2 is rho*Area, 3 is PFWeighted correction, 4 is puppi
+        ##############
 
-    if runPuppiMuonIso :
-
-        applyMuonID(process, label = "TightPuppiNoMu", src  = muonCollection, type = 'tightID',
-                    iso_map_charged_hadron  = 'muPFIsoValueCHR04PUPPINoMu', 
-                    iso_map_neutral_hadron  = 'muPFIsoValueNHR04PUPPINoMu', 
-                    iso_map_photon          = 'muPFIsoValuePhR04PUPPINoMu',                 
+        from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import applyMuonID
+        
+        applyMuonID(process, label = "Tight", src  = muonCollection, type = 'tightID',
+                    iso_map_charged_hadron  = '', 
+                    iso_map_neutral_hadron  = '', 
+                    iso_map_photon          = '',                 
                     rho = 'fixedGridRhoFastjetAll',
-                    typeIsoVal = 4
+                    typeIsoVal = 1
                     )
+
+        applyMuonID(process, label = "TightDBeta", src  = muonCollection, type = 'tightID',
+                    iso_map_charged_hadron  = '', 
+                    iso_map_neutral_hadron  = 'muPFIsoValueNHR04PFWGT', 
+                    iso_map_photon          = 'muPFIsoValuePhR04PFWGT',                 
+                    rho = 'fixedGridRhoFastjetAll',
+                    typeIsoVal = 3
+                    )
+
+        if runPuppiMuonIso :
+            
+            applyMuonID(process, label = "TightPuppiNoMu", src  = muonCollection, type = 'tightID',
+                        iso_map_charged_hadron  = 'muPFIsoValueCHR04PUPPINoMu', 
+                        iso_map_neutral_hadron  = 'muPFIsoValueNHR04PUPPINoMu', 
+                        iso_map_photon          = 'muPFIsoValuePhR04PUPPINoMu',                 
+                        rho = 'fixedGridRhoFastjetAll',
+                        typeIsoVal = 4
+                        )
 
     ###########################
     ## Electrons and photons ##
@@ -254,86 +257,93 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
     for idMod in photonIdModules:
         setupAllVIDIdsInModule(process, idMod, setupVIDPhotonSelection)
 
+    if runMVAPUPPETAnalysis:
 
-    from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import applyElectronID
-
-    applyElectronID(process, label = "Tight", src  = electronCollection, 
-                    iso_map_charged_hadron  = '', 
-                    iso_map_neutral_hadron  = '', 
-                    iso_map_photon          = '',                 
-                    rho = 'fixedGridRhoFastjetAll',
-                    typeIsoVal = 0,
-                    electron_id_map = 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight'
-                    )
-
-    applyElectronID(process, label = "Medium", src  = electronCollection, 
-                    iso_map_charged_hadron  = '', 
-                    iso_map_neutral_hadron  = '', 
-                    iso_map_photon          = '',                 
-                    rho = 'fixedGridRhoFastjetAll',
-                    typeIsoVal = 0,
-                    electron_id_map = 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium'
-                    )
+        from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import applyElectronID
+        
+        #applyElectronID(process, label = "Tight", src  = electronCollection, 
+        #                iso_map_charged_hadron  = '', 
+        #                iso_map_neutral_hadron  = '', 
+        #                iso_map_photon          = '',                 
+        #                rho = 'fixedGridRhoFastjetAll',
+        #                typeIsoVal = 1,
+        #                electron_id_map = 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight'
+        #                )
+        
+        applyElectronID(process, label = "Medium", src  = electronCollection, 
+                        iso_map_charged_hadron  = '', 
+                        iso_map_neutral_hadron  = '', 
+                        iso_map_photon          = '',                 
+                        rho = 'fixedGridRhoFastjetAll',
+                        typeIsoVal = 1,
+                        electron_id_map = 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium'
+                        )
 
     ##################
     #### TAU ID ######
     ##################
-    from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import applyTauID
+    muonIDLabelForCleaning     = ["Tight"]                    
+    electronIDLabelForCleaning = ["Medium"]
+    tauIDLabelForCleaning      = ["Loose"]
 
-    applyTauID( process, label = "Loose", src = tauCollection,
-                muonCollection     = "slimmedMuonsTight",
-                electronCollection = "slimmedElectronsTight")
+    if runMVAPUPPETAnalysis :
+        from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import applyTauID
+        
+        for muon in muonIDLabelForCleaning :
+            for electron in electronIDLabelForCleaning:
 
-    applyTauID( process, label = "Tight", src = tauCollection,
-                muonCollection     = "slimmedMuonsTight",
-                electronCollection = "slimmedElectronsTight")
+                applyTauID( process, label = "Loose", src = tauCollection,
+                            muonCollection     = muonCollection+muon,
+                            electronCollection = electronCollection+electron)
 
+        #applyTauID( process, label = "Tight", src = tauCollection,
+        #            muonCollection     = "slimmedMuonsTight",
+        #            electronCollection = "slimmedElectronsTight")
+        
 
     ##################
     ### clean jets ###
     ##################
+        
+    if runMVAPUPPETAnalysis :
 
-    from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import cleanJetsFromLeptons
+        from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import cleanJetsFromLeptons
 
-    muonIDLabelForCleaning     = ["Tight","TightDBeta","TightPuppiNoMu"]                    
-    electronIDLabelForCleaning = ["Tight"]
-    tauIDLabelForCleaning      = [""]
-    
-    for name, params in jetsCollections.items():
+        for name, params in jetsCollections.items():
         ## loop on the pileup methos                                                                                                                                            
-        for index, pu_method in enumerate(params['pu_methods']):
-            postfix       = '%sPF%s' % (algo, pu_method)
+            for index, pu_method in enumerate(params['pu_methods']):
+                postfix       = '%sPF%s' % (algo, pu_method)
 
-            for muon in muonIDLabelForCleaning :
-                for electron in electronIDLabelForCleaning :
-                  for tau in tauIDLabelForCleaning :
-                      if tau == "" :
-                            cleanJetsFromLeptons(process,"Cleaned"+"Mu"+muon+"Ele"+electron,                                 
-                                                 jetCollection      = "selectedPatJets"+postfix,
-                                                 muonCollection     = muonCollection+muon,
-                                                 electronCollection = electronCollection+electron,
-                                                 tauCollection      = tauCollection+tau,
-                                                 jetPtCut  = 15.,
-                                                 jetEtaCut = 5.,
-                                                 dRCleaning = 0.3) 
-                      else:
-                            cleanJetsFromLeptons(process,"Cleaned"+"Mu"+muon+"Ele"+electron+"Tau"+tau,                                 
-                                                 jetCollection      = "selectedPatJets"+postfix,
-                                                 muonCollection     = muonCollection+muon,
-                                                 electronCollection = electronCollection+electron,
-                                                 tauCollection      = "",
-                                                 jetPtCut  = 15.,
-                                                 jetEtaCut = 5.,
-                                                 dRCleaning = 0.3) 
+                for muon in muonIDLabelForCleaning :
+                    for electron in electronIDLabelForCleaning :
+                        for tau in tauIDLabelForCleaning :
+                            if tau == "" :
+                                cleanJetsFromLeptons(process,"Cleaned"+"Mu"+muon+"Ele"+electron,                                 
+                                                     jetCollection      = "selectedPatJets"+postfix,
+                                                     muonCollection     = muonCollection+muon,
+                                                     electronCollection = electronCollection+electron,
+                                                     tauCollection      = tauCollection+tau,
+                                                     jetPtCut  = 15.,
+                                                     jetEtaCut = 5.,
+                                                     dRCleaning = 0.3) 
+                            else:
+                                cleanJetsFromLeptons(process,"Cleaned"+"Mu"+muon+"Ele"+electron+"Tau"+tau,                                 
+                                                     jetCollection      = "selectedPatJets"+postfix,
+                                                     muonCollection     = muonCollection+muon,
+                                                     electronCollection = electronCollection+electron,
+                                                     tauCollection      = "",
+                                                     jetPtCut  = 15.,
+                                                     jetEtaCut = 5.,
+                                                     dRCleaning = 0.3) 
 
     
 
     ##################################                    
     ##### run pu puppi for PUPPET ####
     ##################################
-    process.pupuppi = process.puppi.clone()
-    process.pupuppi.invertPuppi = True
-
+    if runMVAPUPPETAnalysis:                            
+        process.pupuppi = process.puppi.clone()
+        process.pupuppi.invertPuppi = True
 
 
     # Create METs from CHS and PUPPI
@@ -456,104 +466,166 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
     del process.slimmedMETsCHS.type1p2Uncertainties # not available
 
 
-    ######## add other specific set of particles and MET collections, in this case not TypeI corrected, but we will still use the same workflow
-    
-    ## all charge particles from PUPPI : hadrons + leptons (e,mu,tau) --> trak met
-    process.pfAllChargedParticlesPuppi = cms.EDFilter("CandPtrSelector",
-                                                      src = cms.InputTag("puppi"),
-                                                      cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 22\
+    process.jmfw_analyzers = cms.Sequence()
+    process.p = cms.Path(process.jmfw_analyzers)
+
+
+    if runMVAPUPPETAnalysis :
+
+        ######## add other specific set of particles and MET collections, in this case not TypeI corrected, but we will still use the same workflow    
+        ## all charge particles from PUPPI : hadrons + leptons (e,mu,tau) --> trak met
+        process.pfAllChargedParticlesPuppi = cms.EDFilter("CandPtrSelector",
+                                                          src = cms.InputTag("puppi"),
+                                                          cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 22\
 12 || pdgId == -2212 || pdgId == 11 || pdgId == -11 || pdgId == 13 || pdgId ==-13 || pdgId == 15 || pdgId == -15"))
+        
+        process.pfMetPuppiChargedPV       = pfMet.clone()
+        process.pfMetPuppiChargedPV.src   = cms.InputTag("pfAllChargedParticlesPuppi") ## packed candidates without fromPV < 1
+        process.pfMetPuppiChargedPV.alias = cms.string('pfMetPuppiChargedPV')
+        addMETCollection(process, labelName='patPFMetPuppiChargedPV', metSource='pfMetPuppiChargedPV') # Convert the CHS PFMet in PAT MET
+        process.patPFMetPuppiChargedPV.addGenMET = True
 
-    process.pfMetPuppiChargedPV       = pfMet.clone()
-    process.pfMetPuppiChargedPV.src   = cms.InputTag("pfAllChargedParticlesPuppi") ## packed candidates without fromPV < 1
-    process.pfMetPuppiChargedPV.alias = cms.string('pfMetPuppiChargedPV')
-    addMETCollection(process, labelName='patPFMetPuppiChargedPV', metSource='pfMetPuppiChargedPV') # Convert the CHS PFMet in PAT MET
-    process.patPFMetPuppiChargedPV.addGenMET = True
+        process.slimmedMETsPuppiChargedPV = slimmedMETs.clone()
+        process.slimmedMETsPuppiChargedPV.src = cms.InputTag("patPFMetPuppiChargedPV")
+        process.slimmedMETsPuppiChargedPV.rawUncertainties = cms.InputTag("patPFMetPuppiChargedPV") # only central value
+        del process.slimmedMETsPuppiChargedPV.type1Uncertainties # not available                                                                                            
+        del process.slimmedMETsPuppiChargedPV.type1p2Uncertainties # not available                                                                                 
 
-    process.slimmedMETsPuppiChargedPV = slimmedMETs.clone()
-    process.slimmedMETsPuppiChargedPV.src = cms.InputTag("patPFMetPuppiChargedPV")
-    process.slimmedMETsPuppiChargedPV.rawUncertainties = cms.InputTag("patPFMetPuppiChargedPV") # only central value
+        ### charge candidate from PU and build the Met ( we can take the one defined for the isolation)
+        process.pfMetChargedPU       = pfMet.clone() 
+        process.pfMetChargedPU.src   = cms.InputTag("pfPileUpIso")
+        process.pfMetChargedPU.alias = cms.string('pfMetPuppiChargedPU')
+        addMETCollection(process, labelName='patPFMetChargedPU', metSource='pfMetChargedPU') 
+        process.patPFMetChargedPU.addGenMET = True
 
-    del process.slimmedMETsPuppiChargedPV.type1Uncertainties # not available                                                                                                 
-    del process.slimmedMETsPuppiChargedPV.type1p2Uncertainties # not available                                                                                               
-
-    ### charge candidate from PU and build the Met ( we can take the one defined for the isolation)
-    process.pfMetPuppiChargedPU       = pfMet.clone() 
-    process.pfMetPuppiChargedPU.src   = cms.InputTag("pfPileUpIso")
-    process.pfMetPuppiChargedPU.alias = cms.string('pfMetPuppiChargedPU')
-    addMETCollection(process, labelName='patPFMetPuppiChargedPU', metSource='pfMetPuppiChargedPU') 
-    process.patPFMetPuppiChargedPU.addGenMET = True
-
-    process.slimmedMETsPuppiChargedPU = slimmedMETs.clone()
-    process.slimmedMETsPuppiChargedPU.src = cms.InputTag("patPFMetPuppiChargedPU")
-    process.slimmedMETsPuppiChargedPU.rawUncertainties = cms.InputTag("patPFMetPuppiChargedPU") # only central value
-
-    del process.slimmedMETsPuppiChargedPU.type1Uncertainties # not available                                                                                                 
-    del process.slimmedMETsPuppiChargedPU.type1p2Uncertainties # not available                                                                                               
-
-    ## neutral particles from PV starting from puppi particles
-    process.pfAllNeutralParticlesPuppi  = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppi"), 
-                                                       cut = cms.string("pdgId == 22 || pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
+        process.slimmedMETsPuppiChargedPU = slimmedMETs.clone()
+        process.slimmedMETsPuppiChargedPU.src = cms.InputTag("patPFMetChargedPU")
+        process.slimmedMETsPuppiChargedPU.rawUncertainties = cms.InputTag("patPFMetChargedPU") # only central value
+        
+        del process.slimmedMETsPuppiChargedPU.type1Uncertainties # not available                                                                                           
+        del process.slimmedMETsPuppiChargedPU.type1p2Uncertainties # not available                                                                                      
+        
+        ## neutral particles from PV starting from puppi particles
+        process.pfAllNeutralParticlesPuppi  = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppi"), 
+                                                           cut = cms.string("pdgId == 22 || pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
+        
+        
+        process.pfMetPuppiNeutralPV       = pfMet.clone() 
+        process.pfMetPuppiNeutralPV.src   = cms.InputTag("pfAllNeutralParticlesPuppi")
+        process.pfMetPuppiNeutralPV.alias = cms.string('pfMetPuppiNeutralPV')
+        addMETCollection(process, labelName='patPFMetPuppiNeutralPV', metSource='pfMetPuppiNeutralPV') 
+        process.patPFMetPuppiNeutralPV.addGenMET = True
+        
+        process.slimmedMETsPuppiNeutralPV = slimmedMETs.clone()
+        process.slimmedMETsPuppiNeutralPV.src = cms.InputTag("patPFMetPuppiNeutralPV")
+        process.slimmedMETsPuppiNeutralPV.rawUncertainties = cms.InputTag("patPFMetPuppiNeutralPV") # only central value
+        
+        del process.slimmedMETsPuppiNeutralPV.type1Uncertainties # not available                                                                                                
+        del process.slimmedMETsPuppiNeutralPV.type1p2Uncertainties # not available                                                                                          
     
 
-    process.pfMetPuppiNeutralPV       = pfMet.clone() 
-    process.pfMetPuppiNeutralPV.src   = cms.InputTag("pfAllNeutralParticlesPuppi")
-    process.pfMetPuppiNeutralPV.alias = cms.string('pfMetPuppiNeutralPV')
-    addMETCollection(process, labelName='patPFMetPuppiNeutralPV', metSource='pfMetPuppiNeutralPV') 
-    process.patPFMetPuppiNeutralPV.addGenMET = True
-
-    process.slimmedMETsPuppiNeutralPV = slimmedMETs.clone()
-    process.slimmedMETsPuppiNeutralPV.src = cms.InputTag("patPFMetPuppiNeutralPV")
-    process.slimmedMETsPuppiNeutralPV.rawUncertainties = cms.InputTag("patPFMetPuppiNeutralPV") # only central value
-
-    del process.slimmedMETsPuppiNeutralPV.type1Uncertainties # not available                                                                                                 
-    del process.slimmedMETsPuppiNeutralPV.type1p2Uncertainties # not available                                                                                               
+        ## neutral particles from PU starting from inverted puppi particles
+        process.pfAllNeutralParticlesPuppiPU  = cms.EDFilter("CandPtrSelector", src = cms.InputTag("pupuppi"), 
+                                                             cut = cms.string("pdgId == 22 || pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
     
+        
+        process.pfMetPuppiNeutralPU       = pfMet.clone() 
+        process.pfMetPuppiNeutralPU.src   = cms.InputTag("pfAllNeutralParticlesPuppiPU")
+        process.pfMetPuppiNeutralPU.alias = cms.string('pfMetPuppiNeutralPU')
+        addMETCollection(process, labelName='patPFMetPuppiNeutralPU', metSource='pfMetPuppiNeutralPU') 
+        process.patPFMetPuppiNeutralPU.addGenMET = True
 
-    ## neutral particles from PU starting from inverted puppi particles
-    process.pfAllNeutralParticlesPuppiPU  = cms.EDFilter("CandPtrSelector", src = cms.InputTag("pupuppi"), 
-                                                         cut = cms.string("pdgId == 22 || pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
-    
+        process.slimmedMETsPuppiNeutralPU = slimmedMETs.clone()
+        process.slimmedMETsPuppiNeutralPU.src = cms.InputTag("patPFMetPuppiNeutralPU")
+        process.slimmedMETsPuppiNeutralPU.rawUncertainties = cms.InputTag("patPFMetPuppiNeutralPU") # only central value
 
-    process.pfMetPuppiNeutralPU       = pfMet.clone() 
-    process.pfMetPuppiNeutralPU.src   = cms.InputTag("pfAllNeutralParticlesPuppiPU")
-    process.pfMetPuppiNeutralPU.alias = cms.string('pfMetPuppiNeutralPU')
-    addMETCollection(process, labelName='patPFMetPuppiNeutralPU', metSource='pfMetPuppiNeutralPU') 
-    process.patPFMetPuppiNeutralPU.addGenMET = True
+        del process.slimmedMETsPuppiNeutralPU.type1Uncertainties # not available                                                                                                
+        del process.slimmedMETsPuppiNeutralPU.type1p2Uncertainties # not available                                                                                           
 
-    process.slimmedMETsPuppiNeutralPU = slimmedMETs.clone()
-    process.slimmedMETsPuppiNeutralPU.src = cms.InputTag("patPFMetPuppiNeutralPU")
-    process.slimmedMETsPuppiNeutralPU.rawUncertainties = cms.InputTag("patPFMetPuppiNeutralPU") # only central value
+        ## merge all the lepton collection into a single one
+        for muon in muonIDLabelForCleaning :
+            for electron in electronIDLabelForCleaning :
+                for tau in tauIDLabelForCleaning :                    
 
-    del process.slimmedMETsPuppiNeutralPU.type1Uncertainties # not available                                                                                                 
-    del process.slimmedMETsPuppiNeutralPU.type1p2Uncertainties # not available                                                                                               
+                  ## look for a good ZLL candidate i.e.: two tight muons within Mz, two tight electron or taus in Mz
+                  setattr(process,"diMuon"+muon,cms.EDProducer("CandViewCombiner",
+                                                             decay       = cms.string(muonCollection+muon+"@+ "+muonCollection+muon+"@-"),
+                                                             checkCharge = cms.bool(True),
+                                                             cut         = cms.string("mass > 70 && mass < 110 & charge=0"),                                              
+                                                             ))
 
-    process.mvaPUPPET = cms.EDProducer("mvaPUPPET",
-                                       srcMETs=cms.VInputTag("patPFMetPuppi", "patPFMetCHS", "patMETCHS"),
-                                       referenceMET = cms.InputTag("patPFMetPuppi"),
-                                       srcVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
-                                       srcJets = cms.InputTag("slimmedJetsPuppi"),
-                                       inputFileNames = cms.PSet(
+                  process.jmfw_analyzers += getattr(process,"diMuon"+muon);
+
+                  setattr(process,"diElectron"+electron,cms.EDProducer("CandViewCombiner",
+                                                             decay       = cms.string(electronCollection+electron+"@+ "+electronCollection+electron+"@-"),
+                                                             checkCharge = cms.bool(True),
+                                                             cut         = cms.string("mass > 70 && mass < 110 & charge=0"),                                       
+                                                             ))
+
+                  process.jmfw_analyzers += getattr(process,"diElectron"+electron);
+
+                  setattr(process,"diTau"+tau,cms.EDProducer("CandViewCombiner",
+                                                           decay       = cms.string(tauCollection+tau+"@+ "+tauCollection+tau+"@-"),
+                                                           checkCharge = cms.bool(True),
+                                                           cut         = cms.string("mass > 70 && mass < 110 & charge=0"),                                               
+                                                           ))
+
+                  process.jmfw_analyzers += getattr(process,"diTau"+tau);
+
+                  ## merge all the Z canddates and ask for only one candidate per event
+                  setattr(process,"diLeptonMergeMu"+muon+"Ele"+electron+"Tau"+tau, cms.EDProducer("CandViewMerger",
+                                                                                                  src = cms.VInputTag("diMuon"+muon,"diElectron"+electron,"diTau"+tau)
+                                                                                                  ))
+
+                  process.jmfw_analyzers += getattr(process,"diLeptonMergeMu"+muon+"Ele"+electron+"Tau"+tau);
+
+                  setattr(process,"diLeptonMergeMu"+muon+"Ele"+electron+"Tau"+tau+"Filter",cms.EDFilter("PATCandViewCountFilter",
+                                                                                                     minNumber = cms.uint32(1),
+                                                                                                     maxNumber = cms.uint32(1),
+                                                                                                     src = cms.InputTag("diLeptonMergeMu"+muon+"Ele"+electron+"Tau"+tau)
+                                                                                                     ))
+                                                                                                                         
+                  process.jmfw_analyzers += getattr(process,"diLeptonMergeMu"+muon+"Ele"+electron+"Tau"+tau+"Filter");
+
+                  ## now merge all the previous leptons in one single collection and ask for no more than 2 tight leptons
+                  setattr(process,"leptonMergeMu"+muon+"Ele"+electron+"Tau"+tau, cms.EDProducer("CandViewMerger",
+                                                                                                  src = cms.VInputTag(muonCollection+muon,electronCollection+electron,tauCollection+tau)
+                                                                                                  ))
+
+                  process.jmfw_analyzers += getattr(process,"leptonMergeMu"+muon+"Ele"+electron+"Tau"+tau);
+
+                  setattr(process,"leptonMergeMu"+muon+"Ele"+electron+"Tau"+tau+"Filter",cms.EDFilter("PATCandViewCountFilter",
+                                                                                                     minNumber = cms.uint32(2),
+                                                                                                     maxNumber = cms.uint32(2),
+                                                                                                     src = cms.InputTag("leptonMergeMu"+muon+"Ele"+electron+"Tau"+tau)
+                                                                                                     ))
+        
+                  process.jmfw_analyzers += getattr(process,"leptonMergeMu"+muon+"Ele"+electron+"Tau"+tau+"Filter");
+
+                  ### in this way we are sure to have a Z candidate with no more than 2 leptons in the event (after selections)
+                  setattr(process,"mvaPUPPETMu"+muon+"Ele"+electron+"Tau"+tau, cms.EDProducer("mvaPUPPET",
+                                   srcMETs      = cms.VInputTag("slimmedMETs","slimmedMETsCHS", "slimmedMETsPuppi","slimmedMETsPuppiChargedPV","slimmedMETsPuppiChargedPU","slimmedMETsPuppiNeutralPV","slimmedMETsPuppiNeutralPU"),
+                                   referenceMET   = cms.InputTag("slimmedMETsPuppi"),
+                                   srcVertices    = cms.InputTag("offlineSlimmedPrimaryVertices"),
+                                   srcJets        = cms.InputTag("selectedPatJetsAK4PFPuppiCleaned"+"Mu"+muon+"Ele"+electron+"Tau"+tau),
+                                   inputFileNames = cms.PSet(
                                            #PhiCorrectionWeightFile = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrmet_7X_BX50_Jan2015.root'),
                                            #RecoilCorrectionWeightFile  = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrphi_7X_BX50_Jan2015.root')
-                                       ),
-                                       srcLeptons = cms.VInputTag("slimmedMuons") )
-    #process.p = cms.Path(process.mvaPUPPET)
+                                   ),
+                                   srcLeptons = cms.VInputTag("leptonMergeMu"+muon+"Ele"+electron+"Tau"+tau) ))
 
-    if dropAnamyzerDumpEDM:        
+                  process.jmfw_analyzers += getattr(process,"mvaPUPPETMu"+muon+"Ele"+electron+"Tau"+tau);
+
+
+    if dropAnalyzerDumpEDM:        
         return process
-
-    # Configure the analyzers
-
-    process.jmfw_analyzers = cms.Sequence()
-
-    process.jmfw_analyzers += process.mvaPUPPET
 
 
     # Run
     process.run = cms.EDAnalyzer('RunAnalyzer')
     process.jmfw_analyzers += process.run
 
+    
     # Event
     from RecoJets.Configuration.RecoPFJets_cff import kt6PFJets
     process.kt6PFJetsRhos = kt6PFJets.clone(
@@ -586,192 +658,112 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
             )
 
     process.jmfw_analyzers += process.vertex
-
+    
     # Muons : tight muons, DBWeight and puppiNoMu corrected
-    process.muonsTight = cms.EDAnalyzer('MuonAnalyzer',
-                                   src = cms.InputTag('slimmedMuonsTight'),
-                                   vertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                                   rho = cms.InputTag('fixedGridRhoFastjetAll'),
-                                   isoValue_NH_pfWeighted_R04 = cms.InputTag(''),
-                                   isoValue_Ph_pfWeighted_R04 = cms.InputTag(''),
-                                   isoValue_CH_puppiWeighted_R04 = cms.InputTag(''),
-                                   isoValue_NH_puppiWeighted_R04 = cms.InputTag(''),
-                                   isoValue_Ph_puppiWeighted_R04 = cms.InputTag(''),
-                                   isoValue_CH_puppiNoMuonWeighted_R04 = cms.InputTag(''),
-                                   isoValue_NH_puppiNoMuonWeighted_R04 = cms.InputTag(''),
-                                   isoValue_Ph_puppiNoMuonWeighted_R04 = cms.InputTag(''),
+    if not runMVAPUPPETAnalysis :
 
-#                                   isoValue_NH_pfWeighted_R04 = cms.InputTag('muPFIsoValueNHR04PFWGT'),
-#                                   isoValue_Ph_pfWeighted_R04 = cms.InputTag('muPFIsoValuePhR04PFWGT'),                                   
-#                                   isoValue_CH_puppiWeighted_R04 = cms.InputTag('muPFIsoValueCHR04PUPPI'),
-#                                   isoValue_NH_puppiWeighted_R04 = cms.InputTag('muPFIsoValueNHR04PUPPI'),
-#                                   isoValue_Ph_puppiWeighted_R04 = cms.InputTag('muPFIsoValuePhR04PUPPI'),                                   
-#                                   isoValue_CH_puppiNoMuonWeighted_R04 = cms.InputTag('muPFIsoValueCHR04PUPPINoMu'),
-#                                   isoValue_NH_puppiNoMuonWeighted_R04 = cms.InputTag('muPFIsoValueNHR04PUPPINoMu'),
-#                                   isoValue_Ph_puppiNoMuonWeighted_R04 = cms.InputTag('muPFIsoValuePhR04PUPPINoMu'),
-                                   )
+        process.muons = cms.EDAnalyzer('MuonAnalyzer',
+                                       src = cms.InputTag('slimmedMuons'),
+                                       vertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
+                                       rho = cms.InputTag('fixedGridRhoFastjetAll'),
+                                       isoValue_NH_pfWeighted_R04 = cms.InputTag('muPFIsoValueNHR04PFWGT'),
+                                       isoValue_Ph_pfWeighted_R04 = cms.InputTag('muPFIsoValuePhR04PFWGT'),                                   
+                                       isoValue_CH_puppiWeighted_R04 = cms.InputTag('muPFIsoValueCHR04PUPPI'),
+                                       isoValue_NH_puppiWeighted_R04 = cms.InputTag('muPFIsoValueNHR04PUPPI'),
+                                       isoValue_Ph_puppiWeighted_R04 = cms.InputTag('muPFIsoValuePhR04PUPPI'),                                   
+                                       isoValue_CH_puppiNoMuonWeighted_R04 = cms.InputTag('muPFIsoValueCHR04PUPPINoMu'),
+                                       isoValue_NH_puppiNoMuonWeighted_R04 = cms.InputTag('muPFIsoValueNHR04PUPPINoMu'),
+                                       isoValue_Ph_puppiNoMuonWeighted_R04 = cms.InputTag('muPFIsoValuePhR04PUPPINoMu'))
+                                       
+        process.jmfw_analyzers += process.muons
 
-    process.muonsTightDBeta = cms.EDAnalyzer('MuonAnalyzer',
-                                        src = cms.InputTag('slimmedMuonsTightDBeta'),
-                                        vertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                                        rho = cms.InputTag('fixedGridRhoFastjetAll'),
-                                        isoValue_NH_pfWeighted_R04 = cms.InputTag(''),
-                                        isoValue_Ph_pfWeighted_R04 = cms.InputTag(''),
-                                        isoValue_CH_puppiWeighted_R04 = cms.InputTag(''),
-                                        isoValue_NH_puppiWeighted_R04 = cms.InputTag(''),
-                                        isoValue_Ph_puppiWeighted_R04 = cms.InputTag(''),
-                                        isoValue_CH_puppiNoMuonWeighted_R04 = cms.InputTag(''),
-                                        isoValue_NH_puppiNoMuonWeighted_R04 = cms.InputTag(''),
-                                        isoValue_Ph_puppiNoMuonWeighted_R04 = cms.InputTag(''),
-#                                        isoValue_NH_pfWeighted_R04 = cms.InputTag('muPFIsoValueNHR04PFWGT'),
-#                                        isoValue_Ph_pfWeighted_R04 = cms.InputTag('muPFIsoValuePhR04PFWGT'),                                        
-#                                        isoValue_CH_puppiWeighted_R04 = cms.InputTag('muPFIsoValueCHR04PUPPI'),
-#                                        isoValue_NH_puppiWeighted_R04 = cms.InputTag('muPFIsoValueNHR04PUPPI'),
-#                                        isoValue_Ph_puppiWeighted_R04 = cms.InputTag('muPFIsoValuePhR04PUPPI'),                                        
-#                                        isoValue_CH_puppiNoMuonWeighted_R04 = cms.InputTag('muPFIsoValueCHR04PUPPINoMu'),
-#                                        isoValue_NH_puppiNoMuonWeighted_R04 = cms.InputTag('muPFIsoValueNHR04PUPPINoMu'),
-#                                        isoValue_Ph_puppiNoMuonWeighted_R04 = cms.InputTag('muPFIsoValuePhR04PUPPINoMu'),
-                                        )
+        # Electrons
+        process.electrons = cms.EDAnalyzer('ElectronAnalyzer',
+                                                src = cms.InputTag('slimmedElectrons'),
+                                                vertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
+                                                conversions = cms.InputTag('reducedEgamma:reducedConversions'),
+                                                beamspot = cms.InputTag('offlineBeamSpot'),
+                                                rho = cms.InputTag('fixedGridRhoFastjetAll'),
+                                                ids = cms.VInputTag()
+                                                )
 
-    process.muonsTightPuppiNoMu = cms.EDAnalyzer('MuonAnalyzer',
-                                        src = cms.InputTag('slimmedMuonsTightPuppiNoMu'),
-                                        vertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                                        rho = cms.InputTag('fixedGridRhoFastjetAll'),
-                                        isoValue_NH_pfWeighted_R04 = cms.InputTag(''),
-                                        isoValue_Ph_pfWeighted_R04 = cms.InputTag(''),
-                                        isoValue_CH_puppiWeighted_R04 = cms.InputTag(''),
-                                        isoValue_NH_puppiWeighted_R04 = cms.InputTag(''),
-                                        isoValue_Ph_puppiWeighted_R04 = cms.InputTag(''),
-                                        isoValue_CH_puppiNoMuonWeighted_R04 = cms.InputTag(''),
-                                        isoValue_NH_puppiNoMuonWeighted_R04 = cms.InputTag(''),
-                                        isoValue_Ph_puppiNoMuonWeighted_R04 = cms.InputTag(''),
-#                                        isoValue_NH_pfWeighted_R04 = cms.InputTag('muPFIsoValueNHR04PFWGT'),
-#                                        isoValue_Ph_pfWeighted_R04 = cms.InputTag('muPFIsoValuePhR04PFWGT'),                                        
-#                                        isoValue_CH_puppiWeighted_R04 = cms.InputTag('muPFIsoValueCHR04PUPPI'),
-#                                        isoValue_NH_puppiWeighted_R04 = cms.InputTag('muPFIsoValueNHR04PUPPI'),
-#                                        isoValue_Ph_puppiWeighted_R04 = cms.InputTag('muPFIsoValuePhR04PUPPI'),                                        
-#                                        isoValue_CH_puppiNoMuonWeighted_R04 = cms.InputTag('muPFIsoValueCHR04PUPPINoMu'),
-#                                        isoValue_NH_puppiNoMuonWeighted_R04 = cms.InputTag('muPFIsoValueNHR04PUPPINoMu'),
-#                                        isoValue_Ph_puppiNoMuonWeighted_R04 = cms.InputTag('muPFIsoValuePhR04PUPPINoMu'),
-                                        )
-
-    process.jmfw_analyzers += process.muonsTight+process.muonsTightPuppiNoMu+process.muonsTightDBeta
-
-    # Electrons
-    process.electronsTight = cms.EDAnalyzer('ElectronAnalyzer',
-            src = cms.InputTag('slimmedElectronsTight'),
-            vertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
-            conversions = cms.InputTag('reducedEgamma:reducedConversions'),
-            beamspot = cms.InputTag('offlineBeamSpot'),
-            rho = cms.InputTag('fixedGridRhoFastjetAll'),
-            ids = cms.VInputTag()
-            )
-
-    process.jmfw_analyzers += process.electronsTight
-
-    # Photons
-    process.photons = cms.EDAnalyzer('PhotonAnalyzer',
-            src = cms.InputTag('slimmedPhotons'),
-            electrons = cms.InputTag('slimmedElectrons'),
-            vertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
-            conversions = cms.InputTag('reducedEgamma:reducedConversions'),
-            beamspot = cms.InputTag('offlineBeamSpot'),
-            rho = cms.InputTag('fixedGridRhoFastjetAll'),
-            phoChargedHadronIsolation = cms.InputTag("photonIDValueMapProducer:phoChargedIsolation"),
-            phoNeutralHadronIsolation = cms.InputTag("photonIDValueMapProducer:phoNeutralHadronIsolation"),
-            phoPhotonIsolation = cms.InputTag("photonIDValueMapProducer:phoPhotonIsolation"),
-            effAreaChHadFile = cms.FileInPath("EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfChargedHadrons_V2.txt"),
-            effAreaNeuHadFile = cms.FileInPath("EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfNeutralHadrons_V2.txt"),
-            effAreaPhoFile = cms.FileInPath("EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfPhotons_V2.txt"),
-            ids = cms.VInputTag('egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-loose', 'egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-medium', 'egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-tight')
-            )
-
-    process.jmfw_analyzers += process.photons
-
-    # Jets : store the cleaned jet collection for our case
-    for name, params in jetsCollections.items():
-        for index, pu_method in enumerate(params['pu_methods']):
-
-            algo = params['algo'].upper()
-            jetCollection = 'selectedPatJets%sPF%s' % (algo, pu_method)
-            print jetCollection
-            for muon in muonIDLabelForCleaning :
-                for electron in electronIDLabelForCleaning :
-                    for tau in tauIDLabelForCleaning :
-
-                        print('Adding analyzer for jets collection \'%s\'' % jetCollection)
-
-                        if tau == "" :
-
-                            analyzer = cms.EDAnalyzer('JMEJetAnalyzer',
-                                                      JetAnalyserCommonParameters,
-                                                      JetCorLabel   = cms.string(params['jec_payloads'][index]),
-                                                      JetCorLevels  = cms.vstring(params['jec_levels']),
-                                                      srcJet        = cms.InputTag(jetCollection+"Cleaned"+"Mu"+muon+"Ele"+electron),
-                                                      srcRho        = cms.InputTag('fixedGridRhoFastjetAll'),
-                                                      srcVtx        = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                                                      srcMuons      = cms.InputTag('selectedPatMuons')
-                                                      )
-                            setattr(process, params['jec_payloads'][index]+"Cleaned"+"Mu"+muon+"Ele"+electron, analyzer)
-                        else :
-                            analyzer = cms.EDAnalyzer('JMEJetAnalyzer',
-                                                      JetAnalyserCommonParameters,
-                                                      JetCorLabel   = cms.string(params['jec_payloads'][index]),
-                                                      JetCorLevels  = cms.vstring(params['jec_levels']),
-                                                      srcJet        = cms.InputTag(jetCollection+"Cleaned"+"Mu"+muon+"Ele"+electron+"Tau"+tau),
-                                                      srcRho        = cms.InputTag('fixedGridRhoFastjetAll'),
-                                                      srcVtx        = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                                                      srcMuons      = cms.InputTag('selectedPatMuons')
-                                                      )
-
-                            setattr(process, params['jec_payloads'][index]+"Cleaned"+"Mu"+muon+"Ele"+electron+"Tau"+tau, analyzer)
+        process.jmfw_analyzers += process.electrons
 
 
-                        process.jmfw_analyzers += analyzer
+        # Photons
+        process.photons = cms.EDAnalyzer('PhotonAnalyzer',
+                                         src = cms.InputTag('slimmedPhotons'),
+                                         electrons = cms.InputTag('slimmedElectrons'),
+                                         vertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
+                                         conversions = cms.InputTag('reducedEgamma:reducedConversions'),
+                                         beamspot = cms.InputTag('offlineBeamSpot'),
+                                         rho = cms.InputTag('fixedGridRhoFastjetAll'),
+                                         phoChargedHadronIsolation = cms.InputTag("photonIDValueMapProducer:phoChargedIsolation"),
+                                         phoNeutralHadronIsolation = cms.InputTag("photonIDValueMapProducer:phoNeutralHadronIsolation"),
+                                         phoPhotonIsolation = cms.InputTag("photonIDValueMapProducer:phoPhotonIsolation"),
+                                         effAreaChHadFile = cms.FileInPath("EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfChargedHadrons_V2.txt"),
+                                         effAreaNeuHadFile = cms.FileInPath("EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfNeutralHadrons_V2.txt"),
+                                         effAreaPhoFile = cms.FileInPath("EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfPhotons_V2.txt"),
+                                         ids = cms.VInputTag('egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-loose', 'egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-medium', 'egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-tight')
+                                         )
+        
+        process.jmfw_analyzers += process.photons
 
-    # MET
-    process.met_chs = cms.EDAnalyzer('JMEMETAnalyzer',
-            src = cms.InputTag('slimmedMETsCHS', '', 'JRA'),
-            caloMET = cms.InputTag('slimmedMETs', '', 'PAT')
-            )
-    process.jmfw_analyzers += process.met_chs
+        # Jets : store the cleaned jet collection for our case
+        for name, params in jetsCollections.items():
+            for index, pu_method in enumerate(params['pu_methods']):
 
-    process.met_puppi = cms.EDAnalyzer('JMEMETAnalyzer',
-            src = cms.InputTag('slimmedMETsPuppi', '', 'JRA'),
-            caloMET = cms.InputTag('slimmedMETsPuppi', '', 'PAT')
-            )
-    process.jmfw_analyzers += process.met_puppi
+                algo = params['algo'].upper()
+                jetCollection = 'selectedPatJets%sPF%s' % (algo, pu_method)
 
-    process.met_puppiChargedPV = cms.EDAnalyzer('JMEMETAnalyzer',
-            src = cms.InputTag('slimmedMETsPuppiChargedPV', '', 'JRA'),
-            caloMET = cms.InputTag('slimmedMETs', '', 'PAT')
-            )
-    process.jmfw_analyzers += process.met_puppiChargedPV
-
-
-    process.met_puppiChargedPU = cms.EDAnalyzer('JMEMETAnalyzer',
-            src = cms.InputTag('slimmedMETsPuppiChargedPU', '', 'JRA'),
-            caloMET = cms.InputTag('slimmedMETs', '', 'PAT')
-            )
-
-    process.jmfw_analyzers += process.met_puppiChargedPU
-
-    process.met_puppiNeutralPU = cms.EDAnalyzer('JMEMETAnalyzer',
-            src = cms.InputTag('slimmedMETsPuppiNeutralPU', '', 'JRA'),
-            caloMET = cms.InputTag('slimmedMETs', '', 'PAT')
-            )
-
-    process.jmfw_analyzers += process.met_puppiNeutralPU
-
-
-    process.met_puppiNeutralPV = cms.EDAnalyzer('JMEMETAnalyzer',
-            src = cms.InputTag('slimmedMETsPuppiNeutralPV', '', 'JRA'),
-            caloMET = cms.InputTag('slimmedMETs', '', 'PAT')
-            )
-
-    process.jmfw_analyzers += process.met_puppiNeutralPV
+                analyzer = cms.EDAnalyzer('JMEJetAnalyzer',
+                                          JetAnalyserCommonParameters,
+                                          JetCorLabel   = cms.string(params['jec_payloads'][index]),
+                                          JetCorLevels  = cms.vstring(params['jec_levels']),
+                                          srcJet        = cms.InputTag(jetCollection),
+                                          srcRho        = cms.InputTag('fixedGridRhoFastjetAll'),
+                                          srcVtx        = cms.InputTag('offlineSlimmedPrimaryVertices'),
+                                          srcMuons      = cms.InputTag('selectedPatMuons')
+                                          )
+                
+                setattr(process, params['jec_payloads'][index], analyzer)
+                
+                process.jmfw_analyzers += analyzer
 
 
+      # MET
+        process.met_chs = cms.EDAnalyzer('JMEMETAnalyzer',
+                                         src = cms.InputTag('slimmedMETsCHS', '', 'JRA'),
+                                         caloMET = cms.InputTag('slimmedMETs', '', 'PAT')
+                                         )
+        process.jmfw_analyzers += process.met_chs
+        
+        process.met_puppi = cms.EDAnalyzer('JMEMETAnalyzer',
+                                           src = cms.InputTag('slimmedMETsPuppi', '', 'JRA'),
+                                           caloMET = cms.InputTag('slimmedMETsPuppi', '', 'PAT')
+                                           )
+        process.jmfw_analyzers += process.met_puppi
+        
+    else:
+        
+        for muon in muonIDLabelForCleaning :
+            for electron in electronIDLabelForCleaning :
+                for tau in tauIDLabelForCleaning :           
+                    setattr(process, "puppet"+"Mu"+muon+"Ele"+electron+"Tau"+tau, 
+                            cms.EDAnalyzer('PUPPETAnalyzer',
+                                           srcJet    = cms.InputTag("selectedPatJetsAK4PFPuppiCleaned"+"Mu"+muon+"Ele"+electron+"Tau"+tau),
+                                           srcVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
+                                           srcZboson = cms.InputTag("mvaPUPPET"+"Mu"+muon+"Ele"+electron+"Tau"+tau+":ZtagBoson"),
+                                           srcRecoilPFMet = cms.InputTag("mvaPUPPET"+"Mu"+muon+"Ele"+electron+"Tau"+tau,"recoilslimmedMETs"),
+                                           srcRecoilPFCHSMet = cms.InputTag("mvaPUPPET"+"Mu"+muon+"Ele"+electron+"Tau"+tau,"recoilslimmedMETsCHS"),
+                                           srcRecoilPFPuppiMet = cms.InputTag("mvaPUPPET"+"Mu"+muon+"Ele"+electron+"Tau"+tau,"recoilslimmedMETsPuppi"),
+                                           srcRecoilPFPuppiMet_ChargedPV = cms.InputTag("mvaPUPPET"+"Mu"+muon+"Ele"+electron+"Tau"+tau,"recoilslimmedMETsPuppiChargedPV"),
+                                           srcRecoilPFPuppiMet_ChargedPU = cms.InputTag("mvaPUPPET"+"Mu"+muon+"Ele"+electron+"Tau"+tau,"recoilslimmedMETsPuppiChargedPU"),
+                                           srcRecoilPFPuppiMet_NeutralPV = cms.InputTag("mvaPUPPET"+"Mu"+muon+"Ele"+electron+"Tau"+tau,"recoilslimmedMETsPuppiNeutralPV"),
+                                           srcRecoilPFPuppiMet_NeutralPU = cms.InputTag("mvaPUPPET"+"Mu"+muon+"Ele"+electron+"Tau"+tau,"recoilslimmedMETsPuppiNeutralPU")))
+                                           
+                    process.jmfw_analyzers += getattr(process,"puppetMu"+muon+"Ele"+electron+"Tau"+tau)
+                                           
 
     # Puppi ; only for the first 1000 events of the job
     ## Turn on diagnostic
@@ -788,9 +780,7 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
 #                                        )
 
 #    process.jmfw_analyzers += process.puppiReader
-
-    process.p = cms.Path(process.jmfw_analyzers)
-
+    
     return process
 
     #!
