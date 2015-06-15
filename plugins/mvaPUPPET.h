@@ -44,6 +44,9 @@ private:
 	std::vector<edm::EDGetTokenT<reco::CandidateView > > srcLeptons_;
 
 
+	edm::FileInPath inputFileNamePhiCorrection_;
+	edm::FileInPath inputFileNameRecoilCorrection_;
+
 	unsigned int countVertices(const reco::VertexCollection& vertices);
 	unsigned int countJets(const pat::JetCollection& jets, const float maxPt);
 	Float_t* createFloatVector(std::vector<std::string> variableNames);
@@ -58,5 +61,7 @@ private:
 
 	const GBRForest* mvaReaderPhiCorrection_;
 	const GBRForest* mvaReaderRecoilCorrection_;
+
+	bool debug_;
 }; 
 #endif

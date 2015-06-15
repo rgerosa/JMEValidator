@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.tauTools import *
 
-def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone, electronCollection, tauCollection, dropAnalyzerDumpEDM, runMVAPUPPETAnalysis):
+def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, electronTypeID, tauTypeID, dropAnalyzerDumpEDM, runMVAPUPPETAnalysis):
 
     process = cms.Process("JRA")
 
@@ -173,7 +173,7 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
     load_muonPFiso_sequence(process, 
                             'MuonPFIsoSequencePFWGT', 
                             algo = 'R04PFWGT',
-                            src = muonCollection,
+                            src = "slimmedMuons",
                             src_neutral_hadron = 'pfWeightedNeutralHadrons',
                             src_photon         = 'pfWeightedPhotons',
                             coneR = muonIsoCone
@@ -184,7 +184,7 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
         load_muonPFiso_sequence(process, 
                                 'MuonPFIsoSequencePUPPI', 
                                 algo = 'R04PUPPI',
-                                src =  muonCollection,
+                                src =  "slimmedMuons",
                                 src_charged_hadron = 'pfAllChargedHadronsPuppi',
                                 src_neutral_hadron = 'pfAllNeutralHadronsPuppi',
                                 src_photon         = 'pfAllPhotonsPuppi',
@@ -193,7 +193,7 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
     
         ### PUPPI weighted isolation without muons
         load_muonPFiso_sequence(process, 'MuonPFIsoSequencePUPPINoMu', algo = 'R04PUPPINoMu',
-                                src =  muonCollection,
+                                src =  "slimmedMuons",
                                 src_charged_hadron = 'pfAllChargedHadronsPuppiNoMuon',
                                 src_neutral_hadron = 'pfAllNeutralHadronsPuppiNoMuon',
                                 src_photon         = 'pfAllPhotonsPuppiNoMuon',
@@ -210,26 +210,32 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
         ##############
 
         from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import applyMuonID
-        
-        applyMuonID(process, label = "Tight", src  = muonCollection, type = 'tightID',
-                    iso_map_charged_hadron  = '', 
-                    iso_map_neutral_hadron  = '', 
-                    iso_map_photon          = '',                 
-                    rho = 'fixedGridRhoFastjetAll',
-                    typeIsoVal = 1
-                    )
 
-        applyMuonID(process, label = "TightDBeta", src  = muonCollection, type = 'tightID',
-                    iso_map_charged_hadron  = '', 
-                    iso_map_neutral_hadron  = 'muPFIsoValueNHR04PFWGT', 
-                    iso_map_photon          = 'muPFIsoValuePhR04PFWGT',                 
-                    rho = 'fixedGridRhoFastjetAll',
-                    typeIsoVal = 3
-                    )
+        if muonTypeID == "Tight" :
 
-        if runPuppiMuonIso :
+            applyMuonID(process, label = "Tight", src  = "slimmedMuons", type = 'tightID',
+                        iso_map_charged_hadron  = '', 
+                        iso_map_neutral_hadron  = '', 
+                        iso_map_photon          = '',                 
+                        rho = 'fixedGridRhoFastjetAll',
+                        typeIsoVal = 1
+                        )
+        elif muonTypeID == "TightDBeta" :    
+
+            applyMuonID(process, label = "TightDBeta", src  = "slimmedMuons", type = 'tightID',
+                        iso_map_charged_hadron  = '', 
+                        iso_map_neutral_hadron  = 'muPFIsoValueNHR04PFWGT', 
+                        iso_map_photon          = 'muPFIsoValuePhR04PFWGT',                 
+                        rho = 'fixedGridRhoFastjetAll',
+                        typeIsoVal = 3
+                        )
+
+        elif muonTypeID == "TightPuppiNoMu" :    
+            if not runPuppiMuonIso :
+                print "no available puppi isolation, please check runPuppiMuonIso option";
+                exit();
             
-            applyMuonID(process, label = "TightPuppiNoMu", src  = muonCollection, type = 'tightID',
+            applyMuonID(process, label = "TightPuppiNoMu", src  = "slimmedMuons", type = 'tightID',
                         iso_map_charged_hadron  = 'muPFIsoValueCHR04PUPPINoMu', 
                         iso_map_neutral_hadron  = 'muPFIsoValueNHR04PUPPINoMu', 
                         iso_map_photon          = 'muPFIsoValuePhR04PUPPINoMu',                 
@@ -237,10 +243,13 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
                         typeIsoVal = 4
                         )
 
+        else:
+                exit("not recognized muon type ID --> exit");
+
     ###########################
     ## Electrons and photons ##
     ###########################
-
+    
     from PhysicsTools.SelectorUtils.tools.vid_id_tools import switchOnVIDElectronIdProducer, switchOnVIDPhotonIdProducer, DataFormat, setupAllVIDIdsInModule, setupVIDElectronSelection, setupVIDPhotonSelection
 
     switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
@@ -260,47 +269,46 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
     if runMVAPUPPETAnalysis:
 
         from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import applyElectronID
-        
-        #applyElectronID(process, label = "Tight", src  = electronCollection, 
-        #                iso_map_charged_hadron  = '', 
-        #                iso_map_neutral_hadron  = '', 
-        #                iso_map_photon          = '',                 
-        #                rho = 'fixedGridRhoFastjetAll',
-        #                typeIsoVal = 1,
-        #                electron_id_map = 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight'
-        #                )
-        
-        applyElectronID(process, label = "Medium", src  = electronCollection, 
-                        iso_map_charged_hadron  = '', 
-                        iso_map_neutral_hadron  = '', 
-                        iso_map_photon          = '',                 
-                        rho = 'fixedGridRhoFastjetAll',
-                        typeIsoVal = 1,
-                        electron_id_map = 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium'
+
+        if electronTypeID == "Tight" :
+
+            applyElectronID(process, label = "Tight", src  = "slimmedElectrons", 
+                            iso_map_charged_hadron  = '', 
+                            iso_map_neutral_hadron  = '', 
+                            iso_map_photon          = '',                 
+                            rho = 'fixedGridRhoFastjetAll',
+                            typeIsoVal = 1,
+                            electron_id_map = 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight'
+                            )
+
+        elif electronTypeID == "Medium" :
+
+            applyElectronID(process, label = "Medium", src  = "slimmedElectrons", 
+                            iso_map_charged_hadron  = '', 
+                            iso_map_neutral_hadron  = '', 
+                            iso_map_photon          = '',                 
+                            rho = 'fixedGridRhoFastjetAll',
+                            typeIsoVal = 1,
+                            electron_id_map = 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium'
                         )
 
+        else:
+            exit("not recognized electron type ID --> exit");
+            
+    
     ##################
     #### TAU ID ######
     ##################
-    muonIDLabelForCleaning     = ["Tight"]                    
-    electronIDLabelForCleaning = ["Medium"]
-    tauIDLabelForCleaning      = ["Loose"]
 
     if runMVAPUPPETAnalysis :
         from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import applyTauID
-        
-        for muon in muonIDLabelForCleaning :
-            for electron in electronIDLabelForCleaning:
 
-                applyTauID( process, label = "Loose", src = tauCollection,
-                            muonCollection     = muonCollection+muon,
-                            electronCollection = electronCollection+electron)
-
-        #applyTauID( process, label = "Tight", src = tauCollection,
-        #            muonCollection     = "slimmedMuonsTight",
-        #            electronCollection = "slimmedElectronsTight")
-        
-
+        if tauTypeID != "":
+            
+            applyTauID( process, label = tauTypeID, src = "slimmedTaus",
+                        muonCollection     = "slimmedMuons"+muonTypeID,
+                        electronCollection = "slimmedElectrons"+electronTypeID)
+    
     ##################
     ### clean jets ###
     ##################
@@ -314,29 +322,27 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
             for index, pu_method in enumerate(params['pu_methods']):
                 postfix       = '%sPF%s' % (algo, pu_method)
 
-                for muon in muonIDLabelForCleaning :
-                    for electron in electronIDLabelForCleaning :
-                        for tau in tauIDLabelForCleaning :
-                            if tau == "" :
-                                cleanJetsFromLeptons(process,"Cleaned"+"Mu"+muon+"Ele"+electron,                                 
-                                                     jetCollection      = "selectedPatJets"+postfix,
-                                                     muonCollection     = muonCollection+muon,
-                                                     electronCollection = electronCollection+electron,
-                                                     tauCollection      = tauCollection+tau,
-                                                     jetPtCut  = 15.,
-                                                     jetEtaCut = 5.,
-                                                     dRCleaning = 0.3) 
-                            else:
-                                cleanJetsFromLeptons(process,"Cleaned"+"Mu"+muon+"Ele"+electron+"Tau"+tau,                                 
-                                                     jetCollection      = "selectedPatJets"+postfix,
-                                                     muonCollection     = muonCollection+muon,
-                                                     electronCollection = electronCollection+electron,
-                                                     tauCollection      = "",
-                                                     jetPtCut  = 15.,
-                                                     jetEtaCut = 5.,
-                                                     dRCleaning = 0.3) 
+                if tauTypeID != "":
 
-    
+                    cleanJetsFromLeptons(process,"Cleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID+"Tau"+tauTypeID,                                 
+                                         jetCollection      = "selectedPatJets"+postfix,
+                                         muonCollection     = "slimmedMuons"+muonTypeID,
+                                         electronCollection = "slimmedElectrons"+electronTypeID,
+                                         tauCollection      = "slimmedTaus"+tauTypeID,
+                                         jetPtCut   = 15.,
+                                         jetEtaCut  = 5.,
+                                         dRCleaning = 0.3) 
+                else:
+
+                    cleanJetsFromLeptons(process,"Cleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID,                                 
+                                         jetCollection      = "selectedPatJets"+postfix,
+                                         muonCollection     = "slimmedMuons"+muonTypeID,
+                                         electronCollection = "slimmedElectrons"+electronTypeID,
+                                         tauCollection      = "",
+                                         jetPtCut   = 15.,
+                                         jetEtaCut  = 5.,
+                                         dRCleaning = 0.3) 
+
 
     ##################################                    
     ##### run pu puppi for PUPPET ####
@@ -409,7 +415,7 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
         addMETCollection(process, labelName='patMETPuppi', metSource='pfMetT1Puppi') # T1 puppi MET
         process.patMETPuppi.addGenMET = False
 
-    ### CHS
+    ### CHS TypeI corrected
     if not hasattr(process, 'ak4PFJetsCHS'):
         print("WARNING: No AK4 CHS jets produced. Type 1 corrections for CHS MET are not available.")
     else:
@@ -466,6 +472,7 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
     del process.slimmedMETsCHS.type1p2Uncertainties # not available
 
 
+    ## create the Path
     process.jmfw_analyzers = cms.Sequence()
     process.p = cms.Path(process.jmfw_analyzers)
 
@@ -542,85 +549,102 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
         del process.slimmedMETsPuppiNeutralPU.type1Uncertainties # not available                                                                                                
         del process.slimmedMETsPuppiNeutralPU.type1p2Uncertainties # not available                                                                                           
 
-        ## merge all the lepton collection into a single one
-        for muon in muonIDLabelForCleaning :
-            for electron in electronIDLabelForCleaning :
-                for tau in tauIDLabelForCleaning :                    
-
-                  ## look for a good ZLL candidate i.e.: two tight muons within Mz, two tight electron or taus in Mz
-                  setattr(process,"diMuon"+muon,cms.EDProducer("CandViewCombiner",
-                                                             decay       = cms.string(muonCollection+muon+"@+ "+muonCollection+muon+"@-"),
-                                                             checkCharge = cms.bool(True),
-                                                             cut         = cms.string("mass > 70 && mass < 110 & charge=0"),                                              
-                                                             ))
-
-                  process.jmfw_analyzers += getattr(process,"diMuon"+muon);
-
-                  setattr(process,"diElectron"+electron,cms.EDProducer("CandViewCombiner",
-                                                             decay       = cms.string(electronCollection+electron+"@+ "+electronCollection+electron+"@-"),
-                                                             checkCharge = cms.bool(True),
-                                                             cut         = cms.string("mass > 70 && mass < 110 & charge=0"),                                       
-                                                             ))
-
-                  process.jmfw_analyzers += getattr(process,"diElectron"+electron);
-
-                  setattr(process,"diTau"+tau,cms.EDProducer("CandViewCombiner",
-                                                           decay       = cms.string(tauCollection+tau+"@+ "+tauCollection+tau+"@-"),
-                                                           checkCharge = cms.bool(True),
-                                                           cut         = cms.string("mass > 70 && mass < 110 & charge=0"),                                               
-                                                           ))
-
-                  process.jmfw_analyzers += getattr(process,"diTau"+tau);
-
-                  ## merge all the Z canddates and ask for only one candidate per event
-                  setattr(process,"diLeptonMergeMu"+muon+"Ele"+electron+"Tau"+tau, cms.EDProducer("CandViewMerger",
-                                                                                                  src = cms.VInputTag("diMuon"+muon,"diElectron"+electron,"diTau"+tau)
-                                                                                                  ))
-
-                  process.jmfw_analyzers += getattr(process,"diLeptonMergeMu"+muon+"Ele"+electron+"Tau"+tau);
-
-                  setattr(process,"diLeptonMergeMu"+muon+"Ele"+electron+"Tau"+tau+"Filter",cms.EDFilter("PATCandViewCountFilter",
-                                                                                                     minNumber = cms.uint32(1),
-                                                                                                     maxNumber = cms.uint32(1),
-                                                                                                     src = cms.InputTag("diLeptonMergeMu"+muon+"Ele"+electron+"Tau"+tau)
-                                                                                                     ))
-                                                                                                                         
-                  process.jmfw_analyzers += getattr(process,"diLeptonMergeMu"+muon+"Ele"+electron+"Tau"+tau+"Filter");
-
-                  ## now merge all the previous leptons in one single collection and ask for no more than 2 tight leptons
-                  setattr(process,"leptonMergeMu"+muon+"Ele"+electron+"Tau"+tau, cms.EDProducer("CandViewMerger",
-                                                                                                  src = cms.VInputTag(muonCollection+muon,electronCollection+electron,tauCollection+tau)
-                                                                                                  ))
-
-                  process.jmfw_analyzers += getattr(process,"leptonMergeMu"+muon+"Ele"+electron+"Tau"+tau);
-
-                  setattr(process,"leptonMergeMu"+muon+"Ele"+electron+"Tau"+tau+"Filter",cms.EDFilter("PATCandViewCountFilter",
-                                                                                                     minNumber = cms.uint32(2),
-                                                                                                     maxNumber = cms.uint32(2),
-                                                                                                     src = cms.InputTag("leptonMergeMu"+muon+"Ele"+electron+"Tau"+tau)
-                                                                                                     ))
         
-                  process.jmfw_analyzers += getattr(process,"leptonMergeMu"+muon+"Ele"+electron+"Tau"+tau+"Filter");
+        ## look for a good ZLL candidate i.e.: two tight muons within Mz, two tight electron or taus in Mz
+        setattr(process,"ZdiMuon"+muonTypeID,cms.EDProducer("CandViewCombiner",
+                                                            decay       = cms.string("slimmedMuons"+muonTypeID+"@+ "+"slimmedMuons"+muonTypeID+"@-"),
+                                                            checkCharge = cms.bool(True),
+                                                            cut         = cms.string("mass > 70 && mass < 110 & charge=0"),                                              
+                                                            ))
+        
+        process.jmfw_analyzers += getattr(process,"ZdiMuon"+muonTypeID);
+        
+        setattr(process,"ZdiElectron"+electronTypeID,cms.EDProducer("CandViewCombiner",
+                                                                    decay       = cms.string("slimmedElectrons"+electronTypeID+"@+ "+"slimmedElectrons"+electronTypeID+"@-"),
+                                                                    checkCharge = cms.bool(True),
+                                                                    cut         = cms.string("mass > 70 && mass < 110 & charge=0"),                                       
+                                                                    ))
+        
+        process.jmfw_analyzers += getattr(process,"ZdiElectron"+electronTypeID);
 
-                  ### in this way we are sure to have a Z candidate with no more than 2 leptons in the event (after selections)
-                  setattr(process,"mvaPUPPETMu"+muon+"Ele"+electron+"Tau"+tau, cms.EDProducer("mvaPUPPET",
-                                   srcMETs      = cms.VInputTag("slimmedMETs","slimmedMETsCHS", "slimmedMETsPuppi","slimmedMETsPuppiChargedPV","slimmedMETsPuppiChargedPU","slimmedMETsPuppiNeutralPV","slimmedMETsPuppiNeutralPU"),
-                                   referenceMET   = cms.InputTag("slimmedMETsPuppi"),
-                                   srcVertices    = cms.InputTag("offlineSlimmedPrimaryVertices"),
-                                   srcJets        = cms.InputTag("selectedPatJetsAK4PFPuppiCleaned"+"Mu"+muon+"Ele"+electron+"Tau"+tau),
-                                   inputFileNames = cms.PSet(
+        if tauTypeID != "":
+
+            setattr(process,"ZdiTau"+tauTypeID,cms.EDProducer("CandViewCombiner",
+                                                              decay       = cms.string("slimmedTaus"+tauTypeID+"@+ "+"slimmedTaus"+tauTypeID+"@-"),
+                                                              checkCharge = cms.bool(True),
+                                                              cut         = cms.string("mass > 70 && mass < 110 & charge=0"),                                               
+                                                              ))
+            
+            process.jmfw_analyzers += getattr(process,"ZdiTau"+tauTypeID);
+
+
+            ## merge all the Z canddates and ask for only one candidate per event
+            setattr(process,"ZdiLepton", cms.EDProducer("CandViewMerger",
+                                                        src = cms.VInputTag("ZdiMuon"+muonTypeID,"ZdiElectron"+electronTypeID,"ZdiTau"+tauTypeID)
+                                                        ))
+        else:
+
+
+            ## merge all the Z canddates and ask for only one candidate per event
+            setattr(process,"ZdiLepton", cms.EDProducer("CandViewMerger",
+                                                        src = cms.VInputTag("ZdiMuon"+muonTypeID,"ZdiElectron"+electronTypeID)
+                                                        ))
+
+        process.jmfw_analyzers += getattr(process,"ZdiLepton");
+    
+        setattr(process,"ZdiLeptonFilter",cms.EDFilter("PATCandViewCountFilter",
+                                                       minNumber = cms.uint32(1),
+                                                       maxNumber = cms.uint32(1),
+                                                       src = cms.InputTag("ZdiLepton")
+                                                       ))
+                                                                                                                         
+        process.jmfw_analyzers += getattr(process,"ZdiLeptonFilter");
+
+        ## now merge all the previous leptons in one single collection and ask for no more than 2 tight leptons
+        if tauTypeID != "" :
+            setattr(process,"LeptonMerge", cms.EDProducer("CandViewMerger",
+                                                          src = cms.VInputTag("slimmedMuons"+muonTypeID,"slimmedElectrons"+electronTypeID,"slimmedTaus"+tauTypeID)
+                                                          ))
+
+        else:
+            setattr(process,"LeptonMerge", cms.EDProducer("CandViewMerger",
+                                                          src = cms.VInputTag("slimmedMuons"+muonTypeID,"slimmedElectrons"+electronTypeID)
+                                                          ))
+
+        process.jmfw_analyzers += getattr(process,"LeptonMerge");
+
+        setattr(process,"LeptonMergeFilter",cms.EDFilter("PATCandViewCountFilter",
+                                                         minNumber = cms.uint32(2),
+                                                         maxNumber = cms.uint32(2),
+                                                         src = cms.InputTag("LeptonMerge")
+                                                         ))
+        
+        process.jmfw_analyzers += getattr(process,"LeptonMergeFilter");
+        
+        ### in this way we are sure to have a Z candidate with no more than 2 leptons in the event (after selections)
+        if tauTypeID != "":
+            jetColl = "selectedPatJetsAK4PFPuppiCleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID+"Tau"+tauTypeID;
+        else:
+            jetColl = "selectedPatJetsAK4PFPuppiCleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID;
+
+        setattr(process,"mvaPUPPET", cms.EDProducer("mvaPUPPET",
+                                                    srcMETs      = cms.VInputTag("slimmedMETs","slimmedMETsCHS", "slimmedMETsPuppi","slimmedMETsPuppiChargedPV","slimmedMETsPuppiChargedPU","slimmedMETsPuppiNeutralPV","slimmedMETsPuppiNeutralPU"),
+                                                    referenceMET   = cms.InputTag("slimmedMETsPuppi"),
+                                                    srcVertices    = cms.InputTag("offlineSlimmedPrimaryVertices"),
+                                                    srcJets        = cms.InputTag(jetColl),
+                                                    inputFileNames = cms.PSet(
                                            #PhiCorrectionWeightFile = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrmet_7X_BX50_Jan2015.root'),
-                                           #RecoilCorrectionWeightFile  = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrphi_7X_BX50_Jan2015.root')
-                                   ),
-                                   srcLeptons = cms.VInputTag("leptonMergeMu"+muon+"Ele"+electron+"Tau"+tau) ))
+                    #RecoilCorrectionWeightFile  = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrphi_7X_BX50_Jan2015.root')
+                    ),
+                                                    srcLeptons = cms.VInputTag("LeptonMerge") ))
 
-                  process.jmfw_analyzers += getattr(process,"mvaPUPPETMu"+muon+"Ele"+electron+"Tau"+tau);
-
+        process.jmfw_analyzers += getattr(process,"mvaPUPPET");
+        
 
     if dropAnalyzerDumpEDM:        
         return process
-
-
+   
+    
     # Run
     process.run = cms.EDAnalyzer('RunAnalyzer')
     process.jmfw_analyzers += process.run
@@ -658,7 +682,7 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
             )
 
     process.jmfw_analyzers += process.vertex
-    
+
     # Muons : tight muons, DBWeight and puppiNoMu corrected
     if not runMVAPUPPETAnalysis :
 
@@ -745,24 +769,39 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
         process.jmfw_analyzers += process.met_puppi
         
     else:
-        
-        for muon in muonIDLabelForCleaning :
-            for electron in electronIDLabelForCleaning :
-                for tau in tauIDLabelForCleaning :           
-                    setattr(process, "puppet"+"Mu"+muon+"Ele"+electron+"Tau"+tau, 
-                            cms.EDAnalyzer('PUPPETAnalyzer',
-                                           srcJet    = cms.InputTag("selectedPatJetsAK4PFPuppiCleaned"+"Mu"+muon+"Ele"+electron+"Tau"+tau),
-                                           srcVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
-                                           srcZboson = cms.InputTag("mvaPUPPET"+"Mu"+muon+"Ele"+electron+"Tau"+tau+":ZtagBoson"),
-                                           srcRecoilPFMet = cms.InputTag("mvaPUPPET"+"Mu"+muon+"Ele"+electron+"Tau"+tau,"recoilslimmedMETs"),
-                                           srcRecoilPFCHSMet = cms.InputTag("mvaPUPPET"+"Mu"+muon+"Ele"+electron+"Tau"+tau,"recoilslimmedMETsCHS"),
-                                           srcRecoilPFPuppiMet = cms.InputTag("mvaPUPPET"+"Mu"+muon+"Ele"+electron+"Tau"+tau,"recoilslimmedMETsPuppi"),
-                                           srcRecoilPFPuppiMet_ChargedPV = cms.InputTag("mvaPUPPET"+"Mu"+muon+"Ele"+electron+"Tau"+tau,"recoilslimmedMETsPuppiChargedPV"),
-                                           srcRecoilPFPuppiMet_ChargedPU = cms.InputTag("mvaPUPPET"+"Mu"+muon+"Ele"+electron+"Tau"+tau,"recoilslimmedMETsPuppiChargedPU"),
-                                           srcRecoilPFPuppiMet_NeutralPV = cms.InputTag("mvaPUPPET"+"Mu"+muon+"Ele"+electron+"Tau"+tau,"recoilslimmedMETsPuppiNeutralPV"),
-                                           srcRecoilPFPuppiMet_NeutralPU = cms.InputTag("mvaPUPPET"+"Mu"+muon+"Ele"+electron+"Tau"+tau,"recoilslimmedMETsPuppiNeutralPU")))
+
+        if tauTypeID == "":
+
+            setattr(process, "PUPPET", 
+                    cms.EDAnalyzer('PUPPETAnalyzer',
+                                   srcJet    = cms.InputTag("selectedPatJetsAK4PFPuppiCleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID),
+                                   srcVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
+                                   srcZboson = cms.InputTag("mvaPUPPET","ZtagBoson"),
+                                   srcRecoilPFMet = cms.InputTag("mvaPUPPET","recoilslimmedMETs"),
+                                   srcRecoilPFCHSMet = cms.InputTag("mvaPUPPET","recoilslimmedMETsCHS"),
+                                   srcRecoilPFPuppiMet = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppi"),
+                                   srcRecoilPFPuppiMet_ChargedPV = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiChargedPV"),
+                                   srcRecoilPFPuppiMet_ChargedPU = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiChargedPU"),
+                                   srcRecoilPFPuppiMet_NeutralPV = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiNeutralPV"),
+                                   srcRecoilPFPuppiMet_NeutralPU = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiNeutralPU")))
                                            
-                    process.jmfw_analyzers += getattr(process,"puppetMu"+muon+"Ele"+electron+"Tau"+tau)
+        else:
+
+           setattr(process, "PUPPET", 
+                    cms.EDAnalyzer('PUPPETAnalyzer',
+                                   srcJet    = cms.InputTag("selectedPatJetsAK4PFPuppiCleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID+"Tau"+tauTypeID),
+                                   srcVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
+                                   srcZboson = cms.InputTag("mvaPUPPET","ZtagBoson"),
+                                   srcRecoilPFMet = cms.InputTag("mvaPUPPET","recoilslimmedMETs"),
+                                   srcRecoilPFCHSMet = cms.InputTag("mvaPUPPET","recoilslimmedMETsCHS"),
+                                   srcRecoilPFPuppiMet = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppi"),
+                                   srcRecoilPFPuppiMet_ChargedPV = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiChargedPV"),
+                                   srcRecoilPFPuppiMet_ChargedPU = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiChargedPU"),
+                                   srcRecoilPFPuppiMet_NeutralPV = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiNeutralPV"),
+                                   srcRecoilPFPuppiMet_NeutralPU = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiNeutralPU")))
+ 
+
+        process.jmfw_analyzers += getattr(process,"PUPPET")
                                            
 
     # Puppi ; only for the first 1000 events of the job
@@ -780,7 +819,7 @@ def createProcess(isMC, globalTag, muonCollection, runPuppiMuonIso, muonIsoCone,
 #                                        )
 
 #    process.jmfw_analyzers += process.puppiReader
-    
+
     return process
 
     #!
