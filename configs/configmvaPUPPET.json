@@ -2,27 +2,31 @@
   "activeTrainings" : ["phiTraining", "recoilTraining"],
   "activeReweightings" : [],
   "inputFile": "file:data/test.root",
+  "Folder" : "PUPPET/t",
   "phiTraining":
   {
   	  "mode" : 1,
   	  "friends" : [],
   	  "desc" : "First training on phi",
-  	  "apply_MVA_to" : "patPFMetCHS_negRecoil",
+  	  "apply_MVA_to" : "recoilPFPuppiMet",
   	  "weight" : "1",
   	  "name" : "PhiCor",
-  	  "folder" : "Flat",
+  	  "folder" : "t",
   	  "minEvents" : 250,
   	  "shrinkage" : 0.05,
   	  "minCutSignificance" : 2.0,
   	  "nTrees" : 1000,
   	  "weightfilename" : "PhiCor_13TeV.root",
-  	  "targetVariable" : "(z_Phi-patPFMetCHS_negReciol_phi) + 2.*TMath::Pi()*((z_Phi-patPFMetCHS_negReciol_phi) < -TMath::Pi()) - 2.*TMath::Pi()*((z_Phi-patPFMetCHS_negReciol_phi) > TMath::Pi())",
+  	  "targetVariable" : "(Zboson_Phi-recoilPFPuppiMet_Phi) + 2.*TMath::Pi()*((Zboson_Phi-recoilPFPuppiMet_Phi) < -TMath::Pi()) - 2.*TMath::Pi()*((Zboson_Phi-recoilPFPuppiMet_Phi) > TMath::Pi())",
   	  "trainingVariables" : 
-  	  [ "patMETCHS_negRecoil_phi", "patMETCHS_negRecoil_pt", "patMETCHS_negRecoil_sumEt",
-		"patPFMetCHS_negRecoil_phi", "patPFMetCHS_negRecoil_pt", "patPFMetCHS_negRecoil_sumEt",
-		"patPFMetPuppi_negRecoil_phi", "patPFMetPuppi_negRecoil_phi", "patPFMetPuppi_negRecoil_phi",
-    	"nJets",
-    	"nVertices"
+  	  [ "recoilPFMet_Pt", "recoilPFMet_Phi", "recoilPFMet_sumEt",  
+  	   "recoilPFCHSMet_Pt", "recoilPFCHSMet_Phi", "recoilPFCHSMet_sumEt",  
+  	   "recoilPFPuppiMet_Pt", "recoilPFPuppiMet_Phi", "recoilPFPuppiMet_sumEt",  
+  	   "recoilPFPuppiMet_ChargedPV_Pt", "recoilPFPuppiMet_ChargedPV_Phi", "recoilPFPuppiMet_ChargedPV_sumEt",  
+  	   "recoilPFPuppiMet_ChargedPU_Pt", "recoilPFPuppiMet_ChargedPU_Phi", "recoilPFPuppiMet_ChargedPU_sumEt",  
+  	   "recoilPFPuppiMet_NeutralPU_Pt", "recoilPFPuppiMet_NeutralPU_Phi", "recoilPFPuppiMet_NeutralPU_sumEt",  
+    	"NCleanedJets",
+    	"NVertex"
   	  ]
   },
   "recoilTraining":
@@ -33,19 +37,23 @@
   	  "apply_MVA_to" : "PhiCor",
   	  "weight" : "1",
   	  "name" : "RecoilCor",
-  	  "folder" : "Flat",
+  	  "folder" : "t",
   	  "minEvents" : 250,
   	  "shrinkage" : 0.05,
   	  "minCutSignificance" : 3.0,
   	  "nTrees" : 1000,
   	  "weightfilename" : "RecoilCor_13TeV.root",
-  	  "targetVariable" : "-z_pT/PhiCor_Upar",
+  	  "targetVariable" : "-Zboson_Pt/PhiCor_Upar",
   	  "trainingVariables" : 
-  	  [ "patMETCHS_negRecoil_phi", "patMETCHS_negRecoil_pt", "patMETCHS_negRecoil_sumEt",
-		"patPFMetCHS_negRecoil_phi", "patPFMetCHS_negRecoil_pt", "patPFMetCHS_negRecoil_sumEt",
-		"patPFMetPuppi_negRecoil_phi", "patPFMetPuppi_negRecoil_phi", "patPFMetPuppi_negRecoil_phi",
-    	"nJets",
-    	"nVertices"
+  	  [ "PhiCor_Pt", "PhiCor_Phi", 
+       "recoilPFMet_Pt", "recoilPFMet_Phi", "recoilPFMet_sumEt",  
+  	   "recoilPFCHSMet_Pt", "recoilPFCHSMet_Phi", "recoilPFCHSMet_sumEt",  
+  	   "recoilPFPuppiMet_Pt", "recoilPFPuppiMet_Phi", "recoilPFPuppiMet_sumEt",  
+  	   "recoilPFPuppiMet_ChargedPV_Pt", "recoilPFPuppiMet_ChargedPV_Phi", "recoilPFPuppiMet_ChargedPV_sumEt",  
+  	   "recoilPFPuppiMet_ChargedPU_Pt", "recoilPFPuppiMet_ChargedPU_Phi", "recoilPFPuppiMet_ChargedPU_sumEt",  
+  	   "recoilPFPuppiMet_NeutralPU_Pt", "recoilPFPuppiMet_NeutralPU_Phi", "recoilPFPuppiMet_NeutralPU_sumEt",  
+    	"NCleanedJets",
+    	"NVertex"
   	  ]
   }
 }

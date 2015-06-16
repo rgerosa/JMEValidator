@@ -74,11 +74,11 @@ void applyTraining::wireInputs()
   for (int ivar = 0; ivar<_lN; ++ivar) {
     printf("%i: %s\n",ivar, _lVars->at(ivar).c_str());
   }
-  _lTree->SetBranchAddress( (_applyMVAto + "_pt").c_str()      ,&_old_U);
-  _lTree->SetBranchAddress( (_applyMVAto + "_phi").c_str()   ,&_old_UPhi);
+  _lTree->SetBranchAddress( (_applyMVAto + "_Pt").c_str()      ,&_old_U);
+  _lTree->SetBranchAddress( (_applyMVAto + "_Phi").c_str()   ,&_old_UPhi);
 
-  _lTree->SetBranchAddress( "z_pT"                ,&_z_pT);
-  _lTree->SetBranchAddress( "z_Phi"               ,&_z_Phi);
+  _lTree->SetBranchAddress( "Zboson_Pt"                ,&_z_pT);
+  _lTree->SetBranchAddress( "Zboson_Phi"               ,&_z_Phi);
 
   if(_mode==-1)
   { 
@@ -112,10 +112,10 @@ void applyTraining::eventLoop()
 
 void applyTraining::registerUpdatedFourVector()
 {
-    _lOTree->Branch((_mvaResponseName+"_U").c_str(),      &_new_U,     (_mvaResponseName+"_U/F").c_str());
+    _lOTree->Branch((_mvaResponseName+"_Pt").c_str(),      &_new_U,     (_mvaResponseName+"_Pt/F").c_str());
     _lOTree->Branch((_mvaResponseName+"_Upar").c_str(),   &_new_Upar,  (_mvaResponseName+"_Upar/F").c_str());
     _lOTree->Branch((_mvaResponseName+"_Uperp").c_str(),  &_new_Uperp, (_mvaResponseName+"_Uperp/F").c_str());
-    _lOTree->Branch((_mvaResponseName+"_UPhi").c_str(),   &_new_UPhi,  (_mvaResponseName+"_UPhi/F").c_str());
+    _lOTree->Branch((_mvaResponseName+"_Phi").c_str(),   &_new_UPhi,  (_mvaResponseName+"_Phi/F").c_str());
 }
 
 void applyTraining::registerUpdatedCovMatrix()
