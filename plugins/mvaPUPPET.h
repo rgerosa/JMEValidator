@@ -54,7 +54,7 @@ private:
 	std::vector<std::string> variablesForPhiTraining_ = {"nVertices", "nJets" };
 	std::vector<std::string> variablesForRecoilTraining_ = {"nVertices", "nJets" };
 
-	const GBRForest* loadMVAfromFile(const edm::FileInPath& inputFileName, std::vector<std::string>& trainingVariableNames);
+	const GBRForest* loadMVAfromFile(const edm::FileInPath& inputFileName, std::vector<std::string>& trainingVariableNames, std::string mvaName);
 	const Float_t GetResponse(const GBRForest * Reader, std::vector<std::string> &variableNames );
 	void addToMap(reco::Candidate::LorentzVector p4, double sumEt, std::string &name, std::string &type);
 	void addToMap(reco::Candidate::LorentzVector p4, double sumEt, std::string &name, std::string &type, double divisor);

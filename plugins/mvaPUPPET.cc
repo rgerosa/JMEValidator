@@ -45,12 +45,12 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg){
   
   if(cfgInputFileNames.existsAs<edm::FileInPath>("PhiCorrectionWeightFile")){
     inputFileNamePhiCorrection_ = cfgInputFileNames.getParameter<edm::FileInPath>("PhiCorrectionWeightFile");
-    mvaReaderPhiCorrection_     = loadMVAfromFile(inputFileNamePhiCorrection_, variablesForPhiTraining_);
+    mvaReaderPhiCorrection_     = loadMVAfromFile(inputFileNamePhiCorrection_, variablesForPhiTraining_, "PhiCor");
   }
   
   if(cfgInputFileNames.existsAs<edm::FileInPath>("RecoilCorrectionWeightFile")){
     inputFileNameRecoilCorrection_ = cfgInputFileNames.getParameter<edm::FileInPath>("RecoilCorrectionWeightFile");
-    mvaReaderRecoilCorrection_  = loadMVAfromFile(inputFileNameRecoilCorrection_, variablesForRecoilTraining_);
+    mvaReaderRecoilCorrection_  = loadMVAfromFile(inputFileNameRecoilCorrection_, variablesForRecoilTraining_, "RecoilCor");
   }
   
   // prepare for saving the final mvaPUPPET to the event
@@ -206,7 +206,7 @@ const Float_t mvaPUPPET::GetResponse(const GBRForest * Reader, std::vector<std::
 }
 
 
-const GBRForest* mvaPUPPET::loadMVAfromFile(const edm::FileInPath& inputFileName, std::vector<std::string>& trainingVariableNames)
+const GBRForest* mvaPUPPET::loadMVAfromFile(const edm::FileInPath& inputFileName, std::vector<std::string>& trainingVariableNames, std::string mvaName)
 {
   if ( inputFileName.location()==edm::FileInPath::Unknown ) 
     throw cms::Exception("PFMETAlgorithmMVA::loadMVA") 
@@ -217,8 +217,7 @@ const GBRForest* mvaPUPPET::loadMVAfromFile(const edm::FileInPath& inputFileName
   std::vector<std::string> *lVec = (std::vector<std::string>*)inputFile->Get("varlist");
   for(unsigned int i=0; i< lVec->size();++i)
     trainingVariableNames.push_back(lVec->at(i));
-  
-  const GBRForest* mva = (GBRForest*)inputFile->Get("Forest");
+  const GBRForest* mva = (GBRForest*)inputFile->Get(mvaName.data());
   if ( !mva )
     throw cms::Exception("PFMETAlgorithmMVA::loadMVA")
       << " Failed to load MVA from file = " << inputFileName.fullPath().data() << " !!\n";
