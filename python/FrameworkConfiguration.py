@@ -633,8 +633,8 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
                                                     srcVertices    = cms.InputTag("offlineSlimmedPrimaryVertices"),
                                                     srcJets        = cms.InputTag(jetColl),
                                                     inputFileNames = cms.PSet(
-                                           #PhiCorrectionWeightFile = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrmet_7X_BX50_Jan2015.root'),
-                    #RecoilCorrectionWeightFile  = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrphi_7X_BX50_Jan2015.root')
+                                           PhiCorrectionWeightFile = cms.FileInPath('JMEAnalysis/JMEValidator/data/PhiCor_13TeV.root'),
+                    RecoilCorrectionWeightFile  = cms.FileInPath('JMEAnalysis/JMEValidator/data/RecoilCor_13TeV.root')
                     ),
                                                     srcLeptons = cms.VInputTag("LeptonMerge") ))
 
