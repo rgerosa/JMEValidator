@@ -1,8 +1,6 @@
 JMEValidator 
 ======
 
-Common framework for CMS JEC / JER analyzes.
-
 ###########################################
 ### Recipe For Jet and Isolation Studies ##
 ###########################################
@@ -73,15 +71,22 @@ Few information about the PUPPI MET version of JME Validator package:
 1) the cmsRun configuration code is placed in test/runFramework.py. Some parmaters can be paresed by command line when cmsRun is called:
 
    globalTag : specify the global tag to be used
-   isMC      : specify if are data = false or MC = true
-   runPuppiMuonIso : if the sequence for calculating puppi isolation for muons has to be run or not
-   muonIsoCone : isolation cone for muons
-   dropAnalyzerDumpEDM : produce an edm outputmodule instead of a "plain" root file via TFileService. This is used for sake of tests, to check if collections added to the event are correctly put and filled
-   runMVAPUPPETAnalysis : if false, the standard JMEValidator sequence will be run (used for jet studies), if true the special sequence for Puppi met and output is produced.
-   muonTypeID : In case runMVAPUPPETAnalysis is true, define which type of muon id to apply. Possibilites are : Tight (standard tight id with delta beta PU correction for isolation, TightDBeta (is tight ID + PFweighted delta beta correction), TightPuppiNoMu (is tight ID + puppi isolation calculated without muons)
-   electronTypeID : Tight or Medium, up to now taken from physics 14 cutBased working points .. to be update.
-   tauID : tight, medium or loose according to tau POG recipe
 
+   isMC      : specify if are data = false or MC = true
+
+   runPuppiMuonIso : if the sequence for calculating puppi isolation for muons has to be run or not
+
+   muonIsoCone : isolation cone for muons
+
+   dropAnalyzerDumpEDM : produce an edm outputmodule instead of a "plain" root file via TFileService. This is used for sake of tests, to check if collections added to the event are correctly put and filled
+
+   runMVAPUPPETAnalysis : if false, the standard JMEValidator sequence will be run (used for jet studies), if true the special sequence for Puppi met and output is produced.
+
+   muonTypeID : In case runMVAPUPPETAnalysis is true, define which type of muon id to apply. Possibilites are : Tight (standard tight id with delta beta PU correction for isolation, TightDBeta (is tight ID + PFweighted delta beta correction), TightPuppiNoMu (is tight ID + puppi isolation calculated without muons)
+
+   electronTypeID : Tight or Medium, up to now taken from physics 14 cutBased working points .. to be update.
+
+   tauID : tight, medium or loose according to tau POG recipe
 
    standard parameter that can be passed from command line : inputFiles=<> , outputFile= , maxEvents=...
 
