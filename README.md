@@ -136,7 +136,12 @@ How to run :
 
 cmsRun runFramework.py runMVAPUPPETAnalysis=True
 
+It produces an output root file with some directories .. in each one a tree with the information. 
+
+In our case PUPPET directory. 
+
+The output file contains few information with respect to the configuration with runMVAPUPPETAnalysis=False
+
+
 ```
 
-It produces an output root file with some directories .. in each one a tree with the information. In our case PUPPET directory. 
-The output file contains few information with respect to the configuration with runMVAPUPPETAnalysis=False
