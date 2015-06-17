@@ -18,6 +18,9 @@ git cms-addpkg CommonTools/PileupAlgos
 # Puppi
 git cms-merge-topic nhanvtran:puppi-etadep-741
 
+# Puppi inverted
+git cms-merge-topic violatingcp:pupuppi-741
+
 # E/Gamma ID
 git cms-merge-topic ikrav:egm_id_74X_v0
 
