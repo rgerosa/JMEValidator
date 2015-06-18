@@ -31,7 +31,8 @@ def createProcess(isMC, globalTag):
     #! Input
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
+    #process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
+    process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
     process.source = cms.Source("PoolSource")
 
     # Services
@@ -55,29 +56,29 @@ def createProcess(isMC, globalTag):
     process.load('JetMETCorrections.Configuration.JetCorrectors_cff')
 
     jetsCollections = {
-            'AK1': {
-                'algo': 'ak1',
-                'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK1PFPUPPI', 'AK1PFchs', 'AK1PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                'pu_jet_id': False,
-                },
+#            'AK1': {
+#                'algo': 'ak1',
+#                'pu_methods': ['Puppi', 'CHS', ''],
+#                'jec_payloads': ['AK1PFPUPPI', 'AK1PFchs', 'AK1PF'],
+#                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+#                'pu_jet_id': False,
+#                },
 
-            'AK2': {
-                'algo': 'ak2',
-                'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK2PFPUPPI', 'AK2PFchs', 'AK2PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                'pu_jet_id': False,
-                },
+#            'AK2': {
+#                'algo': 'ak2',
+#                'pu_methods': ['Puppi', 'CHS', ''],
+#                'jec_payloads': ['AK2PFPUPPI', 'AK2PFchs', 'AK2PF'],
+#                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+#                'pu_jet_id': False,
+#                },
 
-            'AK3': {
-                'algo': 'ak3',
-                'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK3PFPUPPI', 'AK3PFchs', 'AK3PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                'pu_jet_id': False,
-                },
+#            'AK3': {
+#                'algo': 'ak3',
+#                'pu_methods': ['Puppi', 'CHS', ''],
+#                'jec_payloads': ['AK3PFPUPPI', 'AK3PFchs', 'AK3PF'],
+#                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+#                'pu_jet_id': False,
+#                },
 
             'AK4': {
                 'algo': 'ak4',
@@ -88,29 +89,29 @@ def createProcess(isMC, globalTag):
                 'qg_tagger': True,
                 },
 
-            'AK5': {
-                'algo': 'ak5',
-                'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK5PFPUPPI', 'AK5PFchs', 'AK5PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                'pu_jet_id': False,
-                },
+#            'AK5': {
+#                'algo': 'ak5',
+#                'pu_methods': ['Puppi', 'CHS', ''],
+#                'jec_payloads': ['AK5PFPUPPI', 'AK5PFchs', 'AK5PF'],
+#                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+#                'pu_jet_id': False,
+#                },
 
-            'AK6': {
-                'algo': 'ak6',
-                'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK6PFPUPPI', 'AK6PFchs', 'AK6PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                'pu_jet_id': False,
-                },
+#            'AK6': {
+#                'algo': 'ak6',
+#                'pu_methods': ['Puppi', 'CHS', ''],
+#                'jec_payloads': ['AK6PFPUPPI', 'AK6PFchs', 'AK6PF'],
+#                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+#                'pu_jet_id': False,
+#                },
 
-            'AK7': {
-                'algo': 'ak7',
-                'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK7PFPUPPI', 'AK7PFchs', 'AK7PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                'pu_jet_id': False,
-                },
+#            'AK7': {
+#                'algo': 'ak7',
+#                'pu_methods': ['Puppi', 'CHS', ''],
+#                'jec_payloads': ['AK7PFPUPPI', 'AK7PFchs', 'AK7PF'],
+#                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+#                'pu_jet_id': False,
+#                },
 
             'AK8': {
                 'algo': 'ak8',
@@ -120,21 +121,21 @@ def createProcess(isMC, globalTag):
                 'pu_jet_id': False,
                 },
 
-            'AK9': {
-                'algo': 'ak9',
-                'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK9PFPUPPI', 'AK9PFchs', 'AK9PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                'pu_jet_id': False,
-                },
+#            'AK9': {
+#                'algo': 'ak9',
+#                'pu_methods': ['Puppi', 'CHS', ''],
+#                'jec_payloads': ['AK9PFPUPPI', 'AK9PFchs', 'AK9PF'],
+#                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+#                'pu_jet_id': False,
+#                },
 
-            'AK10': {
-                'algo': 'ak10',
-                'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK10PFPUPPI', 'AK10PFchs', 'AK10PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                'pu_jet_id': False,
-                },
+#            'AK10': {
+#                'algo': 'ak10',
+#                'pu_methods': ['Puppi', 'CHS', ''],
+#                'jec_payloads': ['AK10PFPUPPI', 'AK10PFchs', 'AK10PF'],
+#                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+#                'pu_jet_id': False,
+#                },
             }
 
     from JMEAnalysis.JetToolbox.jetToolbox_cff import jetToolbox
@@ -445,7 +446,7 @@ def createProcess(isMC, globalTag):
             isoValue_Ph_puppiNoMuonWeighted_R04 = cms.InputTag('muPFIsoValuePhR04PUPPINoMu'),
             )
 
-    process.jmfw_analyzers += process.muons
+#    process.jmfw_analyzers += process.muons
 
     # Electrons
     process.electrons = cms.EDAnalyzer('ElectronAnalyzer',
@@ -457,7 +458,7 @@ def createProcess(isMC, globalTag):
             ids = cms.VInputTag('egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-veto', 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-loose', 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium', 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight', 'egmGsfElectronIDs:heepElectronID-HEEPV51')
             )
 
-    process.jmfw_analyzers += process.electrons
+#    process.jmfw_analyzers += process.electrons
 
     # Photons
     process.photons = cms.EDAnalyzer('PhotonAnalyzer',
@@ -476,7 +477,7 @@ def createProcess(isMC, globalTag):
             ids = cms.VInputTag('egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-loose', 'egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-medium', 'egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-tight')
             )
 
-    process.jmfw_analyzers += process.photons
+#    process.jmfw_analyzers += process.photons
 
     # Jets
     for name, params in jetsCollections.items():
@@ -494,7 +495,8 @@ def createProcess(isMC, globalTag):
                     srcJet        = cms.InputTag(jetCollection),
                     srcRho        = cms.InputTag('fixedGridRhoFastjetAll'),
                     srcVtx        = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                    srcMuons      = cms.InputTag('selectedPatMuons')
+                    srcMuons      = cms.InputTag('selectedPatMuons'),
+                    genjets       = cms.InputTag('slimmedGenJets'),
                     )
 
             setattr(process, params['jec_payloads'][index], analyzer)
@@ -506,13 +508,13 @@ def createProcess(isMC, globalTag):
             src = cms.InputTag('slimmedMETsCHS', '', 'JRA'),
             caloMET = cms.InputTag('slimmedMETs', '', 'PAT')
             )
-    process.jmfw_analyzers += process.met_chs
+#    process.jmfw_analyzers += process.met_chs
 
     process.met_puppi = cms.EDAnalyzer('JMEMETAnalyzer',
             src = cms.InputTag('slimmedMETsPuppi', '', 'JRA'),
             caloMET = cms.InputTag('slimmedMETsPuppi', '', 'PAT')
             )
-    process.jmfw_analyzers += process.met_puppi
+#    process.jmfw_analyzers += process.met_puppi
 
     # Puppi ; only for the first 1000 events of the job
     ## Turn on diagnostic
@@ -528,7 +530,12 @@ def createProcess(isMC, globalTag):
                                             packedPFCandidates = cms.InputTag("packedPFCandidates")
                                         )
 
-    process.jmfw_analyzers += process.puppiReader
+#    process.jmfw_analyzers += process.puppiReader
+
+    process.genjetReader = cms.EDAnalyzer('genjetAnalyzer',
+            genjets  = cms.InputTag('slimmedGenJets'),
+            )
+    process.jmfw_analyzers += process.genjetReader
 
     process.p = cms.Path(process.jmfw_analyzers)
 
