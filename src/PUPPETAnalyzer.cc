@@ -158,18 +158,18 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   recoilPFMet_sumEt_ = metPF.sumEt();
   recoilPFMet_Pt_    = metPF.pt();
   recoilPFMet_Phi_   = metPF.phi();
-  RecoilVec2.SetMagPhi(recoilPFMet_Pt_,recoilPFMet_Phi_);
-  RecoilVec2.Rotate(-1.0 * (Zboson_Phi_));
-  recoilPFMet_PerpZ_ = RecoilVec2.Py();
-  recoilPFMet_LongZ_ = -1.0 * RecoilVec2.Px();
+  RecoilVec.SetPtEtaPhi(recoilPFMet_Pt_,0.0,recoilPFMet_Phi_);
+  RecoilVec.RotateZ(-1.0*(Zboson_Phi_));
+  recoilPFMet_PerpZ_ = RecoilVec.Py();
+  recoilPFMet_LongZ_ = -1.0 * RecoilVec.Px();
 
   recoilPFMet_uncorrected_sumEt_ = metPF.uncorrectedSumEt();
   recoilPFMet_uncorrected_Pt_    = metPF.uncorrectedPt();
   recoilPFMet_uncorrected_Phi_   = metPF.uncorrectedPhi();
-  RecoilVec2.SetMagPhi(recoilPFMet_uncorrected_Pt_,recoilPFMet_uncorrected_Phi_);
-  RecoilVec2.Rotate(-1.0 * (Zboson_Phi_));
-  recoilPFMet_uncorrected_PerpZ_ = RecoilVec2.Py();
-  recoilPFMet_uncorrected_LongZ_ = -1.0 * RecoilVec2.Px();
+  RecoilVec.SetPtEtaPhi(recoilPFMet_uncorrected_Pt_,0.0,recoilPFMet_uncorrected_Phi_);
+  RecoilVec.RotateZ(-1.0*(Zboson_Phi_));
+  recoilPFMet_uncorrected_PerpZ_ = RecoilVec.Py();
+  recoilPFMet_uncorrected_LongZ_ = -1.0 * RecoilVec.Px();
 
   edm::Handle<std::vector<pat::MET>> RecoilPFMetCHSHandle;
   iEvent.getByToken(srcRecoilPFCHSMetToken_, RecoilPFMetCHSHandle);
@@ -178,18 +178,18 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   recoilPFCHSMet_sumEt_ = metPFCHS.sumEt();
   recoilPFCHSMet_Pt_    = metPFCHS.pt();
   recoilPFCHSMet_Phi_   = metPFCHS.phi();
-  RecoilVec2.SetMagPhi(recoilPFCHSMet_Pt_,recoilPFCHSMet_Phi_);
-  RecoilVec2.Rotate(-1.0 * (Zboson_Phi_));
-  recoilPFCHSMet_PerpZ_ = RecoilVec2.Py();
-  recoilPFCHSMet_LongZ_ = -1.0 * RecoilVec2.Px();
+  RecoilVec.SetPtEtaPhi(recoilPFCHSMet_Pt_,0.0,recoilPFCHSMet_Phi_);
+  RecoilVec.RotateZ(-1.0*(Zboson_Phi_));
+  recoilPFCHSMet_PerpZ_ = RecoilVec.Py();
+  recoilPFCHSMet_LongZ_ = -1.0 * RecoilVec.Px();
 
   recoilPFCHSMet_uncorrected_sumEt_ = metPFCHS.uncorrectedSumEt();
   recoilPFCHSMet_uncorrected_Pt_    = metPFCHS.uncorrectedPt();
   recoilPFCHSMet_uncorrected_Phi_   = metPFCHS.uncorrectedPhi();
-  RecoilVec2.SetMagPhi(recoilPFCHSMet_uncorrected_Pt_,recoilPFCHSMet_uncorrected_Phi_);
-  RecoilVec2.Rotate(-1.0 * (Zboson_Phi_));
-  recoilPFCHSMet_uncorrected_PerpZ_ = RecoilVec2.Py();
-  recoilPFCHSMet_uncorrected_LongZ_ = -1.0 * RecoilVec2.Px();
+  RecoilVec.SetPtEtaPhi(recoilPFCHSMet_uncorrected_Pt_,0.0,recoilPFCHSMet_uncorrected_Phi_);
+  RecoilVec.RotateZ(-1.0*(Zboson_Phi_));
+  recoilPFCHSMet_uncorrected_PerpZ_ = RecoilVec.Py();
+  recoilPFCHSMet_uncorrected_LongZ_ = -1.0 * RecoilVec.Px();
 
   edm::Handle<std::vector<pat::MET>> RecoilPFMetPuppiHandle;
   iEvent.getByToken(srcRecoilPFPuppiMetToken_, RecoilPFMetPuppiHandle);
@@ -198,18 +198,18 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   recoilPFPuppiMet_sumEt_ = metPFPuppi.sumEt();
   recoilPFPuppiMet_Pt_    = metPFPuppi.pt();
   recoilPFPuppiMet_Phi_   = metPFPuppi.phi();
-  RecoilVec2.SetMagPhi(recoilPFPuppiMet_Pt_,recoilPFPuppiMet_Phi_);
-  RecoilVec2.Rotate(-1.0 * (Zboson_Phi_));
-  recoilPFPuppiMet_PerpZ_ = RecoilVec2.Py();
-  recoilPFPuppiMet_LongZ_ = -1.0 * RecoilVec2.Px();
+  RecoilVec.SetPtEtaPhi(recoilPFPuppiMet_Pt_,0.0,recoilPFPuppiMet_Phi_);
+  RecoilVec.RotateZ(-1.0*(Zboson_Phi_));
+  recoilPFPuppiMet_PerpZ_ = RecoilVec.Py();
+  recoilPFPuppiMet_LongZ_ = -1.0 * RecoilVec.Px();
 
   recoilPFPuppiMet_uncorrected_sumEt_ = metPFPuppi.uncorrectedSumEt();
   recoilPFPuppiMet_uncorrected_Pt_    = metPFPuppi.uncorrectedPt();
   recoilPFPuppiMet_uncorrected_Phi_   = metPFPuppi.uncorrectedPhi();
-  RecoilVec2.SetMagPhi(recoilPFPuppiMet_uncorrected_Pt_,recoilPFPuppiMet_uncorrected_Phi_);
-  RecoilVec2.Rotate(-1.0 * (Zboson_Phi_));
-  recoilPFPuppiMet_uncorrected_PerpZ_ = RecoilVec2.Py();
-  recoilPFPuppiMet_uncorrected_LongZ_ = -1.0 * RecoilVec2.Px();
+  RecoilVec.SetPtEtaPhi(recoilPFPuppiMet_uncorrected_Pt_,0.0,recoilPFPuppiMet_uncorrected_Phi_);
+  RecoilVec.RotateZ(-1.0*(Zboson_Phi_));
+  recoilPFPuppiMet_uncorrected_PerpZ_ = RecoilVec.Py();
+  recoilPFPuppiMet_uncorrected_LongZ_ = -1.0 * RecoilVec.Px();
 
   edm::Handle<std::vector<pat::MET>> RecoilPFMetPuppi_ChargedPVHandle;
   iEvent.getByToken(srcRecoilPFPuppiMet_ChargedPVToken_, RecoilPFMetPuppi_ChargedPVHandle);
@@ -218,18 +218,18 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   recoilPFPuppiMet_ChargedPV_sumEt_ = metPFPuppi_ChargedPV.sumEt();
   recoilPFPuppiMet_ChargedPV_Pt_    = metPFPuppi_ChargedPV.pt();
   recoilPFPuppiMet_ChargedPV_Phi_   = metPFPuppi_ChargedPV.phi();
-  RecoilVec2.SetMagPhi(recoilPFPuppiMet_ChargedPV_Pt_,recoilPFPuppiMet_ChargedPV_Phi_);
-  RecoilVec2.Rotate(-1.0 * (Zboson_Phi_));
-  recoilPFPuppiMet_ChargedPV_PerpZ_ = RecoilVec2.Py();
-  recoilPFPuppiMet_ChargedPV_LongZ_ = -1.0 * RecoilVec2.Px();
+  RecoilVec.SetPtEtaPhi(recoilPFPuppiMet_ChargedPV_Pt_,0.0,recoilPFPuppiMet_ChargedPV_Phi_);
+  RecoilVec.RotateZ(-1.0*(Zboson_Phi_));
+  recoilPFPuppiMet_ChargedPV_PerpZ_ = RecoilVec.Py();
+  recoilPFPuppiMet_ChargedPV_LongZ_ = -1.0 * RecoilVec.Px();
 
   recoilPFPuppiMet_ChargedPV_uncorrected_sumEt_ = metPFPuppi_ChargedPV.uncorrectedSumEt();
   recoilPFPuppiMet_ChargedPV_uncorrected_Pt_    = metPFPuppi_ChargedPV.uncorrectedPt();
   recoilPFPuppiMet_ChargedPV_uncorrected_Phi_   = metPFPuppi_ChargedPV.uncorrectedPhi();
-  RecoilVec2.SetMagPhi(recoilPFPuppiMet_ChargedPV_uncorrected_Pt_,recoilPFPuppiMet_ChargedPV_uncorrected_Phi_);
-  RecoilVec2.Rotate(-1.0 * (Zboson_Phi_));
-  recoilPFPuppiMet_ChargedPV_uncorrected_PerpZ_ = RecoilVec2.Py();
-  recoilPFPuppiMet_ChargedPV_uncorrected_LongZ_ = -1.0 * RecoilVec2.Px();
+  RecoilVec.SetPtEtaPhi(recoilPFPuppiMet_ChargedPV_uncorrected_Pt_,0.0,recoilPFPuppiMet_ChargedPV_uncorrected_Phi_);
+  RecoilVec.RotateZ(-1.0*(Zboson_Phi_));
+  recoilPFPuppiMet_ChargedPV_uncorrected_PerpZ_ = RecoilVec.Py();
+  recoilPFPuppiMet_ChargedPV_uncorrected_LongZ_ = -1.0 * RecoilVec.Px();
 
   edm::Handle<std::vector<pat::MET>> RecoilPFMetPuppi_ChargedPUHandle;
   iEvent.getByToken(srcRecoilPFPuppiMet_ChargedPUToken_, RecoilPFMetPuppi_ChargedPUHandle);
@@ -238,18 +238,18 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   recoilPFPuppiMet_ChargedPU_sumEt_ = metPFPuppi_ChargedPU.sumEt();
   recoilPFPuppiMet_ChargedPU_Pt_    = metPFPuppi_ChargedPU.pt();
   recoilPFPuppiMet_ChargedPU_Phi_   = metPFPuppi_ChargedPU.phi();
-  RecoilVec2.SetMagPhi(recoilPFPuppiMet_ChargedPU_Pt_,recoilPFPuppiMet_ChargedPU_Phi_);
-  RecoilVec2.Rotate(-1.0 * (Zboson_Phi_));
-  recoilPFPuppiMet_ChargedPU_PerpZ_ = RecoilVec2.Py();
-  recoilPFPuppiMet_ChargedPU_LongZ_ = -1.0 * RecoilVec2.Px();
+  RecoilVec.SetPtEtaPhi(recoilPFPuppiMet_ChargedPU_Pt_,0.0,recoilPFPuppiMet_ChargedPU_Phi_);
+  RecoilVec.RotateZ(-1.0*(Zboson_Phi_));
+  recoilPFPuppiMet_ChargedPU_PerpZ_ = RecoilVec.Py();
+  recoilPFPuppiMet_ChargedPU_LongZ_ = -1.0 * RecoilVec.Px();
 
   recoilPFPuppiMet_ChargedPU_uncorrected_sumEt_ = metPFPuppi_ChargedPU.uncorrectedSumEt();
   recoilPFPuppiMet_ChargedPU_uncorrected_Pt_    = metPFPuppi_ChargedPU.uncorrectedPt();
   recoilPFPuppiMet_ChargedPU_uncorrected_Phi_   = metPFPuppi_ChargedPU.uncorrectedPhi();
-  RecoilVec2.SetMagPhi(recoilPFPuppiMet_ChargedPU_uncorrected_Pt_,recoilPFPuppiMet_ChargedPU_uncorrected_Phi_);
-  RecoilVec2.Rotate(-1.0 * (Zboson_Phi_));
-  recoilPFPuppiMet_ChargedPU_uncorrected_PerpZ_ = RecoilVec2.Py();
-  recoilPFPuppiMet_ChargedPU_uncorrected_LongZ_ = -1.0 * RecoilVec2.Px();
+  RecoilVec.SetPtEtaPhi(recoilPFPuppiMet_ChargedPU_uncorrected_Pt_,0.0,recoilPFPuppiMet_ChargedPU_uncorrected_Phi_);
+  RecoilVec.RotateZ(-1.0*(Zboson_Phi_));
+  recoilPFPuppiMet_ChargedPU_uncorrected_PerpZ_ = RecoilVec.Py();
+  recoilPFPuppiMet_ChargedPU_uncorrected_LongZ_ = -1.0 * RecoilVec.Px();
 
   edm::Handle<std::vector<pat::MET>> RecoilPFMetPuppi_NeutralPVHandle;
   iEvent.getByToken(srcRecoilPFPuppiMet_NeutralPVToken_, RecoilPFMetPuppi_NeutralPVHandle);
@@ -258,18 +258,18 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   recoilPFPuppiMet_NeutralPV_sumEt_ = metPFPuppi_NeutralPV.sumEt();
   recoilPFPuppiMet_NeutralPV_Pt_    = metPFPuppi_NeutralPV.pt();
   recoilPFPuppiMet_NeutralPV_Phi_   = metPFPuppi_NeutralPV.phi();
-  RecoilVec2.SetMagPhi(recoilPFPuppiMet_NeutralPV_Pt_,recoilPFPuppiMet_NeutralPV_Phi_);
-  RecoilVec2.Rotate(-1.0 * (Zboson_Phi_));
-  recoilPFPuppiMet_NeutralPV_PerpZ_ = RecoilVec2.Py();
-  recoilPFPuppiMet_NeutralPV_LongZ_ = -1.0 * RecoilVec2.Px();
+  RecoilVec.SetPtEtaPhi(recoilPFPuppiMet_NeutralPV_Pt_,0.0,recoilPFPuppiMet_NeutralPV_Phi_);
+  RecoilVec.RotateZ(-1.0*(Zboson_Phi_));
+  recoilPFPuppiMet_NeutralPV_PerpZ_ = RecoilVec.Py();
+  recoilPFPuppiMet_NeutralPV_LongZ_ = -1.0 * RecoilVec.Px();
 
   recoilPFPuppiMet_NeutralPV_uncorrected_sumEt_ = metPFPuppi_NeutralPV.uncorrectedSumEt();
   recoilPFPuppiMet_NeutralPV_uncorrected_Pt_    = metPFPuppi_NeutralPV.uncorrectedPt();
   recoilPFPuppiMet_NeutralPV_uncorrected_Phi_   = metPFPuppi_NeutralPV.uncorrectedPhi();
-  RecoilVec2.SetMagPhi(recoilPFPuppiMet_NeutralPV_uncorrected_Pt_,recoilPFPuppiMet_NeutralPV_uncorrected_Phi_);
-  RecoilVec2.Rotate(-1.0 * (Zboson_Phi_));
-  recoilPFPuppiMet_NeutralPV_uncorrected_PerpZ_ = RecoilVec2.Py();
-  recoilPFPuppiMet_NeutralPV_uncorrected_LongZ_ = -1.0 * RecoilVec2.Px();
+  RecoilVec.SetPtEtaPhi(recoilPFPuppiMet_NeutralPV_uncorrected_Pt_,0.0,recoilPFPuppiMet_NeutralPV_uncorrected_Phi_);
+  RecoilVec.RotateZ(-1.0*(Zboson_Phi_));
+  recoilPFPuppiMet_NeutralPV_uncorrected_PerpZ_ = RecoilVec.Py();
+  recoilPFPuppiMet_NeutralPV_uncorrected_LongZ_ = -1.0 * RecoilVec.Px();
 
   edm::Handle<std::vector<pat::MET>> RecoilPFMetPuppi_NeutralPUHandle;
   iEvent.getByToken(srcRecoilPFPuppiMet_NeutralPUToken_, RecoilPFMetPuppi_NeutralPUHandle);
@@ -278,18 +278,18 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   recoilPFPuppiMet_NeutralPU_sumEt_ = metPFPuppi_NeutralPU.sumEt();
   recoilPFPuppiMet_NeutralPU_Pt_    = metPFPuppi_NeutralPU.pt();
   recoilPFPuppiMet_NeutralPU_Phi_   = metPFPuppi_NeutralPU.phi();
-  RecoilVec2.SetMagPhi(recoilPFPuppiMet_NeutralPU_Pt_,recoilPFPuppiMet_NeutralPU_Phi_);
-  RecoilVec2.Rotate(-1.0 * (Zboson_Phi_));
-  recoilPFPuppiMet_NeutralPU_PerpZ_ = RecoilVec2.Py();
-  recoilPFPuppiMet_NeutralPU_LongZ_ = -1.0 * RecoilVec2.Px();
+  RecoilVec.SetPtEtaPhi(recoilPFPuppiMet_NeutralPU_Pt_,0.0,recoilPFPuppiMet_NeutralPU_Phi_);
+  RecoilVec.RotateZ(-1.0*(Zboson_Phi_));
+  recoilPFPuppiMet_NeutralPU_PerpZ_ = RecoilVec.Py();
+  recoilPFPuppiMet_NeutralPU_LongZ_ = -1.0 * RecoilVec.Px();
 
   recoilPFPuppiMet_NeutralPU_uncorrected_sumEt_ = metPFPuppi_NeutralPU.uncorrectedSumEt();
   recoilPFPuppiMet_NeutralPU_uncorrected_Pt_    = metPFPuppi_NeutralPU.uncorrectedPt();
   recoilPFPuppiMet_NeutralPU_uncorrected_Phi_   = metPFPuppi_NeutralPU.uncorrectedPhi();
-  RecoilVec2.SetMagPhi(recoilPFPuppiMet_NeutralPU_uncorrected_Pt_,recoilPFPuppiMet_NeutralPU_uncorrected_Phi_);
-  RecoilVec2.Rotate(-1.0 * (Zboson_Phi_));
-  recoilPFPuppiMet_NeutralPU_uncorrected_PerpZ_ = RecoilVec2.Py();
-  recoilPFPuppiMet_NeutralPU_uncorrected_LongZ_ = -1.0 * RecoilVec2.Px();
+  RecoilVec.SetPtEtaPhi(recoilPFPuppiMet_NeutralPU_uncorrected_Pt_,0.0,recoilPFPuppiMet_NeutralPU_uncorrected_Phi_);
+  RecoilVec.RotateZ(-1.0*(Zboson_Phi_));
+  recoilPFPuppiMet_NeutralPU_uncorrected_PerpZ_ = RecoilVec.Py();
+  recoilPFPuppiMet_NeutralPU_uncorrected_LongZ_ = -1.0 * RecoilVec.Px();
 
   tree.fill();
   

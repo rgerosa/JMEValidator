@@ -23,7 +23,7 @@ class PUPPETAnalyzer : public JME::Analyzer
 
     private:
 
-        TVector2 RecoilVec2;
+        TVector3 RecoilVec;
 
 	edm::InputTag srcRecoilPFMet_;
 	edm::InputTag srcRecoilPFCHSMet_;
