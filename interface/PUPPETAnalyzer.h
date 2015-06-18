@@ -1,3 +1,4 @@
+
 #ifndef PUPPETAnalyzer_H
 #define PUPPETAnalyzer_H
 
@@ -23,7 +24,7 @@ class PUPPETAnalyzer : public JME::Analyzer
 
     private:
 
-        TVector3 RecoilVec;
+        TVector2 RecoilVec;
 
 	edm::InputTag srcRecoilPFMet_;
 	edm::InputTag srcRecoilPFCHSMet_;
@@ -35,6 +36,7 @@ class PUPPETAnalyzer : public JME::Analyzer
 	edm::InputTag srcJet_;
 	edm::InputTag srcZboson_;
 	edm::InputTag srcVertex_;
+	edm::InputTag srcMVAMet_;
 
         edm::EDGetTokenT<std::vector<pat::MET>> srcRecoilPFMetToken_;
         edm::EDGetTokenT<std::vector<pat::MET>> srcRecoilPFCHSMetToken_;
@@ -46,6 +48,7 @@ class PUPPETAnalyzer : public JME::Analyzer
         edm::EDGetTokenT<std::vector<pat::Jet>> srcJetToken_;
         edm::EDGetTokenT<std::vector<reco::Particle>> srcZbosonToken_;
         edm::EDGetTokenT<reco::VertexCollection> srcVertexToken_;
+	edm::EDGetTokenT<std::vector<pat::MET>> srcMVAMetToken_;
 
         // Tree branches
         float& recoilPFMet_sumEt_ = tree["recoilPFMet_sumEt"].write<float>();
@@ -132,6 +135,12 @@ class PUPPETAnalyzer : public JME::Analyzer
         float& recoilPFPuppiMet_NeutralPU_uncorrected_PerpZ_   = tree["recoilPFPuppiMet_NeutralPU_uncorrected_PerpZ"].write<float>();
         float& recoilPFPuppiMet_NeutralPU_uncorrected_LongZ_   = tree["recoilPFPuppiMet_NeutralPU_uncorrected_LongZ"].write<float>();
 
+	float& MVAMet_sumEt_   = tree["MVAMet_sumEt"].write<float>();
+	float& MVAMet_Pt_      = tree["MVAMet_Pt"].write<float>();
+	float& MVAMet_Phi_     = tree["MVAMet_Pt"].write<float>();
+	float& MVAMet_PerpZ_   = tree["MVAMet_PerpZ"].write<float>();
+	float& MVAMet_LongZ_   = tree["MVAMet_LongZ"].write<float>();
+
 	int& NCleanedJets_ =  tree["NCleanedJets"].write<int>();
 	int& NVertex_      =  tree["NVertex"].write<int>();
 
@@ -149,6 +158,7 @@ class PUPPETAnalyzer : public JME::Analyzer
 	float& Zboson_Phi_     =  tree["Zboson_Phi"].write<float>();
 	float& Zboson_Eta_     =  tree["Zboson_Eta"].write<float>();
 	float& Zboson_M_       =  tree["Zboson_M"].write<float>();
+	int& Zboson_daughter_  =  tree["Zboson_daughter"].write<int>();
 
 };
 

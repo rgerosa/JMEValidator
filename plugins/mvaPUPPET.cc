@@ -54,7 +54,7 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg){
   }
   
   // prepare for saving the final mvaPUPPET to the event
-  produces<pat::METCollection>();
+  produces<pat::METCollection>("mvaMET");
   // produce Zboson tag
   produces<ParticleCollection>("ZtagBoson");
 }
@@ -75,8 +75,11 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
 	  edm::Handle<reco::CandidateView> leptons;		
 	  evt.getByToken(*srcLeptons_i, leptons);
 	  for ( reco::CandidateView::const_iterator lepton = leptons->begin();
-		lepton != leptons->end(); ++lepton )
+		lepton != leptons->end(); ++lepton ){
 	    Z.setP4(Z.p4()+ lepton->p4());
+	    if(lepton->pdgId() > 0)
+	      Z.setPdgId(lepton->pdgId());
+	  }
 	}
 	var_["z_pT"] = Z.pt();
 	var_["z_Phi"] = Z.phi();
@@ -165,7 +168,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
 	// mvaPUPPET
 	std::auto_ptr<pat::METCollection> patMETCollection(new pat::METCollection());
 	patMETCollection->push_back(mvaMET);
-	evt.put(patMETCollection);
+	evt.put(patMETCollection,"mvaMET");
 	
 }
 

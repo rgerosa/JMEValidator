@@ -151,7 +151,7 @@ def cleanJetsFromLeptons (process,
                           muonCollection      = '', ## input muon collection
                           electronCollection  = '', ## input electron collection
                           tauCollection       = '', ## input tau collection
-                          jetPtCut       = 15., ## pt threshold on jets
+                          jetPtCut       = 30., ## pt threshold on jets
                           jetEtaCut      = 5.0, ## eta cut
                           dRCleaning     = 0.3  ## cleaning cone
                           ):
@@ -160,9 +160,9 @@ def cleanJetsFromLeptons (process,
 
   jetsNotOverlappingWithLeptons =  cms.EDProducer("PATJetCleaner",
                                                   src = cms.InputTag(jetCollection),
-                                                  preselection = cms.string(('pt > %f && abs(eta) < %f')%(jetPtCut,jetEtaCut)),
+                                                  preselection = cms.string(''),
                                                   checkOverlaps = cms.PSet(),
-                                                  finalCut = cms.string('')
+                                                  finalCut = cms.string(('pt > %f && abs(eta) < %f')%(jetPtCut,jetEtaCut))
                                                   )
 
   if muonCollection != '':
