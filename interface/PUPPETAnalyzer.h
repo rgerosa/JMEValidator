@@ -24,7 +24,7 @@ class PUPPETAnalyzer : public JME::Analyzer
 
     private:
 
-        float dRgenMatching_;
+        double dRgenMatching_;
         TVector2 RecoilVec;
 
 	edm::InputTag srcRecoilPFMet_;
