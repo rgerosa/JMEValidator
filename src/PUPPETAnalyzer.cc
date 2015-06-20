@@ -33,6 +33,18 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
     srcZboson_ = iConfig.getParameter<edm::InputTag>("srcZboson");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input Zboson collection not given \n";
 
+  if (iConfig.existsAs<edm::InputTag>("srcGenJets"))
+    srcGenJets_ = iConfig.getParameter<edm::InputTag>("srcGenJets");
+  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input gen jet collection not given \n";
+
+  if (iConfig.existsAs<edm::InputTag>("srcGenMet"))
+    srcGenMet_ = iConfig.getParameter<edm::InputTag>("srcGenMet");
+  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input gen MET location not given \n";
+
+  if (iConfig.existsAs<edm::InputTag>("srcGenParticles"))
+    srcGenParticles_ = iConfig.getParameter<edm::InputTag>("srcGenParticles");
+  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input gen particle collection not given \n";
+
   if (iConfig.existsAs<edm::InputTag>("srcRecoilPFMet"))
     srcRecoilPFMet_ = iConfig.getParameter<edm::InputTag>("srcRecoilPFMet");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFMet recoil not given \n";
@@ -65,6 +77,10 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
     srcMVAMet_ = iConfig.getParameter<edm::InputTag>("srcMVAMet");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input MVAMet recoil not given \n";
 
+  if (iConfig.existsAs<double>("dRgenMatching"))
+    dRgenMatching_ = iConfig.getParameter<double>("dRgenMatching");
+  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input dR for gen jet matching not given \n";
+
   if(!(srcJet_ == edm::InputTag("")))
     srcJetToken_ = consumes<pat::JetCollection>(srcJet_);
 
@@ -73,6 +89,15 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
 
   if(!(srcVertex_ == edm::InputTag("")))
     srcVertexToken_ = consumes<reco::VertexCollection>(srcVertex_);
+
+  if(!(srcGenJets_ == edm::InputTag("")))
+    srcGenJetsToken_ = consumes<reco::GenJetCollection>(srcGenJets_);
+
+  if(!(srcGenMet_ == edm::InputTag("")))
+    srcGenMetToken_ = consumes<pat::METCollection>(srcGenMet_);
+
+  if(!(srcGenParticles_ == edm::InputTag("")))
+    srcGenParticlesToken_ = consumes<reco::GenParticleCollection>(srcGenParticles_);
 
   if(!(srcRecoilPFMet_ == edm::InputTag("")))
     srcRecoilPFMetToken_ = consumes<pat::METCollection>(srcRecoilPFMet_);
@@ -115,13 +140,48 @@ PUPPETAnalyzer::~PUPPETAnalyzer(){}
 void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
 			     const edm::EventSetup& iSetup){
 
-  
+    edm::Handle<reco::GenParticleCollection> GenParticlesHandle;
+  iEvent.getByToken(srcGenParticlesToken_, GenParticlesHandle);
+
+  for(auto GenParticle : *GenParticlesHandle){
+    if(GenParticle.pdgId() == 23){
+        GenZ_Pt_  = GenParticle.pt();
+        GenZ_Eta_ = GenParticle.eta();
+        GenZ_Phi_ = GenParticle.phi();
+        GenZ_M_   = GenParticle.mass();
+    }
+  }  
+
+  edm::Handle<reco::GenJetCollection> GenJetsHandle;
+  iEvent.getByToken(srcGenJetsToken_, GenJetsHandle);
+
+  NGenJets_ = GenJetsHandle->size();
+
+  int ijet = 0;
+  for( auto GenJet : *GenJetsHandle){     
+    if(ijet == 0){
+      GenLeadingJet_Pt_  = GenJet.pt();
+      GenLeadingJet_Eta_ = GenJet.eta();
+      GenLeadingJet_Phi_ = GenJet.phi();
+      GenLeadingJet_M_   = GenJet.mass();
+      ijet++;
+      continue;
+    }
+    else if(ijet == 1){
+      GenTrailingJet_Pt_  = GenJet.pt();
+      GenTrailingJet_Eta_ = GenJet.eta();
+      GenTrailingJet_Phi_ = GenJet.phi();
+      GenTrailingJet_M_   = GenJet.mass();
+      break;
+    }
+  }
+
   edm::Handle<std::vector<pat::Jet>> jetHandle;
   iEvent.getByToken(srcJetToken_, jetHandle);
 
   NCleanedJets_  = jetHandle->size();
 
-  int ijet = 0;
+  ijet = 0;
   for( auto jet : *jetHandle){     
     if(ijet == 0){
       LeadingJet_Pt_  = jet.pt();
@@ -159,6 +219,22 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   Zboson_daughter_ = Zboson.pdgId();
 
   // Recoils
+
+  edm::Handle<std::vector<pat::MET>> GenMetHandle;
+  iEvent.getByToken(srcGenMetToken_, GenMetHandle);
+
+  const reco::GenMET* genMET_ = GenMetHandle->at(0).genMET();
+  GenRecoil_sumEt_ = genMET_->sumEt() - Zboson.et();
+  pat::MET genMETplusZ;
+  genMETplusZ.setP4(genMET_->p4() + Zboson.p4());
+  GenRecoil_Pt_    = genMETplusZ.pt();
+  RecoilVec.SetMagPhi(GenRecoil_Pt_,genMETplusZ.phi() - TMath::Pi());
+  GenRecoil_Phi_   = genMETplusZ.phi();
+  RecoilVec.SetMagPhi(GenRecoil_Pt_,GenRecoil_Phi_ - Zboson_Phi_);
+  GenRecoil_PerpZ_ = RecoilVec.Py();
+  GenRecoil_LongZ_ = RecoilVec.Px();
+
+
   edm::Handle<std::vector<pat::MET>> RecoilPFMetHandle;
   iEvent.getByToken(srcRecoilPFMetToken_, RecoilPFMetHandle);
 
@@ -296,6 +372,23 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   MVAMet_PerpZ_ = RecoilVec.Py();
   MVAMet_LongZ_ = RecoilVec.Px();
 
+  for(auto jet : *jetHandle){
+    AllJets_Pt_.push_back(jet.pt());
+    AllJets_Eta_.push_back(jet.eta());
+    AllJets_Phi_.push_back(jet.phi());
+    AllJets_M_.push_back(jet.mass());
+    for(auto GenJet : *GenJetsHandle){
+      if(reco::deltaR(jet.eta(),jet.phi(),GenJet.eta(),GenJet.phi()) < dRgenMatching_){
+        GenMatchedJets_Pt_.push_back(GenJet.pt());
+        GenMatchedJets_Eta_.push_back(GenJet.eta());
+        GenMatchedJets_Phi_.push_back(GenJet.phi());
+        GenMatchedJets_M_.push_back(GenJet.mass());
+        break;
+      }
+    }
+  }
+
+  NGenMatchedJets_ = GenMatchedJets_Pt_.size();
   tree.fill();
   
 }

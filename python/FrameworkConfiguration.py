@@ -777,14 +777,18 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
                                    srcJet    = cms.InputTag("selectedPatJetsAK4PFPuppiCleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID),
                                    srcVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
                                    srcZboson = cms.InputTag("mvaPUPPET","ZtagBoson"),
-                                   srcRecoilPFMet = cms.InputTag("mvaPUPPET","recoilslimmedMETs"),
-                                   srcRecoilPFCHSMet = cms.InputTag("mvaPUPPET","recoilslimmedMETsCHS"),
+                                   srcGenMet = cms.InputTag("slimmedMETs","","PAT"),
+                                   srcGenJets          = cms.InputTag("slimmedGenJets","","PAT"),
+                                   srcGenParticles     = cms.InputTag("prunedGenParticles","","PAT"),
+                                   srcRecoilPFMet      = cms.InputTag("mvaPUPPET","recoilslimmedMETs"),
+                                   srcRecoilPFCHSMet   = cms.InputTag("mvaPUPPET","recoilslimmedMETsCHS"),
                                    srcRecoilPFPuppiMet = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppi"),
                                    srcRecoilPFPuppiMet_ChargedPV = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiChargedPV"),
                                    srcRecoilPFPuppiMet_ChargedPU = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiChargedPU"),
                                    srcRecoilPFPuppiMet_NeutralPV = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiNeutralPV"),
                                    srcRecoilPFPuppiMet_NeutralPU = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiNeutralPU"),
-                                   srcMVAMet = cms.InputTag("mvaPUPPET","mvaMET")))
+                                   srcMVAMet     = cms.InputTag("mvaPUPPET","mvaMET"),
+                                   dRgenMatching = cms.double(0.2)))
                                            
         else:
 
@@ -793,14 +797,18 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
                                    srcJet    = cms.InputTag("selectedPatJetsAK4PFPuppiCleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID+"Tau"+tauTypeID),
                                    srcVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
                                    srcZboson = cms.InputTag("mvaPUPPET","ZtagBoson"),
-                                   srcRecoilPFMet = cms.InputTag("mvaPUPPET","recoilslimmedMETs"),
-                                   srcRecoilPFCHSMet = cms.InputTag("mvaPUPPET","recoilslimmedMETsCHS"),
+                                   srcGenMet = cms.InputTag("slimmedMETs","","PAT"),
+                                   srcGenJets          = cms.InputTag("slimmedGenJets","","PAT"),
+                                   srcGenParticles     = cms.InputTag("prunedGenParticles","","PAT"),
+                                   srcRecoilPFMet      = cms.InputTag("mvaPUPPET","recoilslimmedMETs"),
+                                   srcRecoilPFCHSMet   = cms.InputTag("mvaPUPPET","recoilslimmedMETsCHS"),
                                    srcRecoilPFPuppiMet = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppi"),
                                    srcRecoilPFPuppiMet_ChargedPV = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiChargedPV"),
                                    srcRecoilPFPuppiMet_ChargedPU = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiChargedPU"),
                                    srcRecoilPFPuppiMet_NeutralPV = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiNeutralPV"),
                                    srcRecoilPFPuppiMet_NeutralPU = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiNeutralPU"),
-                                   srcMVAMet = cms.InputTag("mvaPUPPET","mvaMET")))
+                                   srcMVAMet = cms.InputTag("mvaPUPPET","mvaMET"),
+                                   dRgenMatching = cms.double(0.2)))
  
 
         process.jmfw_analyzers += getattr(process,"PUPPET")
