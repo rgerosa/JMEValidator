@@ -74,6 +74,7 @@ class JMEJetAnalyzer : public JME::PhysicsObjectAnalyzer
         std::vector<int>& pujetid_cutbasedid = tree["PUJetId_cutBasedId"].write<std::vector<int>>();
         std::vector<int>& pujetid_fullid = tree["PUJetId_fullId"].write<std::vector<int>>();
         std::vector<float>& qg_tagger = tree["QGTagger_qgLikelihood"].write<std::vector<float>>();
+<<<<<<< HEAD
 		std::vector<bool>& isMatched = tree["isMatched"].write<std::vector<bool>>();
 		std::vector<int>& nTot = tree["nTot"].write<std::vector<int>>();
 		int& npuIT = tree["npu"].write<int>();
@@ -88,4 +89,27 @@ class JMEJetAnalyzer : public JME::PhysicsObjectAnalyzer
 		std::vector<float>& jetRchg = tree["jetRchg"].write<std::vector<float>>();
 		std::vector<float>& jetR = tree["jetR"].write<std::vector<float>>();
 		std::vector<float>& Ttheta = tree["Ttheta"].write<std::vector<float>>();
+=======
+
+        std::vector<float>& chargedEmEnergyFraction = tree["chargedEmEnergyFraction"].write<std::vector<float>>();
+        std::vector<float>& chargedHadronEnergyFraction = tree["chargedHadronEnergyFraction"].write<std::vector<float>>();
+        std::vector<float>& chargedMuEnergyFraction = tree["chargedMuEnergyFraction"].write<std::vector<float>>();
+        std::vector<float>& electronEnergyFraction = tree["electronEnergyFraction"].write<std::vector<float>>();
+
+
+        std::vector<float>& HFEMEnergyFraction = tree["HFEMEnergyFraction"].write<std::vector<float>>();
+        std::vector<float>& HFHadronEnergyFraction = tree["HFHadronEnergyFraction"].write<std::vector<float>>();
+        std::vector<float>& hoEnergyFraction = tree["hoEnergyFraction"].write<std::vector<float>>();
+        std::vector<float>& muonEnergyFraction = tree["muonEnergyFraction"].write<std::vector<float>>();
+        std::vector<float>& neutralEmEnergyFraction = tree["neutralEmEnergyFraction"].write<std::vector<float>>();
+        std::vector<float>& neutralHadronEnergyFraction = tree["neutralHadronEnergyFraction"].write<std::vector<float>>();
+        std::vector<float>& photonEnergyFraction = tree["photonEnergyFraction"].write<std::vector<float>>();
+
+        // Calo Jet
+        //std::vector<float>& emEnergyFraction = tree["emEnergyFraction"].write<std::vector<float>>();
+        //std::vector<float>& emEnergyInEB = tree["emEnergyInEB"].write<std::vector<float>>();
+        //std::vector<float>& emEnergyInEE = tree["emEnergyInEE"].write<std::vector<float>>();
+        //std::vector<float>& emEnergyInHF = tree["emEnergyInHF"].write<std::vector<float>>();
+        //std::vector<float>& energyFractionHadronic = tree["energyFractionHadronic"].write<std::vector<float>>();
+>>>>>>> upstream/CMSSW_7_4_X
 };

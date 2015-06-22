@@ -268,6 +268,25 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
 
 
 
+     chargedEmEnergyFraction.push_back(jet.chargedEmEnergyFraction());
+     chargedHadronEnergyFraction.push_back(jet.chargedHadronEnergyFraction());
+     chargedMuEnergyFraction.push_back(jet.chargedMuEnergyFraction());
+     electronEnergyFraction.push_back(jet.electronEnergyFraction());
+     HFEMEnergyFraction.push_back(jet.HFEMEnergyFraction());
+     HFHadronEnergyFraction.push_back(jet.HFHadronEnergyFraction());
+     hoEnergyFraction.push_back(jet.hoEnergyFraction());
+     muonEnergyFraction.push_back(jet.muonEnergyFraction());
+     neutralEmEnergyFraction.push_back(jet.neutralEmEnergyFraction());
+     neutralHadronEnergyFraction.push_back(jet.neutralHadronEnergyFraction());
+     photonEnergyFraction.push_back(jet.photonEnergyFraction());
+
+     // Calo jet specific
+     //emEnergyFraction.push_back(jet.emEnergyFraction());
+     //emEnergyInEB.push_back(jet.emEnergyInEB());
+     //emEnergyInEE.push_back(jet.emEnergyInEE());
+     //emEnergyInHF.push_back(jet.emEnergyInHF());
+     //energyFractionHadronic.push_back(jet.energyFractionHadronic());
+
      computeBetaStar(jet, *vtx);
   }
 
