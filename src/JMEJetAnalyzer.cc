@@ -245,7 +245,7 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
     allGenJet_eta .push_back( genjet.eta () );
     allGenJet_phi .push_back( genjet.phi () );
     allGenJet_m   .push_back( genjet.mass() );
-    allGenJet_PatJetMatched  .push_back( b_genjet_hasMatchedRecoJet ? 1 : 0 ) ;
+    allGenJet_PatJetMatched  .push_back( b_genjet_hasMatchedRecoJet ) ;
 
   }
 
