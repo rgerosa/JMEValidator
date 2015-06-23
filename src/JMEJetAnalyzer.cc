@@ -61,6 +61,7 @@ JMEJetAnalyzer::JMEJetAnalyzer(const edm::ParameterSet& iConfig)
   , JetCorLabel_   (iConfig.getParameter<std::string>("JetCorLabel"))
   , JetCorLevels_  (iConfig.getParameter<std::vector<std::string>>("JetCorLevels"))
   , srcJet_        (consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("srcJet")))
+  , srcGenJet_        (consumes<std::vector<reco::GenJet>>(iConfig.getParameter<edm::InputTag>("srcGenJet")))
   , srcVtx_        (consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("srcVtx")))
   , srcMuons_      (consumes<std::vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("srcMuons")))
   , doComposition_ (iConfig.getParameter<bool>("doComposition"))
@@ -123,6 +124,7 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
   // // EVENT DATA HANDLES
   edm::Handle<reco::CandidateView>               refs;
   edm::Handle<std::vector<pat::Jet> >            jets;
+  edm::Handle<std::vector<reco::GenJet> >            genjets;
   edm::Handle<std::vector<reco::Vertex>>         vtx;
   edm::Handle<edm::View<pat::Muon> >             muons;
 
@@ -130,6 +132,7 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
 
   // REFERENCES & RECOJETS
   iEvent.getByToken(srcJet_, jets);
+  iEvent.getByToken(srcGenJet_, genjets);
   
   //loop over the jets and fill the ntuple
   size_t nJet = (nJetMax_ == 0) ? jets->size() : std::min(nJetMax_, (unsigned int) jets->size());
@@ -215,6 +218,35 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
      //energyFractionHadronic.push_back(jet.energyFractionHadronic());
 
      computeBetaStar(jet, *vtx);
+  }
+
+  for (size_t iGenJet = 0; iGenJet < genjets -> size(); iGenJet++) {
+
+    const reco::GenJet & genjet = genjets->at(iGenJet)  ;
+    bool b_genjet_hasMatchedRecoJet = false ;
+
+    for (size_t iJet = 0; iJet < nJet; iJet++) {
+
+      pat::Jet const & jet = jets->at(iJet);
+      if( jet.pt() < 5 ){ continue; }
+
+      const reco::GenJet* matched_ref_jet = jet.genJet();
+      if( ! matched_ref_jet ) {  continue ; }
+      
+      if( genjet.pt()  != matched_ref_jet->pt() ) { continue ;}
+      if( genjet.eta() != matched_ref_jet->eta() ){ continue ;}
+      if( genjet.phi() != matched_ref_jet->phi() ){ continue ;}
+
+      b_genjet_hasMatchedRecoJet = true ;
+
+    }      
+
+    allGenJet_pt  .push_back( genjet.pt  () );
+    allGenJet_eta .push_back( genjet.eta () );
+    allGenJet_phi .push_back( genjet.phi () );
+    allGenJet_m   .push_back( genjet.mass() );
+    allGenJet_PatJetMatched  .push_back( b_genjet_hasMatchedRecoJet ? 1 : 0 ) ;
+
   }
 
   tree.fill();
