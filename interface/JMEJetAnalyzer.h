@@ -23,11 +23,11 @@ class JMEJetAnalyzer : public JME::PhysicsObjectAnalyzer
         std::vector<std::string> JetCorLevels_;
 
         edm::EDGetTokenT<std::vector<pat::Jet>> srcJet_;
-		edm::EDGetTokenT<double> srcRho_;
+	edm::EDGetTokenT<double> srcRho_;
         edm::EDGetTokenT<std::vector<reco::Vertex>> srcVtx_;
         edm::EDGetTokenT<std::vector<pat::Muon>> srcMuons_;
 
-		edm::EDGetTokenT<std::vector<PileupSummaryInfo>> m_puInfoToken;
+	edm::EDGetTokenT<std::vector<PileupSummaryInfo>> m_puInfoToken;
 
         bool          doComposition_;
         bool          doFlavor_;
@@ -37,12 +37,12 @@ class JMEJetAnalyzer : public JME::PhysicsObjectAnalyzer
         double        deltaRPartonMax_;
         FactorizedJetCorrector* jetCorrector_;
 
-		edm::EDGetTokenT<std::vector<reco::GenJet>> srcGenJets_;
-		edm::EDGetTokenT<GenEventInfoProduct> GenEventInfo_;
+	edm::EDGetTokenT<std::vector<reco::GenJet>> srcGenJets_;
+	edm::EDGetTokenT<GenEventInfoProduct> GenEventInfo_;
 
         // Tree branches
-		float& rho_ = tree["rho"].write<float>();
-		ULong64_t& npv = tree["npv"].write<ULong64_t>();
+	float& rho_ = tree["rho"].write<float>();
+	ULong64_t& npv = tree["npv"].write<ULong64_t>();
         std::vector<int>& refpdgid = tree["refpdgid"].write<std::vector<int>>();
         std::vector<float>& refdrjt = tree["refdrjt"].write<std::vector<float>>();
         std::vector<float>& refarea = tree["refarea"].write<std::vector<float>>();
@@ -50,8 +50,8 @@ class JMEJetAnalyzer : public JME::PhysicsObjectAnalyzer
         std::vector<int8_t>&   hadronFlavor = tree["hadronFlavor"].write<std::vector<int8_t>>();
         std::vector<float>& jtarea = tree["jtarea"].write<std::vector<float>>();
         std::vector<float>& jtjec = tree["jtjec"].write<std::vector<float>>();
-		std::vector<float>& jtpt = tree["jtpt"].write<std::vector<float>>();
-		std::vector<float>& jteta = tree["jteta"].write<std::vector<float>>();
+	std::vector<float>& jtpt = tree["jtpt"].write<std::vector<float>>();
+	std::vector<float>& jteta = tree["jteta"].write<std::vector<float>>();
         std::vector<float>& beta = tree["beta"].write<std::vector<float>>();
         std::vector<float>& betaStar = tree["betaStar"].write<std::vector<float>>();
         std::vector<float>& betaClassic = tree["betaClassic"].write<std::vector<float>>();
