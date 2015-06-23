@@ -788,7 +788,7 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
                                    srcRecoilPFPuppiMet_NeutralPV = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiNeutralPV"),
                                    srcRecoilPFPuppiMet_NeutralPU = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiNeutralPU"),
                                    srcMVAMet     = cms.InputTag("mvaPUPPET","mvaMET"),
-                                   dRgenMatching = cms.double(0.2)))
+                                   dRgenMatching = cms.double(0.3)))
                                            
         else:
 
@@ -808,7 +808,7 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
                                    srcRecoilPFPuppiMet_NeutralPV = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiNeutralPV"),
                                    srcRecoilPFPuppiMet_NeutralPU = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiNeutralPU"),
                                    srcMVAMet = cms.InputTag("mvaPUPPET","mvaMET"),
-                                   dRgenMatching = cms.double(0.2)))
+                                   dRgenMatching = cms.double(0.3)))
  
 
         process.jmfw_analyzers += getattr(process,"PUPPET")

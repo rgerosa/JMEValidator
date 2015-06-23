@@ -140,15 +140,20 @@ PUPPETAnalyzer::~PUPPETAnalyzer(){}
 void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
 			     const edm::EventSetup& iSetup){
 
-    edm::Handle<reco::GenParticleCollection> GenParticlesHandle;
+  edm::Handle<reco::GenParticleCollection> GenParticlesHandle;
   iEvent.getByToken(srcGenParticlesToken_, GenParticlesHandle);
 
-  for(auto GenParticle : *GenParticlesHandle){
-    if(GenParticle.pdgId() == 23){
-        GenZ_Pt_  = GenParticle.pt();
-        GenZ_Eta_ = GenParticle.eta();
-        GenZ_Phi_ = GenParticle.phi();
-        GenZ_M_   = GenParticle.mass();
+  for(auto aGenParticle : *GenParticlesHandle){
+    if(aGenParticle.pdgId() == 23){
+      GenZ_Pt_  = aGenParticle.pt();
+      GenZ_Eta_ = aGenParticle.eta();
+      GenZ_Phi_ = aGenParticle.phi();
+      GenZ_M_   = aGenParticle.mass();
+      for(unsigned int i0 = 0; i0 < aGenParticle.numberOfDaughters(); i0++) {
+        const reco::GenParticle *daughter = aGenParticle.daughterRef(i0).get();
+        if(daughter->pdgId() > 0)
+          GenZ_daughter_ = daughter->pdgId();
+      }
     }
   }  
 

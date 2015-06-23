@@ -62,6 +62,7 @@ class PUPPETAnalyzer : public JME::Analyzer
         float& GenZ_Eta_ = tree["GenZ_Eta"].write<float>();
         float& GenZ_Phi_ = tree["GenZ_Phi"].write<float>();
         float& GenZ_M_   = tree["GenZ_M"].write<float>();
+        int& GenZ_daughter_ = tree["GenZ_daughter"].write<int>();
 
         int& NGenJets_ = tree["NGenJets"].write<int>();
         int& NGenMatchedJets_ = tree["NGenMatchedJets"].write<int>();
