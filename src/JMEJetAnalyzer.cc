@@ -203,12 +203,12 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
          refdrjt.push_back(reco::deltaR(jet, *ref));
          refpdgid.push_back(ref->pdgId());
          refarea.push_back(ref->jetArea());
-		 isMatched.push_back(true);
+         isMatched.push_back(true);
      } else {
          refdrjt.push_back(0);
          refpdgid.push_back(0.);
          refarea.push_back(0.);
-		 isMatched.push_back(false);
+         isMatched.push_back(false);
      }
 
      extractGenProperties(ref);
@@ -254,19 +254,17 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
 
      jtarea.push_back(jet.jetArea());
      jtjec.push_back(jet.jecFactor(0));
-	 jtpt.push_back( jet.pt() );
-	 jteta.push_back( jet.eta() );
-
-	 float dRmin(1000);
-	 for(reco::GenJetCollection::const_iterator igen = genjets->begin();igen != genjets->end(); ++igen){
-		 float dR = deltaR(jet.eta(),jet.phi(),igen->eta(),igen->phi());
-		 if (dR < dRmin) {
-			 dRmin = dR;
-		 }
-	 }
-	 dRMatch.push_back(dRmin);
-
-
+     jtpt.push_back( jet.pt() );
+     jteta.push_back( jet.eta() );
+     
+     float dRmin(1000);
+     for(reco::GenJetCollection::const_iterator igen = genjets->begin();igen != genjets->end(); ++igen){
+         float dR = deltaR(jet.eta(),jet.phi(),igen->eta(),igen->phi());
+         if (dR < dRmin) {
+        	 dRmin = dR;
+         }
+     }
+     dRMatch.push_back(dRmin);
 
      chargedEmEnergyFraction.push_back(jet.chargedEmEnergyFraction());
      chargedHadronEnergyFraction.push_back(jet.chargedHadronEnergyFraction());
@@ -300,11 +298,11 @@ void JMEJetAnalyzer::computeBetaStar(const pat::Jet& jet, const std::vector<reco
     float beta_tmp(0.0), betaStar_tmp(0.0), betaStarClassic_tmp(0.0), betaClassic_tmp(0.0);
     float pTMax(0.0), pTMaxChg(0.0),pTMaxNeutral(0.0), dZ2(-999);
     float sumW(0.0), sumW2(0.0), sumWdR2(0.0);
-	float sum_deta(0.0),sum_dphi(0.0),sum_deta2(0.0),sum_dphi2(0.0),sum_detadphi(0.0),Teta(0.0),Tphi(0.0);
-	float ave_deta(0.0), ave_dphi(0.0);
-	float axis1(-1.0),axis2(-1.0);
-	float Ttheta_tmp(-1.0);
-	float pull_tmp(0.0);
+    float sum_deta(0.0),sum_dphi(0.0),sum_deta2(0.0),sum_dphi2(0.0),sum_detadphi(0.0),Teta(0.0),Tphi(0.0);
+    float ave_deta(0.0), ave_dphi(0.0);
+    float axis1(-1.0),axis2(-1.0);
+    float Ttheta_tmp(-1.0);
+    float pull_tmp(0.0);
 
     const size_t nRings = 9;
     float sum_rings[nRings] = {0};
@@ -326,24 +324,24 @@ void JMEJetAnalyzer::computeBetaStar(const pat::Jet& jet, const std::vector<reco
         sumWdR2      += weight2 * dR * dR;
         sumW         += weight;
         sumW2        += weight2;
-		
-		float deta = part->eta() - jet.eta();
-		//float dphi = 2*atan(tan((part->phi()-jet.phi())/2));
-		float dphi = reco::deltaPhi(*part, jet);
-		sum_deta     += deta*weight2;
-		sum_dphi     += dphi*weight2;
-		sum_deta2    += deta*deta*weight2;
-		sum_detadphi += deta*dphi*weight2;
-		sum_dphi2    += dphi*dphi*weight2;
-		Teta         += weight * dR * deta;
-		Tphi         += weight * dR * dphi;
+
+        float deta = part->eta() - jet.eta();
+        //float dphi = 2*atan(tan((part->phi()-jet.phi())/2));
+        float dphi = reco::deltaPhi(*part, jet);
+        sum_deta     += deta*weight2;
+        sum_dphi     += dphi*weight2;
+        sum_deta2    += deta*deta*weight2;
+        sum_detadphi += deta*dphi*weight2;
+        sum_dphi2    += dphi*dphi*weight2;
+        Teta         += weight * dR * deta;
+        Tphi         += weight * dR * dphi;
 
         size_t index = (int) (dR * 10);
         if (index > nRings - 1)
             index = nRings - 1;
         sum_rings[index] += weight;
 
-		if (part->pt() > pTMax) pTMax = part->pt();
+        if (part->pt() > pTMax) pTMax = part->pt();
 
         reco::CandidatePtr pfJetConstituent = jet.sourceCandidatePtr(j);
         const reco::Candidate* icand = pfJetConstituent.get();
@@ -386,10 +384,10 @@ void JMEJetAnalyzer::computeBetaStar(const pat::Jet& jet, const std::vector<reco
                 }
             }
 
-			else if (part->pt() > pTMaxNeutral)
-			{
-				pTMaxNeutral = part->pt();
-			}
+            else if (part->pt() > pTMaxNeutral)
+            {
+            	pTMaxNeutral = part->pt();
+            }
         }
     }
 
@@ -405,28 +403,28 @@ void JMEJetAnalyzer::computeBetaStar(const pat::Jet& jet, const std::vector<reco
         fRing7.push_back(sum_rings[7] / sumW);
         fRing8.push_back(sum_rings[8] / sumW);
         ptD.push_back(sqrt(sumW2) / sumW);
-		jetRneutral.push_back(pTMaxNeutral/sumW);
-		jetRchg.push_back(pTMaxChg/sumW);
-		jetR.push_back(pTMax/sumW);
-		Teta = Teta/sumW;
-		Tphi = Tphi/sumW;
-		if (Teta != 0 && Tphi !=0 ) {
-			Ttheta_tmp = atan2(Tphi,Teta);
-		}
-		ave_deta = sum_deta/sumW2;
-		ave_dphi = sum_dphi/sumW2;
-		float ave_deta2 = sum_deta2/sumW2;
-		float ave_dphi2 = sum_dphi2/sumW2;
-		float a = ave_deta2-ave_deta*ave_deta;
-		float b = ave_dphi2-ave_dphi*ave_dphi;
-		float c = -(sum_detadphi/sumW2-ave_deta*ave_dphi);
-		float delta = sqrt(fabs((a-b)*(a-b)+4*c*c));
-		if (a+b+delta > 0) {
-			axis1 = sqrt(0.5*(a+b+delta));
-		}
-		if (a+b-delta > 0) {
-			axis2 = sqrt(0.5*(a+b-delta));
-		}
+        jetRneutral.push_back(pTMaxNeutral/sumW);
+        jetRchg.push_back(pTMaxChg/sumW);
+        jetR.push_back(pTMax/sumW);
+        Teta = Teta/sumW;
+        Tphi = Tphi/sumW;
+        if (Teta != 0 && Tphi !=0 ) {
+        	Ttheta_tmp = atan2(Tphi,Teta);
+        }
+        ave_deta = sum_deta/sumW2;
+        ave_dphi = sum_dphi/sumW2;
+        float ave_deta2 = sum_deta2/sumW2;
+        float ave_dphi2 = sum_dphi2/sumW2;
+        float a = ave_deta2-ave_deta*ave_deta;
+        float b = ave_dphi2-ave_dphi*ave_dphi;
+        float c = -(sum_detadphi/sumW2-ave_deta*ave_dphi);
+        float delta = sqrt(fabs((a-b)*(a-b)+4*c*c));
+        if (a+b+delta > 0) {
+        	axis1 = sqrt(0.5*(a+b+delta));
+        }
+        if (a+b-delta > 0) {
+        	axis2 = sqrt(0.5*(a+b-delta));
+        }
     }
     else{
         DRweighted.push_back(-999);
@@ -440,9 +438,9 @@ void JMEJetAnalyzer::computeBetaStar(const pat::Jet& jet, const std::vector<reco
         fRing7.push_back(-999);
         fRing8.push_back(-999);
         ptD.push_back(-999);
-		jetRneutral.push_back(-999);
-		jetRchg.push_back(-999);
-		jetR.push_back(-999);
+        jetRneutral.push_back(-999);
+        jetRchg.push_back(-999);
+        jetR.push_back(-999);
     }
     if (sumTkPt > 0) {
         beta.push_back(beta_tmp/sumTkPt);
@@ -460,30 +458,30 @@ void JMEJetAnalyzer::computeBetaStar(const pat::Jet& jet, const std::vector<reco
     dZ.push_back(dZ2);
     nCh.push_back(nCh_tmp);
     nNeutrals.push_back(nNeutrals_tmp);
-	axisMajor.push_back(axis1);
-	axisMinor.push_back(axis2);
-	Ttheta.push_back(Ttheta_tmp);
-	nTot.push_back(jet.numberOfDaughters());
-
-	float ddetaR_sum(0.0), ddphiR_sum(0.0);
+    axisMajor.push_back(axis1);
+    axisMinor.push_back(axis2);
+    Ttheta.push_back(Ttheta_tmp);
+    nTot.push_back(jet.numberOfDaughters());
+    
+    float ddetaR_sum(0.0), ddphiR_sum(0.0);
     for (size_t i = 0; i < jet.numberOfDaughters(); i++) {
         const auto& part = jet.daughterPtr(i);
-		float weight =part->pt()*part->pt();
-		float deta = part->eta() - jet.eta();
-		float dphi = reco::deltaPhi(*part, jet);
-		float ddeta, ddphi, ddR;
-		ddeta = deta - ave_deta ;
-		ddphi = 2*atan(tan((dphi - ave_dphi)/2.)) ;
-		ddR = sqrt(ddeta*ddeta + ddphi*ddphi);
-		ddetaR_sum += ddR*ddeta*weight;
-		ddphiR_sum += ddR*ddphi*weight;
-	}
-	if (sumW2 > 0) {
-		float ddetaR_ave = ddetaR_sum/sumW2;
-		float ddphiR_ave = ddphiR_sum/sumW2;
-		pull_tmp = sqrt(ddetaR_ave*ddetaR_ave+ddphiR_ave*ddphiR_ave);
-	}
-	pull.push_back(pull_tmp);
+    	float weight =part->pt()*part->pt();
+    	float deta = part->eta() - jet.eta();
+    	float dphi = reco::deltaPhi(*part, jet);
+    	float ddeta, ddphi, ddR;
+    	ddeta = deta - ave_deta ;
+    	ddphi = 2*atan(tan((dphi - ave_dphi)/2.)) ;
+    	ddR = sqrt(ddeta*ddeta + ddphi*ddphi);
+    	ddetaR_sum += ddR*ddeta*weight;
+    	ddphiR_sum += ddR*ddphi*weight;
+    }
+    if (sumW2 > 0) {
+    	float ddetaR_ave = ddetaR_sum/sumW2;
+    	float ddphiR_ave = ddphiR_sum/sumW2;
+    	pull_tmp = sqrt(ddetaR_ave*ddetaR_ave+ddphiR_ave*ddphiR_ave);
+    }
+    pull.push_back(pull_tmp);
 }
 
 
