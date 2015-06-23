@@ -26,6 +26,8 @@ def createProcess(isMC, globalTag):
 
     process.GlobalTag.globaltag = globalTag
 
+    # FIXME: Remove this conditions once PUPPI and SK payloads are in the global tags
+    USE_ONLY_CHS_PAYLOADS = True
 
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #! Input
@@ -52,7 +54,7 @@ def createProcess(isMC, globalTag):
     #  }
 
     # Jet corrections
-    process.load('JetMETCorrections.Configuration.JetCorrectors_cff')
+    process.load('JetMETCorrections.Configuration.JetCorrectorsAllAlgos_cff')
 
     jetsCollections = {
             'AK1': {
@@ -145,7 +147,13 @@ def createProcess(isMC, globalTag):
     for name, params in jetsCollections.items():
         for index, pu_method in enumerate(params['pu_methods']):
             # Add the jet collection
-            jetToolbox(process, params['algo'], 'dummy', 'out', PUMethod = pu_method, JETCorrPayload = params['jec_payloads'][index], JETCorrLevels = params['jec_levels'], addPUJetID = False)
+
+            # FIXME: Remove once PUPPI and SK payloads are in the GT
+            jec_payload = params['jec_payloads'][index]
+            if USE_ONLY_CHS_PAYLOADS:
+                jec_payload = jec_payload.replace('PUPPI', 'chs').replace('SK', 'chs')
+
+            jetToolbox(process, params['algo'], 'dummy', 'out', PUMethod = pu_method, JETCorrPayload = jec_payload, JETCorrLevels = params['jec_levels'], addPUJetID = False)
 
             algo = params['algo'].upper()
             jetCollection = '%sPFJets%s' % (params['algo'], pu_method)
@@ -524,9 +532,14 @@ def createProcess(isMC, globalTag):
 
             print('Adding analyzer for jets collection \'%s\'' % jetCollection)
 
+            # FIXME: Remove once PUPPI and SK payloads are in the GT
+            jec_payload = params['jec_payloads'][index]
+            if USE_ONLY_CHS_PAYLOADS:
+                jec_payload = jec_payload.replace('PUPPI', 'chs').replace('SK', 'chs')
+
             analyzer = cms.EDAnalyzer('JMEJetAnalyzer',
                     JetAnalyserCommonParameters,
-                    JetCorLabel   = cms.string(params['jec_payloads'][index]),
+                    JetCorLabel   = cms.string(jec_payload),
                     JetCorLevels  = cms.vstring(params['jec_levels']),
                     srcJet        = cms.InputTag(jetCollection),
                     srcRho        = cms.InputTag('fixedGridRhoFastjetAll'),
