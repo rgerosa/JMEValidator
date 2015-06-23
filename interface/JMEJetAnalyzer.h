@@ -23,11 +23,8 @@ class JMEJetAnalyzer : public JME::PhysicsObjectAnalyzer
         std::vector<std::string> JetCorLevels_;
 
         edm::EDGetTokenT<std::vector<pat::Jet>> srcJet_;
-        edm::EDGetTokenT<double> srcRho_;
         edm::EDGetTokenT<std::vector<reco::Vertex>> srcVtx_;
         edm::EDGetTokenT<std::vector<pat::Muon>> srcMuons_;
-
-        edm::EDGetTokenT<std::vector<PileupSummaryInfo>> m_puInfoToken;
 
         bool          doComposition_;
         bool          doFlavor_;
@@ -38,11 +35,8 @@ class JMEJetAnalyzer : public JME::PhysicsObjectAnalyzer
         FactorizedJetCorrector* jetCorrector_;
 
         edm::EDGetTokenT<std::vector<reco::GenJet>> srcGenJets_;
-        edm::EDGetTokenT<GenEventInfoProduct> GenEventInfo_;
 
         // Tree branches
-        float& rho_ = tree["rho"].write<float>();
-        ULong64_t& npv = tree["npv"].write<ULong64_t>();
         std::vector<int>& refpdgid = tree["refpdgid"].write<std::vector<int>>();
         std::vector<float>& refdrjt = tree["refdrjt"].write<std::vector<float>>();
         std::vector<float>& refarea = tree["refarea"].write<std::vector<float>>();
@@ -76,10 +70,6 @@ class JMEJetAnalyzer : public JME::PhysicsObjectAnalyzer
         std::vector<float>& qg_tagger = tree["QGTagger_qgLikelihood"].write<std::vector<float>>();
         std::vector<bool>& isMatched = tree["isMatched"].write<std::vector<bool>>();
         std::vector<int>& nTot = tree["nTot"].write<std::vector<int>>();
-        int& npuIT = tree["npu"].write<int>();
-        int& npuOOT = tree["npu"].write<int>();
-        int& nTrueInt = tree["nTrueInt"].write<int>();
-        float& eventweight = tree["eventweight"].write<float>();
         std::vector<float>& dRMatch = tree["dRMatch"].write<std::vector<float>>();
         std::vector<float>& axisMajor = tree["axisMajor"].write<std::vector<float>>();
         std::vector<float>& axisMinor = tree["axisMinor"].write<std::vector<float>>();
