@@ -50,8 +50,8 @@ cmsenv
 git cms-addpkg CommonTools/PileupAlgos
 git cms-merge-topic nhanvtran:puppi-etadep-741-v4
 
-# Puppi
-git cms-merge-topic nhanvtran:puppi-etadep-741
+# Puppi inverted
+git cms-merge-topic violatingcp:pupuppi-74
 
 # E/Gamma ID
 git cms-merge-topic 9003 #this is the version that is in CMSSW_7_4_X
