@@ -26,6 +26,17 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
         nJetMax         = cms.uint32( 0),
     )
 
+    process = cms.Process("JRA")
+
+    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+    process.load("Configuration.EventContent.EventContent_cff")
+    process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+    process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+
+    process.GlobalTag.globaltag = globalTag
+
+    # FIXME: Remove this conditions once PUPPI and SK payloads are in the global tags
+    USE_ONLY_CHS_PAYLOADS = True
 
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #! Input
@@ -36,7 +47,8 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
     process.TFileService.fileName = cms.string('output_mc.root') if isMC else cms.string('output_data.root')
 
     # Jet corrections
-    process.load('JetMETCorrections.Configuration.JetCorrectors_cff')
+    process.load('JetMETCorrections.Configuration.JetCorrectorsAllAlgos_cff')
+
     # QG tagger
     process.load('RecoJets.JetProducers.QGTagger_cfi')
     # tool box
@@ -74,13 +86,18 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
     for name, params in jetsCollections.items():
         ## loop on the pileup methos
         for index, pu_method in enumerate(params['pu_methods']):
+            # Add the jet collection
+            # FIXME: Remove once PUPPI and SK payloads are in the GT
+            jec_payload = params['jec_payloads'][index]
+
+            if USE_ONLY_CHS_PAYLOADS:
+                jec_payload = jec_payload.replace('PUPPI', 'chs').replace('SK', 'chs')
+
+            jetToolbox(process, params['algo'], 'dummy', 'out', PUMethod = pu_method, JETCorrPayload = jec_payload, JETCorrLevels = params['jec_levels'], addPUJetID = False)
 
             algo          = params['algo'].upper()
             jetCollection = '%sPFJets%s' % (params['algo'], pu_method)
             postfix       = '%sPF%s' % (algo, pu_method)
-
-            # Add the jet collection via the jetToolBox
-            jetToolbox(process, params['algo'], postfix+"Sequence", 'out', PUMethod = pu_method, JETCorrPayload = params['jec_payloads'][index], JETCorrLevels = params['jec_levels'], addPUJetID = False)
 
             # FIXME: PU Jet id is not working with puppi jets or SK jets
             if params['pu_jet_id'] and pu_method != 'Puppi' and pu_method != 'SK':
@@ -379,6 +396,12 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
                 )
             )
 
+    ## Raw PF METs
+    process.load('RecoMET.METProducers.PFMET_cfi')
+    process.pfMet.src = cms.InputTag('packedPFCandidates')
+    addMETCollection(process, labelName='patPFMet', metSource='pfMet') # RAW MET
+    process.patPFMet.addGenMET = False
+
     ## CHS pat MET; raw PF is the slimmedMet in miniAOD + typeI correction
     from RecoMET.METProducers.PFMET_cfi import pfMet
     process.pfMetCHS        = pfMet.clone()
@@ -399,6 +422,24 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
     from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1
 
     ### PUPPI TypeI corrected
+    ### Standard
+    if not hasattr(process, 'ak4PFJets'):
+        print("WARNING: No AK4 jets produced. Type 1 corrections for MET are not available.")
+    else:
+        process.corrPfMetType1 = corrPfMetType1.clone(
+            src = 'ak4PFJets',
+            jetCorrLabel = 'ak4PFL1FastL2L3Corrector',
+            offsetCorrLabel = 'ak4PFL1FastjetCorrector'
+        )
+        process.pfMetT1 = pfMetT1.clone(
+            src = 'pfMet',
+            srcCorrections = [ cms.InputTag("corrPfMetType1","type1") ]
+        )
+
+        addMETCollection(process, labelName='patMET', metSource='pfMetT1') # T1 MET
+        process.patMET.addGenMET = False
+
+    ### PUPPI
     if not hasattr(process, 'ak4PFJetsPuppi'):
         print("WARNING: No AK4 puppi jets produced. Type 1 corrections for puppi MET are not available.")
     else:
@@ -429,7 +470,7 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
             srcCorrections = [ cms.InputTag("corrPfMetType1CHS","type1") ]
         )
 
-        addMETCollection(process, labelName='patMETCHS', metSource='pfMetT1CHS') # T1 puppi MET
+        addMETCollection(process, labelName='patMETCHS', metSource='pfMetT1CHS') # T1 CHS MET
         process.patMETCHS.addGenMET = False
 
 
@@ -439,8 +480,8 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
     del slimmedMETs.caloMET
 
     ### PUPPI : make slimmed METs in order to embed both corrected and not corrected one after TypeI
+    ### PUPPI
     process.slimmedMETsPuppi = slimmedMETs.clone()
-
     if hasattr(process, "patMETPuppi"):
         # Create MET from Type 1 PF collection
         process.patMETPuppi.addGenMET = True
@@ -686,6 +727,9 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
     # Muons : tight muons, DBWeight and puppiNoMu corrected
     if not runMVAPUPPETAnalysis :
 
+
+  
+
         process.muons = cms.EDAnalyzer('MuonAnalyzer',
                                        src = cms.InputTag('slimmedMuons'),
                                        vertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
@@ -699,6 +743,7 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
                                        isoValue_NH_puppiNoMuonWeighted_R04 = cms.InputTag('muPFIsoValueNHR04PUPPINoMu'),
                                        isoValue_Ph_puppiNoMuonWeighted_R04 = cms.InputTag('muPFIsoValuePhR04PUPPINoMu'))
                                        
+
         process.jmfw_analyzers += process.muons
 
         # Electrons
@@ -733,26 +778,34 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
         
         process.jmfw_analyzers += process.photons
 
-        # Jets : store the cleaned jet collection for our case
+        # Jets
         for name, params in jetsCollections.items():
             for index, pu_method in enumerate(params['pu_methods']):
 
                 algo = params['algo'].upper()
                 jetCollection = 'selectedPatJets%sPF%s' % (algo, pu_method)
-
-                analyzer = cms.EDAnalyzer('JMEJetAnalyzer',
-                                          JetAnalyserCommonParameters,
-                                          JetCorLabel   = cms.string(params['jec_payloads'][index]),
-                                          JetCorLevels  = cms.vstring(params['jec_levels']),
-                                          srcJet        = cms.InputTag(jetCollection),
-                                          srcRho        = cms.InputTag('fixedGridRhoFastjetAll'),
-                                          srcVtx        = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                                          srcMuons      = cms.InputTag('selectedPatMuons')
-                                          )
                 
-                setattr(process, params['jec_payloads'][index], analyzer)
+                print('Adding analyzer for jets collection \'%s\'' % jetCollection)
                 
-                process.jmfw_analyzers += analyzer
+            # FIXME: Remove once PUPPI and SK payloads are in the GT
+                jec_payload = params['jec_payloads'][index]
+                if USE_ONLY_CHS_PAYLOADS:
+                    jec_payload = jec_payload.replace('PUPPI', 'chs').replace('SK', 'chs')
+                    
+                    analyzer = cms.EDAnalyzer('JMEJetAnalyzer',
+                                              JetAnalyserCommonParameters,
+                                              JetCorLabel   = cms.string(jec_payload),
+                                              JetCorLevels  = cms.vstring(params['jec_levels']),
+                                              srcJet        = cms.InputTag(jetCollection),
+                                              srcRho        = cms.InputTag('fixedGridRhoFastjetAll'),
+                                              srcVtx        = cms.InputTag('offlineSlimmedPrimaryVertices'),
+                                              srcMuons      = cms.InputTag('selectedPatMuons')
+                                              )
+                    
+                    setattr(process, params['jec_payloads'][index], analyzer)
+                    
+                    process.jmfw_analyzers += analyzer
+                    
 
 
       # MET
