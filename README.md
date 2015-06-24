@@ -51,7 +51,7 @@ git cms-addpkg CommonTools/PileupAlgos
 git cms-merge-topic nhanvtran:puppi-etadep-741-v4
 
 # Puppi inverted
-git cms-merge-topic violatingcp:pupuppi-74
+git cms-merge-topic violatingcp:pupuppi-741
 
 # E/Gamma ID
 git cms-merge-topic 9003 #this is the version that is in CMSSW_7_4_X
@@ -65,7 +65,13 @@ git clone git@github.com:blinkseb/JetToolbox.git JMEAnalysis/JetToolbox -b jetTo
 git clone git@github.com:blinkseb/TreeWrapper.git JMEAnalysis/TreeWrapper
 git clone git@github.com:rgerosa/JMEValidator.git JMEAnalysis/JMEValidator -b PUPPETMVAMet
 
-scram b -j8
+# merge with 74X branch
+cd JMEAnalysis/JMEValidator
+git remote add  upsteam git@github.com:cms-jet/JMEValidator.git
+git fetch upstream
+git merge upstream/CMSSW_7_4_X
+
+scram b -j 8
 
 cd JMEAnalysis/JMEValidator/test
 cmsRun runFramework.py
