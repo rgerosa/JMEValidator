@@ -329,7 +329,7 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
                                          muonCollection     = "slimmedMuons"+muonTypeID,
                                          electronCollection = "slimmedElectrons"+electronTypeID,
                                          tauCollection      = "slimmedTaus"+tauTypeID,
-                                         jetPtCut   = 15.,
+                                         jetPtCut   = 30.,
                                          jetEtaCut  = 5.,
                                          dRCleaning = 0.3) 
                 else:
@@ -339,7 +339,7 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
                                          muonCollection     = "slimmedMuons"+muonTypeID,
                                          electronCollection = "slimmedElectrons"+electronTypeID,
                                          tauCollection      = "",
-                                         jetPtCut   = 15.,
+                                         jetPtCut   = 30.,
                                          jetEtaCut  = 5.,
                                          dRCleaning = 0.3) 
 
