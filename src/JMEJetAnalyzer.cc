@@ -199,7 +199,7 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
      extractBasicProperties(jet);
 
      jtarea.push_back(jet.jetArea());
-     jtjec.push_back(jet.jecFactor(0));
+     jtjec.push_back(jet.jecSetsAvailable() ? jet.jecFactor(0) : 1);
      jtpt.push_back( jet.pt() );
      jteta.push_back( jet.eta() );
      
