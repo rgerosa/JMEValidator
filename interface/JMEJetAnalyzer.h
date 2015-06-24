@@ -44,8 +44,6 @@ class JMEJetAnalyzer : public JME::PhysicsObjectAnalyzer
         std::vector<int8_t>&   hadronFlavor = tree["hadronFlavor"].write<std::vector<int8_t>>();
         std::vector<float>& jtarea = tree["jtarea"].write<std::vector<float>>();
         std::vector<float>& jtjec = tree["jtjec"].write<std::vector<float>>();
-        std::vector<float>& jtpt = tree["jtpt"].write<std::vector<float>>();
-        std::vector<float>& jteta = tree["jteta"].write<std::vector<float>>();
         std::vector<float>& beta = tree["beta"].write<std::vector<float>>();
         std::vector<float>& betaStar = tree["betaStar"].write<std::vector<float>>();
         std::vector<float>& betaClassic = tree["betaClassic"].write<std::vector<float>>();
@@ -68,7 +66,6 @@ class JMEJetAnalyzer : public JME::PhysicsObjectAnalyzer
         std::vector<int>& pujetid_cutbasedid = tree["PUJetId_cutBasedId"].write<std::vector<int>>();
         std::vector<int>& pujetid_fullid = tree["PUJetId_fullId"].write<std::vector<int>>();
         std::vector<float>& qg_tagger = tree["QGTagger_qgLikelihood"].write<std::vector<float>>();
-        std::vector<bool>& isMatched = tree["isMatched"].write<std::vector<bool>>();
         std::vector<int>& nTot = tree["nTot"].write<std::vector<int>>();
         std::vector<float>& dRMatch = tree["dRMatch"].write<std::vector<float>>();
         std::vector<float>& axisMajor = tree["axisMajor"].write<std::vector<float>>();

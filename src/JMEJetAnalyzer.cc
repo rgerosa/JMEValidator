@@ -149,12 +149,10 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
          refdrjt.push_back(reco::deltaR(jet, *ref));
          refpdgid.push_back(ref->pdgId());
          refarea.push_back(ref->jetArea());
-         isMatched.push_back(true);
      } else {
          refdrjt.push_back(0);
          refpdgid.push_back(0.);
          refarea.push_back(0.);
-         isMatched.push_back(false);
      }
 
      extractGenProperties(ref);
@@ -200,8 +198,6 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
 
      jtarea.push_back(jet.jetArea());
      jtjec.push_back(jet.jecSetsAvailable() ? jet.jecFactor(0) : 1);
-     jtpt.push_back( jet.pt() );
-     jteta.push_back( jet.eta() );
      
      float dRmin(1000);
      for(reco::GenJetCollection::const_iterator igen = genjets->begin();igen != genjets->end(); ++igen){
