@@ -1,6 +1,51 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.tauTools import *
 
+def get_cone_size(algo):
+    import re
+    cone_size = re.search('(\d+)$', algo)
+    if cone_size is None:
+        raise ValueError('Cannot extract cone size from algorithm name')
+    
+    return int(cone_size.group(1))
+
+def get_jec_payload(algo, pu_method):
+    
+    # FIXME: Until PUPPI and SK payloads are in the GT, use CHS corrections
+    jec_payloads = {
+                'Puppi': 'AK%dPFchs',
+                'CHS': 'AK%dPFchs',
+                'SK': 'AK%dPFchs',
+                '': 'AK%dPF',
+                }
+    
+    
+    cone_size = get_cone_size(algo)
+    
+    if not pu_method in jec_payloads:
+        print('WARNING: JEC payload not found for method %r. Using default one.' % pu_method)
+        return 'None'
+    
+    return jec_payloads[pu_method] % cone_size
+
+def get_jec_levels(pu_method):
+    
+    jec_levels = {
+        'Puppi': ['L2Relative', 'L3Absolute'],
+        'CHS': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+        'SK': ['L2Relative', 'L3Absolute'],
+        '': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+        }
+    
+    
+    if not pu_method in jec_levels:
+        print('WARNING: JEC levels not found for method %r. Using default ones.' % pu_method)
+        return ['None']
+    
+    return jec_levels[pu_method]
+
+
+
 def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, electronTypeID, tauTypeID, dropAnalyzerDumpEDM, runMVAPUPPETAnalysis):
 
     process = cms.Process("JRA")
@@ -35,8 +80,6 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
 
     process.GlobalTag.globaltag = globalTag
 
-    # FIXME: Remove this conditions once PUPPI and SK payloads are in the global tags
-    USE_ONLY_CHS_PAYLOADS = True
 
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #! Input
@@ -65,8 +108,6 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
     #  "name": {
     #      "algo": string ; the jet algorithm to use
     #      "pu_methods" : array of strings ; which PU method to use
-    #      "jec_payloads" : array of strings ; which JEC payload to use for making the JEC. The size must match the size of pu_methods
-    #      "jec_levels" : array of strings ; which JEC levels to apply
     #      "pu_jet_id": run the pu jet id or not. Very time consuming
     #  }
 
@@ -79,21 +120,21 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
                 'pu_jet_id': True,
                 'qg_tagger': True,
                 },
-            }
-    
+             }
+
+    # Jet corrections
+    process.load('JetMETCorrections.Configuration.JetCorrectorsAllAlgos_cff')
 
     ## loop on the jet collections : generic container just defined by clustering algorithm and cone dimension
     for name, params in jetsCollections.items():
         ## loop on the pileup methos
         for index, pu_method in enumerate(params['pu_methods']):
             # Add the jet collection
-            # FIXME: Remove once PUPPI and SK payloads are in the GT
-            jec_payload = params['jec_payloads'][index]
 
-            if USE_ONLY_CHS_PAYLOADS:
-                jec_payload = jec_payload.replace('PUPPI', 'chs').replace('SK', 'chs')
+            jec_payload = get_jec_payload(params['algo'], pu_method)
+            jec_levels  = get_jec_levels(pu_method)
 
-            jetToolbox(process, params['algo'], 'dummy', 'out', PUMethod = pu_method, JETCorrPayload = jec_payload, JETCorrLevels = params['jec_levels'], addPUJetID = False)
+            jetToolbox(process, params['algo'], 'dummy', 'out', PUMethod = pu_method, JETCorrPayload = jec_payload, JETCorrLevels = jec_levels, addPUJetID = False)
 
             algo          = params['algo'].upper()
             jetCollection = '%sPFJets%s' % (params['algo'], pu_method)
@@ -341,22 +382,28 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
 
                 if tauTypeID != "":
 
+                    process.selectedPatJetsAK4PFPuppi.cut = cms.string('pt > 20')
+                    process.selectedPatJetsAK4PFCHS.cut = cms.string('pt > 20')
+
                     cleanJetsFromLeptons(process,"Cleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID+"Tau"+tauTypeID,                                 
                                          jetCollection      = "selectedPatJets"+postfix,
                                          muonCollection     = "slimmedMuons"+muonTypeID,
                                          electronCollection = "slimmedElectrons"+electronTypeID,
-                                         tauCollection      = "slimmedTaus"+tauTypeID,
-                                         jetPtCut   = 30.,
+                                         tauCollection      = "slimmedTaus"+tauTypeID+"Cleaned",
+                                         jetPtCut   = 20.,
                                          jetEtaCut  = 5.,
                                          dRCleaning = 0.3) 
                 else:
+
+                    process.selectedPatJetsAK4PFPuppi.cut = cms.string('pt > 20')
+                    process.selectedPatJetsAK4PFCHS.cut = cms.string('pt > 20')
 
                     cleanJetsFromLeptons(process,"Cleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID,                                 
                                          jetCollection      = "selectedPatJets"+postfix,
                                          muonCollection     = "slimmedMuons"+muonTypeID,
                                          electronCollection = "slimmedElectrons"+electronTypeID,
                                          tauCollection      = "",
-                                         jetPtCut   = 30.,
+                                         jetPtCut   = 20.,
                                          jetEtaCut  = 5.,
                                          dRCleaning = 0.3) 
 
@@ -524,8 +571,7 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
         ## all charge particles from PUPPI : hadrons + leptons (e,mu,tau) --> trak met
         process.pfAllChargedParticlesPuppi = cms.EDFilter("CandPtrSelector",
                                                           src = cms.InputTag("puppi"),
-                                                          cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 22\
-12 || pdgId == -2212 || pdgId == 11 || pdgId == -11 || pdgId == 13 || pdgId ==-13 || pdgId == 15 || pdgId == -15"))
+                                                          cut = cms.string("charge !=0"))
         
         process.pfMetPuppiChargedPV       = pfMet.clone()
         process.pfMetPuppiChargedPV.src   = cms.InputTag("pfAllChargedParticlesPuppi") ## packed candidates without fromPV < 1
@@ -555,7 +601,7 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
         
         ## neutral particles from PV starting from puppi particles
         process.pfAllNeutralParticlesPuppi  = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppi"), 
-                                                           cut = cms.string("pdgId == 22 || pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
+                                                           cut = cms.string("charge=0"))
         
         
         process.pfMetPuppiNeutralPV       = pfMet.clone() 
@@ -574,7 +620,7 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
 
         ## neutral particles from PU starting from inverted puppi particles
         process.pfAllNeutralParticlesPuppiPU  = cms.EDFilter("CandPtrSelector", src = cms.InputTag("pupuppi"), 
-                                                             cut = cms.string("pdgId == 22 || pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
+                                                             cut = cms.string("charge=0"))
     
         
         process.pfMetPuppiNeutralPU       = pfMet.clone() 
@@ -611,7 +657,7 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
         if tauTypeID != "":
 
             setattr(process,"ZdiTau"+tauTypeID,cms.EDProducer("CandViewCombiner",
-                                                              decay       = cms.string("slimmedTaus"+tauTypeID+"@+ "+"slimmedTaus"+tauTypeID+"@-"),
+                                                              decay       = cms.string("slimmedTaus"+tauTypeID+"Cleaned@+ "+"slimmedTaus"+tauTypeID+"Cleaned@-"),
                                                               checkCharge = cms.bool(True),
                                                               cut         = cms.string("mass > 70 && mass < 110 & charge=0"),                                               
                                                               ))
@@ -644,7 +690,7 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
         ## now merge all the previous leptons in one single collection and ask for no more than 2 tight leptons
         if tauTypeID != "" :
             setattr(process,"LeptonMerge", cms.EDProducer("CandViewMerger",
-                                                          src = cms.VInputTag("slimmedMuons"+muonTypeID,"slimmedElectrons"+electronTypeID,"slimmedTaus"+tauTypeID)
+                                                          src = cms.VInputTag("slimmedMuons"+muonTypeID,"slimmedElectrons"+electronTypeID,"slimmedTaus"+tauTypeID+"Cleaned")
                                                           ))
 
         else:
@@ -787,34 +833,39 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
                 
                 print('Adding analyzer for jets collection \'%s\'' % jetCollection)
                 
-            # FIXME: Remove once PUPPI and SK payloads are in the GT
-                jec_payload = params['jec_payloads'][index]
-                if USE_ONLY_CHS_PAYLOADS:
-                    jec_payload = jec_payload.replace('PUPPI', 'chs').replace('SK', 'chs')
-                    
-                    analyzer = cms.EDAnalyzer('JMEJetAnalyzer',
-                                              JetAnalyserCommonParameters,
-                                              JetCorLabel   = cms.string(jec_payload),
-                                              JetCorLevels  = cms.vstring(params['jec_levels']),
-                                              srcJet        = cms.InputTag(jetCollection),
-                                              srcRho        = cms.InputTag('fixedGridRhoFastjetAll'),
-                                              srcVtx        = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                                              srcMuons      = cms.InputTag('selectedPatMuons')
-                                              )
-                    
-                    setattr(process, params['jec_payloads'][index], analyzer)
-                    
-                    process.jmfw_analyzers += analyzer
-                    
+                 # FIXME: Remove once PUPPI and SK payloads are in the GT
+                jec_payload = get_jec_payload(algo, pu_method)
+                jec_levels = get_jec_levels(pu_method)
 
-
-      # MET
+                if jec_payload == 'None':
+                    jec_payload = '';
+                    
+                if jec_levels == ['None']:
+                    jec_levels = []
+                    
+                analyzer = cms.EDAnalyzer('JMEJetAnalyzer',
+                                          JetAnalyserCommonParameters,
+                                          JetCorLabel   = cms.string(jec_payload),
+                                          JetCorLevels  = cms.vstring(params['jec_levels']),
+                                          srcJet        = cms.InputTag(jetCollection),
+                                          srcRho        = cms.InputTag('fixedGridRhoFastjetAll'),
+                                          srcVtx        = cms.InputTag('offlineSlimmedPrimaryVertices'),
+                                          srcMuons      = cms.InputTag('selectedPatMuons')
+                                          )
+                
+                setattr(process, params['jec_payloads'][index], analyzer)
+                
+                process.jmfw_analyzers += analyzer
+                
+                
+                
+        # MET
         process.met_chs = cms.EDAnalyzer('JMEMETAnalyzer',
                                          src = cms.InputTag('slimmedMETsCHS', '', 'JRA'),
                                          caloMET = cms.InputTag('slimmedMETs', '', 'PAT')
                                          )
         process.jmfw_analyzers += process.met_chs
-        
+            
         process.met_puppi = cms.EDAnalyzer('JMEMETAnalyzer',
                                            src = cms.InputTag('slimmedMETsPuppi', '', 'JRA'),
                                            caloMET = cms.InputTag('slimmedMETsPuppi', '', 'PAT')
