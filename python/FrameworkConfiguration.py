@@ -26,8 +26,6 @@ def createProcess(isMC, globalTag):
 
     process.GlobalTag.globaltag = globalTag
 
-    # FIXME: Remove this conditions once PUPPI and SK payloads are in the global tags
-    USE_ONLY_CHS_PAYLOADS = True
 
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #! Input
@@ -48,44 +46,77 @@ def createProcess(isMC, globalTag):
     #  "name": {
     #      "algo": string ; the jet algorithm to use
     #      "pu_methods" : array of strings ; which PU method to use
-    #      "jec_payloads" : array of strings ; which JEC payload to use for making the JEC. The size must match the size of pu_methods
-    #      "jec_levels" : array of strings ; which JEC levels to apply
     #      "pu_jet_id": run the pu jet id or not. Very time consuming
     #  }
 
     # Jet corrections
     process.load('JetMETCorrections.Configuration.JetCorrectorsAllAlgos_cff')
 
+    def get_cone_size(algo):
+        import re
+        cone_size = re.search('(\d+)$', algo)
+        if cone_size is None:
+            raise ValueError('Cannot extract cone size from algorithm name')
+
+        return int(cone_size.group(1))
+
+    def get_jec_payload(algo, pu_method):
+
+        # FIXME: Until PUPPI and SK payloads are in the GT, use CHS corrections
+        jec_payloads = {
+                'Puppi': 'AK%dPFchs',
+                'CHS': 'AK%dPFchs',
+                'SK': 'AK%dPFchs',
+                '': 'AK%dPF',
+                }
+
+
+        cone_size = get_cone_size(algo)
+
+        if not pu_method in jec_payloads:
+            print('WARNING: JEC payload not found for method %r. Using default one.' % pu_method)
+            return 'None'
+
+        return jec_payloads[pu_method] % cone_size
+
+    def get_jec_levels(pu_method):
+
+        jec_levels = {
+                'Puppi': ['L2Relative', 'L3Absolute'],
+                'CHS': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+                'SK': ['L2Relative', 'L3Absolute'],
+                '': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+                }
+
+
+        if not pu_method in jec_levels:
+            print('WARNING: JEC levels not found for method %r. Using default ones.' % pu_method)
+            return ['None']
+
+        return jec_levels[pu_method]
+
     jetsCollections = {
             'AK1': {
                 'algo': 'ak1',
                 'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK1PFPUPPI', 'AK1PFchs', 'AK1PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
                 'pu_jet_id': False,
                 },
 
             'AK2': {
                 'algo': 'ak2',
                 'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK2PFPUPPI', 'AK2PFchs', 'AK2PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
                 'pu_jet_id': False,
                 },
 
             'AK3': {
                 'algo': 'ak3',
                 'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK3PFPUPPI', 'AK3PFchs', 'AK3PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
                 'pu_jet_id': False,
                 },
 
             'AK4': {
                 'algo': 'ak4',
                 'pu_methods': ['Puppi', 'CHS', 'SK', ''],
-                'jec_payloads': ['AK4PFPUPPI', 'AK4PFchs', 'AK4PFSK', 'AK4PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
                 'pu_jet_id': True,
                 'qg_tagger': True,
                 },
@@ -93,48 +124,36 @@ def createProcess(isMC, globalTag):
             'AK5': {
                 'algo': 'ak5',
                 'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK5PFPUPPI', 'AK5PFchs', 'AK5PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
                 'pu_jet_id': False,
                 },
 
             'AK6': {
                 'algo': 'ak6',
                 'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK6PFPUPPI', 'AK6PFchs', 'AK6PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
                 'pu_jet_id': False,
                 },
 
             'AK7': {
                 'algo': 'ak7',
                 'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK7PFPUPPI', 'AK7PFchs', 'AK7PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
                 'pu_jet_id': False,
                 },
 
             'AK8': {
                 'algo': 'ak8',
                 'pu_methods': ['Puppi', 'CHS', 'SK', ''],
-                'jec_payloads': ['AK8PFPUPPI', 'AK8PFchs', 'AK8PFSK', 'AK8PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
                 'pu_jet_id': False,
                 },
 
             'AK9': {
                 'algo': 'ak9',
                 'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK9PFPUPPI', 'AK9PFchs', 'AK9PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
                 'pu_jet_id': False,
                 },
 
             'AK10': {
                 'algo': 'ak10',
                 'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK10PFPUPPI', 'AK10PFchs', 'AK10PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
                 'pu_jet_id': False,
                 },
             }
@@ -148,12 +167,10 @@ def createProcess(isMC, globalTag):
         for index, pu_method in enumerate(params['pu_methods']):
             # Add the jet collection
 
-            # FIXME: Remove once PUPPI and SK payloads are in the GT
-            jec_payload = params['jec_payloads'][index]
-            if USE_ONLY_CHS_PAYLOADS:
-                jec_payload = jec_payload.replace('PUPPI', 'chs').replace('SK', 'chs')
+            jec_payload = get_jec_payload(params['algo'], pu_method)
+            jec_levels = get_jec_levels(pu_method)
 
-            jetToolbox(process, params['algo'], 'dummy', 'out', PUMethod = pu_method, JETCorrPayload = jec_payload, JETCorrLevels = params['jec_levels'], addPUJetID = False)
+            jetToolbox(process, params['algo'], 'dummy', 'out', PUMethod = pu_method, JETCorrPayload = jec_payload, JETCorrLevels = jec_levels, addPUJetID = False)
 
             algo = params['algo'].upper()
             jetCollection = '%sPFJets%s' % (params['algo'], pu_method)
@@ -533,14 +550,19 @@ def createProcess(isMC, globalTag):
             print('Adding analyzer for jets collection \'%s\'' % jetCollection)
 
             # FIXME: Remove once PUPPI and SK payloads are in the GT
-            jec_payload = params['jec_payloads'][index]
-            if USE_ONLY_CHS_PAYLOADS:
-                jec_payload = jec_payload.replace('PUPPI', 'chs').replace('SK', 'chs')
+            jec_payload = get_jec_payload(algo, pu_method)
+            jec_levels = get_jec_levels(pu_method)
+
+            if jec_payload == 'None':
+                jec_payload = ''
+
+            if jec_levels == ['None']:
+                jec_levels = []
 
             analyzer = cms.EDAnalyzer('JMEJetAnalyzer',
                     JetAnalyserCommonParameters,
                     JetCorLabel   = cms.string(jec_payload),
-                    JetCorLevels  = cms.vstring(params['jec_levels']),
+                    JetCorLevels  = cms.vstring(jec_levels),
                     srcJet        = cms.InputTag(jetCollection),
                     srcRho        = cms.InputTag('fixedGridRhoFastjetAll'),
                     srcVtx        = cms.InputTag('offlineSlimmedPrimaryVertices'),
@@ -548,7 +570,8 @@ def createProcess(isMC, globalTag):
                     genjets       = cms.InputTag('slimmedGenJets'),
                     )
 
-            setattr(process, params['jec_payloads'][index], analyzer)
+            name = (algo + 'PF' + pu_method).upper()
+            setattr(process, name, analyzer)
 
             process.jmfw_analyzers += analyzer
 
