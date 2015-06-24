@@ -19,12 +19,9 @@ git cms-merge-topic nhanvtran:puppi-etadep-741-v4
 # Puppi inverted
 git cms-merge-topic violatingcp:pupuppi-741
 
+
 # E/Gamma ID
-git cms-merge-topic 9003 #this is the version that is in CMSSW_7_4_X
-rm -rf RecoEgamma/ElectronIdentification/data
-git clone https://github.com/cms-data/RecoEgamma-ElectronIdentification.git RecoEgamma/ElectronIdentification/data
-rm -rf RecoEgamma/PhotonIdentification/data
-git clone https://github.com/cms-data/RecoEgamma-PhotonIdentification.git RecoEgamma/PhotonIdentification/data
+git cms-merge-topic ikrav:egm_id_74X_v0
 
 # Framework
 git clone git@github.com:cms-jet/JetToolbox.git JMEAnalysis/JetToolbox -b jetToolbox_74X
@@ -54,11 +51,7 @@ git cms-merge-topic nhanvtran:puppi-etadep-741-v4
 git cms-merge-topic violatingcp:pupuppi-741
 
 # E/Gamma ID
-git cms-merge-topic 9003 #this is the version that is in CMSSW_7_4_X
-rm -rf RecoEgamma/ElectronIdentification/data
-git clone https://github.com/cms-data/RecoEgamma-ElectronIdentification.git RecoEgamma/ElectronIdentification/data
-rm -rf RecoEgamma/PhotonIdentification/data
-git clone https://github.com/cms-data/RecoEgamma-PhotonIdentification.git RecoEgamma/PhotonIdentification/data
+git cms-merge-topic ikrav:egm_id_74X_v0
 
 # Framework
 git clone git@github.com:blinkseb/JetToolbox.git JMEAnalysis/JetToolbox -b jetToolbox_74X
@@ -67,7 +60,7 @@ git clone git@github.com:rgerosa/JMEValidator.git JMEAnalysis/JMEValidator -b PU
 
 # merge with 74X branch
 cd JMEAnalysis/JMEValidator
-git remote add  upsteam git@github.com:cms-jet/JMEValidator.git
+git remote add  upstream git@github.com:cms-jet/JMEValidator.git
 git fetch upstream
 git merge upstream/CMSSW_7_4_X
 
