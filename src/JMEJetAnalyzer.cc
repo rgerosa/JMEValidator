@@ -223,6 +223,9 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
   for (size_t iGenJet = 0; iGenJet < genjets -> size(); iGenJet++) {
 
     const reco::GenJet & genjet = genjets->at(iGenJet)  ;
+
+    if( genjet.pt () < 5 ) continue ;
+
     bool b_genjet_hasMatchedRecoJet = false ;
 
     for (size_t iJet = 0; iJet < nJet; iJet++) {
