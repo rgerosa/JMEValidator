@@ -125,7 +125,6 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
   // // EVENT DATA HANDLES
   edm::Handle<reco::CandidateView>               refs;
   edm::Handle<std::vector<pat::Jet> >            jets;
-  edm::Handle<std::vector<reco::GenJet> >            genjets;
   edm::Handle<std::vector<reco::Vertex>>         vtx;
   edm::Handle<edm::View<pat::Muon> >             muons;
   edm::Handle<reco::GenJetCollection>            genjets;
@@ -135,8 +134,6 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
   // REFERENCES & RECOJETS
   iEvent.getByToken(srcJet_, jets);
   iEvent.getByToken(srcGenJet_, genjets);
-  
-  iEvent.getByToken(srcGenJets_,genjets);
 
   //loop over the jets and fill the ntuple
   size_t nJet = (nJetMax_ == 0) ? jets->size() : std::min(nJetMax_, (unsigned int) jets->size());
