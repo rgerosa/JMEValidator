@@ -564,6 +564,7 @@ def createProcess(isMC, globalTag):
                     JetCorLabel   = cms.string(jec_payload),
                     JetCorLevels  = cms.vstring(jec_levels),
                     srcJet        = cms.InputTag(jetCollection),
+                    srcGenJet      = cms.InputTag( params['algo']+'GenJetsNoNu'),
                     srcRho        = cms.InputTag('fixedGridRhoFastjetAll'),
                     srcVtx        = cms.InputTag('offlineSlimmedPrimaryVertices'),
                     srcMuons      = cms.InputTag('selectedPatMuons')
