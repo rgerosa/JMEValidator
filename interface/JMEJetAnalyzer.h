@@ -35,6 +35,8 @@ class JMEJetAnalyzer : public JME::PhysicsObjectAnalyzer
         double        deltaRPartonMax_;
         FactorizedJetCorrector* jetCorrector_;
 
+        edm::EDGetTokenT<std::vector<reco::GenJet>> srcGenJets_;
+
         // Tree branches
         std::vector<int>& refpdgid = tree["refpdgid"].write<std::vector<int>>();
         std::vector<float>& refdrjt = tree["refdrjt"].write<std::vector<float>>();
@@ -65,6 +67,15 @@ class JMEJetAnalyzer : public JME::PhysicsObjectAnalyzer
         std::vector<int>& pujetid_cutbasedid = tree["PUJetId_cutBasedId"].write<std::vector<int>>();
         std::vector<int>& pujetid_fullid = tree["PUJetId_fullId"].write<std::vector<int>>();
         std::vector<float>& qg_tagger = tree["QGTagger_qgLikelihood"].write<std::vector<float>>();
+        std::vector<int>& nTot = tree["nTot"].write<std::vector<int>>();
+        std::vector<float>& dRMatch = tree["dRMatch"].write<std::vector<float>>();
+        std::vector<float>& axisMajor = tree["axisMajor"].write<std::vector<float>>();
+        std::vector<float>& axisMinor = tree["axisMinor"].write<std::vector<float>>();
+        std::vector<float>& pull = tree["pull"].write<std::vector<float>>();
+        std::vector<float>& jetRneutral = tree["jetRneutral"].write<std::vector<float>>();
+        std::vector<float>& jetRchg = tree["jetRchg"].write<std::vector<float>>();
+        std::vector<float>& jetR = tree["jetR"].write<std::vector<float>>();
+        std::vector<float>& Ttheta = tree["Ttheta"].write<std::vector<float>>();
 
         std::vector<float>& chargedEmEnergyFraction = tree["chargedEmEnergyFraction"].write<std::vector<float>>();
         std::vector<float>& chargedHadronEnergyFraction = tree["chargedHadronEnergyFraction"].write<std::vector<float>>();

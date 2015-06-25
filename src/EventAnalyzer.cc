@@ -1,4 +1,5 @@
 #include "JMEAnalysis/JMEValidator/interface/EventAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 EventAnalyzer::EventAnalyzer(const edm::ParameterSet& iConfig): JME::Analyzer(iConfig),
     rhoToken_        (consumes<double>(iConfig.getParameter<edm::InputTag>("rho"))),
@@ -73,6 +74,12 @@ void EventAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   event = iEvent.id().event();
 
   // MC PILEUP INFORMATION
+  nTrueInt=-999;
+  npuIT = 0;
+  npuOOT = 0;
+  int InTimePileUpInfo_index=-999;
+  bool isInTimePileUpInfo=false;
+  unsigned int i=0;
   if (iEvent.getByToken(puInfoToken_, puInfos)) {
      for (const auto& pu: *puInfos) {
         npus.push_back(pu.getPU_NumInteractions());
@@ -102,6 +109,22 @@ void EventAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         ntrks_highpt_.push_back(ntrkshighpt);
 
         pu_zpositions_.push_back(pu.getPU_zpositions());
+
+       if(pu.getBunchCrossing()==0){
+        	npuIT = pu.getPU_NumInteractions();
+        	InTimePileUpInfo_index=i;
+        	isInTimePileUpInfo = true;
+        }
+        else{
+        	npuOOT += pu.getPU_NumInteractions();
+        }
+		i++;
+     }
+     if(!isInTimePileUpInfo){
+         edm::LogError("NoInTimePileUpInfo") << "Cannot find the in-time pileup info ";
+     }
+     else{
+         nTrueInt=(*puInfos)[InTimePileUpInfo_index].getPU_NumInteractions();
      }
   }
 

@@ -567,7 +567,8 @@ def createProcess(isMC, globalTag):
                     srcGenJet      = cms.InputTag( params['algo']+'GenJetsNoNu'),
                     srcRho        = cms.InputTag('fixedGridRhoFastjetAll'),
                     srcVtx        = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                    srcMuons      = cms.InputTag('selectedPatMuons')
+                    srcMuons      = cms.InputTag('selectedPatMuons'),
+                    genjets       = cms.InputTag('slimmedGenJets'),
                     )
 
             name = (algo + 'PF' + pu_method).upper()
