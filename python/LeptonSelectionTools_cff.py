@@ -50,7 +50,7 @@ def applyElectronID(process,
                     typeIsoVal = 0 ## inter number to identify the type of isolation to be used in the lepton ID 
                     ):
 
-  if "Tight" in label or "tight" in label :
+  if "Tight" in label or "tight" in label  or "Medium" in label or "medium" in label  :
     relativeIsolationCutVal = 0.13
   else:
     relativeIsolationCutVal = 0.20
@@ -192,3 +192,31 @@ def cleanJetsFromLeptons (process,
                                                                          requireNoOverlaps   = cms.bool(True))) 
 
   setattr(process,jetCollection+label,jetsNotOverlappingWithLeptons);
+
+
+def cleanGenJetsFromGenLeptons (process, 
+                                jetCollection    = "",
+                                genLeptonCollection = "",
+                                jetPtCut         = 10,
+                                jetEtaCut        = 5,
+                                dRCleaning       = 0.3):
+
+
+  jetsNotOverlappingWithLeptons =  cms.EDProducer("PATJetCleaner",
+                                                  src = cms.InputTag(jetCollection),
+                                                  preselection = cms.string(''),
+                                                  checkOverlaps = cms.PSet(),
+                                                  finalCut = cms.string(('pt > %f && abs(eta) < %f')%(jetPtCut,jetEtaCut))
+                                                  )
+
+
+  setattr(jetsNotOverlappingWithLeptons.checkOverlaps,"muons",cms.PSet( src = cms.InputTag(genLeptonCollection),
+                                                                        algorithm = cms.string("byDeltaR"),
+                                                                        preselection        = cms.string(""),
+                                                                        deltaR              = cms.double(dRCleaning),
+                                                                        checkRecoComponents = cms.bool(False),
+                                                                        pairCut             = cms.string(""),
+                                                                        requireNoOverlaps   = cms.bool(True)))
+
+
+  setattr(process,jetCollection+"Cleaned",jetsNotOverlappingWithLeptons);

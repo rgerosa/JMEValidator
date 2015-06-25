@@ -46,7 +46,7 @@ def get_jec_levels(pu_method):
 
 
 
-def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, electronTypeID, tauTypeID, dropAnalyzerDumpEDM, runMVAPUPPETAnalysis):
+def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, electronTypeID, tauTypeID, dropAnalyzerDumpEDM, runMVAPUPPETAnalysis,applyZSelections):
 
     process = cms.Process("JRA")
 
@@ -370,42 +370,71 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
     ##################
     ### clean jets ###
     ##################
+
+    ## define gen leptons (muons and electrons)\        
+    process.packedGenLeptons = cms.EDFilter("CandPtrSelector",
+                                            cut = cms.string('abs(pdgId) = 11 && abs(pdgId) = 13'),
+                                            src = cms.InputTag("packedGenParticles")
+                                            )
+    
+
         
     if runMVAPUPPETAnalysis :
 
-        from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import cleanJetsFromLeptons
+        from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import cleanJetsFromLeptons, cleanGenJetsFromGenLeptons
 
         for name, params in jetsCollections.items():
         ## loop on the pileup methos                                                                                                                                            
             for index, pu_method in enumerate(params['pu_methods']):
                 postfix       = '%sPF%s' % (algo, pu_method)
 
-                if tauTypeID != "":
+                setattr(getattr(process,"selectedPatJets"+postfix),"cut",cms.string('pt > 10'))
+                
+                cleanJetsFromLeptons(process,"Cleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID,                                 
+                                     jetCollection      = "selectedPatJets"+postfix,
+                                     muonCollection     = "slimmedMuons"+muonTypeID,
+                                     electronCollection = "slimmedElectrons"+electronTypeID,
+                                     tauCollection      = "",
+                                     jetPtCut   = 30.,
+                                     jetEtaCut  = 5.,
+                                     dRCleaning = 0.3) 
 
-                    process.selectedPatJetsAK4PFPuppi.cut = cms.string('pt > 20')
-                    process.selectedPatJetsAK4PFCHS.cut = cms.string('pt > 20')
+            ## clean also the related Gen Jet Collection
+            genAlgo = algo.replace("AK","ak")
+            setattr(process,"pat"+genAlgo+"GenJetsNoNu", cms.EDProducer("PATJetProducer",
+                                                                        jetSource = cms.InputTag(genAlgo+"GenJetsNoNu"),
+                                                                        addJetCorrFactors = cms.bool(False),
+                                                                        addJetCharge = cms.bool(False),
+                                                                        addGenJetMatch = cms.bool(False),
+                                                                        embedGenJetMatch = cms.bool(False),
+                                                                        addAssociatedTracks = cms.bool(False),
+                                                                        addBTagInfo = cms.bool(False),
+                                                                        partonJetSource = cms.InputTag("NOT_IMPLEMENTED"),
+                                                                        addGenPartonMatch = cms.bool(False),
+                                                                        addTagInfos = cms.bool(False),
+                                                                        addPartonJetMatch = cms.bool(False),
+                                                                        embedGenPartonMatch = cms.bool(False),
+                                                                        useLegacyJetMCFlavour = cms.bool(False),
+                                                                        addEfficiencies = cms.bool(False),
+                                                                        embedPFCandidates = cms.bool(False),
+                                                                        addJetFlavourInfo = cms.bool(False),
+                                                                        addResolutions = cms.bool(False),
+                                                                        getJetMCFlavour = cms.bool(False),
+                                                                        addDiscriminators = cms.bool(False),
+                                                                        addJetID = cms.bool(False)
+             ))
 
-                    cleanJetsFromLeptons(process,"Cleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID+"Tau"+tauTypeID,                                 
-                                         jetCollection      = "selectedPatJets"+postfix,
-                                         muonCollection     = "slimmedMuons"+muonTypeID,
-                                         electronCollection = "slimmedElectrons"+electronTypeID,
-                                         tauCollection      = "slimmedTaus"+tauTypeID+"Cleaned",
-                                         jetPtCut   = 20.,
-                                         jetEtaCut  = 5.,
-                                         dRCleaning = 0.3) 
-                else:
+            setattr(process,"selectedPat"+genAlgo+"GenJetsNoNu",cms.EDFilter("PATJetSelector",
+                                                                             cut = cms.string('pt > 10'),
+                                                                             src = cms.InputTag("pat"+genAlgo+"GenJetsNoNu")
+                                                                             ))
 
-                    process.selectedPatJetsAK4PFPuppi.cut = cms.string('pt > 20')
-                    process.selectedPatJetsAK4PFCHS.cut = cms.string('pt > 20')
-
-                    cleanJetsFromLeptons(process,"Cleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID,                                 
-                                         jetCollection      = "selectedPatJets"+postfix,
-                                         muonCollection     = "slimmedMuons"+muonTypeID,
-                                         electronCollection = "slimmedElectrons"+electronTypeID,
-                                         tauCollection      = "",
-                                         jetPtCut   = 20.,
-                                         jetEtaCut  = 5.,
-                                         dRCleaning = 0.3) 
+            cleanGenJetsFromGenLeptons (process,
+                                        jetCollection       = "selectedPat"+genAlgo+"GenJetsNoNu",
+                                        genLeptonCollection = "packedGenLeptons",
+                                        jetPtCut         = 30,
+                                        jetEtaCut        = 5,
+                                        dRCleaning       = 0.3)
 
 
     ##################################                    
@@ -684,8 +713,9 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
                                                        maxNumber = cms.uint32(1),
                                                        src = cms.InputTag("ZdiLepton")
                                                        ))
-                                                                                                                         
-        process.jmfw_analyzers += getattr(process,"ZdiLeptonFilter");
+
+        if applyZSelections :
+            process.jmfw_analyzers += getattr(process,"ZdiLeptonFilter");
 
         ## now merge all the previous leptons in one single collection and ask for no more than 2 tight leptons
         if tauTypeID != "" :
@@ -706,13 +736,11 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
                                                          src = cms.InputTag("LeptonMerge")
                                                          ))
         
-        process.jmfw_analyzers += getattr(process,"LeptonMergeFilter");
+        if applyZSelections :
+            process.jmfw_analyzers += getattr(process,"LeptonMergeFilter");
         
         ### in this way we are sure to have a Z candidate with no more than 2 leptons in the event (after selections)
-        if tauTypeID != "":
-            jetColl = "selectedPatJetsAK4PFPuppiCleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID+"Tau"+tauTypeID;
-        else:
-            jetColl = "selectedPatJetsAK4PFPuppiCleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID;
+        jetColl = "selectedPatJetsAK4PFPuppiCleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID;
 
         setattr(process,"mvaPUPPET", cms.EDProducer("mvaPUPPET",
                                                     srcMETs      = cms.VInputTag("slimmedMETs","slimmedMETsCHS", "slimmedMETsPuppi","slimmedMETsPuppiChargedPV","slimmedMETsPuppiChargedPU","slimmedMETsPuppiNeutralPV","slimmedMETsPuppiNeutralPU"),
@@ -874,46 +902,24 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
         
     else:
 
-        if tauTypeID == "":
-
-            setattr(process, "PUPPET", 
-                    cms.EDAnalyzer('PUPPETAnalyzer',
-                                   srcJet    = cms.InputTag("selectedPatJetsAK4PFPuppiCleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID),
-                                   srcVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
-                                   srcZboson = cms.InputTag("mvaPUPPET","ZtagBoson"),
-                                   srcGenMet = cms.InputTag("slimmedMETs","","PAT"),
-                                   srcGenJets          = cms.InputTag("slimmedGenJets","","PAT"),
-                                   srcGenParticles     = cms.InputTag("prunedGenParticles","","PAT"),
-                                   srcRecoilPFMet      = cms.InputTag("mvaPUPPET","recoilslimmedMETs"),
-                                   srcRecoilPFCHSMet   = cms.InputTag("mvaPUPPET","recoilslimmedMETsCHS"),
-                                   srcRecoilPFPuppiMet = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppi"),
-                                   srcRecoilPFPuppiMet_ChargedPV = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiChargedPV"),
-                                   srcRecoilPFPuppiMet_ChargedPU = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiChargedPU"),
-                                   srcRecoilPFPuppiMet_NeutralPV = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiNeutralPV"),
-                                   srcRecoilPFPuppiMet_NeutralPU = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiNeutralPU"),
-                                   srcMVAMet     = cms.InputTag("mvaPUPPET","mvaMET"),
-                                   dRgenMatching = cms.double(0.3)))
-                                           
-        else:
-
-           setattr(process, "PUPPET", 
-                    cms.EDAnalyzer('PUPPETAnalyzer',
-                                   srcJet    = cms.InputTag("selectedPatJetsAK4PFPuppiCleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID+"Tau"+tauTypeID),
-                                   srcVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
-                                   srcZboson = cms.InputTag("mvaPUPPET","ZtagBoson"),
-                                   srcGenMet = cms.InputTag("slimmedMETs","","PAT"),
-                                   srcGenJets          = cms.InputTag("slimmedGenJets","","PAT"),
-                                   srcGenParticles     = cms.InputTag("prunedGenParticles","","PAT"),
-                                   srcRecoilPFMet      = cms.InputTag("mvaPUPPET","recoilslimmedMETs"),
-                                   srcRecoilPFCHSMet   = cms.InputTag("mvaPUPPET","recoilslimmedMETsCHS"),
-                                   srcRecoilPFPuppiMet = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppi"),
-                                   srcRecoilPFPuppiMet_ChargedPV = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiChargedPV"),
-                                   srcRecoilPFPuppiMet_ChargedPU = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiChargedPU"),
-                                   srcRecoilPFPuppiMet_NeutralPV = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiNeutralPV"),
-                                   srcRecoilPFPuppiMet_NeutralPU = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiNeutralPU"),
-                                   srcMVAMet = cms.InputTag("mvaPUPPET","mvaMET"),
-                                   dRgenMatching = cms.double(0.3)))
- 
+        setattr(process, "PUPPET", 
+                cms.EDAnalyzer('PUPPETAnalyzer',
+                               srcJet    = cms.InputTag("selectedPatJetsAK4PFPuppiCleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID),
+                               srcVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
+                               srcZboson = cms.InputTag("mvaPUPPET","ZtagBoson"),
+                               srcGenMet = cms.InputTag("slimmedMETs","","PAT"),
+                               srcGenJets          = cms.InputTag("slimmedGenJets","","PAT"),
+                               srcGenParticles     = cms.InputTag("prunedGenParticles","","PAT"),
+                               srcRecoilPFMet      = cms.InputTag("mvaPUPPET","recoilslimmedMETs"),
+                               srcRecoilPFCHSMet   = cms.InputTag("mvaPUPPET","recoilslimmedMETsCHS"),
+                               srcRecoilPFPuppiMet = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppi"),
+                               srcRecoilPFPuppiMet_ChargedPV = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiChargedPV"),
+                               srcRecoilPFPuppiMet_ChargedPU = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiChargedPU"),
+                               srcRecoilPFPuppiMet_NeutralPV = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiNeutralPV"),
+                               srcRecoilPFPuppiMet_NeutralPU = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiNeutralPU"),
+                               srcMVAMet     = cms.InputTag("mvaPUPPET","mvaMET"),
+                               dRgenMatching = cms.double(0.3)))
+        
 
         process.jmfw_analyzers += getattr(process,"PUPPET")
                                            
