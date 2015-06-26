@@ -598,9 +598,31 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
 
         ######## add other specific set of particles and MET collections, in this case not TypeI corrected, but we will still use the same workflow    
         ## all charge particles from PUPPI : hadrons + leptons (e,mu,tau) --> trak met
+
+        process.pfChargedPV = cms.EDFilter("CandPtrSelector",
+                                           src = cms.InputTag("pfNoPileUpIso"),
+                                           cut = cms.string("pt > 0  && charge !=0"))
+
+        process.pfNeutrals = cms.EDFilter("CandPtrSelector",
+                                          src = cms.InputTag("pfNoPileUpIso"),
+                                          cut = cms.string("pt > 0 && charge = 0"))
+
+        process.pfPuppiAll = cms.EDFilter("CandPtrSelector",
+                                          src = cms.InputTag("puppi"),
+                                          cut = cms.string("pt > 0"))
+
+
+        process.pfPUPuppi = cms.EDFilter("CandPtrSelector",
+                                         src = cms.InputTag("pupuppi"),
+                                         cut = cms.string("pt > 0"))
+
+        process.pfPUPuppiCharge = cms.EDFilter("CandPtrSelector",
+                                               src = cms.InputTag("pupuppi"),
+                                               cut = cms.string("pt > 0 && charge != 0"))
+
         process.pfAllChargedParticlesPuppi = cms.EDFilter("CandPtrSelector",
                                                           src = cms.InputTag("puppi"),
-                                                          cut = cms.string("charge !=0"))
+                                                          cut = cms.string("charge !=0 && pt > 0"))
         
         process.pfMetPuppiChargedPV       = pfMet.clone()
         process.pfMetPuppiChargedPV.src   = cms.InputTag("pfAllChargedParticlesPuppi") ## packed candidates without fromPV < 1
@@ -629,8 +651,9 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
         del process.slimmedMETsPuppiChargedPU.type1p2Uncertainties # not available                                                                                      
         
         ## neutral particles from PV starting from puppi particles
-        process.pfAllNeutralParticlesPuppi  = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppi"), 
-                                                           cut = cms.string("charge=0"))
+        process.pfAllNeutralParticlesPuppi  = cms.EDFilter("CandPtrSelector", 
+                                                           src = cms.InputTag("puppi"), 
+                                                           cut = cms.string("charge=0 && pt > 0"))
         
         
         process.pfMetPuppiNeutralPV       = pfMet.clone() 
@@ -648,8 +671,9 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
     
 
         ## neutral particles from PU starting from inverted puppi particles
-        process.pfAllNeutralParticlesPuppiPU  = cms.EDFilter("CandPtrSelector", src = cms.InputTag("pupuppi"), 
-                                                             cut = cms.string("charge=0"))
+        process.pfAllNeutralParticlesPuppiPU  = cms.EDFilter("CandPtrSelector", 
+                                                             src = cms.InputTag("pupuppi"), 
+                                                             cut = cms.string("charge=0 && pt > 0"))
     
         
         process.pfMetPuppiNeutralPU       = pfMet.clone() 
