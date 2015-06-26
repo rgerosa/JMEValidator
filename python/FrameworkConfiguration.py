@@ -373,7 +373,7 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
 
     ## define gen leptons (muons and electrons)\        
     process.packedGenLeptons = cms.EDFilter("CandPtrSelector",
-                                            cut = cms.string('abs(pdgId) = 11 && abs(pdgId) = 13'),
+                                            cut = cms.string('(abs(pdgId) = 11 || abs(pdgId) = 13) && pt > 10'),
                                             src = cms.InputTag("packedGenParticles")
                                             )
     
@@ -388,7 +388,7 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
             for index, pu_method in enumerate(params['pu_methods']):
                 postfix       = '%sPF%s' % (algo, pu_method)
 
-                setattr(getattr(process,"selectedPatJets"+postfix),"cut",cms.string('pt > 10'))
+                setattr(getattr(process,"selectedPatJets"+postfix),"cut",cms.string('pt > 30'))
                 
                 cleanJetsFromLeptons(process,"Cleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID,                                 
                                      jetCollection      = "selectedPatJets"+postfix,
@@ -425,7 +425,7 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
              ))
 
             setattr(process,"selectedPat"+genAlgo+"GenJetsNoNu",cms.EDFilter("PATJetSelector",
-                                                                             cut = cms.string('pt > 10'),
+                                                                             cut = cms.string('pt > 30'),
                                                                              src = cms.InputTag("pat"+genAlgo+"GenJetsNoNu")
                                                                              ))
 
