@@ -13,21 +13,23 @@ options.register ('muonTypeID',       "Tight",         VarParsing.multiplicity.s
 options.register ('electronTypeID',   "Medium",        VarParsing.multiplicity.singleton, VarParsing.varType.string, 'electron ID to be considered for MVA PUPPET analysis ');
 options.register ('tauTypeID',        "Loose",         VarParsing.multiplicity.singleton, VarParsing.varType.string, 'tau ID to be considered for MVA PUPPET analysis ');
 options.register ('applyZSelections'  , True,          VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'apply selection for Zll events when runMVAPUPPETAnalysis is true');
+options.register ('applyJECtoPuppiJets',  False,       VarParsing.multiplicity.singleton, VarParsing.varType.string, 'apply or not JEC on puppi jets');
+
 options.parseArguments()
 
 ## import the function to create the process
 from JMEAnalysis.JMEValidator.FrameworkConfiguration import createProcess
 
 process = createProcess(options.isMC, options.globalTag, options.muonTypeID, options.runPuppiMuonIso, options.muonIsoCone, 
-                        options.electronTypeID, options.tauTypeID,options.dropAnalyzerDumpEDM, options.runMVAPUPPETAnalysis, options.applyZSelections)
+                        options.electronTypeID, options.tauTypeID,options.dropAnalyzerDumpEDM, options.runMVAPUPPETAnalysis, options.applyZSelections, options.applyJECtoPuppiJets)
 
 if len(options.inputFiles) == 0 and options.isMC == True:
 
      #options.inputFiles.append('root://xrootd-cms.infn.it//store/mc/RunIISpring15DR74/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/AsymptNoPURawReco_MCRUN2_74_V9A-v3/10000/263601E1-AB15-E511-B132-3417EBE4E882.root');
-#     options.inputFiles.append('root://xrootd.unl.edu//store/mc/RunIISpring15DR74/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/StartupFlat10to50bx50Raw_MCRUN2_74_V8-v1/10000/38D1C54C-0F02-E511-A54E-AC853D9F5256.root')
+      options.inputFiles.append('root://xrootd.unl.edu//store/mc/RunIISpring15DR74/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/StartupFlat10to50bx50Raw_MCRUN2_74_V8-v1/10000/38D1C54C-0F02-E511-A54E-AC853D9F5256.root')
      #options.inputFiles.append('/store/mc/RunIISpring15DR74/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v2/00000/02DE3B74-6C08-E511-ABE3-0025905A60D0.root')
 #     options.inputFiles.append('root://xrootd.unl.edu//store/mc/RunIISpring15DR74/QCD_Pt-15to7000_TuneCUETP8M1_Flat_13TeV_pythia8/MINIAODSIM/AsymptNoPUbx25Reco_MCRUN2_74_V9-v3/00000/02FAF8EE-3608-E511-AFC8-0025905A612C.root')
-      options.inputFiles.append('root://xrootd.unl.edu//store/mc/RunIISpring15DR74/QCD_Pt-15to7000_TuneCUETP8M1_Flat_13TeV_pythia8/MINIAODSIM/AsymptFlat0to50bx50Reco_MCRUN2_74_V9A-v3/00000/023F427F-0E08-E511-A813-0025905A60EE.root')
+      #options.inputFiles.append('root://xrootd.unl.edu//store/mc/RunIISpring15DR74/QCD_Pt-15to7000_TuneCUETP8M1_Flat_13TeV_pythia8/MINIAODSIM/AsymptFlat0to50bx50Reco_MCRUN2_74_V9A-v3/00000/023F427F-0E08-E511-A813-0025905A60EE.root')
      #options.inputFiles.append('root://xrootd.unl.edu//store/mc/RunIISpring15DR74/QCD_Pt-15to7000_TuneCUETP8M1_Flat_13TeV_pythia8/MINIAODSIM/AsymptFlat0to50bx25Reco_MCRUN2_74_V9-v3/10000/0031CCC7-B007-E511-A963-0025905964CC.root')
 
 
@@ -81,6 +83,7 @@ if options.dropAnalyzerDumpEDM :
 #                                                                             'keep *_*pfAllNeutralParticlesPuppiPU*_*_*',
 #                                                                             'keep *_*pfChargedPV*_*_*',
 #                                                                             'keep *_*pfNeutrals*_*_*',
+#                                                                             'keep *_*pfChargedPU*_*_*'
 ),
                                       SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring('p'))
                                       )

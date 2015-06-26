@@ -46,7 +46,7 @@ def get_jec_levels(pu_method):
 
 
 
-def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, electronTypeID, tauTypeID, dropAnalyzerDumpEDM, runMVAPUPPETAnalysis,applyZSelections):
+def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, electronTypeID, tauTypeID, dropAnalyzerDumpEDM, runMVAPUPPETAnalysis,applyZSelections,applyJECtoPuppiJets):
 
     process = cms.Process("JRA")
 
@@ -155,6 +155,11 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
                 # Add informations as userdata: easily accessible
                 applyPostfix(process, 'patJets', postfix).userData.userFloats.src += ['pileupJetIdEvaluator%s:fullDiscriminant' % postfix]
                 applyPostfix(process, 'patJets', postfix).userData.userInts.src   += ['pileupJetIdEvaluator%s:cutbasedId' % postfix, 'pileupJetIdEvaluator%s:fullId' % postfix]
+
+
+            if applyJECtoPuppiJets == False:
+                applyPostfix(process, 'patJets', postfix).addJetCorrFactors = cms.bool(False)
+                applyPostfix(process, 'patJets', postfix).jetCorrFactorsSource = cms.VInputTag(cms.InputTag(""))
 
             # Quark / gluon discriminator
             # FIXME: Puppi needs some love
@@ -519,18 +524,19 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
     if not hasattr(process, 'ak4PFJetsPuppi'):
         print("WARNING: No AK4 puppi jets produced. Type 1 corrections for puppi MET are not available.")
     else:
-        process.corrPfMetType1Puppi = corrPfMetType1.clone(
-            src = 'ak4PFJetsPuppi',
-            jetCorrLabel = 'ak4PFCHSL2L3Corrector', #FIXME: Use PUPPI corrections when available?
-        )
-        del process.corrPfMetType1Puppi.offsetCorrLabel # no L1 for PUPPI jets
-        process.pfMetT1Puppi = pfMetT1.clone(
-            src = 'pfMetPuppi',
-            srcCorrections = [ cms.InputTag("corrPfMetType1Puppi","type1") ]
-        )
-        ## new PAT Met correction
-        addMETCollection(process, labelName='patMETPuppi', metSource='pfMetT1Puppi') # T1 puppi MET
-        process.patMETPuppi.addGenMET = False
+        if applyJECtoPuppiJets :
+            process.corrPfMetType1Puppi = corrPfMetType1.clone(
+                src = 'ak4PFJetsPuppi',
+                jetCorrLabel = 'ak4PFCHSL2L3Corrector', #FIXME: Use PUPPI corrections when available?
+                )
+            del process.corrPfMetType1Puppi.offsetCorrLabel # no L1 for PUPPI jets
+            process.pfMetT1Puppi = pfMetT1.clone(
+                src = 'pfMetPuppi',
+                srcCorrections = [ cms.InputTag("corrPfMetType1Puppi","type1") ]
+                )
+            ## new PAT Met correction
+            addMETCollection(process, labelName='patMETPuppi', metSource='pfMetT1Puppi') # T1 puppi MET
+            process.patMETPuppi.addGenMET = False
 
     ### CHS TypeI corrected
     if not hasattr(process, 'ak4PFJetsCHS'):
@@ -567,7 +573,7 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
         # Create MET from RAW PF collection
         process.patPFMetPuppi.addGenMET = True
         process.slimmedMETsPuppi.src = cms.InputTag("patPFMetPuppi")
-        del process.slimmedMETsPuppi.rawUncertainties # not available
+        process.slimmedMETsPuppi.rawUncertainties = cms.InputTag("patPFMetPuppi") # only central value
 
     del process.slimmedMETsPuppi.type1Uncertainties # not available
     del process.slimmedMETsPuppi.type1p2Uncertainties # not available
@@ -599,19 +605,35 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
         ######## add other specific set of particles and MET collections, in this case not TypeI corrected, but we will still use the same workflow    
         ## all charge particles from PUPPI : hadrons + leptons (e,mu,tau) --> trak met
 
+        ## particles for chs 
         process.pfChargedPV = cms.EDFilter("CandPtrSelector",
-                                           src = cms.InputTag("pfNoPileUpIso"),
-                                           cut = cms.string("pt > 0  && charge !=0"))
+                                           src = cms.InputTag("chs"),
+                                           cut = cms.string("pt > 0  && charge!=0"))
 
         process.pfNeutrals = cms.EDFilter("CandPtrSelector",
-                                          src = cms.InputTag("pfNoPileUpIso"),
-                                          cut = cms.string("pt > 0 && charge = 0"))
+                                          src = cms.InputTag("chs"),
+                                          cut = cms.string("pt > 0 && charge == 0"))
 
+
+        process.pfChargedPU = cms.EDFilter("CandPtrSelector",
+                                           cut = cms.string('!fromPV'),
+                                           src = cms.InputTag("packedPFCandidates")
+                                           )
+
+        #### puppi particles
         process.pfPuppiAll = cms.EDFilter("CandPtrSelector",
                                           src = cms.InputTag("puppi"),
                                           cut = cms.string("pt > 0"))
 
+        process.pfAllChargedParticlesPuppi = cms.EDFilter("CandPtrSelector",
+                                                          src = cms.InputTag("puppi"),
+                                                          cut = cms.string("charge !=0 && pt > 0"))
 
+        process.pfAllNeutralParticlesPuppi  = cms.EDFilter("CandPtrSelector", 
+                                                           src = cms.InputTag("puppi"), 
+                                                           cut = cms.string("charge == 0 && pt > 0"))
+
+        ## inverted puppi
         process.pfPUPuppi = cms.EDFilter("CandPtrSelector",
                                          src = cms.InputTag("pupuppi"),
                                          cut = cms.string("pt > 0"))
@@ -620,10 +642,12 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
                                                src = cms.InputTag("pupuppi"),
                                                cut = cms.string("pt > 0 && charge != 0"))
 
-        process.pfAllChargedParticlesPuppi = cms.EDFilter("CandPtrSelector",
-                                                          src = cms.InputTag("puppi"),
-                                                          cut = cms.string("charge !=0 && pt > 0"))
-        
+        process.pfAllNeutralParticlesPuppiPU  = cms.EDFilter("CandPtrSelector", 
+                                                             src = cms.InputTag("pupuppi"), 
+                                                             cut = cms.string("charge=0 && pt > 0"))
+    
+
+        #### Missing energies        
         process.pfMetPuppiChargedPV       = pfMet.clone()
         process.pfMetPuppiChargedPV.src   = cms.InputTag("pfAllChargedParticlesPuppi") ## packed candidates without fromPV < 1
         process.pfMetPuppiChargedPV.alias = cms.string('pfMetPuppiChargedPV')
@@ -638,7 +662,7 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
 
         ### charge candidate from PU and build the Met ( we can take the one defined for the isolation)
         process.pfMetChargedPU       = pfMet.clone() 
-        process.pfMetChargedPU.src   = cms.InputTag("pfPileUpIso")
+        process.pfMetChargedPU.src   = cms.InputTag("pfChargedPU")
         process.pfMetChargedPU.alias = cms.string('pfMetPuppiChargedPU')
         addMETCollection(process, labelName='patPFMetChargedPU', metSource='pfMetChargedPU') 
         process.patPFMetChargedPU.addGenMET = True
@@ -650,12 +674,7 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
         del process.slimmedMETsPuppiChargedPU.type1Uncertainties # not available                                                                                           
         del process.slimmedMETsPuppiChargedPU.type1p2Uncertainties # not available                                                                                      
         
-        ## neutral particles from PV starting from puppi particles
-        process.pfAllNeutralParticlesPuppi  = cms.EDFilter("CandPtrSelector", 
-                                                           src = cms.InputTag("puppi"), 
-                                                           cut = cms.string("charge=0 && pt > 0"))
-        
-        
+        ## neutral particles from PV starting from puppi particles                
         process.pfMetPuppiNeutralPV       = pfMet.clone() 
         process.pfMetPuppiNeutralPV.src   = cms.InputTag("pfAllNeutralParticlesPuppi")
         process.pfMetPuppiNeutralPV.alias = cms.string('pfMetPuppiNeutralPV')
@@ -670,12 +689,7 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
         del process.slimmedMETsPuppiNeutralPV.type1p2Uncertainties # not available                                                                                          
     
 
-        ## neutral particles from PU starting from inverted puppi particles
-        process.pfAllNeutralParticlesPuppiPU  = cms.EDFilter("CandPtrSelector", 
-                                                             src = cms.InputTag("pupuppi"), 
-                                                             cut = cms.string("charge=0 && pt > 0"))
-    
-        
+        ## neutral particles from PU starting from inverted puppi particles        
         process.pfMetPuppiNeutralPU       = pfMet.clone() 
         process.pfMetPuppiNeutralPU.src   = cms.InputTag("pfAllNeutralParticlesPuppiPU")
         process.pfMetPuppiNeutralPU.alias = cms.string('pfMetPuppiNeutralPU')
