@@ -234,10 +234,7 @@ def createProcess(isMC, globalTag):
     process.pfAllChargedHadronsPuppi = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR05"), cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 2212 || pdgId == -2212"))
 
     ### Using puppi, but without muons
-    ### FIXME: Reference code [1] excludes particles no coming from PV. It leads to an inconsistency between the two puppi collections (one is done on all pf candidates, the other only on
-    ### candidates coming from PV)
-    ### [1] https://github.com/cms-jet/JMEValidator/blob/a61ebd818c82dc9eab9d47b616ea85136488e77c/python/runMuonIsolation_cff.py#L16
-    process.packedPFCandidatesNoMuon = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV > 1 && abs(pdgId) != 13"))
+    process.packedPFCandidatesNoMuon = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("abs(pdgId) != 13"))
     process.puppiR05NoMu = process.puppiR05.clone(
             candName = 'packedPFCandidatesNoMuon'
             )
