@@ -264,6 +264,9 @@ def createProcess(isMC, globalTag):
             src_charged_hadron = 'pfAllChargedHadronsPuppi',
             src_neutral_hadron = 'pfAllNeutralHadronsPuppi',
             src_photon         = 'pfAllPhotonsPuppi',
+            veto_charged_hadron='Threshold(0.0)',
+            veto_neutral_hadron='Threshold(0.0)',
+            veto_photon='Threshold(0.0)',
             coneR = cone_size
             )
 
@@ -273,6 +276,9 @@ def createProcess(isMC, globalTag):
             src_charged_hadron = 'pfAllChargedHadronsPuppiNoMuon',
             src_neutral_hadron = 'pfAllNeutralHadronsPuppiNoMuon',
             src_photon         = 'pfAllPhotonsPuppiNoMuon',
+            veto_charged_hadron='Threshold(0.0)',
+            veto_neutral_hadron='Threshold(0.0)',
+            veto_photon='Threshold(0.0)',
             coneR = cone_size
             )
 
