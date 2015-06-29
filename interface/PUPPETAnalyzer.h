@@ -4,6 +4,7 @@
 #include "JMEAnalysis/JMEValidator/interface/PhysicsObjectAnalyzer.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/JetCollection.h"
@@ -40,6 +41,7 @@ class PUPPETAnalyzer : public JME::Analyzer
 	edm::InputTag srcMVAMet_;
         edm::InputTag srcGenMet_;
         edm::InputTag srcGenJets_;
+        edm::InputTag srcGenJetsCleaned_;
         edm::InputTag srcGenParticles_;
 
         edm::EDGetTokenT<std::vector<pat::MET>> srcRecoilPFMetToken_;
@@ -55,6 +57,7 @@ class PUPPETAnalyzer : public JME::Analyzer
 	edm::EDGetTokenT<std::vector<pat::MET>>         srcMVAMetToken_;
         edm::EDGetTokenT<std::vector<pat::MET>>         srcGenMetToken_;
         edm::EDGetTokenT<std::vector<reco::GenJet>>     srcGenJetsToken_;
+        edm::EDGetTokenT<pat::JetCollection>            srcGenJetsCleanedToken_;
         edm::EDGetTokenT<std::vector<reco::GenParticle>> srcGenParticlesToken_;
 
         // Tree branches
@@ -64,18 +67,29 @@ class PUPPETAnalyzer : public JME::Analyzer
         float& GenZ_M_   = tree["GenZ_M"].write<float>();
         int& GenZ_daughter_ = tree["GenZ_daughter"].write<int>();
 
-        int& NGenJets_ = tree["NGenJets"].write<int>();
-        int& NGenMatchedJets_ = tree["NGenMatchedJets"].write<int>();
+        int& NGenJets_        = tree["NGenJets"].write<int>();
+        int& NGenJetsCleaned_ = tree["NGenJetsCleaned"].write<int>();
+        int& NGenMatchedJets_ = tree["NGenMatchedJets"].write< int>();
 
         float& GenLeadingJet_Pt_  = tree["GenLeadingJet_Pt"].write<float>();
         float& GenLeadingJet_Eta_ = tree["GenLeadingJet_Eta"].write<float>();
         float& GenLeadingJet_Phi_ = tree["GenLeadingJet_Phi"].write<float>();
         float& GenLeadingJet_M_   = tree["GenLeadingJet_M"].write<float>();
 
+        float& GenLeadingJetCleaned_Pt_  = tree["GenLeadingJetCleaned_Pt"].write<float>();
+        float& GenLeadingJetCleaned_Eta_ = tree["GenLeadingJetCleaned_Eta"].write<float>();
+        float& GenLeadingJetCleaned_Phi_ = tree["GenLeadingJetCleaned_Phi"].write<float>();
+        float& GenLeadingJetCleaned_M_   = tree["GenLeadingJetCleaned_M"].write<float>();
+
         float& GenTrailingJet_Pt_  = tree["GenTrailingJet_Pt"].write<float>();
         float& GenTrailingJet_Eta_ = tree["GenTrailingJet_Eta"].write<float>();
         float& GenTrailingJet_Phi_ = tree["GenTrailingJet_Phi"].write<float>();
         float& GenTrailingJet_M_   = tree["GenTrailingJet_M"].write<float>();
+
+        float& GenTrailingJetCleaned_Pt_  = tree["GenTrailingJetCleaned_Pt"].write<float>();
+        float& GenTrailingJetCleaned_Eta_ = tree["GenTrailingJetCleaned_Eta"].write<float>();
+        float& GenTrailingJetCleaned_Phi_ = tree["GenTrailingJetCleaned_Phi"].write<float>();
+        float& GenTrailingJetCleaned_M_   = tree["GenTrailingJetCleaned_M"].write<float>();
 
         float& GenRecoil_sumEt_ = tree["GenRecoil_sumEt"].write<float>();
         float& GenRecoil_Pt_    = tree["GenRecoil_Pt"].write<float>();

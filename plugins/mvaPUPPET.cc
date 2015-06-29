@@ -99,7 +99,6 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
 	std::string reference = "referenceNegRecoil";
 	addToMap(referenceNegRecoil, referenceMET.sumEt(), reference, referenceMET_name_);
 
-
 	// calculate the recoils and save them to MET objects
 	int i = 0;
 	for ( std::vector<edm::EDGetTokenT<pat::METCollection> >::const_iterator srcMET = srcMETs_.begin();
@@ -119,6 +118,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
 		// calculate recoil
 		pat::MET negRecoil((*MET)[0]); 
 		negRecoil.setP4(Z.p4() - (*MET)[0].p4());
+
 		addToMap(negRecoil.p4(), (*MET)[0].sumEt(), string_input, collection_name, referenceMET.sumEt());
 
 		std::auto_ptr<pat::METCollection> patMETRecoilCollection(new pat::METCollection());

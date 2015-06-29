@@ -947,6 +947,7 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
                                srcZboson = cms.InputTag("mvaPUPPET","ZtagBoson"),
                                srcGenMet = cms.InputTag("slimmedMETs","","PAT"),
                                srcGenJets          = cms.InputTag("slimmedGenJets","","PAT"),
+                               srcGenJetsCleaned   = cms.InputTag("selectedPatak4GenJetsNoNuCleaned"),
                                srcGenParticles     = cms.InputTag("prunedGenParticles","","PAT"),
                                srcRecoilPFMet      = cms.InputTag("mvaPUPPET","recoilslimmedMETs"),
                                srcRecoilPFCHSMet   = cms.InputTag("mvaPUPPET","recoilslimmedMETsCHS"),
