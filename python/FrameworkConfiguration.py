@@ -46,7 +46,7 @@ def get_jec_levels(pu_method):
 
 
 
-def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, electronTypeID, tauTypeID, dropAnalyzerDumpEDM, runMVAPUPPETAnalysis,applyZSelections,applyJECtoPuppiJets):
+def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, electronTypeID, tauTypeID, dropAnalyzerDumpEDM, runMVAPUPPETAnalysis,applyZSelections,applyJECtoPuppiJets,runPuppiDiagnostics):
 
     process = cms.Process("JRA")
 
@@ -965,19 +965,20 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
 
     # Puppi ; only for the first 1000 events of the job
     ## Turn on diagnostic
-#    process.puppi.puppiDiagnostics = cms.bool(True)
-#    process.puppiReader = cms.EDAnalyzer("puppiAnalyzer",
-#                                            treeName = cms.string("puppiTree"),
-#                                            maxEvents = cms.int32(1000),
-#                                            nAlgos = cms.InputTag("puppi", "PuppiNAlgos", "JRA"),
-#                                            rawAlphas = cms.InputTag("puppi", "PuppiRawAlphas", "JRA"),
-#                                            alphas = cms.InputTag("puppi", "PuppiAlphas", "JRA"),
-#                                            alphasMed = cms.InputTag("puppi", "PuppiAlphasMed", "JRA"),
-#                                            alphasRms = cms.InputTag("puppi", "PuppiAlphasRms", "JRA"),
-#                                            packedPFCandidates = cms.InputTag("packedPFCandidates")
-#                                        )
-
-#    process.jmfw_analyzers += process.puppiReader
+    if runPuppiDiagnostics :
+        process.puppi.puppiDiagnostics = cms.bool(True)
+        process.puppiReader = cms.EDAnalyzer("puppiAnalyzer",
+                                             treeName = cms.string("puppiTree"),
+                                             maxEvents = cms.int32(1000),
+                                             nAlgos = cms.InputTag("puppi", "PuppiNAlgos", "JRA"),
+                                             rawAlphas = cms.InputTag("puppi", "PuppiRawAlphas", "JRA"),
+                                             alphas = cms.InputTag("puppi", "PuppiAlphas", "JRA"),
+                                             alphasMed = cms.InputTag("puppi", "PuppiAlphasMed", "JRA"),
+                                             alphasRms = cms.InputTag("puppi", "PuppiAlphasRms", "JRA"),
+                                             packedPFCandidates = cms.InputTag("packedPFCandidates")
+                                             )
+        
+        process.jmfw_analyzers += process.puppiReader
 
     return process
 

@@ -13,7 +13,8 @@ options.register ('muonTypeID',       "Tight",         VarParsing.multiplicity.s
 options.register ('electronTypeID',   "Medium",        VarParsing.multiplicity.singleton, VarParsing.varType.string, 'electron ID to be considered for MVA PUPPET analysis ');
 options.register ('tauTypeID',        "Loose",         VarParsing.multiplicity.singleton, VarParsing.varType.string, 'tau ID to be considered for MVA PUPPET analysis ');
 options.register ('applyZSelections'  , True,          VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'apply selection for Zll events when runMVAPUPPETAnalysis is true');
-options.register ('applyJECtoPuppiJets',  False,       VarParsing.multiplicity.singleton, VarParsing.varType.string, 'apply or not JEC on puppi jets');
+options.register ('applyJECtoPuppiJets',  False,       VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'apply or not JEC on puppi jets');
+options.register ('runPuppiDiagnostics',  False,       VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'run Puppi diagnostic and store in the output');
 
 options.parseArguments()
 
