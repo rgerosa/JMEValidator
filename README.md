@@ -1,6 +1,38 @@
 JMEValidator 
 ======
 
+###################################
+### Recipe For PUPPI MET Studies ##
+###################################
+
+```sh
+export SCRAM_ARCH=slc6_amd64_gcc491
+cmsrel CMSSW_7_4_5
+cd CMSSW_7_4_5/src/
+cmsenv
+
+git cms-addpkg CommonTools/PileupAlgos
+git cms-merge-topic nhanvtran:puppi-etadep-742p1-v6
+
+# Framework
+git clone git@github.com:blinkseb/JetToolbox.git JMEAnalysis/JetToolbox -b jetToolbox_74X
+git clone git@github.com:blinkseb/TreeWrapper.git JMEAnalysis/TreeWrapper
+git clone git@github.com:rgerosa/JMEValidator.git JMEAnalysis/JMEValidator -b PUPPETMVAMet
+
+# merge with 74X branch
+cd JMEAnalysis/JMEValidator
+git remote add  upstream git@github.com:cms-jet/JMEValidator.git
+git fetch upstream
+git merge upstream/CMSSW_7_4_X
+
+cd ../../
+
+scram b -j 8
+
+cd JMEAnalysis/JMEValidator/test
+cmsRun runFramework.py
+```
+
 ###########################################
 ### Recipe For Jet and Isolation Studies ##
 ###########################################
@@ -25,39 +57,6 @@ scram b -j8
 
 cd JMEAnalysis/JMEValidator/test
 cmsRun runFrameworkMC.py
-```
-
-###################################
-### Recipe For PUPPI MET Studies ##
-###################################
-
-```sh
-export SCRAM_ARCH=slc6_amd64_gcc491
-cmsrel CMSSW_7_4_2_patch1
-cd CMSSW_7_4_2_patch1/src/
-cmsenv
-
-git cms-addpkg CommonTools/PileupAlgos
-git cms-merge-topic nhanvtran:puppi-etadep-742p1-v5
-
-# E/Gamma ID
-git cms-merge-topic ikrav:egm_id_74X_v0
-
-# Framework
-git clone git@github.com:blinkseb/JetToolbox.git JMEAnalysis/JetToolbox -b jetToolbox_74X
-git clone git@github.com:blinkseb/TreeWrapper.git JMEAnalysis/TreeWrapper
-git clone git@github.com:rgerosa/JMEValidator.git JMEAnalysis/JMEValidator -b PUPPETMVAMet
-
-# merge with 74X branch
-cd JMEAnalysis/JMEValidator
-git remote add  upstream git@github.com:cms-jet/JMEValidator.git
-git fetch upstream
-git merge upstream/CMSSW_7_4_X
-
-scram b -j 8
-
-cd JMEAnalysis/JMEValidator/test
-cmsRun runFramework.py
 ```
 
 Few information about the PUPPI MET version of JME Validator package:
