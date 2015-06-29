@@ -29,7 +29,7 @@ using namespace pat;
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-class patElectronIDIsoSelector : public edm::EDProducer {
+class patElectronIDIsoSelector : public edm::stream::EDProducer<> {
 
 public:
   // construction/destruction

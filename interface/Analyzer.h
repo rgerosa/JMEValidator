@@ -1,13 +1,13 @@
 #pragma once
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "JMEAnalysis/TreeWrapper/interface/TreeWrapper.h"
 
 namespace JME {
-    class Analyzer : public edm::EDAnalyzer {
+  class Analyzer : public edm::stream::EDAnalyzer<> {
         public:
             // construction/destruction
             explicit Analyzer(const edm::ParameterSet& iConfig);
@@ -16,7 +16,7 @@ namespace JME {
         protected:
 
             // member functions
-            virtual void beginJob() override;
+            virtual void beginJob() ;
             virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) = 0;
 
         protected:

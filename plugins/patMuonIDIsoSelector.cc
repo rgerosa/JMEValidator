@@ -29,7 +29,7 @@ using namespace pat;
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-class patMuonIDIsoSelector : public edm::EDProducer {
+class patMuonIDIsoSelector : public edm::stream::EDProducer<> {
 
 public:
   // construction/destruction
