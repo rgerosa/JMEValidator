@@ -421,7 +421,18 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   MVAMet_PerpZ_ = RecoilVec.Py();
   MVAMet_LongZ_ = RecoilVec.Px();
 
+
   // dump all jet info
+
+  AllJets_Pt_.clear();
+  AllJets_Eta_.clear();
+  AllJets_Phi_.clear();
+  AllJets_M_.clear();
+  GenMatchedJets_Pt_.clear();
+  GenMatchedJets_Eta_.clear();
+  GenMatchedJets_Phi_.clear();
+  GenMatchedJets_M_.clear();
+
   for(auto jet : *jetHandle){
     AllJets_Pt_.push_back(jet.pt());
     AllJets_Eta_.push_back(jet.eta());
