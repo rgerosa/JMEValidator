@@ -33,6 +33,24 @@ cd JMEAnalysis/JMEValidator/test
 cmsRun runFramework.py
 ```
 
+####################################
+### Recipe For Plotting Framework ##
+####################################
+See also 
+```sh
+git clone git@github.com:artus-analysis/Artus.git -n
+cd Artus
+git remote add -f Artus git@github.com:artus-analysis/Artus.git
+git config core.sparsecheckout true
+echo "/HarryPlotter/" >> .git/info/sparse-checkout
+echo "/Utility/python/" >> .git/info/sparse-checkout
+echo "/Utility/scripts/" >> .git/info/sparse-checkout
+git pull
+
+git read-tree --empty
+git read-tree -mu HEAD
+```
+For a detailed documentation see also https://github.com/artus-analysis/Artus/tree/master/HarryPlotter
 ###########################################
 ### Recipe For Jet and Isolation Studies ##
 ###########################################
@@ -142,3 +160,10 @@ The output file contains few information with respect to the configuration with 
 
 ```
 
+Do the plots:
+
+```sh
+cd $CMSSW_BASE/src/JMEValidator/JMETools/data/
+harry.py -j plots/Zboson_Pt.json
+
+```

@@ -1,0 +1,67 @@
+{
+    "analysis_modules": [
+        "ProjectByFit"
+    ], 
+    "dict": true, 
+    "filename": "Longitudinal_Resolution", 
+    "files": [
+        "root://eoscms.cern.ch//store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt25ns_MCRUN2_74_V.root"
+    ], 
+    "fit_backend": [
+        "ROOT"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "labels": [
+        "PF", 
+        "PF CHS", 
+        "PF PUPPI"
+    ], 
+    "line_styles": [
+        "-"
+    ], 
+    "log_level": "debug", 
+    "markers": [
+        "."
+    ], 
+    "projection_function": [
+        "gaus"
+    ], 
+    "projection_parameters": [
+        "1000,10,10"
+    ], 
+    "projection_to_nick": [
+        "nick0", 
+        "nick1", 
+        "nick2"
+    ], 
+    "projection_to_plot": [
+        "2"
+    ], 
+    "weights": [
+        "Zboson_daughter==13"
+    ], 
+    "x_bins": [
+        "10,0,200"
+    ], 
+    "x_errors": [
+        false
+    ], 
+    "x_expressions": [
+        "Zboson_Pt"
+    ], 
+    "x_label": "p_T^Z", 
+    "y_bins": [
+        "50,-80,80"
+    ], 
+    "y_errors": [
+        false
+    ], 
+    "y_expressions": [
+        "recoilPFMet_LongZ-Zboson_Pt", 
+        "recoilPFCHSMet_LongZ-Zboson_Pt", 
+        "recoilPFPuppiMet_LongZ-Zboson_Pt"
+    ], 
+    "y_label": "Resolution [GeV]"
+}

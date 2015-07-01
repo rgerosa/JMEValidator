@@ -1,0 +1,18 @@
+{
+    "files": [
+        "root://eoscms.cern.ch//store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt25ns_MCRUN2_74_V.root"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "title": "Di-Muon System Pt", 
+    "weights": [
+        "Zboson_daughter==13"
+    ], 
+    "x_bins": [
+        "50,0,200"
+    ], 
+    "x_expressions": [
+        "Zboson_Pt"
+    ]
+}
