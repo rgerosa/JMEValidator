@@ -1,0 +1,18 @@
+{
+    "filename": "GenRecoZpt", 
+    "files": [
+        "root://eoscms.cern.ch//store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt25ns_MCRUN2_74_V.root"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "title": "$\\Delta p_T^Z / p_T^Z$(Gen, Reco)", 
+    "weights": [
+        "Zboson_daughter==13"
+    ], 
+    "x_expressions": [
+        "(Zboson_Pt-GenZ_Pt)/GenZ_Pt"
+    ], 
+    "x_label": "$\\Delta p_T$", 
+    "y_log": true
+}

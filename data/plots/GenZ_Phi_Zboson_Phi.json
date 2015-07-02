@@ -1,0 +1,14 @@
+{
+    "files": [
+        "DY-Asym25/output_mc_1.root"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "weights": [
+        "Zboson_daughter==13&&Zboson_Pt>30"
+    ], 
+    "x_expressions": [
+        "GenZ_Phi-Zboson_Phi"
+    ]
+}
