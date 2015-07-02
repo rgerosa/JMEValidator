@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from CommonTools.ParticleFlow.Isolation.tools_cfi import isoDepositReplace
 
-def load_muonPFiso_sequence(proc, seq_name, algo, coneR, src, src_charged_hadron='', src_neutral_hadron='', src_photon='', src_charged_pileup=''):
+def load_muonPFiso_sequence(proc, seq_name, algo, coneR, src, src_charged_hadron='', src_neutral_hadron='', src_photon='', src_charged_pileup='', 
+                            veto_charged_hadron='Threshold(0.0)', veto_neutral_hadron='Threshold(0.5)', veto_photon='Threshold(0.5)', veto_charged_pileup='Threshold(0.5)' ):
 
     doCH, doNH, doPh, doPU = False, False, False, False
     if src_charged_hadron != '': doCH = True
@@ -38,7 +39,7 @@ def load_muonPFiso_sequence(proc, seq_name, algo, coneR, src, src_charged_hadron
                 src = cms.InputTag('muPFIsoDepositCH'+algo),
                 deltaR = cms.double(coneR),
                 weight = cms.string('1'),
-                vetos = cms.vstring('0.0001','Threshold(0.0)'),
+                vetos = cms.vstring('0.0001',veto_charged_hadron),
                 skipDefaultVeto = cms.bool(True),
                 mode = cms.string('sum')
               )
@@ -55,7 +56,7 @@ def load_muonPFiso_sequence(proc, seq_name, algo, coneR, src, src_charged_hadron
                 src = cms.InputTag('muPFIsoDepositNH'+algo),
                 deltaR = cms.double(coneR),
                 weight = cms.string('1'),
-                vetos = cms.vstring('0.01','Threshold(0.5)'),
+                vetos = cms.vstring('0.01', veto_neutral_hadron ),
                 skipDefaultVeto = cms.bool(True),
                 mode = cms.string('sum')
               )
@@ -72,7 +73,7 @@ def load_muonPFiso_sequence(proc, seq_name, algo, coneR, src, src_charged_hadron
                 src = cms.InputTag('muPFIsoDepositPh'+algo),
                 deltaR = cms.double(coneR),
                 weight = cms.string('1'),
-                vetos = cms.vstring('0.01','Threshold(0.5)'),
+                vetos = cms.vstring('0.01', veto_photon),
                 skipDefaultVeto = cms.bool(True),
                 mode = cms.string('sum')
               )
@@ -89,7 +90,7 @@ def load_muonPFiso_sequence(proc, seq_name, algo, coneR, src, src_charged_hadron
                 src = cms.InputTag('muPFIsoDepositPU'+algo),
                 deltaR = cms.double(coneR),
                 weight = cms.string('1'),
-                vetos = cms.vstring('0.01','Threshold(0.5)'),
+                vetos = cms.vstring('0.01', veto_charged_pileup ),
                 skipDefaultVeto = cms.bool(True),
                 mode = cms.string('sum')
               )
