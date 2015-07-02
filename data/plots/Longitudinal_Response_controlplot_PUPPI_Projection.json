@@ -1,0 +1,62 @@
+{
+    "analysis_modules": [
+        "ProjectionY", 
+        "FunctionPlot"
+    ], 
+    "filename": "Longitudinal_Response_controlplot_Puppi_Projection", 
+    "files": [
+        "root://eoscms.cern.ch//store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt25ns_MCRUN2_74_V.root"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "function_fit": [
+        "nick0_slice_1", 
+        "nick0_slice_2", 
+        "nick0_slice_3"
+    ], 
+    "function_parameters": [
+        "1,1,1"
+    ], 
+    "functions": [
+        "gaus"
+    ], 
+    "labels": [
+        "Puppi"
+    ], 
+    "line_styles": [
+        "", 
+        "", 
+        "", 
+        "-", 
+        "-", 
+        "-"
+    ], 
+    "markers": [
+        "."
+    ], 
+    "title": "Puppi", 
+    "weights": [
+        "Zboson_daughter==13"
+    ], 
+    "x_bins": [
+        "3,40,70"
+    ], 
+    "x_errors": [
+        false
+    ], 
+    "x_expressions": [
+        "Zboson_Pt"
+    ], 
+    "x_label": "$U_{parallel}/p_T^Z$", 
+    "y_bins": [
+        "100,-4,6"
+    ], 
+    "y_errors": [
+        false
+    ], 
+    "y_expressions": [
+        "recoilPFPuppiMet_LongZ/Zboson_Pt"
+    ],
+    "y_label": "Events"
+}
