@@ -33,9 +33,6 @@
         "Zboson_Pt"
     ], 
     "x_label": "$p_T^Z$", 
-    "y_bins": [
-        "100,-4,6"
-    ], 
     "y_errors": [
         false
     ], 
