@@ -265,7 +265,7 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   GenRecoil_sumEt_ = genMET_->sumEt();
 
   pat::MET genRecoil;
-  genRecoil.setP4(GenZ.p4()-genMET_->p4());
+  genRecoil.setP4(-GenZ.p4()-genMET_->p4());
   GenRecoil_Pt_    = genRecoil.pt();
   GenRecoil_Phi_   = genRecoil.phi();
   RecoilVec.SetMagPhi(GenRecoil_Pt_,reco::deltaPhi(GenRecoil_Phi_,GenZ.phi()));

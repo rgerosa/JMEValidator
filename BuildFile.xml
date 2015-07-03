@@ -19,11 +19,8 @@
 <use   name="SimDataFormats/JetMatching"/>
 <use   name="PhysicsTools/Utilities"/>
 <use   name="JMEAnalysis/TreeWrapper"/>
-<<<<<<< HEAD
 <use   name="RecoEgamma/EgammaTools" />
 <use   name="rootrflx"/>
-=======
->>>>>>> origin
 <use   name="root"/>
 <use   name="rootmath"/>
 <use   name="rootcore"/>

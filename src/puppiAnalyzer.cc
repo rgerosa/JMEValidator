@@ -96,27 +96,6 @@ void puppiAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 {
 
   if (eventCounter_ > eventLimit_) return;
-<<<<<<< HEAD:src/puppiAnalyzer.cc
-
-  edm::Handle<double> nalgosHandle;
-  iEvent.getByToken(nAlgosToken_, nalgosHandle);
-
-  edm::Handle<std::vector<double>> rawAlphas;
-  iEvent.getByToken(rawAlphasToken_, rawAlphas);
-
-  edm::Handle<std::vector<double>> TheAlphas;
-  iEvent.getByToken(alphasToken_, TheAlphas);
-
-  edm::Handle<std::vector<double>> TheAlphasMed;
-  iEvent.getByToken(alphasMedToken_, TheAlphasMed);
-
-  edm::Handle<std::vector<double>> TheAlphasRms;
-  iEvent.getByToken(alphasRmsToken_, TheAlphasRms);
-
-  edm::Handle<reco::CandidateView> hPFProduct;
-  iEvent.getByToken(packedPFCandidatesToken_, hPFProduct);
-  const reco::CandidateView *pfCol = hPFProduct.product();
-=======
 
   edm::Handle<double> nalgosHandle;
   iEvent.getByToken(nAlgosToken_, nalgosHandle);
@@ -141,7 +120,6 @@ void puppiAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   run = iEvent.id().run();
   lumiBlock = iEvent.id().luminosityBlock();
   event = iEvent.id().event();
->>>>>>> origin:src/puppiAnalyzer.cc
 
   nalgos = *nalgosHandle;
 

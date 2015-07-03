@@ -1,6 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-<<<<<<< HEAD
-=======
 
 
 # Common parameters used in all modules
@@ -17,21 +15,15 @@ CommonParameters = cms.PSet(
     # consider all matched references
     nJetMax         = cms.uint32(0),
 )
->>>>>>> origin
+
  
 def runMuonIsolation(process):
 	
 	process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 	process.load("Configuration.EventContent.EventContent_cff")
-<<<<<<< HEAD
 	process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 	process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 	process.GlobalTag.globaltag = "MCRUN2_74_V7::All"
-=======
-	process.load('Configuration.StandardSequences.Geometry_cff')
-	process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-	process.GlobalTag.globaltag = "PHYS14_25_V2::All"
->>>>>>> origin
 	
 	### load default PAT sequence
 	process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
@@ -44,7 +36,6 @@ def runMuonIsolation(process):
 							   )
 	
 	setattr( process, 'convertedPackedPFCandidatesWoMuon', convertedPackedPFCandidatesWoMuon )
-<<<<<<< HEAD
 
 	# presequences needed for PUPPI and PF-Weighting
 	process.patseq = cms.Sequence(process.convertedPackedPFCandidates *
@@ -59,16 +50,6 @@ def runMuonIsolation(process):
 	process.particleFlowPtrs.src = 'convertedPackedPFCandidates'
 	process.pfPileUpIsoPFBRECO.Vertices = 'offlineSlimmedPrimaryVertices'
 	process.pfPileUpPFBRECO.Vertices    = 'offlineSlimmedPrimaryVertices'
-=======
-	process.patseq = cms.Sequence(process.convertedPackedPFCandidates *
-				      convertedPackedPFCandidatesWoMuon *
-				      process.patCandidates * process.selectedPatCandidates)
-	process.p = cms.Path(process.patseq)
-	
-	# change the input collections
-	process.particleFlowPtrs.src = 'convertedPackedPFCandidates'
-	process.pfPileUpIso.Vertices = 'offlineSlimmedPrimaryVertices'
-	process.pfPileUp.Vertices    = 'offlineSlimmedPrimaryVertices'
 	
 	# remove unnecessary PAT modules
 	process.p.remove(process.makePatElectrons)
@@ -82,8 +63,7 @@ def runMuonIsolation(process):
 	process.p.remove(process.selectedPatJets)
 	process.p.remove(process.selectedPatTaus)
 	process.p.remove(process.selectedPatCandidateSummary)
->>>>>>> origin
-	
+
 	### muon selection
 	process.selectedPatMuons.src = 'slimmedMuons'
 	process.selectedPatMuons.cut = 'pt>10 && abs(eta)<2.4'
@@ -92,7 +72,6 @@ def runMuonIsolation(process):
 	
 	# -- PF-Weighted
 	process.load('CommonTools.ParticleFlow.deltaBetaWeights_cff')
-<<<<<<< HEAD
 	process.pfWeightedPhotons.src = 'pfAllPhotonsPFBRECO'
 	process.pfWeightedPhotons.chargedFromPV = 'pfAllChargedParticlesPFBRECO'
 	process.pfWeightedPhotons.chargedFromPU = 'pfPileUpAllChargedParticlesPFBRECO'
@@ -100,9 +79,6 @@ def runMuonIsolation(process):
 	process.pfWeightedNeutralHadrons.chargedFromPV = 'pfAllChargedParticlesPFBRECO'
 	process.pfWeightedNeutralHadrons.chargedFromPU = 'pfPileUpAllChargedParticlesPFBRECO'
 
-=======
-	
->>>>>>> origin
 	# -- PUPPI
 	from JMEAnalysis.JMEValidator.pfPUPPISequence_cff import *
 	load_pfPUPPI_sequence(process, 'pfPUPPISequence', algo = 'PUPPI',
@@ -124,12 +100,10 @@ def runMuonIsolation(process):
 	process.particleFlowNoMuonPUPPI.candName         = 'packedPFCandidatesWoMuon'
 	process.particleFlowNoMuonPUPPI.vertexName       = 'offlineSlimmedPrimaryVertices'
 	
-<<<<<<< HEAD
 	process.ParticleIsoSequences = cms.Sequence(process.pfDeltaBetaWeightingSequence * 
-												process.pfPUPPISequence * 
-												process.pfNoMuonPUPPISequence
-												)
-=======
+						    process.pfPUPPISequence * 
+						    process.pfNoMuonPUPPISequence
+						    )
 	from JMEAnalysis.JMEValidator.makePUPPIJets_cff import *
 	load_PUPPIJet_sequence(process,"PUPPIJetSequence",[0.4,0.8])
 	
@@ -147,8 +121,6 @@ def runMuonIsolation(process):
 	  process.patJetGenJetMatchAK8PUPPIJets *
 	  process.patJetsAK8PUPPIJets
 	)
-	
->>>>>>> origin
 	
 	from JMEAnalysis.JMEValidator.MuonPFIsolationSequence_cff import *
 	muon_src, cone_size = 'selectedPatMuons', 0.4
@@ -190,34 +162,7 @@ def runMuonIsolation(process):
 	  coneR = cone_size
 	)
 	
-<<<<<<< HEAD
-	# process.muPFIsoDepositCharged.src = 'slimmedMuons'
-=======
 	process.muPFIsoDepositCharged.src = 'slimmedMuons'
->>>>>>> origin
-	process.muonMatch.src = 'slimmedMuons'
-	process.muonMatch.matched = 'prunedGenParticles'
-	process.patMuons.pvSrc = 'offlineSlimmedPrimaryVertices'
-	process.p.remove(process.patMuons)
-	
-	process.MuonPFIsoSequences = cms.Sequence(
-	  process.MuonPFIsoSequenceSTAND *
-	  process.MuonPFIsoSequencePFWGT *
-	  process.MuonPFIsoSequencePUPPI *
-	  process.MuonPFIsoSequenceNoMuonPUPPI
-	)
-	
-	process.p.replace(
-	  process.selectedPatMuons,
-	  process.selectedPatMuons *
-<<<<<<< HEAD
-	  process.ParticleIsoSequences *
-	  process.MuonPFIsoSequences
-	)
-	
-=======
-	  process.MuonPFIsoSequences
-	)
 	
 	process.leptonsAndMET = cms.EDAnalyzer("LeptonsAndMETAnalyzer",
 	                                       srcIsoMuons = cms.InputTag("selectedMuonsForZ"),
@@ -240,4 +185,3 @@ def runMuonIsolation(process):
 	                                       srcVMPhNOMUONPUPPI      = cms.InputTag('muPFIsoValuePhR04NOMUONPUPPI')
 	                                       )
 	
->>>>>>> origin
