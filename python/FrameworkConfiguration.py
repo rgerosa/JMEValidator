@@ -1,6 +1,58 @@
-def createProcess(isMC, globalTag):
+import FWCore.ParameterSet.Config as cms
 
-    import FWCore.ParameterSet.Config as cms
+def get_cone_size(algo):
+    import re
+    cone_size = re.search('(\d+)', algo)
+    if cone_size is None:
+        raise ValueError('Cannot extract cone size from algorithm name')
+
+    return int(cone_size.group(1))
+
+def useJECFromDB(process, db):
+    process.load("CondCore.DBCommon.CondDBCommon_cfi")
+
+    process.jec = cms.ESSource("PoolDBESSource",
+            DBParameters = cms.PSet(
+                messageLevel = cms.untracked.int32(0)
+                ),
+            timetype = cms.string('runnumber'),
+            toGet = cms.VPSet(),
+
+            connect = cms.string('sqlite:%s' % db)
+         
+            )
+
+    process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
+
+def checkForTag(db_file, tag):
+    import sqlite3
+
+    db_file = db_file.replace('sqlite:', '')
+
+    connection = sqlite3.connect(db_file)
+    
+    res = connection.execute('select TAG_NAME from IOV where TAG_NAME=?', tag).fetchall()
+
+    return len(res) != 0
+
+def appendJECToDB(process, payload, prefix):
+
+    for set in process.jec.toGet:
+        if set.label == payload:
+            return
+
+    tag = 'JetCorrectorParametersCollection_%s_%s' % (prefix, payload)
+    if not checkForTag(process.jec.connect.value(), (tag,)):
+        print("WARNING: The JEC payload %r is not present in the database you want to use. Corrections for this payload will be loaded from the Global Tag" % payload)
+        return
+
+    process.jec.toGet += [cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string(tag),
+            label  = cms.untracked.string(payload)
+            )]
+
+def createProcess(isMC, globalTag):
 
     # Common parameters used in all modules
     JetAnalyserCommonParameters = cms.PSet(
@@ -26,6 +78,21 @@ def createProcess(isMC, globalTag):
 
     process.GlobalTag.globaltag = globalTag
 
+    run_on_25ns = True
+    
+    # Custom JEC
+    readJECFromDB = False
+
+    jec_database = 'PY8_RunIISpring15DR74_bx25_MC.db'
+    if not run_on_25ns:
+        jec_database = 'PY8_RunIISpring15DR74_bx50_MC.db'
+
+    jec_db_prefix = 'PY8_RunIISpring15DR74_bx25_MC'
+    if not run_on_25ns:
+        jec_db_prefix = 'PY8_RunIISpring15DR74_bx50_MC'
+
+    if readJECFromDB:
+        useJECFromDB(process, jec_database)
 
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #! Input
@@ -39,6 +106,7 @@ def createProcess(isMC, globalTag):
     process.MessageLogger.cerr.FwkReport.reportEvery = 1000
     process.load('CommonTools.UtilAlgos.TFileService_cfi')
     process.TFileService.fileName = cms.string('output_mc.root') if isMC else cms.string('output_data.root')
+    process.TFileService.closeFileFast = cms.untracked.bool(True)
 
     # Create all needed jets collections
 
@@ -169,6 +237,9 @@ def createProcess(isMC, globalTag):
 
             jec_payload = get_jec_payload(params['algo'], pu_method)
             jec_levels = get_jec_levels(pu_method)
+
+            if readJECFromDB:
+                appendJECToDB(process, jec_payload, jec_db_prefix)
 
             jetToolbox(process, params['algo'], 'dummy', 'out', PUMethod = pu_method, JETCorrPayload = jec_payload, JETCorrLevels = jec_levels, addPUJetID = False)
 
@@ -404,9 +475,9 @@ def createProcess(isMC, globalTag):
     #### CaloMET is not available in MiniAOD
     del slimmedMETs.caloMET
 
-    ### PUPPI
+    ### Standard
     process.slimmedMETs = slimmedMETs.clone()
-    if hasattr(process, "patMET"):
+    if hasattr(process, 'patMET'):
         # Create MET from Type 1 PF collection
         process.patMET.addGenMET = True
         process.slimmedMETs.src = cms.InputTag("patMET")
