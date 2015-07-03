@@ -29,6 +29,12 @@ private:
   edm::EDGetTokenT<reco::CandidateView> packedPFCandidatesToken_;
 
   // Tree branches
+<<<<<<< HEAD
+=======
+  ULong64_t& run = tree["run"].write<ULong64_t>();
+  ULong64_t& lumiBlock = tree["lumi"].write<ULong64_t>();
+  ULong64_t& event = tree["evt"].write<ULong64_t>();
+>>>>>>> origin
   float& nalgos = tree["nalgos"].write<float>();
   std::vector<float>& px = tree["px"].write<std::vector<float>>();
   std::vector<float>& py = tree["py"].write<std::vector<float>>();

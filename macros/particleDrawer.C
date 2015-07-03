@@ -91,7 +91,14 @@ void set_plot_style() {
    gStyle->SetNumberContours(NCont);
 }
 
-void particleDrawer(TString filename, int entry = 0, int PVAssoc = 2) {
+//enum pat::PackedCandidate::PVAssoc { NoPV=0, PVLoose=1, PVTight=2, PVUsedInFit=3 } ;
+/*
+EXAMPLE
+root
+.L particleDrawer.C++
+particleDrawer("../test/test.root",11,2)
+ */
+void particleDrawer(TString filename, int entry = 0, int PVAssoc = 2, bool debug = false) {
 
    cout << "particleDrawer::Setting the TDR style ... ";
    setTDRStyle();
@@ -137,12 +144,21 @@ void particleDrawer(TString filename, int entry = 0, int PVAssoc = 2) {
       TLorentzVector tempVect((*pNtuple->px)[iparticle],(*pNtuple->py)[iparticle],
                               (*pNtuple->pz)[iparticle],(*pNtuple->e)[iparticle]);
 
-      if((*pNtuple->fromPV)[iparticle]<PVAssoc)
+      if((*pNtuple->fromPV)[iparticle]<PVAssoc) {
+         if(debug) cout << "Filling PU::fromPV = " << (*pNtuple->fromPV)[iparticle] << endl;
          hPU->Fill(tempVect.Eta(),tempVect.Phi(),tempVect.Pt());
-      else
+      }
+      else {
+         if(debug) cout << "Filling hard-scatter:: fromPV = " << (*pNtuple->fromPV)[iparticle] << endl;
          hHard->Fill(tempVect.Eta(),tempVect.Phi(),tempVect.Pt());
+      }
    }
-   cout << "DONE" << endl;
+   if(debug) {
+      cout << "hPU->GetEntries() = " << hPU->GetEntries() << endl;
+      cout << "hHard->GetEntries() = " << hHard->GetEntries() << endl;
+   }
+   else
+      cout << "DONE" << endl;
 
    cout << "particleDrawer::Drawing the histograms ... ";
    //tdrDraw(hPU,"BOX",kFullSquare,kNone,kSolid,kGray,kNone,kNone);
@@ -154,8 +170,10 @@ void particleDrawer(TString filename, int entry = 0, int PVAssoc = 2) {
    hPU->SetFillColor(kNone);
    hPU->SetMarkerStyle(kFullSquare);
    hPU->SetMarkerColor(kNone);
-   stack->Add(hHard,"colz");
-   stack->Add(hPU,"BOX");
+   if(hHard->GetEntries()>0)
+      stack->Add(hHard,"colz");
+   if(hPU->GetEntries()>0)
+      stack->Add(hPU,"BOX");
    tdrDraw(stack,"nostack");
 
    set_plot_style();
@@ -215,8 +233,9 @@ void particleDrawer(TString filename, int entry = 0, int PVAssoc = 2) {
    //cout << setw(37) << " " << "DONE" << endl << endl;
 
    cout << "particleDrawer::Saving the canvas ... ";
-   c->SaveAs("particleMap.png");
-   c->SaveAs("particleMap.pdf");
-   c->SaveAs("particleMap.C");
+   TString name = Form("particleMap_entry%i_PVAssoc%i",entry,PVAssoc);
+   c->SaveAs(name+".png");
+   c->SaveAs(name+".pdf");
+   c->SaveAs(name+".C");
    cout << "DONE" << endl;
 }

@@ -59,13 +59,16 @@ process.source = cms.Source("PoolSource", fileNames = infiles )
 
 from JMEAnalysis.JetToolbox.jetToolbox_cff import *
 jetToolbox( process, 'ak4', 'ak4JetSubs', 'out', PUMethod='Puppi', JETCorrLevels = ['L1FastJet', 'L2Relative', 'L3Absolute'] ) 
-jetToolbox( process, 'ak4', 'ak4JetSubs', 'out', PUMethod='SK', JETCorrLevels = ['L1FastJet', 'L2Relative', 'L3Absolute'] ) 
+# jetToolbox( process, 'ak4', 'ak4JetSubs', 'out', PUMethod='SK', JETCorrLevels = ['L1FastJet', 'L2Relative', 'L3Absolute'] ) 
 #jetToolbox( process, 'ak4', 'ak4JetSubs', 'out', PUMethod='CS', JETCorrLevels = ['L1FastJet', 'L2Relative', 'L3Absolute'] ) 
-jetToolbox( process, 'ak4', 'ak4JetSubs', 'out', JETCorrLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']) # CHS jets?
+jetToolbox( process, 'ak4', 'ak4JetSubs', 'out', PUMethod='CHS', JETCorrLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']) # CHS jets?
+jetToolbox( process, 'ak4', 'ak4JetSubs', 'out', PUMethod='', JETCorrLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']) # CHS jets?
+
 jetToolbox( process, 'ak8', 'ak8JetSubs', 'out', PUMethod='Puppi', JETCorrLevels = ['L1FastJet', 'L2Relative', 'L3Absolute'] ) 
-jetToolbox( process, 'ak8', 'ak8JetSubs', 'out', PUMethod='SK', JETCorrLevels = ['L1FastJet', 'L2Relative', 'L3Absolute'] ) 
+# jetToolbox( process, 'ak8', 'ak8JetSubs', 'out', PUMethod='SK', JETCorrLevels = ['L1FastJet', 'L2Relative', 'L3Absolute'] ) 
 #jetToolbox( process, 'ak8', 'ak8JetSubs', 'out', PUMethod='CS', JETCorrLevels = ['L1FastJet', 'L2Relative', 'L3Absolute'] ) 
-jetToolbox( process, 'ak8', 'ak8JetSubs', 'out', JETCorrLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']) # CHS jets?
+jetToolbox( process, 'ak8', 'ak8JetSubs', 'out', PUMethod='CHS', JETCorrLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']) # CHS jets?
+jetToolbox( process, 'ak8', 'ak8JetSubs', 'out', PUMethod='', JETCorrLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']) # PF jets?
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #! Services
@@ -100,21 +103,21 @@ correctionLevels.append([]);
 jetSrcName.append('selectedPatJetsAK8PFPuppi');
 
 
-jetCollections.append('AK4SK');
+# jetCollections.append('AK4SK');
+# correctionLevels.append([]);
+# jetSrcName.append('selectedPatJetsAK4PFSK');
+
+# jetCollections.append('AK8SK');
+# correctionLevels.append([]);
+# jetSrcName.append('selectedPatJetsAK8PFSK');
+
+jetCollections.append('AK4PF');
 correctionLevels.append([]);
-jetSrcName.append('selectedPatJetsAK4PFSK');
+jetSrcName.append('selectedPatJetsAK4PF');
 
-jetCollections.append('AK8SK');
+jetCollections.append('AK8PF');
 correctionLevels.append([]);
-jetSrcName.append('selectedPatJetsAK8PFSK');
-
-#jetCollections.append('AK4CS');
-#correctionLevels.append([]);
-#jetSrcName.append('selectedPatJetsAK4PFCS');
-
-#jetCollections.append('AK8CS');
-#correctionLevels.append([]);
-#jetSrcName.append('selectedPatJetsAK8PFCS');
+jetSrcName.append('selectedPatJetsAK8PF');
 
 
 validator_sequence = cms.Sequence()
@@ -136,7 +139,9 @@ for i in range(len(jetCollections)):
 
 # process.p = cms.Path( puppi_onMiniAOD * corrservices_sequence * conversion_sequence * validator_sequence );
 
-process.puppiReader = cms.EDAnalyzer("puppiReader")
+process.puppiReader = cms.EDAnalyzer("puppiReader",
+										maxEvents = cms.int32(1000)
+									)
 
 process.p = cms.Path( process.puppiReader + validator_sequence )
 
