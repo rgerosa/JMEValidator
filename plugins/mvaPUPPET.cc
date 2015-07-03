@@ -95,7 +95,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
 	evt.getByToken(referenceMET_, referenceMETs);
 	assert((*referenceMETs).size() == 1);
 	auto referenceMET = (*referenceMETs)[0];
-	reco::Candidate::LorentzVector referenceNegRecoil = Z.p4() - referenceMET.p4();
+	reco::Candidate::LorentzVector referenceNegRecoil = - Z.p4() - referenceMET.p4();
 	std::string reference = "referenceNegRecoil";
 	addToMap(referenceNegRecoil, referenceMET.sumEt(), reference, referenceMET_name_);
 
@@ -117,10 +117,9 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
 
 		// calculate recoil
 		pat::MET negRecoil((*MET)[0]); 
-		negRecoil.setP4(Z.p4() - (*MET)[0].p4());
+		negRecoil.setP4(-Z.p4() - (*MET)[0].p4());
 
 		addToMap(negRecoil.p4(), (*MET)[0].sumEt(), string_input, collection_name, referenceMET.sumEt());
-
 		std::auto_ptr<pat::METCollection> patMETRecoilCollection(new pat::METCollection());
 		patMETRecoilCollection->push_back(negRecoil);
 		evt.put(patMETRecoilCollection, "recoil"+collection_name);
@@ -161,7 +160,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
 	// calculate new mvaPUPPET
 	pat::MET mvaMET(referenceMET);
 	reco::Candidate::LorentzVector recoilP4(refNegRecoil.Px(), refNegRecoil.Py(), 0, referenceMET.sumEt());
-	reco::Candidate::LorentzVector metP4 = Z.p4() - recoilP4;
+	reco::Candidate::LorentzVector metP4 = - Z.p4() - recoilP4;
 	mvaMET.setP4(metP4);
 
 	//// save results to event

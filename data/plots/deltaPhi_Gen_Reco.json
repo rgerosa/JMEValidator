@@ -1,0 +1,21 @@
+{
+    "filename": "deltaPhi_Gen_Reco", 
+    "files": [
+        "root://eoscms.cern.ch//store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt25ns_MCRUN2_74_V.root"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "title": "$\\Delta \\phi$(Gen,Reco) with $p_T^Z>30 \\mathrm{GeV}$", 
+    "weights": [
+        "Zboson_daughter==13&&Zboson_Pt>30"
+    ], 
+    "x_bins": [
+        "100,-1,1"
+    ], 
+    "x_expressions": [
+        "(Zboson_Phi-GenZ_Phi)+2.*TMath::Pi()*((Zboson_Phi-GenZ_Phi) < -TMath::Pi()) - 2.*TMath::Pi()*((Zboson_Phi-GenZ_Phi) > TMath::Pi())"
+    ], 
+    "x_label": "$\\Delta \\phi$", 
+    "y_log": true
+}

@@ -1,0 +1,18 @@
+{
+    "filename": "GenRecoZEta", 
+    "files": [
+        "root://eoscms.cern.ch//store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt25ns_MCRUN2_74_V.root"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "weights": [
+        "Zboson_daughter==13&&GenZ_M>0"
+    ], 
+    "x_bins": [
+        "100,-5,5"
+    ], 
+    "x_expressions": [
+        "Zboson_Eta-GenZ_Eta"
+    ]
+}

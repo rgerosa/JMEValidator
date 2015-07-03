@@ -22,7 +22,7 @@ options.parseArguments()
 from JMEAnalysis.JMEValidator.FrameworkConfiguration import createProcess
 
 process = createProcess(options.isMC, options.globalTag, options.muonTypeID, options.runPuppiMuonIso, options.muonIsoCone, 
-                        options.electronTypeID, options.tauTypeID,options.dropAnalyzerDumpEDM, options.runMVAPUPPETAnalysis, options.applyZSelections, options.applyJECtoPuppiJets)
+                        options.electronTypeID, options.tauTypeID,options.dropAnalyzerDumpEDM, options.runMVAPUPPETAnalysis, options.applyZSelections, options.applyJECtoPuppiJets, options.runPuppiDiagnostics)
 
 if len(options.inputFiles) == 0 and options.isMC == True:
 

@@ -183,7 +183,7 @@ class PUPPETAnalyzer : public JME::Analyzer
 
 	float& MVAMet_sumEt_ = tree["MVAMet_sumEt"].write<float>();
 	float& MVAMet_Pt_    = tree["MVAMet_Pt"].write<float>();
-	float& MVAMet_Phi_   = tree["MVAMet_Pt"].write<float>();
+	float& MVAMet_Phi_   = tree["MVAMet_Phi"].write<float>();
 	float& MVAMet_PerpZ_ = tree["MVAMet_PerpZ"].write<float>();
 	float& MVAMet_LongZ_ = tree["MVAMet_LongZ"].write<float>();
 
