@@ -117,10 +117,9 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
 
 		// calculate recoil
 		pat::MET negRecoil((*MET)[0]); 
-		negRecoil.setP4(Z.p4() - (*MET)[0].p4());
+		negRecoil.setP4(-Z.p4() - (*MET)[0].p4());
 
 		addToMap(negRecoil.p4(), (*MET)[0].sumEt(), string_input, collection_name, referenceMET.sumEt());
-
 		std::auto_ptr<pat::METCollection> patMETRecoilCollection(new pat::METCollection());
 		patMETRecoilCollection->push_back(negRecoil);
 		evt.put(patMETRecoilCollection, "recoil"+collection_name);
