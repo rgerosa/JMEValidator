@@ -1,15 +1,35 @@
 {
-    "filename": "Longitudinal_Response_controlplot_PF", 
+    "analysis_modules": [
+        "ProjectionY", 
+        "FunctionPlot"
+    ], 
+    "filename": "Longitudinal_Response_controlplot_PF_Projection", 
     "files": [
         "root://eoscms.cern.ch//store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt25ns_MCRUN2_74_V.root"
     ], 
     "folders": [
         "PUPPET/t"
     ], 
+    "function_fit": [
+        "nick0_slice_0", 
+        "nick0_slice_1", 
+        "nick0_slice_2"
+    ], 
+    "function_parameters": [
+        "1,1,1"
+    ], 
+    "functions": [
+        "gaus"
+    ], 
     "labels": [
         "PF"
     ], 
     "line_styles": [
+        "", 
+        "", 
+        "", 
+        "-", 
+        "-", 
         "-"
     ], 
     "markers": [
@@ -19,7 +39,7 @@
         "Zboson_daughter==13"
     ], 
     "x_bins": [
-        "20,0,200"
+        "3,40,70"
     ], 
     "x_errors": [
         false

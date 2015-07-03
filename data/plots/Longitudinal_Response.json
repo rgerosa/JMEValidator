@@ -9,6 +9,8 @@
     "labels": [
         "PF", 
         "PF CHS", 
+        "PF uncorrected", 
+        "PF CHS uncorrected", 
         "PF PUPPI"
     ], 
     "line_styles": [
@@ -39,6 +41,8 @@
     "y_expressions": [
         "recoilPFMet_LongZ/Zboson_Pt", 
         "recoilPFCHSMet_LongZ/Zboson_Pt", 
+        "recoilPFMet_uncorrected_LongZ/Zboson_Pt", 
+        "recoilPFCHSMet_uncorrected_LongZ/Zboson_Pt", 
         "recoilPFPuppiMet_LongZ/Zboson_Pt"
     ], 
     "y_label": "$U_{\\parallel}/p_T^Z$", 
