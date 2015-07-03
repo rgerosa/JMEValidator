@@ -142,9 +142,10 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
      pat::Jet const & jet = jets->at(iJet);
      if (jet.pt() < 5)
          continue;
+     
+     extractBasicProperties(jet);
 
      const reco::GenJet* ref = jet.genJet();
-
      if (ref) {
          refdrjt.push_back(reco::deltaR(jet, *ref));
          refpdgid.push_back(ref->pdgId());
@@ -194,16 +195,23 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
              pujetid_fullid.push_back(jet.userInt(userIntName));
      }
 
-     extractBasicProperties(jet);
 
      jtarea.push_back(jet.jetArea());
-     jtjec.push_back(jet.jecSetsAvailable() ? jet.jecFactor(0) : 1);
+
+     jec_toraw.push_back(jet.jecSetsAvailable() ? jet.jecFactor(0) : 1);
+     if (jet.jecSetsAvailable()) {
+         std::map<std::string, float> factors;
+         for (const auto& level: jet.availableJECLevels()) {
+             factors.emplace(level, jet.jecFactor(level));
+         }
+         jec_factors.push_back(factors);
+     }
      
      float dRmin(1000);
      for(reco::GenJetCollection::const_iterator igen = genjets->begin();igen != genjets->end(); ++igen){
          float dR = deltaR(jet.eta(),jet.phi(),igen->eta(),igen->phi());
          if (dR < dRmin) {
-        	 dRmin = dR;
+             dRmin = dR;
          }
      }
      dRMatch.push_back(dRmin);

@@ -44,7 +44,8 @@ class JMEJetAnalyzer : public JME::PhysicsObjectAnalyzer
         std::vector<int8_t>&   partonFlavor = tree["partonFlavor"].write<std::vector<int8_t>>();
         std::vector<int8_t>&   hadronFlavor = tree["hadronFlavor"].write<std::vector<int8_t>>();
         std::vector<float>& jtarea = tree["jtarea"].write<std::vector<float>>();
-        std::vector<float>& jtjec = tree["jtjec"].write<std::vector<float>>();
+        std::vector<float>& jec_toraw = tree["jec_toraw"].write<std::vector<float>>();
+        std::vector<std::map<std::string, float>>& jec_factors = tree["jec_factors"].write<std::vector<std::map<std::string, float>>>();
         std::vector<float>& beta = tree["beta"].write<std::vector<float>>();
         std::vector<float>& betaStar = tree["betaStar"].write<std::vector<float>>();
         std::vector<float>& betaClassic = tree["betaClassic"].write<std::vector<float>>();
