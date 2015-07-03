@@ -28,8 +28,6 @@ void JME::Analyzer::beginJob()
 
     TTree* tree_ = fs->make<TTree>(treeName_.c_str(), treeName_.c_str());
 
-    tree_->SetDirectory(&fs->file());
-
     // Disable autosave
     tree_->SetAutoSave(std::numeric_limits<Long64_t>::max());
 
