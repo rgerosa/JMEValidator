@@ -3,4 +3,5 @@
     <class name="std::vector<std::map<std::string, bool>>"/>
     <class name="std::vector<std::vector<std::pair<std::string, float>>>"/>
     <class name="std::vector<int8_t>"/>
+    <class name="std::vector<std::map<std::string, float>>"/>
 </lcgdict>

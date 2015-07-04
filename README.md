@@ -1,6 +1,4 @@
-<<<<<<< HEAD
 JMEValidator 
-======
 
 ###################################
 ### Recipe For PUPPI MET Studies ##
@@ -8,12 +6,12 @@ JMEValidator
 
 ```sh
 export SCRAM_ARCH=slc6_amd64_gcc491
-cmsrel CMSSW_7_4_5
-cd CMSSW_7_4_5/src/
+cmsrel CMSSW_7_4_6_patch2
+cd CMSSW_7_4_6_patch2/src/
 cmsenv
 
 git cms-addpkg CommonTools/PileupAlgos
-git cms-merge-topic nhanvtran:puppi-etadep-742p1-v6
+git cms-merge-topic nhanvtran:puppi-etadep-742p1-v8
 
 # Framework
 git clone git@github.com:blinkseb/JetToolbox.git JMEAnalysis/JetToolbox -b jetToolbox_74X
@@ -65,7 +63,7 @@ cmsenv
 git cms-addpkg CommonTools/PileupAlgos
 
 # Puppi
-git cms-merge-topic nhanvtran:puppi-etadep-742p1-v5
+git cms-merge-topic nhanvtran:puppi-etadep-746p2-v8
 
 # Framework
 git clone git@github.com:cms-jet/JetToolbox.git JMEAnalysis/JetToolbox -b jetToolbox_74X
@@ -161,22 +159,6 @@ The output file contains few information with respect to the configuration with 
 
 ```
 
-<<<<<<< HEAD
-=======
-JMEValidator
-======
-
-Common framework for CMS JEC / JER analyzes.
-
-### Dependencies
-
-This package depends on [TreeWrapper](https://github.com/blinkseb/TreeWrapper). Inside the `src` folder of you CMSSW release, do:
-
-```sh
-git clone git@github.com:blinkseb/TreeWrapper.git JMEAnalysis/TreeWrapper
-scram b -j8
-```
->>>>>>> origin
 =======
 Do the plots:
 
@@ -185,4 +167,3 @@ cd $CMSSW_BASE/src/JMEValidator/JMETools/data/
 harry.py -j plots/Zboson_Pt.json
 
 ```
->>>>>>> origin/PUPPETMVAMet
