@@ -15,7 +15,7 @@ cmsenv
 git cms-addpkg CommonTools/PileupAlgos
 
 # Puppi
-git cms-merge-topic nhanvtran:puppi-etadep-741
+git cms-merge-topic nhanvtran:puppi-etadep-746p2-v8
 
 # Framework
 git clone git@github.com:cms-jet/JetToolbox.git JMEAnalysis/JetToolbox -b jetToolbox_74X
