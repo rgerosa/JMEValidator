@@ -1,14 +1,14 @@
 { 
   "activeTrainings" : ["phiTraining", "recoilTraining"],
   "activeReweightings" : ["flattenpT"],
-  "inputFile": "file:data/DY-Asym25/output_mc_1.root",
+  "inputFile": "file:/storage/a/friese/puppet/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt25ns_MCRUN2_74_V9_new_v2.root",
   "Folder" : "PUPPET/t",
   "flattenpT" :
   {
   	  "desc" : "Weight to get flat pT distribution",
   	  "name" : "flatPtWeight",
   	  "flattenVariable" : "Zboson_Pt",
-  	  "weight" : "1",
+  	  "weight" : "Zboson_daughter==13",
   	  "eventsPerBin" : 1000,
   	  "type" : 1
   },
@@ -18,7 +18,7 @@
   	  "friends" : [],
   	  "desc" : "First training on phi",
   	  "apply_MVA_to" : "recoilPFPuppiMet",
-  	  "weight" : "1",
+  	  "weight" : "Zboson_daughter==13",
   	  "name" : "PhiCorrectedRecoil",
   	  "folder" : "PUPPET/t",
   	  "minEvents" : 250,
@@ -26,7 +26,7 @@
   	  "minCutSignificance" : 2.0,
   	  "nTrees" : 1000,
   	  "weightfilename" : "PhiCorection_PUPPI.root",
-  	  "targetVariable" : "(Zboson_Phi-recoilPFPuppiMet_Phi) + 2.*TMath::Pi()*((Zboson_Phi-recoilPFPuppiMet_Phi) < -TMath::Pi()) - 2.*TMath::Pi()*((Zboson_Phi-recoilPFPuppiMet_Phi) > TMath::Pi())",
+  	  "targetVariable" : "(Zboson_Phi-recoilPFPuppiMet_Phi+TMath::Pi()) - 2.*TMath::Pi()*((Zboson_Phi-recoilPFPuppiMet_Phi) > 0)",
   	  "trainingVariables" : 
   	  [	"recoilPFPuppiMet_ChargedPU_Pt",
 		"recoilPFPuppiMet_ChargedPU_Phi",
@@ -57,7 +57,7 @@
   	  "friends" : ["PhiCorrectedRecoil", "flatPtWeight"],
   	  "desc" : "Second training on Recoil",
   	  "apply_MVA_to" : "PhiCorrectedRecoil",
-  	  "weight" : "flatPtWeight",
+  	  "weight" : "(Zboson_daughter==13)*flatPtWeight",
   	  "name" : "LongZCorrectedRecoil",
   	  "folder" : "Flat",
   	  "minEvents" : 250,

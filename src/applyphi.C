@@ -148,8 +148,8 @@ void applyTraining::calculateUpdatedFourVector()
 
     TLorentzVector parU = _newU;
     parU.RotateZ(-_z.Phi());
-    _new_LongZ = float(-parU.Px());
-    _new_PerpZ = float(-parU.Py());
+    _new_LongZ = float(parU.Px());
+    _new_PerpZ = float(parU.Py());
 }
 
 void applyTraining::registerUpdatedMET()
