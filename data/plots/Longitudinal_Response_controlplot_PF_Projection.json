@@ -3,11 +3,6 @@
         "ProjectionY", 
         "FunctionPlot"
     ], 
-    "colors": [
-        "black", 
-        "red", 
-        "blue"
-    ], 
     "filename": "Longitudinal_Response_controlplot_PF_Projection", 
     "files": [
         "root://eoscms.cern.ch//store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt25ns_MCRUN2_74_V.root"
@@ -16,9 +11,9 @@
         "PUPPET/t"
     ], 
     "function_fit": [
+        "nick0_slice_0", 
         "nick0_slice_1", 
-        "nick0_slice_2", 
-        "nick0_slice_3"
+        "nick0_slice_2"
     ], 
     "function_parameters": [
         "1,1,1"
@@ -40,7 +35,6 @@
     "markers": [
         "."
     ], 
-    "title": "PF", 
     "weights": [
         "Zboson_daughter==13"
     ], 
@@ -53,11 +47,6 @@
     "x_expressions": [
         "Zboson_Pt"
     ], 
-    "x_label": "$U_{parallel}/p_T^Z$", 
-    "x_lims": [
-        0.0, 
-        4.0
-    ], 
     "y_bins": [
         "100,-4,6"
     ], 
@@ -65,7 +54,6 @@
         false
     ], 
     "y_expressions": [
-        "recoilPFMet_LongZ/Zboson_Pt"
-    ], 
-    "y_label": "Events"
+        "recoilPFMet_LongZ/-Zboson_Pt"
+    ]
 }

@@ -5,7 +5,7 @@
     "dict": true, 
     "filename": "Longitudinal_Resolution", 
     "files": [
-        "root://eoscms.cern.ch//store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt25ns_MCRUN2_74_V.root"
+        "root://eoscms.cern.ch//store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt25ns_MCRUN2_74_V9_new.root"
     ], 
     "fit_backend": [
         "ROOT"
@@ -59,9 +59,9 @@
         false
     ], 
     "y_expressions": [
-        "recoilPFMet_LongZ-Zboson_Pt", 
-        "recoilPFCHSMet_LongZ-Zboson_Pt", 
-        "recoilPFPuppiMet_LongZ-Zboson_Pt"
+        "recoilPFMet_LongZ+Zboson_Pt", 
+        "recoilPFCHSMet_LongZ+Zboson_Pt", 
+        "recoilPFPuppiMet_LongZ+Zboson_Pt"
     ], 
     "y_label": "Resolution [GeV]"
 }
