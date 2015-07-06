@@ -113,8 +113,8 @@ void applyTraining::eventLoop()
 void applyTraining::registerUpdatedFourVector()
 {
     _lOTree->Branch((_mvaResponseName+"_Pt").c_str(),      &_new_U,     (_mvaResponseName+"_Pt/F").c_str());
-    _lOTree->Branch((_mvaResponseName+"_Upar").c_str(),   &_new_Upar,  (_mvaResponseName+"_Upar/F").c_str());
-    _lOTree->Branch((_mvaResponseName+"_Uperp").c_str(),  &_new_Uperp, (_mvaResponseName+"_Uperp/F").c_str());
+    _lOTree->Branch((_mvaResponseName+"_LongZ").c_str(),   &_new_LongZ,  (_mvaResponseName+"_LongZ/F").c_str());
+    _lOTree->Branch((_mvaResponseName+"_PerpZ").c_str(),  &_new_PerpZ, (_mvaResponseName+"_PerpZ/F").c_str());
     _lOTree->Branch((_mvaResponseName+"_Phi").c_str(),   &_new_UPhi,  (_mvaResponseName+"_Phi/F").c_str());
 }
 
@@ -148,8 +148,8 @@ void applyTraining::calculateUpdatedFourVector()
 
     TLorentzVector parU = _newU;
     parU.RotateZ(-_z.Phi());
-    _new_Upar = float(-parU.Px());
-    _new_Uperp = float(-parU.Py());
+    _new_LongZ = float(-parU.Px());
+    _new_PerpZ = float(-parU.Py());
 }
 
 void applyTraining::registerUpdatedMET()

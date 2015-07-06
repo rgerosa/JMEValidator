@@ -51,8 +51,8 @@ class applyTraining {
 
   TLorentzVector _newU;
   float _new_U;
-  float _new_Upar;
-  float _new_Uperp;
+  float _new_LongZ;
+  float _new_PerpZ;
   float _new_UPhi;
 
   TLorentzVector _MET;
