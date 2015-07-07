@@ -28,7 +28,11 @@
   	  "weightfilename" : "PhiCorection_PUPPI.root",
   	  "targetVariable" : "(Zboson_Phi-recoilPFPuppiMet_Phi+TMath::Pi()) - 2.*TMath::Pi()*((Zboson_Phi-recoilPFPuppiMet_Phi) > 0)",
   	  "trainingVariables" : 
-  	  [	"recoilPFPuppiMet_ChargedPU_Pt",
+  	  [	
+		"recoilPFPuppiMet_Pt",
+		"recoilPFPuppiMet_Phi",
+		"recoilPFPuppiMet_sumEt",
+                "recoilPFPuppiMet_ChargedPU_Pt",
 		"recoilPFPuppiMet_ChargedPU_Phi",
 		"recoilPFPuppiMet_ChargedPU_sumEt",
 		"recoilPFPuppiMet_ChargedPV_Pt",
@@ -67,7 +71,11 @@
   	  "weightfilename" : "RecoilCorrection_PUPPI.root",
   	  "targetVariable" : "-Zboson_Pt/PhiCorrectedRecoil_LongZ",
   	  "trainingVariables" : 
-  	  [	"PhiCorrectedRecoil_Phi",
+  	  [	
+		"recoilPFPuppiMet_Pt",
+		"recoilPFPuppiMet_Phi",
+		"recoilPFPuppiMet_sumEt",
+                "PhiCorrectedRecoil_Phi",
 		"recoilPFPuppiMet_ChargedPU_Pt",
 		"recoilPFPuppiMet_ChargedPU_Phi",
 		"recoilPFPuppiMet_ChargedPU_sumEt",
