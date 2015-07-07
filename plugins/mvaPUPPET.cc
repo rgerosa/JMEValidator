@@ -77,8 +77,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
 	  for ( reco::CandidateView::const_iterator lepton = leptons->begin();
 		lepton != leptons->end(); ++lepton ){
 	    Z.setP4(Z.p4()+ lepton->p4());
-	    if(lepton->pdgId() > 0)
-	      Z.setPdgId(lepton->pdgId());
+	    Z.setPdgId(abs(lepton->pdgId()));
 	  }
 	}
 	var_["z_pT"] = Z.pt();

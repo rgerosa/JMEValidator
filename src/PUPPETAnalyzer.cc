@@ -153,18 +153,36 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   reco::GenParticle GenZ;
 
   for(auto aGenParticle : *GenParticlesHandle){
-    if(aGenParticle.pdgId() == 23){
+    if(aGenParticle.pdgId() == 23 or abs(aGenParticle.pdgId()) == 24 or aGenParticle.pdgId() == 22){
+      if(aGenParticle.numberOfDaughters() !=2) continue;
+      bool goodBoson = false;
+      int numberOfLeptonDaughter   = 0;
+      int leptonDaughterPdgId      = 0;
+      int numberOfNeutrinoDaughter = 0;
+      for(unsigned int i0 = 0; i0 < aGenParticle.numberOfDaughters(); i0++) {
+        const reco::GenParticle *daughter = aGenParticle.daughterRef(i0).get();
+	if(abs(daughter->pdgId()) == 11 or abs(daughter->pdgId()) == 13 or abs(daughter->pdgId()) == 15){
+	  numberOfLeptonDaughter ++;
+	  leptonDaughterPdgId = abs(daughter->pdgId());
+	}
+	else if(abs(daughter->pdgId()) == 12 or abs(daughter->pdgId()) == 14 or abs(daughter->pdgId()) == 16)
+	  numberOfNeutrinoDaughter++;
+      }
+
+      if(numberOfLeptonDaughter == 1 and numberOfNeutrinoDaughter == 1)
+	goodBoson = true;
+
+      if(numberOfLeptonDaughter == 2 and numberOfNeutrinoDaughter == 0)
+	goodBoson = true;
+
+      if(goodBoson == false) continue;
+
       GenZ_Pt_  = aGenParticle.pt();
       GenZ_Eta_ = aGenParticle.eta();
       GenZ_Phi_ = aGenParticle.phi();
       GenZ_M_   = aGenParticle.mass();
       GenZ.setP4(aGenParticle.p4());
-      for(unsigned int i0 = 0; i0 < aGenParticle.numberOfDaughters(); i0++) {
-        const reco::GenParticle *daughter = aGenParticle.daughterRef(i0).get();
-        if(daughter->pdgId() > 0){
-          GenZ_daughter_ = daughter->pdgId();
-	}
-      }
+      GenZ_daughter_ = leptonDaughterPdgId;
     }
   }  
 
