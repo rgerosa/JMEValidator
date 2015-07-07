@@ -61,11 +61,11 @@ class PUPPETAnalyzer : public JME::Analyzer
         edm::EDGetTokenT<std::vector<reco::GenParticle>> srcGenParticlesToken_;
 
         // Tree branches
-        float& GenZ_Pt_  = tree["GenZ_Pt"].write<float>();
-        float& GenZ_Eta_ = tree["GenZ_Eta"].write<float>();
-        float& GenZ_Phi_ = tree["GenZ_Phi"].write<float>();
-        float& GenZ_M_   = tree["GenZ_M"].write<float>();
-        int& GenZ_daughter_ = tree["GenZ_daughter"].write<int>();
+        float& GenBoson_Pt_  = tree["GenBoson_Pt"].write<float>();
+        float& GenBoson_Eta_ = tree["GenBoson_Eta"].write<float>();
+        float& GenBoson_Phi_ = tree["GenBoson_Phi"].write<float>();
+        float& GenBoson_M_   = tree["GenBoson_M"].write<float>();
+        int& GenBoson_daughter_ = tree["GenBoson_daughter"].write<int>();
 
         int& NGenJets_        = tree["NGenJets"].write<int>();
         int& NGenJetsCleaned_ = tree["NGenJetsCleaned"].write<int>();
@@ -200,11 +200,11 @@ class PUPPETAnalyzer : public JME::Analyzer
 	float& TrailingJet_Phi_ = tree["TrailingJet_Phi"].write<float>();
 	float& TrailingJet_M_   = tree["TrailingJet_M"].write<float>();
 
-	float& Zboson_Pt_     =  tree["Zboson_Pt"].write<float>();
-	float& Zboson_Phi_    =  tree["Zboson_Phi"].write<float>();
-	float& Zboson_Eta_    =  tree["Zboson_Eta"].write<float>();
-	float& Zboson_M_      =  tree["Zboson_M"].write<float>();
-	int& Zboson_daughter_ =  tree["Zboson_daughter"].write<int>();
+	float& Boson_Pt_     =  tree["Boson_Pt"].write<float>();
+	float& Boson_Phi_    =  tree["Boson_Phi"].write<float>();
+	float& Boson_Eta_    =  tree["Boson_Eta"].write<float>();
+	float& Boson_M_      =  tree["Boson_M"].write<float>();
+	int& Boson_daughter_ =  tree["Boson_daughter"].write<int>();
 
         std::vector<float>& AllJets_Pt_  = tree["AllJets_Pt"].write<std::vector<float>>();
         std::vector<float>& AllJets_Eta_ = tree["AllJets_Eta"].write<std::vector<float>>();

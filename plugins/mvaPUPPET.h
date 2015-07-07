@@ -42,6 +42,7 @@ private:
 	std::string referenceMET_name_;
 	edm::EDGetTokenT<pat::JetCollection> srcJets_;
 	std::vector<edm::EDGetTokenT<reco::CandidateView > > srcLeptons_;
+	std::vector<int> srcMETFlags_;
 
 
 	edm::FileInPath inputFileNamePhiCorrection_;

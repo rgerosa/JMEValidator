@@ -12,8 +12,16 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg){
     srcMETs_.push_back( consumes<pat::METCollection >( *it ) );
     produces<pat::METCollection>( "recoil"+(*it).label() );
   }
+
+  // take flags for the met
+  if (cfg.existsAs<std::vector<int> >("inputMETFlags"))
+    srcMETFlags_ = cfg.getParameter<std::vector<int>>("inputMETFlags");
   
-  
+  if(srcMETFlags_.size() != srcMETTags_.size())
+    throw cms::Exception("mvaPUPPET::mvaPUPPET")
+      << " Failed to load MET flags   !!\n";
+
+
   // get debug flags
   if (cfg.existsAs<bool>("debug"))
     debug_ = cfg.getParameter<bool>("debug");
@@ -94,14 +102,15 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
 	evt.getByToken(referenceMET_, referenceMETs);
 	assert((*referenceMETs).size() == 1);
 	auto referenceMET = (*referenceMETs)[0];
-	reco::Candidate::LorentzVector referenceNegRecoil = - Z.p4() - referenceMET.p4();
-	std::string reference = "referenceNegRecoil";
-	addToMap(referenceNegRecoil, referenceMET.sumEt(), reference, referenceMET_name_);
+	reco::Candidate::LorentzVector referenceRecoil = - Z.p4() - referenceMET.p4();
+	std::string reference = "referenceRecoil";
+	addToMap(referenceRecoil, referenceMET.sumEt(), reference, referenceMET_name_);
 
 	// calculate the recoils and save them to MET objects
 	int i = 0;
-	for ( std::vector<edm::EDGetTokenT<pat::METCollection> >::const_iterator srcMET = srcMETs_.begin();
-		srcMET != srcMETs_.end(); ++srcMET ){
+	std::vector<int>::const_iterator itMETFlags = srcMETFlags_.begin();
+	for ( std::vector<edm::EDGetTokenT<pat::METCollection> >::const_iterator srcMET = srcMETs_.begin(); 
+	      srcMET != srcMETs_.end() && itMETFlags!=srcMETFlags_.end(); ++srcMET, ++itMETFlags ){
 
 		//get inputs
 		std::string collection_name = srcMETTags_[i++].label();
@@ -110,17 +119,21 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
 		edm::Handle<pat::METCollection> MET;
 		evt.getByToken(*srcMET, MET);
 		assert((*MET).size() == 1 );
-		std::string string_input = "negRecoil"; 
+		std::string string_input = "Recoil"; 
 		if(debug_)
 		  std::cout << "tomap: " << collection_name << std::endl;
 
 		// calculate recoil
-		pat::MET negRecoil((*MET)[0]); 
-		negRecoil.setP4(-Z.p4() - (*MET)[0].p4());
+		pat::MET Recoil((*MET)[0]); 
+		if((*itMETFlags))
+		  Recoil.setP4(-Z.p4() - (*MET)[0].p4());
+		else
+		  Recoil.setP4(-(*MET)[0].p4());
+		
 
-		addToMap(negRecoil.p4(), (*MET)[0].sumEt(), string_input, collection_name, referenceMET.sumEt());
+		addToMap(Recoil.p4(), (*MET)[0].sumEt(), string_input, collection_name, referenceMET.sumEt());
 		std::auto_ptr<pat::METCollection> patMETRecoilCollection(new pat::METCollection());
-		patMETRecoilCollection->push_back(negRecoil);
+		patMETRecoilCollection->push_back(Recoil);
 		evt.put(patMETRecoilCollection, "recoil"+collection_name);
 	}
 
@@ -145,20 +158,20 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
 	  PhiAngle = GetResponse(mvaReaderPhiCorrection_, variablesForPhiTraining_);
 
 	
-	auto refNegRecoil = TVector2(referenceNegRecoil.px(), referenceNegRecoil.py());
-	refNegRecoil = refNegRecoil.Rotate(PhiAngle);
-	reco::Candidate::LorentzVector phiCorrectedNegRecoil(refNegRecoil.Px(), refNegRecoil.Py(), 0, referenceMET.sumEt());
-	addToMap(phiCorrectedNegRecoil, referenceMET.sumEt(), reference, referenceMET_name_);
+	auto refRecoil = TVector2(referenceRecoil.px(), referenceRecoil.py());
+	refRecoil = refRecoil.Rotate(PhiAngle);
+	reco::Candidate::LorentzVector phiCorrectedRecoil(refRecoil.Px(), refRecoil.Py(), 0, referenceMET.sumEt());
+	addToMap(phiCorrectedRecoil, referenceMET.sumEt(), reference, referenceMET_name_);
 
 	// evaluate second training and apply recoil correction
 	Float_t RecoilCorrection = 1.0;
 	if(inputFileNameRecoilCorrection_.fullPath() != "")
 	 RecoilCorrection = GetResponse(mvaReaderRecoilCorrection_, variablesForRecoilTraining_);
-	refNegRecoil *= RecoilCorrection;
+	refRecoil *= RecoilCorrection;
 	
 	// calculate new mvaPUPPET
 	pat::MET mvaMET(referenceMET);
-	reco::Candidate::LorentzVector recoilP4(refNegRecoil.Px(), refNegRecoil.Py(), 0, referenceMET.sumEt());
+	reco::Candidate::LorentzVector recoilP4(refRecoil.Px(), refRecoil.Py(), 0, referenceMET.sumEt());
 	reco::Candidate::LorentzVector metP4 = - Z.p4() - recoilP4;
 	mvaMET.setP4(metP4);
 

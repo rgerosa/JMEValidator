@@ -892,6 +892,7 @@ def createProcess(isMC, globalTag, muonTypeID, runPuppiMuonIso, muonIsoCone, ele
 
         setattr(process,"mvaPUPPET", cms.EDProducer("mvaPUPPET",
                                                     srcMETs      = cms.VInputTag("slimmedMETs","slimmedMETsCHS", "slimmedMETsPuppi","slimmedMETsPuppiChargedPV","slimmedMETsPuppiChargedPU","slimmedMETsPuppiNeutralPV","slimmedMETsPuppiNeutralPU"),
+                                                    inputMETFlags  = cms.vint32(1,1,1,1,0,0,0),
                                                     referenceMET   = cms.InputTag("slimmedMETsPuppi"),
                                                     srcVertices    = cms.InputTag("offlineSlimmedPrimaryVertices"),
                                                     srcJets        = cms.InputTag(jetColl),
