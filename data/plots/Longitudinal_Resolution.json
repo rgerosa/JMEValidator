@@ -13,10 +13,17 @@
     "folders": [
         "PUPPET/t"
     ], 
+    "friend_filenames": [
+        "../trainings/PhiCorrectedRecoil.root ../trainings/LongZCorrectedRecoil.root"
+    ], 
+    "friend_treenames": [
+        "PhiCorrectedRecoil LongZCorrectedRecoil"
+    ], 
     "labels": [
         "PF", 
         "PF CHS", 
-        "PF PUPPI"
+        "PUPPI", 
+        "MVA PUPPI"
     ], 
     "line_styles": [
         "-"
@@ -34,7 +41,8 @@
     "projection_to_nick": [
         "nick0", 
         "nick1", 
-        "nick2"
+        "nick2", 
+        "nick3"
     ], 
     "projection_to_plot": [
         "2"
@@ -61,7 +69,8 @@
     "y_expressions": [
         "recoilPFMet_LongZ+Zboson_Pt", 
         "recoilPFCHSMet_LongZ+Zboson_Pt", 
-        "recoilPFPuppiMet_LongZ+Zboson_Pt"
+        "recoilPFPuppiMet_LongZ+Zboson_Pt", 
+        "LongZCorrectedRecoil_LongZ+Zboson_Pt"
     ], 
     "y_label": "Resolution [GeV]"
 }

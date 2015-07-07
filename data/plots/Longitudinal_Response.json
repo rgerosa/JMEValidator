@@ -6,12 +6,19 @@
     "folders": [
         "PUPPET/t"
     ], 
+    "friend_filenames": [
+        "../trainings/PhiCorrectedRecoil.root ../trainings/LongZCorrectedRecoil.root"
+    ], 
+    "friend_treenames": [
+        "PhiCorrectedRecoil LongZCorrectedRecoil"
+    ], 
     "labels": [
         "PF", 
         "PF CHS", 
         "PF uncorrected", 
         "PF CHS uncorrected", 
-        "PF PUPPI"
+        "PUPPI", 
+        "MVA PUPPI"
     ], 
     "line_styles": [
         "-"
@@ -43,7 +50,8 @@
         "recoilPFCHSMet_LongZ/-Zboson_Pt", 
         "recoilPFMet_uncorrected_LongZ/-Zboson_Pt", 
         "recoilPFCHSMet_uncorrected_LongZ/-Zboson_Pt", 
-        "recoilPFPuppiMet_LongZ/-Zboson_Pt"
+        "recoilPFPuppiMet_LongZ/-Zboson_Pt", 
+        "LongZCorrectedRecoil_LongZ/-Zboson_Pt"
     ], 
     "y_label": "$U_{\\parallel}/p_T^Z$", 
     "y_lims": [
