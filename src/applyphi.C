@@ -77,8 +77,8 @@ void applyTraining::wireInputs()
   _lTree->SetBranchAddress( (_applyMVAto + "_Pt").c_str()      ,&_old_U);
   _lTree->SetBranchAddress( (_applyMVAto + "_Phi").c_str()   ,&_old_UPhi);
 
-  _lTree->SetBranchAddress( "Zboson_Pt"                ,&_z_pT);
-  _lTree->SetBranchAddress( "Zboson_Phi"               ,&_z_Phi);
+  _lTree->SetBranchAddress( "Boson_Pt"                ,&_z_pT);
+  _lTree->SetBranchAddress( "Boson_Phi"               ,&_z_Phi);
 
   if(_mode==-1)
   { 
