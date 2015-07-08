@@ -1,0 +1,37 @@
+{
+    "filename": "RecoilLongZDistribution", 
+    "files": [
+        "root://eoscms.cern.ch//store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_fixed.root"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "friend_filenames": [
+        "../trainings/PhiCorrectedRecoil.root ../trainings/LongZCorrectedRecoil.root"
+    ], 
+    "friend_treenames": [
+        "PhiCorrectedRecoil LongZCorrectedRecoil"
+    ], 
+    "labels": [
+        "PF corrected", 
+        "Puppi uncorrected", 
+        "Puppi MVA Phi Corrected", 
+        "Puppi MVA Final"
+    ], 
+    "line_styles": [
+        "-"
+    ], 
+    "markers": [
+        "."
+    ], 
+    "x_bins": [
+        "100,-3,3"
+    ], 
+    "x_expressions": [
+        "-Boson_Pt/recoilPFPuppiMet_LongZ", 
+        "-Boson_Pt/recoilPFMet_LongZ", 
+        "-Boson_Pt/PhiCorrectedRecoil_LongZ", 
+        "-Boson_Pt/LongZCorrectedRecoil_LongZ"
+    ], 
+    "x_label": "$\\phi$"
+}

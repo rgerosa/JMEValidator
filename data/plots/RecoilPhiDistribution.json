@@ -1,0 +1,41 @@
+{
+    "filename": "RecoilPhiDistribution", 
+    "files": [
+        "root://eoscms.cern.ch//store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_fixed.root"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "friend_filenames": [
+        "../trainings/PhiCorrectedRecoil.root ../trainings/LongZCorrectedRecoil.root"
+    ], 
+    "friend_treenames": [
+        "PhiCorrectedRecoil LongZCorrectedRecoil"
+    ], 
+    "labels": [
+        "Puppi uncorrected", 
+        "PF corrected", 
+        "Puppi MVA"
+    ], 
+    "line_styles": [
+        "-"
+    ], 
+    "markers": [
+        "."
+    ], 
+    "x_bins": [
+        "100,-3.141,3.141"
+    ], 
+    "x_errors": [
+        false
+    ], 
+    "x_expressions": [
+        "(Boson_Phi-recoilPFPuppiMet_Phi+TMath::Pi()) - 2.*TMath::Pi()*((Boson_Phi-recoilPFPuppiMet_Phi) > 0)", 
+        "(Boson_Phi-recoilPFMet_Phi+TMath::Pi()) - 2.*TMath::Pi()*((Boson_Phi-recoilPFMet_Phi) > 0)", 
+        "(Boson_Phi-PhiCorrectedRecoil_Phi+TMath::Pi()) - 2.*TMath::Pi()*((Boson_Phi-PhiCorrectedRecoil_Phi) > 0)"
+    ], 
+    "x_label": "$\\phi$", 
+    "y_errors": [
+        true
+    ]
+}
