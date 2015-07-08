@@ -10,6 +10,7 @@
 #include "DataFormats/JetReco/interface/JetCollection.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 class PUPPETAnalyzer : public JME::Analyzer
 {
@@ -43,6 +44,7 @@ class PUPPETAnalyzer : public JME::Analyzer
         edm::InputTag srcGenJets_;
         edm::InputTag srcGenJetsCleaned_;
         edm::InputTag srcGenParticles_;
+	edm::InputTag srcGenEventInfo_;
 
         edm::EDGetTokenT<std::vector<pat::MET>> srcRecoilPFMetToken_;
         edm::EDGetTokenT<std::vector<pat::MET>> srcRecoilPFCHSMetToken_;
@@ -59,8 +61,11 @@ class PUPPETAnalyzer : public JME::Analyzer
         edm::EDGetTokenT<std::vector<reco::GenJet>>     srcGenJetsToken_;
         edm::EDGetTokenT<pat::JetCollection>            srcGenJetsCleanedToken_;
         edm::EDGetTokenT<std::vector<reco::GenParticle>> srcGenParticlesToken_;
+	edm::EDGetTokenT<GenEventInfoProduct> srcGenEventInfoToken_;
 
         // Tree branches
+	float& eventMCWeight = tree["eventMCWeight"].write<float>(); 
+	
         float& GenBoson_Pt_  = tree["GenBoson_Pt"].write<float>();
         float& GenBoson_Eta_ = tree["GenBoson_Eta"].write<float>();
         float& GenBoson_Phi_ = tree["GenBoson_Phi"].write<float>();

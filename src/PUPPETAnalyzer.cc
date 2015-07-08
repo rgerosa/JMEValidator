@@ -49,6 +49,10 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
     srcGenParticles_ = iConfig.getParameter<edm::InputTag>("srcGenParticles");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input gen particle collection not given \n";
 
+  if (iConfig.existsAs<edm::InputTag>("srcGenEventInfo"))
+    srcGenEventInfo_ = iConfig.getParameter<edm::InputTag>("srcGenEventInfo");
+  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input no gen event info \n";
+
   if (iConfig.existsAs<edm::InputTag>("srcRecoilPFMet"))
     srcRecoilPFMet_ = iConfig.getParameter<edm::InputTag>("srcRecoilPFMet");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFMet recoil not given \n";
@@ -106,6 +110,9 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
   if(!(srcGenParticles_ == edm::InputTag("")))
     srcGenParticlesToken_ = consumes<reco::GenParticleCollection>(srcGenParticles_);
 
+  if(!(srcGenEventInfo_ == edm::InputTag("")))
+    srcGenEventInfoToken_ = consumes<GenEventInfoProduct>(srcGenEventInfo_);
+
   if(!(srcRecoilPFMet_ == edm::InputTag("")))
     srcRecoilPFMetToken_ = consumes<pat::METCollection>(srcRecoilPFMet_);
 
@@ -146,6 +153,11 @@ PUPPETAnalyzer::~PUPPETAnalyzer(){}
 //______________________________________________________________________________
 void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
 			     const edm::EventSetup& iSetup){
+
+  // take gen level info weight
+  edm::Handle<GenEventInfoProduct> GenEventInfoHandle;
+  iEvent.getByToken(srcGenEventInfoToken_,GenEventInfoHandle);
+  eventMCWeight = GenEventInfoHandle->weight()/fabs(GenEventInfoHandle->weight());
 
   // find generator level Z kinematics
   edm::Handle<reco::GenParticleCollection> GenParticlesHandle;

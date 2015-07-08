@@ -14,6 +14,7 @@
 #include "DataFormats/METReco/interface/PFMETCollection.h"
 #include <DataFormats/METReco/interface/PFMET.h>
 #include <DataFormats/PatCandidates/interface/MET.h>
+#include <DataFormats/PatCandidates/interface/Tau.h>
 #include <DataFormats/PatCandidates/interface/Jet.h>
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -23,42 +24,51 @@
 #include <TFile.h>
 #include <TVector2.h>
 
-class mvaPUPPET : public edm::stream::EDProducer<>
-{
-public:
+class mvaPUPPET : public edm::stream::EDProducer<> {
+
+ public:
 	mvaPUPPET(const edm::ParameterSet&);
 	~mvaPUPPET();
 
-
-
-private:
 	void produce(edm::Event&, const edm::EventSetup&);
-	std::map<std::string, Float_t> var_;
-	edm::EDGetTokenT<reco::VertexCollection> srcVertices_;
 	typedef std::vector<edm::InputTag> vInputTag;
-	vInputTag srcMETTags_;
-	std::vector<edm::EDGetTokenT<pat::METCollection > > srcMETs_;
-	edm::EDGetTokenT<pat::METCollection> referenceMET_;
-	std::string referenceMET_name_;
-	edm::EDGetTokenT<pat::JetCollection> srcJets_;
-	std::vector<edm::EDGetTokenT<reco::CandidateView > > srcLeptons_;
-	std::vector<int> srcMETFlags_;
 
-
-	edm::FileInPath inputFileNamePhiCorrection_;
-	edm::FileInPath inputFileNameRecoilCorrection_;
+	Float_t* createFloatVector(std::vector<std::string> variableNames);
 
 	unsigned int countVertices(const reco::VertexCollection& vertices);
 	unsigned int countJets(const pat::JetCollection& jets, const float maxPt);
-	Float_t* createFloatVector(std::vector<std::string> variableNames);
-
-	std::vector<std::string> variablesForPhiTraining_ = {"nVertices", "nJets" };
-	std::vector<std::string> variablesForRecoilTraining_ = {"nVertices", "nJets" };
 
 	const GBRForest* loadMVAfromFile(const edm::FileInPath& inputFileName, std::vector<std::string>& trainingVariableNames, std::string mvaName);
 	const Float_t GetResponse(const GBRForest * Reader, std::vector<std::string> &variableNames );
 	void addToMap(reco::Candidate::LorentzVector p4, double sumEt, std::string &name, std::string &type);
 	void addToMap(reco::Candidate::LorentzVector p4, double sumEt, std::string &name, std::string &type, double divisor);
+
+
+private:
+
+	vInputTag srcMETTags_;
+
+	std::vector<edm::EDGetTokenT<pat::METCollection > >  srcMETs_;
+	edm::EDGetTokenT<pat::METCollection>                 referenceMET_;
+	edm::EDGetTokenT<reco::VertexCollection>             srcVertices_;
+	edm::EDGetTokenT<pat::JetCollection>                 srcJets_;
+	std::vector<edm::EDGetTokenT<reco::CandidateView > > srcLeptons_;
+	edm::EDGetTokenT<pat::TauCollection>                 srcTaus_;
+
+	edm::InputTag srcPuppiWeights_;
+	edm::EDGetTokenT<edm::ValueMap<float> > puppiWeights_;
+
+	std::string referenceMET_name_;
+
+	std::vector<int> srcMETFlags_;
+
+	std::map<std::string, Float_t> var_;
+
+	edm::FileInPath inputFileNamePhiCorrection_;
+	edm::FileInPath inputFileNameRecoilCorrection_;
+
+	std::vector<std::string> variablesForPhiTraining_    = {"nVertices", "nJets" };
+	std::vector<std::string> variablesForRecoilTraining_ = {"nVertices", "nJets" };
 
 	const GBRForest* mvaReaderPhiCorrection_;
 	const GBRForest* mvaReaderRecoilCorrection_;
