@@ -29,7 +29,7 @@ cd ../../
 scram b -j 8
 
 cd JMEAnalysis/JMEValidator/test
-cmsRun runFramework.py
+cmsRun runFrameworkMC.py
 ```
 
 ####################################
