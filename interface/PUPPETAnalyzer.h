@@ -28,6 +28,7 @@ class PUPPETAnalyzer : public JME::Analyzer
 
         double dRgenMatching_;
         TVector2 RecoilVec;
+        TVector2 BosonVec;
 
 	edm::InputTag srcRecoilPFMet_;
 	edm::InputTag srcRecoilPFCHSMet_;
@@ -102,11 +103,16 @@ class PUPPETAnalyzer : public JME::Analyzer
         float& GenRecoil_PerpZ_ = tree["GenRecoil_PerpZ"].write<float>();
         float& GenRecoil_LongZ_ = tree["GenRecoil_LongZ"].write<float>();
 
-        float& recoilPFMet_sumEt_ = tree["recoilPFMet_sumEt"].write<float>();
-        float& recoilPFMet_Pt_    = tree["recoilPFMet_Pt"].write<float>();
-        float& recoilPFMet_Phi_   = tree["recoilPFMet_Phi"].write<float>();
-        float& recoilPFMet_PerpZ_ = tree["recoilPFMet_PerpZ"].write<float>();
-        float& recoilPFMet_LongZ_ = tree["recoilPFMet_LongZ"].write<float>();
+        float& GenBoson_PerpU_  = tree["GenBoson_PerpZ"].write<float>();
+        float& GenBoson_LongU_  = tree["GenBoson_LongZ"].write<float>();
+
+        float& recoilPFMet_sumEt_       = tree["recoilPFMet_sumEt"].write<float>();
+        float& recoilPFMet_Pt_          = tree["recoilPFMet_Pt"].write<float>();
+        float& recoilPFMet_Phi_         = tree["recoilPFMet_Phi"].write<float>();
+        float& recoilPFMet_PerpZ_       = tree["recoilPFMet_PerpZ"].write<float>();
+        float& recoilPFMet_LongZ_       = tree["recoilPFMet_LongZ"].write<float>();
+        float& recoilPFMet_Boson_PerpU_ = tree["recoilPFMet_Boson_PerpU"].write<float>();
+        float& recoilPFMet_Boson_LongU_ = tree["recoilPFMet_Boson_LongU"].write<float>();
 
         float& recoilPFMet_uncorrected_sumEt_ = tree["recoilPFMet_uncorrected_sumEt"].write<float>();
         float& recoilPFMet_uncorrected_Pt_    = tree["recoilPFMet_uncorrected_Pt"].write<float>();
