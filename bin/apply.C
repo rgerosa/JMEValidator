@@ -49,10 +49,9 @@ int main(int argc, char* argv[] ) {
 
 
   for(size_t iTrain = 0; iTrain < trainingProperties.size(); ++iTrain)
-  {
+  { // does probably not work any more to evaluate MVAs this way. But it's good to produce additional input values, as in the past
     applyTraining *user = new applyTraining(trainingProperties[iTrain], inputTree);
     user->getResults();
-    delete user;
   }
 }
 

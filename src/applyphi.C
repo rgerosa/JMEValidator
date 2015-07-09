@@ -1,4 +1,6 @@
 #include "../interface/applyphi.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
+
 
 applyTraining::applyTraining(boost::property_tree::ptree &pt, TTree *inputTree) :
   _mode(pt.get<int>("mode")),
@@ -7,7 +9,6 @@ applyTraining::applyTraining(boost::property_tree::ptree &pt, TTree *inputTree) 
   _mvaResponseName(pt.get<std::string>("name")),
   // Forest
   _lFForest((_mode>0) ? new TFile(_iTrain.c_str()) : NULL),
-  _lForest((_mode>0)  ? (GBRForest*)_lFForest->Get(_mvaResponseName.c_str()) : NULL),
   _lVars((_mode>0) ? (std::vector<std::string>*)_lFForest->Get("varlist"): NULL ),
   _lN((_mode>0) ? _lVars->size() : 0),
   _lFVars(new TTreeFormula*[_lN]),
@@ -37,7 +38,6 @@ applyTraining::applyTraining(boost::property_tree::ptree &pt, TTree *inputTree, 
   _mvaResponseName(pt.get<std::string>("name")),
   // Forest
   _lFForest((_mode>0) ? new TFile(_iTrain.c_str()) : NULL),
-  _lForest((_mode>0)  ? (GBRForest*)_lFForest->Get(_mvaResponseName.c_str()) : NULL),
   _lVars((_mode>0) ? (std::vector<std::string>*)_lFForest->Get("varlist"): NULL ),
   _lN((_mode>0) ? _lVars->size() : 0),
   _lFVars(new TTreeFormula*[_lN]),
@@ -88,8 +88,27 @@ void applyTraining::wireInputs()
   _lOTree->Branch(_mvaResponseName.c_str(), &_mvaResponse, (_mvaResponseName + "/F").c_str());
 }
 
-
 void applyTraining::eventLoop()
+{
+
+  for (Long64_t i0=0; i0<_lNEvents;i0++)
+    {
+      if (i0 % 2000000 == 0) std::cout << "--- ... Processing event: " << double(i0)/double(_lNEvents) << std::endl;
+      _lTree->GetEntry(i0);
+      for(int i1 = 0; i1 < _lN; i1++)
+      { 
+        _lVals[i1] = _lFVars[i1]->EvalInstance();
+      }
+  //do additional calculations
+    _z.SetPtEtaPhiM(_z_pT, 0, _z_Phi,0);
+    if(_mode >  -1) calculateUpdatedFourVector();
+    if(_mode >  -1) calculateUpdatedMET();
+    if(_mode == -1) calculateUpdatedMETCovMatrix();
+    _lOTree->Fill();
+  }
+}
+
+void applyTraining1D::eventLoop()
 {
 
   for (Long64_t i0=0; i0<_lNEvents;i0++)
@@ -110,6 +129,26 @@ void applyTraining::eventLoop()
   }
 }
 
+void applyTraining2D::eventLoop()
+{
+  _lForest->SetInitialResponse(0, 0);
+  for (Long64_t i0=0; i0<_lNEvents;i0++)
+    {
+      if (i0 % 2000000 == 0) std::cout << "--- ... Processing event: " << double(i0)/double(_lNEvents) << std::endl;
+      _lTree->GetEntry(i0);
+      for(int i1 = 0; i1 < _lN; i1++)
+      { 
+        _lVals[i1] = _lFVars[i1]->EvalInstance();
+      }
+    _lForest->GetResponse(_lVals, _xResult, _yResult);
+  //do additional calculations
+    _z.SetPtEtaPhiM(_z_pT, 0, _z_Phi,0);
+    if(_mode >  -1) calculateUpdatedFourVector();
+    if(_mode >  -1) calculateUpdatedMET();
+    if(_mode == -1) calculateUpdatedMETCovMatrix();
+    _lOTree->Fill();
+  }
+}
 void applyTraining::registerUpdatedFourVector()
 {
     _lOTree->Branch((_mvaResponseName+"_Pt").c_str(),      &_new_U,     (_mvaResponseName+"_Pt/F").c_str());
@@ -141,6 +180,13 @@ void applyTraining::calculateUpdatedFourVector()
       _newU.SetPtEtaPhiM(fabs(_mvaResponse * _old_U), 0, _old_UPhi,0);
       if(_mvaResponse < 0)
         _newU.RotateZ(TMath::Pi());
+    }else if(_mode==4) // 2D
+    {
+      double recoilPt = _old_U * ( 1 + _xResult);
+      double deltaPhi = TMath::ATan2( _old_U * _yResult, recoilPt);
+      recoilPt = recoilPt / TMath::Cos(deltaPhi);
+      double turnPhi = TMath::Pi() ? recoilPt < 0 : 0;
+      _newU.SetPtEtaPhiM( recoilPt, 0, normalizedPhi(deltaPhi + _old_UPhi + turnPhi), 0);
     }
 
     _new_U = float(_newU.Pt());
@@ -186,6 +232,16 @@ applyTraining::~applyTraining() {
   _lOFile->Close();
   std::cout << "done!" << std::endl;
 }
+/*
+applyTraining1D::applyTraining1D(boost::property_tree::ptree &pt, TTree *inputTree, std::string &friendFilename, std::string &friendTreename):
+   applyTraining(boost::property_tree::ptree &pt, TTree *inputTree, std::string &friendFilename, std::string &friendTreename),
+  _lForest((_mode>0)  ? (GBRForest*)_lFForest->Get(_mvaResponseName.c_str()) : NULL)
+{
+}
   
-  
-
+ applyTraining2D::applyTraining2D(boost::property_tree::ptree &pt, TTree *inputTree, std::string &friendFilename, std::string &friendTreename):
+   applyTraining(boost::property_tree::ptree &pt, TTree *inputTree, std::string &friendFilename, std::string &friendTreename),
+  (GBRForest2D*)_lFForest->Get(_mvaResponseName.c_str())
+{
+} 
+*/

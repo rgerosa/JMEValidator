@@ -1,7 +1,9 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "../interface/GBRTrainer.h"
+#include "../interface/GBRTrainer2D.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/EgammaObjects/interface/GBRForest2D.h"
 
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -21,7 +23,7 @@ using namespace std;
 void doTraining(boost::property_tree::ptree &pt, TTree* lRegress)
 {
 
-  // adding friends. Important for trainings with several stages
+  // Reading in from config file 
   std::vector<std::string> *friends = new std::vector<std::string>;
   BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt.get_child("friends"))
   {
@@ -47,6 +49,10 @@ void doTraining(boost::property_tree::ptree &pt, TTree* lRegress)
 
   std::string weight = pt.get<std::string>("weight");
 
+  TFile *fout = new TFile(pt.get<std::string>("weightfilename").c_str(),"RECREATE");
+
+  std::string mvaResponseName = pt.get<std::string>("name");
+
   if( targetVariables->size() == 1)
   {
     // 1-dim training
@@ -59,26 +65,32 @@ void doTraining(boost::property_tree::ptree &pt, TTree* lRegress)
     cout << " ===> " << weight << endl;  
     train->SetTargetVar( pt.get<std::string>("targetVariable") );
     for (int i=0; i<int(lVec->size()); ++i) {
-       train->AddInputVar(lVec->at(i));
+     train->AddInputVar(lVec->at(i));
     }
     std::cout << "Training Forest with " << pt.get<int>("nTrees")<< " Trees" << std::endl; 
     std::cout << pt.get<std::string>("desc") << std::endl;
     const GBRForest *forest = train->TrainForest( pt.get<int>("nTrees"));
-    //ROOT::Cintex::Cintex::Enable();
-    TFile *fout = new TFile(pt.get<std::string>("weightfilename").c_str(),"RECREATE");    
-    std::string mvaResponseName = pt.get<std::string>("name");
-    fout->WriteObject(lVec, "varlist");
     fout->WriteObject(forest, mvaResponseName.c_str());
-    fout->Close();
   }
   else if (targetVariables->size() == 2)
   {
    // 2-dim training
+    GBRTrainer2D *train = new GBRTrainer2D;
+    train->SetTree(lRegress);
+    train->SetTargetXVar(targetVariables->at(0));
+    train->SetTargetYVar(targetVariables->at(1));
+    train->SetTrainingCut(weight);
+    train->SetMinEvents( pt.get<int>("minEvents") );
+    train->SetShrinkage( pt.get<float>("shrinkage") );
+    for (int i=0; i<int(lVec->size()); ++i) {
+     train->AddInputVar(lVec->at(i));
+    }
+    const GBRForest2D *forest = train->TrainForest( pt.get<int>("nTrees"));
+    fout->WriteObject(forest, mvaResponseName.c_str());
   } 
 
-
-
-
+  fout->WriteObject(lVec, "varlist");
+  fout->Close();
   
 }
 
@@ -139,7 +151,7 @@ int main(int argc, char* argv[] ) {
     std::string friendFilename;
     std::string friendTreename;
     {
-    applyTraining user = applyTraining(trainingProperties[iTrain], inputTree, friendFilename, friendTreename);
+    applyTraining1D user = applyTraining1D(trainingProperties[iTrain], inputTree, friendFilename, friendTreename);
     user.getResults();
     }
     inputTree->AddFriend(friendTreename.c_str(), friendFilename.c_str());
