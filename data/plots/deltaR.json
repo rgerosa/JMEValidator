@@ -1,22 +1,22 @@
 {
     "dummy_x_expressions": [
-        "((Zboson_Eta-GenZ_Eta)^2+((Zboson_Phi-GenZ_Phi)+2*TMath::Pi()* (( Zboson_Phi-GenZ_Phi) < TMath::Pi()) - 2*TMath::Pi()* (( Zboson_Phi-GenZ_Phi) > TMath::Pi()))^2)^(0.5)"
+        "((Boson_Eta-GenBoson_Eta)^2+((Boson_Phi-GenBoson_Phi)+2*TMath::Pi()* (( Boson_Phi-GenBoson_Phi) < TMath::Pi()) - 2*TMath::Pi()* (( Boson_Phi-GenBoson_Phi) > TMath::Pi()))^2)^(0.5)"
     ], 
     "filename": "deltaR", 
     "files": [
-        "root://eoscms.cern.ch//store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt25ns_MCRUN2_74_V.root"
+        "root://eoscms.cern.ch//store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_fixed.root"
     ], 
     "folders": [
         "PUPPET/t"
     ], 
     "weights": [
-        "Zboson_daughter==13&&GenZ_M>20"
+        "Boson_daughter==13&&GenBoson_M>20"
     ], 
     "x_bins": [
         "100,0,10"
     ], 
     "x_expressions": [
-        "sqrt((Zboson_Eta-GenZ_Eta)^2+((Zboson_Phi-GenZ_Phi) + 2.*TMath::Pi()*((Zboson_Phi-GenZ_Phi) < -TMath::Pi()) - 2.*TMath::Pi()*((Zboson_Phi-GenZ_Phi) > TMath::Pi()))^2)"
+        "sqrt((Boson_Eta-GenBoson_Eta)^2+((Boson_Phi-GenBoson_Phi) + 2.*TMath::Pi()*((Boson_Phi-GenBoson_Phi) < -TMath::Pi()) - 2.*TMath::Pi()*((Boson_Phi-GenBoson_Phi) > TMath::Pi()))^2)"
     ], 
     "x_label": "deltaR", 
     "y_log": true

@@ -37,7 +37,7 @@
     ], 
     "title": "Puppi", 
     "weights": [
-        "Zboson_daughter==13"
+        "Boson_daughter==13"
     ], 
     "x_bins": [
         "3,40,70"
@@ -46,7 +46,7 @@
         false
     ], 
     "x_expressions": [
-        "Zboson_Pt"
+        "Boson_Pt"
     ], 
     "x_label": "$U_{parallel}/p_T^Z$", 
     "y_bins": [
@@ -56,7 +56,7 @@
         false
     ], 
     "y_expressions": [
-        "recoilPFPuppiMet_LongZ/-Zboson_Pt"
+        "recoilPFPuppiMet_LongZ/-Boson_Pt"
     ],
     "y_label": "Events"
 }

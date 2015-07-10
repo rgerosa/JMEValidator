@@ -8,7 +8,7 @@
 #include "TTreeFormula.h"
 #include "GBRTrainer.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
-//#include "Cintex/Cintex.h"
+#include "CondFormats/EgammaObjects/interface/GBRForest2D.h"
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -34,10 +34,10 @@ class applyTraining {
     void getResults();
     ~applyTraining();
 
-  private:
+  protected:
   int _mode = 0;
   void wireInputs();
-  void eventLoop();
+  virtual void eventLoop();
   TLorentzVector _z;
   float _z_pT                = 0;
   float _z_Phi               = 0;
@@ -66,7 +66,6 @@ class applyTraining {
   std::string _applyMVAto;
   std::string _mvaResponseName;
   TFile *_lFForest;
-  const GBRForest * _lForest;
   const std::vector<std::string> *_lVars;
   int _lN = 0;
   TTreeFormula **_lFVars;
@@ -80,9 +79,34 @@ class applyTraining {
   std::string _outputFilename;
   TFile *_lOFile;
   TTree *_lOTree;
+
+  double _xResult;
+  double _yResult;
+};
+
+class applyTraining1D : public applyTraining {
+  public:
+    applyTraining1D(boost::property_tree::ptree &pt, TTree *inputTree, std::string &friendFilename, std::string &friendTreename) : 
+      applyTraining::applyTraining(pt, inputTree, friendFilename, friendTreename),
+        _lForest((_mode>0)  ? (GBRForest*)_lFForest->Get(_mvaResponseName.c_str()) : NULL)
+{
 };
 
 
+  private:
+    const GBRForest * _lForest;
+    virtual void eventLoop();
+};
 
-//int main(int argc, char* argv[] );
+class applyTraining2D : public applyTraining {
+  public:
+    applyTraining2D(boost::property_tree::ptree &pt, TTree *inputTree, std::string &friendFilename, std::string &friendTreename):
+      applyTraining::applyTraining(pt, inputTree, friendFilename, friendTreename),
+        _lForest( (GBRForest2D*)_lFForest->Get(_mvaResponseName.c_str())) {};
+
+  private:
+    GBRForest2D * _lForest;
+    virtual void eventLoop();
+};
+
 #endif

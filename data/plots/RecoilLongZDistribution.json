@@ -1,5 +1,5 @@
 {
-    "filename": "Longitudinal_Resolution_controlplot", 
+    "filename": "RecoilLongZDistribution", 
     "files": [
         "root://eoscms.cern.ch//store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_fixed.root"
     ], 
@@ -12,31 +12,26 @@
     "friend_treenames": [
         "PhiCorrectedRecoil LongZCorrectedRecoil"
     ], 
+    "labels": [
+        "PF corrected", 
+        "Puppi uncorrected", 
+        "Puppi MVA Phi Corrected", 
+        "Puppi MVA Final"
+    ], 
     "line_styles": [
         "-"
     ], 
     "markers": [
         "."
     ], 
-    "weights": [
-        "Boson_daughter==13"
-    ], 
     "x_bins": [
-        "10,0,200"
-    ], 
-    "x_errors": [
-        false
+        "100,-3,3"
     ], 
     "x_expressions": [
-        "Boson_Pt"
+        "-Boson_Pt/recoilPFPuppiMet_LongZ", 
+        "-Boson_Pt/recoilPFMet_LongZ", 
+        "-Boson_Pt/PhiCorrectedRecoil_LongZ", 
+        "-Boson_Pt/LongZCorrectedRecoil_LongZ"
     ], 
-    "y_bins": [
-        "100,-80,80"
-    ], 
-    "y_errors": [
-        false
-    ], 
-    "y_expressions": [
-        "LongZCorrectedRecoil_LongZ+Boson_Pt"
-    ]
+    "x_label": "$\\phi$"
 }

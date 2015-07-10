@@ -7,8 +7,8 @@
   {
   	  "desc" : "Weight to get flat pT distribution",
   	  "name" : "flatPtWeight",
-  	  "flattenVariable" : "Zboson_Pt",
-  	  "weight" : "Zboson_daughter==13",
+  	  "flattenVariable" : "Boson_Pt",
+  	  "weight" : "Boson_daughter==13",
   	  "eventsPerBin" : 1000,
   	  "type" : 1
   },
@@ -18,7 +18,7 @@
   	  "friends" : [],
   	  "desc" : "First training on phi",
   	  "apply_MVA_to" : "recoilPFPuppiMet",
-  	  "weight" : "Zboson_daughter==13",
+  	  "weight" : "Boson_daughter==13",
   	  "name" : "PhiCorrectedRecoil",
   	  "folder" : "PUPPET/t",
   	  "minEvents" : 250,
@@ -26,7 +26,7 @@
   	  "minCutSignificance" : 2.0,
   	  "nTrees" : 1000,
   	  "weightfilename" : "PhiCorection_PUPPI.root",
-  	  "targetVariable" : "(Zboson_Phi-recoilPFPuppiMet_Phi+TMath::Pi()) - 2.*TMath::Pi()*((Zboson_Phi-recoilPFPuppiMet_Phi) > 0)",
+  	  "targetVariables" : ["(Boson_Phi-recoilPFPuppiMet_Phi+TMath::Pi()) - 2.*TMath::Pi()*((Boson_Phi-recoilPFPuppiMet_Phi) > 0)"],
   	  "trainingVariables" : 
   	  [	
 		"recoilPFPuppiMet_Pt",
@@ -61,7 +61,7 @@
   	  "friends" : ["PhiCorrectedRecoil", "flatPtWeight"],
   	  "desc" : "Second training on Recoil",
   	  "apply_MVA_to" : "PhiCorrectedRecoil",
-  	  "weight" : "(Zboson_daughter==13)*flatPtWeight",
+  	  "weight" : "(Boson_daughter==13)*flatPtWeight",
   	  "name" : "LongZCorrectedRecoil",
   	  "folder" : "Flat",
   	  "minEvents" : 250,
@@ -69,7 +69,7 @@
   	  "minCutSignificance" : 3.0,
   	  "nTrees" : 1000,
   	  "weightfilename" : "RecoilCorrection_PUPPI.root",
-  	  "targetVariable" : "-Zboson_Pt/PhiCorrectedRecoil_LongZ",
+  	  "targetVariables" : ["-Boson_Pt/PhiCorrectedRecoil_LongZ"],
   	  "trainingVariables" : 
   	  [	
 		"recoilPFPuppiMet_Pt",
@@ -113,7 +113,7 @@
   	  "minCutSignificance" : 3.0,
   	  "nTrees" : 1000,
   	  "weightfilename" : "CovU1_13TeV.root",
-  	  "targetVariable" : "abs(z_pT*cos(z_Phi-RecoilCor_UPhi)-RecoilCor_U)/RecoilCor_U*sqrt(TMath::Pi()/2.)",
+  	  "targetVariables" : ["abs(z_pT*cos(z_Phi-RecoilCor_UPhi)-RecoilCor_U)/RecoilCor_U*sqrt(TMath::Pi()/2.)"],
   	  "trainingVariables" : 
   	  [ "particleFlow_U", 
     	"particleFlow_SumET", 
@@ -157,7 +157,7 @@
   	  "minCutSignificance" : 3.0,
   	  "nTrees" : 1000,
   	  "weightfilename" : "CovU2_13TeV.root",
-  	  "targetVariable" : "abs(z_pT*sin(z_Phi-RecoilCor_UPhi))*sqrt(TMath::Pi()/2.)/RecoilCor_U",
+  	  "targetVariables" : ["abs(z_pT*sin(z_Phi-RecoilCor_UPhi))*sqrt(TMath::Pi()/2.)/RecoilCor_U"],
   	  "trainingVariables" : 
   	  [ "particleFlow_U", 
     	"particleFlow_SumET", 

@@ -6,9 +6,9 @@
         "PUPPET/t"
     ], 
     "weights": [
-        "Zboson_daughter==13&&Zboson_Pt>30"
+        "Boson_daughter==13&&Boson_Pt>30"
     ], 
     "x_expressions": [
-        "GenZ_Phi-Zboson_Phi"
+        "GenBoson_Phi-Boson_Phi"
     ]
 }

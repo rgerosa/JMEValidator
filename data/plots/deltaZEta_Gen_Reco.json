@@ -7,12 +7,12 @@
         "PUPPET/t"
     ], 
     "weights": [
-        "Zboson_daughter==13&&GenZ_M>0"
+        "Boson_daughter==13&&GenBoson_M>0"
     ], 
     "x_bins": [
         "100,-5,5"
     ], 
     "x_expressions": [
-        "Zboson_Eta-GenZ_Eta"
+        "Boson_Eta-GenBoson_Eta"
     ]
 }

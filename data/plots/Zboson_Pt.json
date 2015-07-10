@@ -7,12 +7,12 @@
     ], 
     "title": "Di-Muon System Pt", 
     "weights": [
-        "Zboson_daughter==13"
+        "Boson_daughter==13"
     ], 
     "x_bins": [
         "50,0,200"
     ], 
     "x_expressions": [
-        "Zboson_Pt"
+        "Boson_Pt"
     ]
 }
