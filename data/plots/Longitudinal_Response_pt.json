@@ -1,0 +1,53 @@
+{
+    "filename": "Longitudinal_Response_pt", 
+    "files": [
+        "root://eoscms.cern.ch//store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt25ns_MCRUN2_74_V9_new_v2.root"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "labels": [
+        "PF", 
+        "PF CHS", 
+        "PF uncorrected", 
+        "PF CHS uncorrected", 
+        "PUPPI"
+    ], 
+    "line_styles": [
+        "-"
+    ], 
+    "markers": [
+        "."
+    ], 
+    "tree_draw_options": [
+        "prof"
+    ], 
+    "weights": [
+        "Zboson_daughter==13"
+    ], 
+    "x_bins": [
+        "10,0,200"
+    ], 
+    "x_errors": [
+        false
+    ], 
+    "x_expressions": [
+        "Zboson_Pt"
+    ], 
+    "x_label": "$p_T^Z$", 
+    "y_errors": [
+        false
+    ], 
+    "y_expressions": [
+        "recoilPFMet_LongZ/-Zboson_Pt", 
+        "recoilPFCHSMet_LongZ/-Zboson_Pt", 
+        "recoilPFMet_uncorrected_LongZ/-Zboson_Pt", 
+        "recoilPFCHSMet_uncorrected_LongZ/-Zboson_Pt", 
+        "recoilPFPuppiMet_LongZ/-Zboson_Pt"
+    ], 
+    "y_label": "$U_{\\parallel}/p_T^Z$", 
+    "y_lims": [
+        0.0, 
+        2.0
+    ]
+}

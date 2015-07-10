@@ -1,0 +1,40 @@
+{
+    "filename": "Para_comparison_over_Z", 
+    "files": [
+        "root://eoscms.cern.ch//store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt25ns_MCRUN2_74_V9_new_v2.root"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "labels": [
+        "PF", 
+        "PF CHS", 
+        "PF uncorrected", 
+        "PF CHS uncorrected", 
+        "PF PUPPI"
+    ], 
+    "line_styles": [
+        "-"
+    ], 
+    "markers": [
+        "."
+    ], 
+    "weights": [
+        "Zboson_daughter==13&&Zboson_Pt>30"
+    ], 
+    "x_bins": [
+        "40,-4,2"
+    ], 
+    "x_errors": [
+        false
+    ], 
+    "x_expressions": [
+        "recoilPFMet_LongZ/Zboson_Pt", 
+        "recoilPFCHSMet_LongZ/Zboson_Pt", 
+        "recoilPFMet_uncorrected_LongZ/Zboson_Pt", 
+        "recoilPFCHSMet_uncorrected_LongZ/Zboson_Pt", 
+        "recoilPFPuppiMet_LongZ/Zboson_Pt"
+    ], 
+    "x_label": "Upara/$p_T^Z$", 
+    "y_label": "Events"
+}
