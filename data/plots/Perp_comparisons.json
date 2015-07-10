@@ -1,0 +1,44 @@
+{
+    "filename": "Perp_comparisons", 
+    "files": [
+        "root://eoscms.cern.ch//store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt25ns_MCRUN2_74_V9_new_v2.root"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "labels": [
+        "PF", 
+        "PF CHS", 
+        "PF uncorrected", 
+        "PF CHS uncorrected", 
+        "PF PUPPI"
+    ], 
+    "line_styles": [
+        "-"
+    ], 
+    "markers": [
+        "."
+    ], 
+    "weights": [
+        "Zboson_daughter==13&&Zboson_Pt>30"
+    ], 
+    "x_bins": [
+        "50,-100,100"
+    ], 
+    "x_errors": [
+        false
+    ], 
+    "x_expressions": [
+        "recoilPFMet_PerpZ", 
+        "recoilPFCHSMet_PerpZ", 
+        "recoilPFMet_uncorrected_PerpZ", 
+        "recoilPFCHSMet_uncorrected_PerpZ", 
+        "recoilPFPuppiMet_PerpZ"
+    ], 
+    "x_label": "Uperp [GeV]", 
+    "y_label": "Events", 
+    "y_lims": [
+        0, 
+        120000.0
+    ]
+}

@@ -86,6 +86,8 @@ void applyTraining::wireInputs()
     _lTree->SetBranchAddress( "CovU2"           ,&_mvaCov2);
   }
   _lOTree->Branch(_mvaResponseName.c_str(), &_mvaResponse, (_mvaResponseName + "/F").c_str());
+  _lOTree->Branch((_mvaResponseName+"x").c_str(), &_xResult, (_mvaResponseName + "x/F").c_str());
+  _lOTree->Branch((_mvaResponseName+"y").c_str(), &_yResult, (_mvaResponseName + "y/F").c_str());
 }
 
 void applyTraining::eventLoop()
