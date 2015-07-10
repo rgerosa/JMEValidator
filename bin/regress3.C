@@ -63,7 +63,7 @@ void doTraining(boost::property_tree::ptree &pt, TTree* lRegress)
     train->SetShrinkage( pt.get<float>("shrinkage") );
     train->SetMinCutSignificance( pt.get<float>("minCutSignificance") );  
     cout << " ===> " << weight << endl;  
-    train->SetTargetVar( pt.get<std::string>("targetVariable") );
+    train->SetTargetVar( targetVariables->at(0) );
     for (int i=0; i<int(lVec->size()); ++i) {
      train->AddInputVar(lVec->at(i));
     }
@@ -150,9 +150,21 @@ int main(int argc, char* argv[] ) {
 
     std::string friendFilename;
     std::string friendTreename;
+
+    int nTargetVars = 0;
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, trainingProperties[iTrain].get_child("targetVariables"))
     {
-    applyTraining1D user = applyTraining1D(trainingProperties[iTrain], inputTree, friendFilename, friendTreename);
-    user.getResults();
+      nTargetVars++;
+    }
+    if(nTargetVars == 1)
+    {
+      applyTraining1D user = applyTraining1D(trainingProperties[iTrain], inputTree, friendFilename, friendTreename);
+      user.getResults();
+    }
+    if(nTargetVars == 2)
+    {
+      applyTraining2D user = applyTraining2D(trainingProperties[iTrain], inputTree, friendFilename, friendTreename);
+      user.getResults();
     }
     inputTree->AddFriend(friendTreename.c_str(), friendFilename.c_str());
   }
