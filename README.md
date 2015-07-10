@@ -11,7 +11,10 @@ cd CMSSW_7_4_6_patch2/src/
 cmsenv
 
 git cms-addpkg CommonTools/PileupAlgos
-git cms-merge-topic nhanvtran:puppi-etadep-742p1-v8
+git cms-addpkg DataFormats/METReco
+
+git cms-merge-topic nhanvtran:puppi-etadep-746p2-v8
+cp /afs/cern.ch/user/r/rgerosa/public/PUPPETPatch/MET.h DataFormats/METReco/interface
 
 # Framework
 git clone git@github.com:blinkseb/JetToolbox.git JMEAnalysis/JetToolbox -b jetToolbox_74X
