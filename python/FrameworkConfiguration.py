@@ -464,7 +464,7 @@ def createProcess(isMC, ## isMC flag
 
                 postfix       = '%sPF%s' % (algo, pu_method)
 
-                setattr(getattr(process,"selectedPatJets"+postfix),"cut",cms.string('pt > 30'))
+                setattr(getattr(process,"selectedPatJets"+postfix),"cut",cms.string('pt > 0'))
                 
                 cleanJetsFromLeptons(process,
                                      "Cleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID+"Tau"+tauTypeID,                                 
@@ -502,7 +502,7 @@ def createProcess(isMC, ## isMC flag
              ))
 
             setattr(process,"selectedPat"+genAlgo+"GenJetsNoNu",cms.EDFilter("PATJetSelector",
-                                                                             cut = cms.string('pt > 30'),
+                                                                             cut = cms.string('pt > 0'),
                                                                              src = cms.InputTag("pat"+genAlgo+"GenJetsNoNu")
                                                                              ))
 
@@ -897,18 +897,27 @@ def createProcess(isMC, ## isMC flag
         jetColl = "selectedPatJetsAK4PFPuppiCleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID+"Tau"+tauTypeID;
 
         setattr(process,"mvaPUPPET", cms.EDProducer("mvaPUPPET",
-                                                    srcMETs      = cms.VInputTag("slimmedMETs","slimmedMETsCHS", "slimmedMETsPuppi","slimmedMETsPuppiChargedPV","slimmedMETsPuppiChargedPU","slimmedMETsPuppiNeutralPV","slimmedMETsPuppiNeutralPU"),
-                                                    inputMETFlags  = cms.vint32(1,1,1,1,0,0,0),
-                                                    referenceMET   = cms.InputTag("slimmedMETsPuppi"),
-                                                    srcVertices    = cms.InputTag("offlineSlimmedPrimaryVertices"),
+                                                    referenceMET = cms.InputTag("slimmedMETsPuppi"),
+                                                    srcMETs      = cms.VInputTag("slimmedMETs",
+                                                                                 "slimmedMETsCHS", 
+                                                                                 "slimmedMETsPuppi",
+                                                                                 "slimmedMETsPuppiChargedPU",
+                                                                                 "slimmedMETsPuppiChargedPV",
+                                                                                 "slimmedMETsPuppiNeutralPV",
+                                                                                 "slimmedMETsPuppiNeutralPU"),
+                                                    inputMETFlags  = cms.vint32(1,1,1,0,1,0,0),
                                                     srcJets        = cms.InputTag(jetColl),
+                                                    srcVertices    = cms.InputTag("offlineSlimmedPrimaryVertices"),
                                                     srcTaus        = cms.InputTag("slimmedTaus"+tauTypeID+"Cleaned"),
                                                     srcPuppiWeights     = cms.InputTag("puppi"),
                                                     inputFileNames = cms.PSet(
-#                    PhiCorrectionWeightFile = cms.FileInPath('JMEAnalysis/JMEValidator/data/PhiCor_13TeV.root'),
-#                    RecoilCorrectionWeightFile  = cms.FileInPath('JMEAnalysis/JMEValidator/data/RecoilCor_13TeV.root')
+                    #                    PhiCorrectionWeightFile = cms.FileInPath('JMEAnalysis/JMEValidator/data/PhiCor_13TeV.root'),
+                    #                    RecoilCorrectionWeightFile  = cms.FileInPath('JMEAnalysis/JMEValidator/data/RecoilCor_13TeV.root')
                     ),
-                                                    srcLeptons = cms.VInputTag("LeptonMerge") ))
+                                                    srcLeptons  = cms.VInputTag("LeptonMerge"),
+                                                    mvaMETLabel = cms.string("mvaMET"),
+                                                    ZbosonLabel = cms.string("ZtagBoson")
+                                                    ))
 
         process.jmfw_analyzers += getattr(process,"mvaPUPPET");
         
