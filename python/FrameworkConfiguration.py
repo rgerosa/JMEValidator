@@ -102,7 +102,8 @@ def createProcess(isMC, ## isMC flag
                   runMVAPUPPETAnalysis,applyZSelections,applyWSelections, ## special settings for PUPPET
                   applyJECtoPuppiJets,
                   runPuppiDiagnostics,
-                  isRunningOn25ns,useJECFromDB):
+                  isRunningOn25ns,useJECFromDB,
+                  etaCutForMetDiagnostic,noPtNeutralCut,redefineEtaCut):
 
     process = cms.Process("JRA")
 
@@ -452,7 +453,6 @@ def createProcess(isMC, ## isMC flag
                                             src = cms.InputTag("packedGenParticles")
                                             )
     
-
         
     if runMVAPUPPETAnalysis :
 
@@ -517,7 +517,31 @@ def createProcess(isMC, ## isMC flag
     ##################################                    
     ##### run pu puppi for PUPPET ####
     ##################################
-    if runMVAPUPPETAnalysis:                            
+    if runMVAPUPPETAnalysis:          
+
+        if abs(etaCutForMetDiagnostic) <= 2.5:
+            if noPtNeutralCut :
+                process.puppi.algos[0].MinNeutralPt = 0;
+                process.puppi.algos[0].MinNeutralPtSlope = 0;
+
+
+        if abs(etaCutForMetDiagnostic) > 2.5 and abs(etaCutForMetDiagnostic) <= 3.0 :
+            if redefineEtaCut :
+                process.puppi.algos[0].etaMax = 2.2;
+                process.puppi.algos[1].etaMin = 2.2;    
+            if noPtNeutralCut :
+                process.puppi.algos[1].MinNeutralPt = 0;
+                process.puppi.algos[1].MinNeutralPtSlope = 0;
+            
+        elif abs(etaCutForMetDiagnostic) >= 3.0 :
+            if redefineEtaCut :
+                process.puppi.algos[0].etaMax = 2.2;
+                process.puppi.algos[1].etaMin = 2.2;    
+            if noPtNeutralCut :
+                process.puppi.algos[2].MinNeutralPt = 0;
+                process.puppi.algos[2].MinNeutralPtSlope = 0;
+            
+                  
         process.pupuppi = process.puppi.clone()
         process.pupuppi.invertPuppi = True
 
@@ -550,22 +574,37 @@ def createProcess(isMC, ## isMC flag
             )
 
     ## Raw PF METs
+
+    ## make a selection on eta according to the value defined
+    process.pfCandidatesForMET = cms.EDFilter("CandPtrSelector",
+                                              src = cms.InputTag("packedPFCandidates"),
+                                              cut = cms.string("abs(eta) < %f"%etaCutForMetDiagnostic))
+
+
     process.load('RecoMET.METProducers.PFMET_cfi')
-    process.pfMet.src = cms.InputTag('packedPFCandidates')
+    process.pfMet.src = cms.InputTag('pfCandidatesForMET')
     addMETCollection(process, labelName='patPFMet', metSource='pfMet') # RAW MET
     process.patPFMet.addGenMET = False
 
     ## CHS pat MET; raw PF is the slimmedMet in miniAOD + typeI correction
     from RecoMET.METProducers.PFMET_cfi import pfMet
+    process.pfCandidatesForMETCHS = cms.EDFilter("CandPtrSelector",
+                                                 src = cms.InputTag("chs"),
+                                                 cut = cms.string("abs(eta) < %f"%etaCutForMetDiagnostic))
+
+
     process.pfMetCHS        = pfMet.clone()
-    process.pfMetCHS.src    = cms.InputTag("chs") ## packed candidates without fromPV < 1
+    process.pfMetCHS.src    = cms.InputTag("pfCandidatesForMETCHS") ## packed candidates without fromPV < 1
     process.pfMetCHS.alias  = cms.string('pfMetCHS')
     addMETCollection(process, labelName='patPFMetCHS', metSource='pfMetCHS') # Convert the CHS PFMet in PAT MET
     process.patPFMetCHS.addGenMET = False
 
     ### puppi raw met
+    process.pfCandidatesForPuppiMET = cms.EDFilter("CandPtrSelector",
+                                                   src = cms.InputTag("puppi"),
+                                                   cut = cms.string("abs(eta) < %f"%etaCutForMetDiagnostic))
     process.pfMetPuppi       = pfMet.clone()
-    process.pfMetPuppi.src   = cms.InputTag("puppi")
+    process.pfMetPuppi.src   = cms.InputTag("pfCandidatesForPuppiMET")
     process.pfMetPuppi.alias = cms.string('pfMetPuppi')
     addMETCollection(process, labelName='patPFMetPuppi', metSource='pfMetPuppi') # RAW puppi MET
     process.patPFMetPuppi.addGenMET = False
@@ -696,43 +735,43 @@ def createProcess(isMC, ## isMC flag
         ## particles for chs 
         process.pfChargedPV = cms.EDFilter("CandPtrSelector",
                                            src = cms.InputTag("chs"),
-                                           cut = cms.string("pt > 0  && charge!=0"))
+                                           cut = cms.string("pt > 0  && charge!=0 && abs(eta) < %f"%etaCutForMetDiagnostic))
 
         process.pfNeutrals = cms.EDFilter("CandPtrSelector",
                                           src = cms.InputTag("chs"),
-                                          cut = cms.string("pt > 0 && charge == 0"))
+                                          cut = cms.string("pt > 0 && charge == 0 && abs(eta) < %f"%etaCutForMetDiagnostic))
 
 
         process.pfChargedPU = cms.EDFilter("CandPtrSelector",
-                                           cut = cms.string('!fromPV'),
+                                           cut = cms.string('!fromPV && abs(eta) < %f'%etaCutForMetDiagnostic),
                                            src = cms.InputTag("packedPFCandidates")
                                            )
 
         #### puppi particles
         process.pfPuppiAll = cms.EDFilter("CandPtrSelector",
                                           src = cms.InputTag("puppi"),
-                                          cut = cms.string("pt > 0"))
+                                          cut = cms.string("pt > 0 && abs(eta) < %f"%(etaCutForMetDiagnostic)))
 
         process.pfAllChargedParticlesPuppi = cms.EDFilter("CandPtrSelector",
                                                           src = cms.InputTag("puppi"),
-                                                          cut = cms.string("charge !=0 && pt > 0"))
+                                                          cut = cms.string("charge !=0 && pt > 0 && abs(eta) < %f"%etaCutForMetDiagnostic))
 
         process.pfAllNeutralParticlesPuppi  = cms.EDFilter("CandPtrSelector", 
                                                            src = cms.InputTag("puppi"), 
-                                                           cut = cms.string("charge == 0 && pt > 0"))
+                                                           cut = cms.string("charge == 0 && pt > 0 && abs(eta) < %f"%etaCutForMetDiagnostic))
 
         ## inverted puppi
         process.pfPUPuppi = cms.EDFilter("CandPtrSelector",
                                          src = cms.InputTag("pupuppi"),
-                                         cut = cms.string("pt > 0"))
+                                         cut = cms.string("pt > 0 && abs(eta) < %f"%etaCutForMetDiagnostic))
 
         process.pfPUPuppiCharge = cms.EDFilter("CandPtrSelector",
                                                src = cms.InputTag("pupuppi"),
-                                               cut = cms.string("pt > 0 && charge != 0"))
+                                               cut = cms.string("pt > 0 && charge != 0 && abs(eta) < %f"%etaCutForMetDiagnostic))
 
         process.pfAllNeutralParticlesPuppiPU  = cms.EDFilter("CandPtrSelector", 
                                                              src = cms.InputTag("pupuppi"), 
-                                                             cut = cms.string("charge=0 && pt > 0"))
+                                                             cut = cms.string("charge=0 && pt > 0 && abs(eta) < %f"%etaCutForMetDiagnostic))
     
 
         #### Missing energies        

@@ -18,6 +18,9 @@ options.register ('applyJECtoPuppiJets',  False,       VarParsing.multiplicity.s
 options.register ('runPuppiDiagnostics',  False,       VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'run Puppi diagnostic and store in the output');
 options.register ('isRunningOn25ns',      False,       VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'true when running on 25ns and JEC from DB should be red');
 options.register ('useJECFromDB',         False,       VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'read JEC from the database for special JEC not in GT');
+options.register ('etaCutForMetDiagnostic',   10.0, VarParsing.multiplicity.singleton, VarParsing.varType.float, 'introduce a cut for the diagnostic of the MET');
+options.register ('noPtNeutralCut',       False,    VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'disable pt neutral cut in puppi');
+options.register ('redefineEtaCut',       False,    VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'use a different eta bin between tracker and forward region');
 options.parseArguments()
 
 ## import the function to create the process
@@ -35,7 +38,10 @@ process = createProcess(options.isMC, ## MC or data
                         options.runMVAPUPPETAnalysis, options.applyZSelections, options.applyWSelections, ## special flags for PUPPI analysis
                         options.applyJECtoPuppiJets, ## JEC for puppi
                         options.runPuppiDiagnostics, ## puppi diagnostic
-                        options.isRunningOn25ns, options.useJECFromDB); ## special JEC
+                        options.isRunningOn25ns, options.useJECFromDB,
+                        options.etaCutForMetDiagnostic,
+                        options.noPtNeutralCut,
+                        options.redefineEtaCut); ## special JEC
 
 ####### files
 if len(options.inputFiles) == 0 and options.isMC == True:
@@ -107,5 +113,5 @@ if options.dropAnalyzerDumpEDM :
     process.out = cms.EndPath(process.output)
     
 
-#processDumpFile = open('processDump.py', 'w')
-#print >> processDumpFile, process.dumpPython()
+processDumpFile = open('processDump.py', 'w')
+print >> processDumpFile, process.dumpPython()
