@@ -80,9 +80,11 @@ def appendJECToDB(process, payload, prefix):
             return
 
     tag = 'JetCorrectorParametersCollection_%s_%s' % (prefix, payload)
+    tag = tag.replace('.db','')
     if not checkForTag(process.jec.connect.value(), (tag,)):
         print("WARNING: The JEC payload %r is not present in the database you want to use. Corrections for this payload will be loaded from the Global Tag" % payload)
         return
+
 
     process.jec.toGet += [cms.PSet(
             record = cms.string('JetCorrectionsRecord'),
@@ -102,7 +104,8 @@ def createProcess(isMC, ## isMC flag
                   runMVAPUPPETAnalysis,applyZSelections,applyWSelections, ## special settings for PUPPET
                   applyJECtoPuppiJets,
                   runPuppiDiagnostics,
-                  isRunningOn25ns,useJECFromDB,
+                  isRunningOn25ns,
+                  useJECFromLocalDB,
                   etaCutForMetDiagnostic,noPtNeutralCut,redefineEtaCut):
 
     process = cms.Process("JRA")
@@ -137,15 +140,15 @@ def createProcess(isMC, ## isMC flag
 
     process.GlobalTag.globaltag = globalTag
 
-    jec_database = 'PY8_RunIISpring15DR74_bx25_MC.db'
+    jec_database = 'Summer15_V5_MC.db'
     if not isRunningOn25ns:
-        jec_database = 'PY8_RunIISpring15DR74_bx50_MC.db'
+        jec_database = 'Summer15_V5_MC.db'
 
-    jec_db_prefix = 'PY8_RunIISpring15DR74_bx25_MC'
+    jec_db_prefix = 'Summer15_V5_MC.db'
     if not isRunningOn25ns:
-        jec_db_prefix = 'PY8_RunIISpring15DR74_bx50_MC'
+        jec_db_prefix = 'Summer15_V5_MC.db'
 
-    if useJECFromDB:
+    if useJECFromLocalDB:
         useJECFromDB(process, jec_database)
 
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -202,7 +205,9 @@ def createProcess(isMC, ## isMC flag
             jec_payload = get_jec_payload(params['algo'], pu_method)
             jec_levels  = get_jec_levels(pu_method)
 
-            if useJECFromDB:
+            if useJECFromLocalDB:
+                print "jec_payload  ",jec_payload
+                print "jec_levels  ",jec_levels
                 appendJECToDB(process, jec_payload, jec_db_prefix)
 
             jetToolbox(process, params['algo'], 'dummy', 'out', PUMethod = pu_method, JETCorrPayload = jec_payload, JETCorrLevels = jec_levels, addPUJetID = False)
@@ -228,7 +233,7 @@ def createProcess(isMC, ## isMC flag
                 applyPostfix(process, 'patJets', postfix).userData.userInts.src   += ['pileupJetIdEvaluator%s:cutbasedId' % postfix, 'pileupJetIdEvaluator%s:fullId' % postfix]
 
 
-            if applyJECtoPuppiJets == False:
+            if applyJECtoPuppiJets == False and pu_method == 'Puppi':
                 applyPostfix(process, 'patJets', postfix).addJetCorrFactors = cms.bool(False)
                 applyPostfix(process, 'patJets', postfix).jetCorrFactorsSource = cms.VInputTag(cms.InputTag(""))
 
@@ -472,7 +477,7 @@ def createProcess(isMC, ## isMC flag
                                      muonCollection     = "slimmedMuons"+muonTypeID,
                                      electronCollection = "slimmedElectrons"+electronTypeID,
                                      tauCollection      = "slimmedTaus"+tauTypeID+"Cleaned",
-                                     jetPtCut   = 30.,
+                                     jetPtCut   = 0.,
                                      jetEtaCut  = 5.,
                                      dRCleaning = 0.3) 
 
