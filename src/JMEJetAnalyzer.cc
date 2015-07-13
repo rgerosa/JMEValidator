@@ -227,6 +227,7 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
      neutralEmEnergyFraction.push_back(jet.neutralEmEnergyFraction());
      neutralHadronEnergyFraction.push_back(jet.neutralHadronEnergyFraction());
      photonEnergyFraction.push_back(jet.photonEnergyFraction());
+     chargedMultiplicity.push_back(jet.chargedMultiplicity());
 
      // Calo jet specific
      //emEnergyFraction.push_back(jet.emEnergyFraction());
