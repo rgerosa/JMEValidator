@@ -83,6 +83,7 @@ class JMEJetAnalyzer : public JME::PhysicsObjectAnalyzer
         std::vector<float>& chargedMuEnergyFraction = tree["chargedMuEnergyFraction"].write<std::vector<float>>();
         std::vector<float>& electronEnergyFraction = tree["electronEnergyFraction"].write<std::vector<float>>();
 
+        std::vector<int>& chargedMultiplicity = tree["chargedMultiplicity"].write<std::vector<int>>();
 
         std::vector<float>& HFEMEnergyFraction = tree["HFEMEnergyFraction"].write<std::vector<float>>();
         std::vector<float>& HFHadronEnergyFraction = tree["HFHadronEnergyFraction"].write<std::vector<float>>();
