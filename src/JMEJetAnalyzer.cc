@@ -262,12 +262,12 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
 
       b_genjet_hasMatchedRecoJet = true ;
 
-      if( ! ( jet.neutralEmEnergyFraction->at( i )     < 0.99 ) )  continue  ; 
-      if( ! ( jet.chargedHadronEnergyFraction->at( i ) > 0.0  ) )  continue  ; 
-      if( ! ( jet.neutralHadronEnergyFraction->at( i ) < 0.99 ) )  continue  ; 
-      if( ! ( jet.chargedEmEnergyFraction->at( i )     < 0.99 ) )  continue  ; 
-      if( ! ( jet.nTot->at( i )                        > 1    ) )  continue  ; 
-      if( ! ( jet.chargedMultiplicity->at( i )         > 0    ) )  continue  ; 
+      if( ! ( jet.neutralEmEnergyFraction()     < 0.99 ) )  continue  ; 
+      if( ! ( jet.chargedHadronEnergyFraction() > 0.0  ) )  continue  ; 
+      if( ! ( jet.neutralHadronEnergyFraction() < 0.99 ) )  continue  ; 
+      if( ! ( jet.chargedEmEnergyFraction()     < 0.99 ) )  continue  ; 
+      if( ! ( jet.numberOfDaughters()           > 1    ) )  continue  ; 
+      if( ! ( jet.chargedMultiplicity()         > 0    ) )  continue  ; 
 
       b_genjet_hasMatchedRecoJetWithJetID = true ;
 
