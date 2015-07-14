@@ -11,6 +11,8 @@ def get_cone_size(algo):
 def useJECFromDB(process, db):
     process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
+    print("Using database %r for JECs" % db)
+
     process.jec = cms.ESSource("PoolDBESSource",
             DBParameters = cms.PSet(
                 messageLevel = cms.untracked.int32(0)
@@ -52,7 +54,7 @@ def appendJECToDB(process, payload, prefix):
             label  = cms.untracked.string(payload)
             )]
 
-def createProcess(isMC, globalTag):
+def createProcess(isMC, globalTag, readJECFromDB=False, jec_database=None, jec_db_prefix=None):
 
     # Common parameters used in all modules
     JetAnalyserCommonParameters = cms.PSet(
@@ -78,18 +80,8 @@ def createProcess(isMC, globalTag):
 
     process.GlobalTag.globaltag = globalTag
 
-    run_on_25ns = True
-    
-    # Custom JEC
-    readJECFromDB = False
-
-    jec_database = 'PY8_RunIISpring15DR74_bx25_MC.db'
-    if not run_on_25ns:
-        jec_database = 'PY8_RunIISpring15DR74_bx50_MC.db'
-
-    jec_db_prefix = 'PY8_RunIISpring15DR74_bx25_MC'
-    if not run_on_25ns:
-        jec_db_prefix = 'PY8_RunIISpring15DR74_bx50_MC'
+    if readJECFromDB and (not jec_database or not jec_db_prefix):
+        raise LogicError("You must specify the parameters jec_database and jec_db_prefix when reading JEC from DB")
 
     if readJECFromDB:
         useJECFromDB(process, jec_database)
