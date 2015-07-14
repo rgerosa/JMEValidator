@@ -5,7 +5,7 @@
     "dict": true, 
     "filename": "Longitudinal_Resolution", 
     "files": [
-        "root://eoscms.cern.ch//store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_fixed.root"
+        "root://eoscms.cern.ch//store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_fixed_v2.root"
     ], 
     "fit_backend": [
         "ROOT"
@@ -19,6 +19,7 @@
     "friend_treenames": [
         "PhiCorrectedRecoil LongZCorrectedRecoil"
     ], 
+    "grid": true, 
     "labels": [
         "PF", 
         "PF CHS", 
@@ -52,7 +53,7 @@
         "Boson_daughter==13"
     ], 
     "x_bins": [
-        "10,0,200"
+        "19,10,200"
     ], 
     "x_errors": [
         false
@@ -73,5 +74,9 @@
         "recoilPFPuppiMet_LongZ+Boson_Pt", 
         "LongZCorrectedRecoil_LongZ+Boson_Pt"
     ], 
-    "y_label": "Resolution [GeV]"
+    "y_label": "Resolution [GeV]", 
+    "y_lims": [
+        0.0, 
+        40.0
+    ]
 }
