@@ -106,7 +106,7 @@ def createProcess(isMC, ## isMC flag
                   runPuppiDiagnostics,
                   isRunningOn25ns,
                   useJECFromLocalDB,
-                  etaCutForMetDiagnostic,noPtNeutralCut,redefineEtaCut):
+                  etaCutForMetDiagnostic,noPtNeutralCut,redefineEtaBinPuppi, puppiConeCentral, puppiUseChargeCentral):
 
     process = cms.Process("JRA")
 
@@ -514,7 +514,7 @@ def createProcess(isMC, ## isMC flag
             cleanGenJetsFromGenLeptons (process,
                                         jetCollection       = "selectedPat"+genAlgo+"GenJetsNoNu",
                                         genLeptonCollection = "packedGenLeptons",
-                                        jetPtCut         = 30,
+                                        jetPtCut         = 0,
                                         jetEtaCut        = 5,
                                         dRCleaning       = 0.3)
 
@@ -524,14 +524,19 @@ def createProcess(isMC, ## isMC flag
     ##################################
     if runMVAPUPPETAnalysis:          
 
+        ## change cone and use charge for the tracking region
+        process.puppi.algos[0].puppiAlgos[0].cone       = puppiConeCentral
+        process.puppi.algos[0].puppiAlgos[0].useCharged = puppiUseChargeCentral
+
+        ## cut particles for met response studies in some region of the detector
         if abs(etaCutForMetDiagnostic) <= 2.5:
+            ## drop the pT cut
             if noPtNeutralCut :
                 process.puppi.algos[0].MinNeutralPt = 0;
-                process.puppi.algos[0].MinNeutralPtSlope = 0;
-
-
+                process.puppi.algos[0].MinNeutralPtSlope = 0;                
+        ## extend to the transition region        
         if abs(etaCutForMetDiagnostic) > 2.5 and abs(etaCutForMetDiagnostic) <= 3.0 :
-            if redefineEtaCut :
+            if redefineEtaBinPuppi :
                 process.puppi.algos[0].etaMax = 2.2;
                 process.puppi.algos[1].etaMin = 2.2;    
             if noPtNeutralCut :
@@ -539,7 +544,7 @@ def createProcess(isMC, ## isMC flag
                 process.puppi.algos[1].MinNeutralPtSlope = 0;
             
         elif abs(etaCutForMetDiagnostic) >= 3.0 :
-            if redefineEtaCut :
+            if redefineEtaBinPuppi :
                 process.puppi.algos[0].etaMax = 2.2;
                 process.puppi.algos[1].etaMin = 2.2;    
             if noPtNeutralCut :

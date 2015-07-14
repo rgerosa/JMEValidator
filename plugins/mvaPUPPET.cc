@@ -197,11 +197,11 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
     if((*itMETFlags)){
       if(collection_name.find("ChargedPV") != std::string::npos){
 	Recoil.setP4(-Z.p4() +tauJetSpouriousComponents.p4() - (*MET)[0].p4());
-        Recoil.setSumEt((*MET)[0].sumEt()-sumEt_TauJetCharge);    
+        Recoil.setSumEt((*MET)[0].sumEt()-sumEt_TauJetCharge-sumEt_Leptons);    
       }
       else{
 	Recoil.setP4(-Z.p4() - (*MET)[0].p4());
-        Recoil.setSumEt((*MET)[0].sumEt()-sumEt_Leptons);    
+        Recoil.setSumEt((*MET)[0].sumEt());    
       }
     }
     else{

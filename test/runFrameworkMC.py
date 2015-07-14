@@ -3,24 +3,37 @@ import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing ('python')
 
-options.register ('globalTag',        "MCRUN2_74_V9",  VarParsing.multiplicity.singleton, VarParsing.varType.string, 'input global tag to be used');
+## data or MC
 options.register ('isMC'     ,        True,            VarParsing.multiplicity.singleton, VarParsing.varType.bool,   'flag to indicate data or MC');
+## conditions
+options.register ('globalTag',        "MCRUN2_74_V9",  VarParsing.multiplicity.singleton, VarParsing.varType.string, 'input global tag to be used');
+## iPUPPI options
 options.register ('runPuppiMuonIso',  False,           VarParsing.multiplicity.singleton, VarParsing.varType.bool,   'flag to indicate to run or not puppi iso for mons');
 options.register ('muonIsoCone',      0.4,             VarParsing.multiplicity.singleton, VarParsing.varType.float,  'value to be used for muon isolation cone');
-options.register ('dropAnalyzerDumpEDM',  False,       VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'do not run the analyzer and store an edm file');
+## PUPPET analysis
 options.register ('runMVAPUPPETAnalysis', True,        VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'run a specific analysis for MVA MET : Z->LL events');
+## store and edm to debug
+options.register ('dropAnalyzerDumpEDM',  False,       VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'do not run the analyzer and store an edm file');
+## Lepton ID
 options.register ('muonTypeID',       "Tight",         VarParsing.multiplicity.singleton, VarParsing.varType.string, 'muon ID to be considered for MVA PUPPET analysis ');
 options.register ('electronTypeID',   "Medium",        VarParsing.multiplicity.singleton, VarParsing.varType.string, 'electron ID to be considered for MVA PUPPET analysis ');
 options.register ('tauTypeID',        "Loose",         VarParsing.multiplicity.singleton, VarParsing.varType.string, 'tau ID to be considered for MVA PUPPET analysis ');
+## selections
 options.register ('applyZSelections'  , True,          VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'apply selection for Zll events when runMVAPUPPETAnalysis is true');
 options.register ('applyWSelections'  , False,         VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'apply selection for Wlnu events when runMVAPUPPETAnalysis is true');
+## JEC
 options.register ('applyJECtoPuppiJets',  False,       VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'apply or not JEC on puppi jets');
-options.register ('runPuppiDiagnostics',  False,       VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'run Puppi diagnostic and store in the output');
 options.register ('isRunningOn25ns',      False,       VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'true when running on 25ns and JEC from DB should be red');
 options.register ('useJECFromDB',         False,       VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'read JEC from the database for special JEC not in GT');
-options.register ('etaCutForMetDiagnostic',   10.0, VarParsing.multiplicity.singleton, VarParsing.varType.float, 'introduce a cut for the diagnostic of the MET');
-options.register ('noPtNeutralCut',       False,    VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'disable pt neutral cut in puppi');
-options.register ('redefineEtaCut',       False,    VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'use a different eta bin between tracker and forward region');
+## Puppi particles
+options.register ('runPuppiDiagnostics',  False,       VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'run Puppi diagnostic and store in the output');
+## Puppi special setup
+options.register ('etaCutForMetDiagnostic',   10.0,   VarParsing.multiplicity.singleton, VarParsing.varType.float, 'introduce a cut for the diagnostic of the MET');
+options.register ('puppiConeCentral',         0.4,    VarParsing.multiplicity.singleton, VarParsing.varType.float, 'different dR cone for puppi just in the centrla region');
+options.register ('noPtNeutralCut',           False,  VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'disable pt neutral cut in puppi');
+options.register ('redefineEtaBinPuppi',      False,  VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'use a different eta bin between tracker and forward region');
+options.register ('puppiUseChargeCentral',    True,   VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'use CHS for central puppi algo');
+
 options.parseArguments()
 
 ## import the function to create the process
@@ -38,10 +51,12 @@ process = createProcess(options.isMC, ## MC or data
                         options.runMVAPUPPETAnalysis, options.applyZSelections, options.applyWSelections, ## special flags for PUPPI analysis
                         options.applyJECtoPuppiJets, ## JEC for puppi
                         options.runPuppiDiagnostics, ## puppi diagnostic
-                        options.isRunningOn25ns, options.useJECFromDB,
+                        options.isRunningOn25ns, options.useJECFromDB, ## JEC
                         options.etaCutForMetDiagnostic,
                         options.noPtNeutralCut,
-                        options.redefineEtaCut); ## special JEC
+                        options.redefineEtaBinPuppi,
+                        options.puppiConeCentral, 
+                        options.puppiUseChargeCentral);
 
 ####### files
 if len(options.inputFiles) == 0 and options.isMC == True:

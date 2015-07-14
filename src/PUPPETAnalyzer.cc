@@ -228,6 +228,7 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   }
 
   ijet = 0;
+
   for( auto GenJet : *GenJetsCleanedHandle){     
     if(ijet == 0){
       GenLeadingJetCleaned_Pt_  = GenJet.pt();
