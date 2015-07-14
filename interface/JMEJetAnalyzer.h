@@ -104,4 +104,5 @@ class JMEJetAnalyzer : public JME::PhysicsObjectAnalyzer
         std::vector<float>& allGenJet_phi = tree["allGenJet_phi"].write<std::vector<float>>();
         std::vector<float>& allGenJet_m   = tree["allGenJet_m"  ].write<std::vector<float>>();
         std::vector<bool> & allGenJet_PatJetMatched = tree["allGenJet_patJetmatched"].write<std::vector<bool>>();
+        std::vector<bool> & allGenJet_PatJetWithJetIDMatched = tree["allGenJet_patJetWithJetIDmatched"].write<std::vector<bool>>();
 };
