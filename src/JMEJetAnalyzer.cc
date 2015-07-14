@@ -246,6 +246,7 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
     if( genjet.pt () < 5 ) continue ;
 
     bool b_genjet_hasMatchedRecoJet = false ;
+    bool b_genjet_hasMatchedRecoJetWithJetID = false ;
 
     for (size_t iJet = 0; iJet < nJet; iJet++) {
 
@@ -261,6 +262,15 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
 
       b_genjet_hasMatchedRecoJet = true ;
 
+      if( ! ( jet.neutralEmEnergyFraction->at( i )     < 0.99 ) )  continue  ; 
+      if( ! ( jet.chargedHadronEnergyFraction->at( i ) > 0.0  ) )  continue  ; 
+      if( ! ( jet.neutralHadronEnergyFraction->at( i ) < 0.99 ) )  continue  ; 
+      if( ! ( jet.chargedEmEnergyFraction->at( i )     < 0.99 ) )  continue  ; 
+      if( ! ( jet.nTot->at( i )                        > 1    ) )  continue  ; 
+      if( ! ( jet.chargedMultiplicity->at( i )         > 0    ) )  continue  ; 
+
+      b_genjet_hasMatchedRecoJetWithJetID = true ;
+
     }      
 
     allGenJet_pt  .push_back( genjet.pt  () );
@@ -268,6 +278,7 @@ void JMEJetAnalyzer::analyze(const edm::Event& iEvent,
     allGenJet_phi .push_back( genjet.phi () );
     allGenJet_m   .push_back( genjet.mass() );
     allGenJet_PatJetMatched  .push_back( b_genjet_hasMatchedRecoJet ) ;
+    allGenJet_PatJetWithJetIDMatched  .push_back( b_genjet_hasMatchedRecoJetWithJetID ) ;
 
   }
 
