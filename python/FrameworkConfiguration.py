@@ -46,21 +46,16 @@ def get_jec_levels(pu_method):
     return jec_levels[pu_method]
 
 
-def useJECFromDB(process, db):
-    process.load("CondCore.DBCommon.CondDBCommon_cfi")
+def useJECFromDB(process, db, postfix = ""):
+    process.load("Condcore.DBCommon.CondDBCommon_cfi")
 
-    process.jec = cms.ESSource("PoolDBESSource",
-            DBParameters = cms.PSet(
-                messageLevel = cms.untracked.int32(0)
-                ),
-            timetype = cms.string('runnumber'),
-            toGet = cms.VPSet(),
+    setattr(process,"jec"+postfix, cms.ESSource("PoolDBESSource",
+                                                DBParameters = cms.PSet(messageLevel = cms.untracked.int32(0)),
+                                                timetype = cms.string('runnumber'),
+                                                toGet = cms.VPSet(),                                        
+                                                connect = cms.string('sqlite:%s' % db)))
 
-            connect = cms.string('sqlite:%s' % db)
-         
-            )
-
-    process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
+    setattr(process,"es_prefer_jec"+postfix, cms.ESPrefer('PoolDBESSource','jec'+postfix))
 
 def checkForTag(db_file, tag):
     import sqlite3
@@ -75,18 +70,20 @@ def checkForTag(db_file, tag):
 
 def appendJECToDB(process, payload, prefix):
 
-    for set in process.jec.toGet:
+    instance = getattr(process,jec+prefix);
+
+    for set in instance.toGet:
         if set.label == payload:
             return
 
     tag = 'JetCorrectorParametersCollection_%s_%s' % (prefix, payload)
     tag = tag.replace('.db','')
-    if not checkForTag(process.jec.connect.value(), (tag,)):
+    if not checkForTag(instance.connect.value(), (tag,)):
         print("WARNING: The JEC payload %r is not present in the database you want to use. Corrections for this payload will be loaded from the Global Tag" % payload)
         return
 
 
-    process.jec.toGet += [cms.PSet(
+    instance.toGet += [cms.PSet(
             record = cms.string('JetCorrectionsRecord'),
             tag    = cms.string(tag),
             label  = cms.untracked.string(payload)
@@ -140,16 +137,17 @@ def createProcess(isMC, ## isMC flag
 
     process.GlobalTag.globaltag = globalTag
 
-    jec_database = 'Summer15_V5_MC.db'
+    jec_database_PF = 'PY8_RunIISpring15DR74_bx50_MC.db'
     if not isRunningOn25ns:
-        jec_database = 'Summer15_V5_MC.db'
+        jec_database_PF = 'PY8_RunIISpring15DR74_bx50_MC.db'
 
-    jec_db_prefix = 'Summer15_V5_MC.db'
+    jec_database_Puppi = 'PY8_RunIISpring15DR74_bx50_MC.db'
     if not isRunningOn25ns:
-        jec_db_prefix = 'Summer15_V5_MC.db'
+        jec_database_Puppi = 'PY8_RunIISpring15DR74_bx50_MC.db'
 
     if useJECFromLocalDB:
-        useJECFromDB(process, jec_database)
+        useJECFromDB(process, jec_database_PF)
+        useJECFromDB(process, jec_database_Puppi, "_puppi")
 
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #! Input
@@ -206,9 +204,10 @@ def createProcess(isMC, ## isMC flag
             jec_levels  = get_jec_levels(pu_method)
 
             if useJECFromLocalDB:
-                print "jec_payload  ",jec_payload
-                print "jec_levels  ",jec_levels
-                appendJECToDB(process, jec_payload, jec_db_prefix)
+                if pu_method != 'Puppi' :
+                    appendJECToDB(process, jec_payload, jec_database_PF)
+                else:
+                    appendJECToDB(process, jec_payload, jec_database_Puppi)
 
             jetToolbox(process, params['algo'], 'dummy', 'out', PUMethod = pu_method, JETCorrPayload = jec_payload, JETCorrLevels = jec_levels, addPUJetID = False)
 

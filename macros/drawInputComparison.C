@@ -7,7 +7,7 @@
   TDirectory* dir1 = (TDirectory*) file1->Get("PUPPET");
   TTree* t1 = (TTree*) dir1->Get("t");
 
-  TFile* file2 = new TFile("eos/cms/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_fixed_v2.root","OPEN");
+  TFile* file2 = new TFile("eos/cms/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_last_fixed.root","OPEN");
   file2->cd();
   TDirectory* dir2 = (TDirectory*) file2->Get("PUPPET");
   TTree* t2 = (TTree*) dir2->Get("t");
@@ -279,7 +279,6 @@
   recoilPFPuppiMet_ChargedPU_Phi_1->Draw();
   recoilPFPuppiMet_ChargedPU_Phi_2->Draw("same");
   c1->SaveAs("recoilPFPuppiMet_ChargedPU_Phi.png","png");		      
-  */
 
   TH1F* recoilPFPuppiMet_ChargedPU_sumEt_1  = new TH1F("recoilPFPuppiMet_ChargedPU_sumEt_1","",200,0,1000);
   TH1F* recoilPFPuppiMet_ChargedPU_sumEt_2  = new TH1F("recoilPFPuppiMet_ChargedPU_sumEt_2","",200,0,1000);

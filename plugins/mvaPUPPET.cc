@@ -181,7 +181,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
     if(collection_name.find("ChargedPV") != std::string::npos){
       for( auto particle : neutralTauJetCandidates){
 	tauJetSpouriousComponents.setP4(tauJetSpouriousComponents.p4()+particle->p4()*(*puppiWeightsHandle)[particle]);            
-	sumEt_TauJetNeutral += particle->p4().Et()*(*puppiWeightsHandle)[particle];
+	sumEt_TauJetNeutral += particle->p4().Et()*(*puppiWeightsHandle)[particle];	
       }
     }    
     else if(collection_name.find("NeutralPV") != std::string::npos){
@@ -201,7 +201,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
       }
       else{
 	Recoil.setP4(-Z.p4() - (*MET)[0].p4());
-        Recoil.setSumEt((*MET)[0].sumEt());    
+        Recoil.setSumEt((*MET)[0].sumEt()-sumEt_Leptons);    
       }
     }
     else{
