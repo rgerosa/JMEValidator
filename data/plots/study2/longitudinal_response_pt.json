@@ -1,0 +1,66 @@
+{
+    "filename": "longitudinal_response_pt", 
+    "files": [
+        "/afs/cern.ch/user/r/rfriese/puppetmount/cms/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEta2p5_0p3.root", 
+        "/afs/cern.ch/user/r/rfriese/puppetmount/cms/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEta2p5_0p3.root", 
+        "/afs/cern.ch/user/r/rfriese/puppetmount/cms/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEta2p5_0p4_noCharge.root"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "grid": true, 
+    "labels": [
+        "PF", 
+        "PUPPI", 
+        "PUPPI no Charge"
+    ], 
+    "line_styles": [
+        "-"
+    ], 
+    "markers": [
+        "."
+    ], 
+    "output_dir": "studies/study2", 
+    "tree_draw_options": [
+        "prof"
+    ], 
+    "weights": [
+        "Boson_daughter==13"
+    ], 
+    "x_bins": [
+        "20,0,200"
+    ], 
+    "x_errors": [
+        false
+    ], 
+    "x_expressions": [
+        "Boson_Pt"
+    ], 
+    "x_label": "$p_T^Z$", 
+    "y_errors": [
+        false
+    ], 
+    "y_expressions": [
+        "recoilPFMet_uncorrected_LongZ/-Boson_Pt", 
+        "recoilPFPuppiMet_LongZ/-Boson_Pt", 
+        "recoilPFPuppiMet_LongZ/-Boson_Pt"
+    ], 
+    "y_label": "$U_{\\parallel}/p_T^Z$", 
+    "y_lims": [
+        0.0, 
+        2.0
+    ], 
+    "y_ticks": [
+        0.0, 
+        0.2, 
+        0.4, 
+        0.6, 
+        0.8, 
+        1.0, 
+        1.2, 
+        1.4, 
+        1.6, 
+        1.8, 
+        2.0
+    ]
+}

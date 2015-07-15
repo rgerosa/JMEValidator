@@ -1,0 +1,71 @@
+{
+    "analysis_modules": [
+        "ProjectByFit"
+    ], 
+    "dict": true, 
+    "filename": "transverse_resolution_pt", 
+    "files": [
+        "/afs/cern.ch/user/r/rfriese/puppetmount/cms/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEta2p5_0p3.root", 
+        "/afs/cern.ch/user/r/rfriese/puppetmount/cms/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEta2p5_0p3.root", 
+        "/afs/cern.ch/user/r/rfriese/puppetmount/cms/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEta2p5_0p4_noCharge.root"
+    ], 
+    "fit_backend": [
+        "ROOT"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "grid": true, 
+    "labels": [
+        "PF", 
+        "PUPPI", 
+        "PUPPI no Charge"
+    ], 
+    "line_styles": [
+        "-"
+    ], 
+    "log_level": "debug", 
+    "markers": [
+        "."
+    ], 
+    "output_dir": "studies/study2", 
+    "projection_function": [
+        "gaus"
+    ], 
+    "projection_parameters": [
+        "1000,10,10"
+    ], 
+    "projection_to_nick": [
+        "nick0", 
+        "nick1", 
+        "nick2"
+    ], 
+    "projection_to_plot": [
+        "2"
+    ], 
+    "weights": [
+        "Boson_daughter==13"
+    ], 
+    "x_bins": [
+        "10,0,200"
+    ], 
+    "x_errors": [
+        false
+    ], 
+    "x_expressions": [
+        "Boson_Pt"
+    ], 
+    "x_label": "$p_T^Z$", 
+    "y_bins": [
+        "50,-100,100"
+    ], 
+    "y_errors": [
+        false
+    ], 
+    "y_expressions": [
+        "recoilPFMet_uncorrected_PerpZ", 
+        "recoilPFPuppiMet_PerpZ", 
+        "recoilPFPuppiMet_PerpZ"
+    ], 
+    "y_label": "Resolution [GeV]"
+}
