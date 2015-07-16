@@ -5,44 +5,29 @@ config.section_('General')
 config.General.transferOutputs = True
 config.General.transferLogs = False
 config.General.requestName = ''
-#config.General.workArea = 'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A'
+#config.General.workArea = 'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_noMuon'
+#config.General.workArea = 'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_JEC'
+config.General.workArea = 'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_noMuon_JEC'
+#config.General.workArea = 'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_noMuon'
 #config.General.workArea = 'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_StartupFlat10to50bx50Raw_MCRUN2_74_V8'
 #config.General.workArea = 'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_AsymptNoPURawReco_MCRUN2_74_V9A'
 #config.General.workArea = 'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_AsymptFlat10to50bx25Raw_MCRUN2_74_V9'
 #config.General.workArea = 'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt25ns_MCRUN2_74_V9'
 
-#config.General.workArea = 'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEta2p5_NoPtCut'
-#config.General.workArea = 'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEta2p5_PtCut'
-#config.General.workArea = 'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEta3p0_NoPtCut'
-#config.General.workArea = 'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEta3p0_PtCut'
-#config.General.workArea = 'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEta3p0_bin2p2_NoPtCut'
-#config.General.workArea = 'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEta3p0_bin2p2_PtCut'
-#config.General.workArea = 'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEtaAll_NoPtCut'
-#config.General.workArea = 'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEtaAll_PtCut'
-#config.General.workArea = 'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEtaAll_bin2p2_NoPtCut'
-config.General.workArea = 'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEtaAll_bin2p2_PtCut'
-
-
 config.section_('JobType')
 config.JobType.psetName    = 'runFrameworkMC.py'
 config.JobType.pluginName  = 'Analysis'
-#config.JobType.pyCfgParams = ['globalTag=MCRUN2_74_V9A', 'isMC=True', 'runMVAPUPPETAnalysis=True', 'applyJECtoPuppiJets=False', 'applyZSelections=True', 'dropAnalyzerDumpEDM=False','applyWSelections=False']
+
+#config.JobType.pyCfgParams = ['globalTag=MCRUN2_74_V9A', 'isMC=True', 'runMVAPUPPETAnalysis=True', 'applyJECtoPuppiJets=False', 'applyZSelections=True', 'dropAnalyzerDumpEDM=False','applyWSelections=False','runPuppiNoMuon=True','useJECFromDB=True']
+
+#config.JobType.pyCfgParams = ['globalTag=MCRUN2_74_V9A', 'isMC=True', 'runMVAPUPPETAnalysis=True', 'applyZSelections=True', 'dropAnalyzerDumpEDM=False','applyWSelections=False','runPuppiNoMuon=False','useJECFromDB=True','applyJECtoPuppiJets=True']
+
+config.JobType.pyCfgParams = ['globalTag=MCRUN2_74_V9A', 'isMC=True', 'runMVAPUPPETAnalysis=True', 'applyZSelections=True', 'dropAnalyzerDumpEDM=False','applyWSelections=False','runPuppiNoMuon=True','useJECFromDB=True','applyJECtoPuppiJets=True']
+
 #config.JobType.pyCfgParams = ['globalTag=MCRUN2_74_V9', 'isMC=True', 'runMVAPUPPETAnalysis=True', 'applyJECtoPuppiJets=False', 'applyZSelections=True', 'dropAnalyzerDumpEDM=False','applyWSelections=False']
 #config.JobType.pyCfgParams = ['globalTag=MCRUN2_74_V8', 'isMC=True', 'runMVAPUPPETAnalysis=True', 'applyJECtoPuppiJets=False', 'applyZSelections=True', 'dropAnalyzerDumpEDM=False','applyWSelections=False']
 
-#config.JobType.pyCfgParams = ['globalTag=MCRUN2_74_V9', 'isMC=True', 'runMVAPUPPETAnalysis=True', 'applyJECtoPuppiJets=False', 'applyZSelections=True', 'dropAnalyzerDumpEDM=False','applyWSelections=False','etaCutForMetDiagnostic=2.5','noPtNeutralCut=True','redefineEtaCut=False']
-#config.JobType.pyCfgParams = ['globalTag=MCRUN2_74_V9', 'isMC=True', 'runMVAPUPPETAnalysis=True', 'applyJECtoPuppiJets=False', 'applyZSelections=True', 'dropAnalyzerDumpEDM=False','applyWSelections=False','etaCutForMetDiagnostic=2.5','noPtNeutralCut=False','redefineEtaCut=False']
-#config.JobType.pyCfgParams = ['globalTag=MCRUN2_74_V9', 'isMC=True', 'runMVAPUPPETAnalysis=True', 'applyJECtoPuppiJets=False', 'applyZSelections=True', 'dropAnalyzerDumpEDM=False','applyWSelections=False','etaCutForMetDiagnostic=3.0','noPtNeutralCut=True','redefineEtaCut=False']
-#config.JobType.pyCfgParams = ['globalTag=MCRUN2_74_V9', 'isMC=True', 'runMVAPUPPETAnalysis=True', 'applyJECtoPuppiJets=False', 'applyZSelections=True', 'dropAnalyzerDumpEDM=False','applyWSelections=False','etaCutForMetDiagnostic=3.0','noPtNeutralCut=False','redefineEtaCut=False']
-#config.JobType.pyCfgParams = ['globalTag=MCRUN2_74_V9', 'isMC=True', 'runMVAPUPPETAnalysis=True', 'applyJECtoPuppiJets=False', 'applyZSelections=True', 'dropAnalyzerDumpEDM=False','applyWSelections=False','etaCutForMetDiagnostic=3.0','noPtNeutralCut=True','redefineEtaCut=True']
-#config.JobType.pyCfgParams = ['globalTag=MCRUN2_74_V9', 'isMC=True', 'runMVAPUPPETAnalysis=True', 'applyJECtoPuppiJets=False', 'applyZSelections=True', 'dropAnalyzerDumpEDM=False','applyWSelections=False','etaCutForMetDiagnostic=3.0','noPtNeutralCut=False','redefineEtaCut=True']
-#config.JobType.pyCfgParams = ['globalTag=MCRUN2_74_V9', 'isMC=True', 'runMVAPUPPETAnalysis=True', 'applyJECtoPuppiJets=False', 'applyZSelections=True', 'dropAnalyzerDumpEDM=False','applyWSelections=False','etaCutForMetDiagnostic=10.0','noPtNeutralCut=True','redefineEtaCut=False']
-#config.JobType.pyCfgParams = ['globalTag=MCRUN2_74_V9', 'isMC=True', 'runMVAPUPPETAnalysis=True', 'applyJECtoPuppiJets=False', 'applyZSelections=True', 'dropAnalyzerDumpEDM=False','applyWSelections=False','etaCutForMetDiagnostic=10.0','noPtNeutralCut=False','redefineEtaCut=False']
-#config.JobType.pyCfgParams = ['globalTag=MCRUN2_74_V9', 'isMC=True', 'runMVAPUPPETAnalysis=True', 'applyJECtoPuppiJets=False', 'applyZSelections=True', 'dropAnalyzerDumpEDM=False','applyWSelections=False','etaCutForMetDiagnostic=10.0','noPtNeutralCut=True','redefineEtaCut=True']
-config.JobType.pyCfgParams = ['globalTag=MCRUN2_74_V9', 'isMC=True', 'runMVAPUPPETAnalysis=True', 'applyJECtoPuppiJets=False', 'applyZSelections=True', 'dropAnalyzerDumpEDM=False','applyWSelections=False','etaCutForMetDiagnostic=10.0','noPtNeutralCut=False','redefineEtaCut=True']
-
-
-config.JobType.inputFiles  = []
+config.JobType.inputFiles  = ['PY8_RunIISpring15DR74_bx50_MC_PFCHS.db','PY8_RunIISpring15DR74_bx50_MC_Puppi.db']
 config.JobType.allowUndistributedCMSSW = True
 
 config.section_('Data')
@@ -57,23 +42,13 @@ config.Data.inputDBS  = 'global' #'http://cmsdbsprod.cern.ch/cms_dbs_prod_global
 config.Data.splitting = 'EventAwareLumiBased'
 config.Data.unitsPerJob = 40000
 config.Data.publication = False
-#config.Data.outLFNDirBase = '/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A'
+#config.Data.outLFNDirBase = '/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_noMuon'
+#config.Data.outLFNDirBase = '/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_JEC'
+config.Data.outLFNDirBase = '/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_noMuon_JEC'
 #config.Data.outLFNDirBase = '/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_StartupFlat10to50bx50Raw_MCRUN2_74_V8'
-#config.Data.outLFNDirBase  = '/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_AsymptNoPURawReco_MCRUN2_74_V9A'#
+#config.Data.outLFNDirBase  = '/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_AsymptNoPURawReco_MCRUN2_74_V9A'
 #config.Data.outLFNDirBase = '/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_AsymptFlat10to50bx25Raw_MCRUN2_74_V9'
 #config.Data.outLFNDirBase = '/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt25ns_MCRUN2_74_V9'
-
-#config.Data.outLFNDirBase = '/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEta2p5_NoPtCut'
-#config.Data.outLFNDirBase = '/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEta2p5_PtCut'
-#config.Data.outLFNDirBase = '/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEta3p0_NoPtCut'
-#config.Data.outLFNDirBase = '/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEta3p0_PtCut'
-#config.Data.outLFNDirBase = '/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEta3p0_bin2p2_NoPtCut'
-#config.Data.outLFNDirBase = '/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEta3p0_bin2p2_PtCut'
-#config.Data.outLFNDirBase = '/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEtaAll_NoPtCut'
-#config.Data.outLFNDirBase = '/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEtaAll_PtCut'
-#config.Data.outLFNDirBase = '/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEtaAll_bin2p2_NoPtCut'
-config.Data.outLFNDirBase = '/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiEtaAll_bin2p2_PtCut'
-
 
 config.section_('User')
 config.section_('Site')
