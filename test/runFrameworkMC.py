@@ -1,3 +1,7 @@
+import sys
+if not hasattr(sys, 'argv'):
+  sys.argv = ["cmsRun", "runFrameworkMC.py"]
+
 import FWCore.ParameterSet.Config as cms
 ## parse some parameters from external line                                                                                                                                     
 from FWCore.ParameterSet.VarParsing import VarParsing
