@@ -180,14 +180,26 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
 
     if(collection_name.find("ChargedPV") != std::string::npos){
       for( auto particle : neutralTauJetCandidates){
-	tauJetSpouriousComponents.setP4(tauJetSpouriousComponents.p4()+particle->p4()*(*puppiWeightsHandle)[particle]);            
-	sumEt_TauJetNeutral += particle->p4().Et()*(*puppiWeightsHandle)[particle];	
+	if(puppiWeightsHandle->contains(particle.id())){
+	  tauJetSpouriousComponents.setP4(tauJetSpouriousComponents.p4()+particle->p4()*(*puppiWeightsHandle)[particle]);            
+	  sumEt_TauJetNeutral += particle->p4().Et()*(*puppiWeightsHandle)[particle];	
+	}
+	else{
+	  tauJetSpouriousComponents.setP4(tauJetSpouriousComponents.p4()+particle->p4());            
+	  sumEt_TauJetNeutral += particle->p4().Et();	
+	}
       }
     }    
     else if(collection_name.find("NeutralPV") != std::string::npos){
       for( auto particle : chargedTauJetCandidates){
-	tauJetSpouriousComponents.setP4(tauJetSpouriousComponents.p4()+particle->p4()*(*puppiWeightsHandle)[particle]);            
-	sumEt_TauJetCharge += particle->p4().Et()*(*puppiWeightsHandle)[particle];
+	if(puppiWeightsHandle->contains(particle.id())){
+	  tauJetSpouriousComponents.setP4(tauJetSpouriousComponents.p4()+particle->p4()*(*puppiWeightsHandle)[particle]);            
+	  sumEt_TauJetCharge += particle->p4().Et()*(*puppiWeightsHandle)[particle];
+	}
+	else{
+	  tauJetSpouriousComponents.setP4(tauJetSpouriousComponents.p4()+particle->p4());            
+	  sumEt_TauJetCharge += particle->p4().Et();
+	}
       }
     }
 
