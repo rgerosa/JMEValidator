@@ -17,7 +17,7 @@ git cms-merge-topic nhanvtran:puppi-etadep-746p2-v8
 cp /afs/cern.ch/user/r/rgerosa/public/PUPPETPatch/MET.h DataFormats/METReco/interface
 
 # Framework
-git clone git@github.com:blinkseb/JetToolbox.git JMEAnalysis/JetToolbox -b jetToolbox_74X
+git clone git@github.com:cms-jet/JetToolbox.git JMEAnalysis/JetToolbox -b jetToolbox_74X
 git clone git@github.com:blinkseb/TreeWrapper.git JMEAnalysis/TreeWrapper
 git clone git@github.com:rgerosa/JMEValidator.git JMEAnalysis/JMEValidator -b PUPPETMVAMet
 
@@ -35,6 +35,7 @@ cd JMEAnalysis/JMEValidator/test
 cmsRun runFrameworkMC.py
 ```
 
+<<<<<<< HEAD
 ####################################
 ### Recipe For Plotting Framework ##
 ####################################
@@ -56,6 +57,9 @@ For a detailed documentation see also https://github.com/artus-analysis/Artus/tr
 ###########################################
 ### Recipe For Jet and Isolation Studies ##
 ###########################################
+=======
+**Note**: JMEValidator requires JetToolbox at least commit [5099e5045f482eb98c768538b49bde20f6fce253](https://github.com/cms-jet/JetToolbox/commit/5099e5045f482eb98c768538b49bde20f6fce253).
+>>>>>>> upstream/CMSSW_7_4_X
 
 ```sh
 export SCRAM_ARCH=slc6_amd64_gcc491

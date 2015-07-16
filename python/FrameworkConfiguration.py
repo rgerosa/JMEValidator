@@ -214,7 +214,7 @@ def createProcess(isMC, ## isMC flag
                     appendJECToDB(process, jec_payload, jec_database_PF.replace("_PFCHS","").replace("_PF",""))
 
 
-            jetToolbox(process, params['algo'], 'dummy', 'out', PUMethod = pu_method, JETCorrPayload = jec_payload, JETCorrLevels = jec_levels, addPUJetID = False)
+            jetToolbox(process, params['algo'], 'dummy', 'out', runOnMC=isMC, PUMethod = pu_method, JETCorrPayload = jec_payload, JETCorrLevels = jec_levels, addPUJetID = False)
 
             algo          = params['algo'].upper()
             jetCollection = '%sPFJets%s' % (params['algo'], pu_method)
@@ -722,12 +722,12 @@ def createProcess(isMC, ## isMC flag
     process.slimmedMETs = slimmedMETs.clone()
     if hasattr(process, 'patMET'):
         # Create MET from Type 1 PF collection
-        process.patMET.addGenMET = True
+        process.patMET.addGenMET = isMC
         process.slimmedMETs.src = cms.InputTag("patMET")
         process.slimmedMETs.rawUncertainties = cms.InputTag("patPFMet") # only central value
     else:
         # Create MET from RAW PF collection
-        process.patPFMet.addGenMET = True
+        process.patPFMet.addGenMET = isMC
         process.slimmedMETs.src = cms.InputTag("patPFMet")
         del process.slimmedMETs.rawUncertainties # not available
 
@@ -738,12 +738,12 @@ def createProcess(isMC, ## isMC flag
     process.slimmedMETsPuppi = slimmedMETs.clone()
     if hasattr(process, "patMETPuppi"):
         # Create MET from Type 1 PF collection
-        process.patMETPuppi.addGenMET = True
+        process.patMETPuppi.addGenMET = isMC
         process.slimmedMETsPuppi.src = cms.InputTag("patMETPuppi")
         process.slimmedMETsPuppi.rawUncertainties = cms.InputTag("patPFMetPuppi") # only central value
     else:
         # Create MET from RAW PF collection
-        process.patPFMetPuppi.addGenMET = True
+        process.patPFMetPuppi.addGenMET = isMC
         process.slimmedMETsPuppi.src = cms.InputTag("patPFMetPuppi")
         process.slimmedMETsPuppi.rawUncertainties = cms.InputTag("patPFMetPuppi") # only central value
 
@@ -754,12 +754,12 @@ def createProcess(isMC, ## isMC flag
     process.slimmedMETsCHS = slimmedMETs.clone()
     if hasattr(process, "patMETCHS"):
         # Create MET from Type 1 PF collection
-        process.patMETCHS.addGenMET = True
+        process.patMETCHS.addGenMET = isMC
         process.slimmedMETsCHS.src = cms.InputTag("patMETCHS")
         process.slimmedMETsCHS.rawUncertainties = cms.InputTag("patPFMetCHS") # only central value
     else:
         # Create MET from RAW PF collection
-        process.patPFMetCHS.addGenMET = True
+        process.patPFMetCHS.addGenMET = isMC
         process.slimmedMETsCHS.src = cms.InputTag("patPFMetCHS")
         del process.slimmedMETsCHS.rawUncertainties # not available
 
@@ -1014,8 +1014,9 @@ def createProcess(isMC, ## isMC flag
    
     
     # Run
-    process.run = cms.EDAnalyzer('RunAnalyzer')
-    process.jmfw_analyzers += process.run
+    if isMC:
+        process.run = cms.EDAnalyzer('RunAnalyzer')
+        process.jmfw_analyzers += process.run
 
     
     # Event
@@ -1053,8 +1054,6 @@ def createProcess(isMC, ## isMC flag
 
     # Muons : tight muons, DBWeight and puppiNoMu corrected
     if not runMVAPUPPETAnalysis :
-
-
   
 
         process.muons = cms.EDAnalyzer('MuonAnalyzer',
