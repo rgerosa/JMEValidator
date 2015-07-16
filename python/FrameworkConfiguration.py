@@ -14,7 +14,7 @@ def get_jec_payload(algo, pu_method):
     
     # FIXME: Until PUPPI and SK payloads are in the GT, use CHS corrections
     jec_payloads = {
-                'Puppi': 'AK%dPFchs',
+                'Puppi': 'AK%dPUPPI',
                 'CHS': 'AK%dPFchs',
                 'SK': 'AK%dPFchs',
                 '': 'AK%dPF',
@@ -32,7 +32,7 @@ def get_jec_payload(algo, pu_method):
 def get_jec_levels(pu_method):
     
     jec_levels = {
-        'Puppi': ['L2Relative', 'L3Absolute'],
+        'Puppi': ['L1FastJet', 'L2Relative', 'L3Absolute'],
         'CHS': ['L1FastJet', 'L2Relative', 'L3Absolute'],
         'SK': ['L2Relative', 'L3Absolute'],
         '': ['L1FastJet', 'L2Relative', 'L3Absolute'],
@@ -47,7 +47,8 @@ def get_jec_levels(pu_method):
 
 
 def useJECFromDB(process, db, postfix = ""):
-    process.load("Condcore.DBCommon.CondDBCommon_cfi")
+
+    process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
     setattr(process,"jec"+postfix, cms.ESSource("PoolDBESSource",
                                                 DBParameters = cms.PSet(messageLevel = cms.untracked.int32(0)),
@@ -58,6 +59,7 @@ def useJECFromDB(process, db, postfix = ""):
     setattr(process,"es_prefer_jec"+postfix, cms.ESPrefer('PoolDBESSource','jec'+postfix))
 
 def checkForTag(db_file, tag):
+
     import sqlite3
 
     db_file = db_file.replace('sqlite:', '')
@@ -68,9 +70,9 @@ def checkForTag(db_file, tag):
 
     return len(res) != 0
 
-def appendJECToDB(process, payload, prefix):
+def appendJECToDB(process, payload, prefix, postfix=""):
 
-    instance = getattr(process,jec+prefix);
+    instance = getattr(process,"jec"+postfix);
 
     for set in instance.toGet:
         if set.label == payload:
@@ -78,6 +80,7 @@ def appendJECToDB(process, payload, prefix):
 
     tag = 'JetCorrectorParametersCollection_%s_%s' % (prefix, payload)
     tag = tag.replace('.db','')
+
     if not checkForTag(instance.connect.value(), (tag,)):
         print("WARNING: The JEC payload %r is not present in the database you want to use. Corrections for this payload will be loaded from the Global Tag" % payload)
         return
@@ -103,6 +106,7 @@ def createProcess(isMC, ## isMC flag
                   runPuppiDiagnostics,
                   isRunningOn25ns,
                   useJECFromLocalDB,
+                  runPuppiNoMuon,
                   etaCutForMetDiagnostic,noPtNeutralCut,redefineEtaBinPuppi, puppiConeCentral, puppiUseChargeCentral):
 
     process = cms.Process("JRA")
@@ -137,17 +141,17 @@ def createProcess(isMC, ## isMC flag
 
     process.GlobalTag.globaltag = globalTag
 
-    jec_database_PF = 'PY8_RunIISpring15DR74_bx50_MC.db'
+    jec_database_PF = 'PY8_RunIISpring15DR74_bx50_MC_PFCHS.db'
     if not isRunningOn25ns:
-        jec_database_PF = 'PY8_RunIISpring15DR74_bx50_MC.db'
+        jec_database_PF = 'PY8_RunIISpring15DR74_bx50_MC_PFCHS.db'
 
-    jec_database_Puppi = 'PY8_RunIISpring15DR74_bx50_MC.db'
+    jec_database_Puppi = 'PY8_RunIISpring15DR74_bx50_MC_Puppi.db'
     if not isRunningOn25ns:
-        jec_database_Puppi = 'PY8_RunIISpring15DR74_bx50_MC.db'
+        jec_database_Puppi = 'PY8_RunIISpring15DR74_bx50_MC_Puppi.db'
 
     if useJECFromLocalDB:
         useJECFromDB(process, jec_database_PF)
-        useJECFromDB(process, jec_database_Puppi, "_puppi")
+        useJECFromDB(process, jec_database_Puppi,"_puppi")
 
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #! Input
@@ -184,7 +188,7 @@ def createProcess(isMC, ## isMC flag
              'AK4': {
                 'algo': 'ak4',
                 'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK4PFPUPPI', 'AK4PFchs', 'AK4PF'],
+                'jec_payloads': ['AK4PUPPI', 'AK4PFchs', 'AK4PF'],
                 'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
                 'pu_jet_id': True,
                 'qg_tagger': True,
@@ -204,10 +208,11 @@ def createProcess(isMC, ## isMC flag
             jec_levels  = get_jec_levels(pu_method)
 
             if useJECFromLocalDB:
-                if pu_method != 'Puppi' :
-                    appendJECToDB(process, jec_payload, jec_database_PF)
+                if pu_method == "Puppi":
+                    appendJECToDB(process, jec_payload, jec_database_Puppi.replace("_PUPPI","").replace("_Puppi",""),"_puppi")
                 else:
-                    appendJECToDB(process, jec_payload, jec_database_Puppi)
+                    appendJECToDB(process, jec_payload, jec_database_PF.replace("_PFCHS","").replace("_PF",""))
+
 
             jetToolbox(process, params['algo'], 'dummy', 'out', PUMethod = pu_method, JETCorrPayload = jec_payload, JETCorrLevels = jec_levels, addPUJetID = False)
 
@@ -550,6 +555,10 @@ def createProcess(isMC, ## isMC flag
                 process.puppi.algos[2].MinNeutralPt = 0;
                 process.puppi.algos[2].MinNeutralPtSlope = 0;
             
+        ## remove muons or electron from list of puppi particles
+        if runPuppiNoMuon :
+            process.packedPFCandidatesNoMuon = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("abs(pdgId) != 13"))        
+            process.puppi.candName = cms.InputTag('packedPFCandidatesNoMuon')
                   
         process.pupuppi = process.puppi.clone()
         process.pupuppi.invertPuppi = True
@@ -622,11 +631,14 @@ def createProcess(isMC, ## isMC flag
     from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import corrPfMetType1
     from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1
 
-    ### PUPPI TypeI corrected
-    ### Standard
+    ######
+    ### Standard TypeI correction
+    ######
+
     if not hasattr(process, 'ak4PFJets'):
         print("WARNING: No AK4 jets produced. Type 1 corrections for MET are not available.")
-    else:
+    else:        
+
         process.corrPfMetType1 = corrPfMetType1.clone(
             src = 'ak4PFJets',
             jetCorrLabel = 'ak4PFL1FastL2L3Corrector',
@@ -640,16 +652,40 @@ def createProcess(isMC, ## isMC flag
         addMETCollection(process, labelName='patMET', metSource='pfMetT1') # T1 MET
         process.patMET.addGenMET = False
 
-    ### PUPPI
+    ######
+    ### PUPPI TypeI correction
+    ######
+
     if not hasattr(process, 'ak4PFJetsPuppi'):
         print("WARNING: No AK4 puppi jets produced. Type 1 corrections for puppi MET are not available.")
     else:
-        if applyJECtoPuppiJets :
-            process.corrPfMetType1Puppi = corrPfMetType1.clone(
-                src = 'ak4PFJetsPuppi',
-                jetCorrLabel = 'ak4PFCHSL2L3Corrector', #FIXME: Use PUPPI corrections when available?
-                )
-            del process.corrPfMetType1Puppi.offsetCorrLabel # no L1 for PUPPI jets
+        if applyJECtoPuppiJets :       
+
+            if useJECFromLocalDB :
+
+                process.ak4PuppiL1FastjetCorrector = process.ak4PFCHSL1FastjetCorrector.clone(algorithm   = cms.string('AK4PUPPI'))
+                process.ak4PuppiL2RelativeCorrector = process.ak4PFCHSL2RelativeCorrector.clone(algorithm   = cms.string('AK4PUPPI'))
+                process.ak4PuppiL3AbsoluteCorrector = process.ak4PFCHSL3AbsoluteCorrector.clone(algorithm   = cms.string('AK4PUPPI'))
+                process.ak4PuppiL1FastL2L3Corrector = process.ak4PFL1FastL2L3Corrector.clone(
+                    correctors = cms.VInputTag("ak4PuppiL1FastjetCorrector", "ak4PuppiL2RelativeCorrector", "ak4PuppiL3AbsoluteCorrector")
+                    )
+
+                process.corrPfMetType1Puppi = corrPfMetType1.clone(
+                    src = 'ak4PFJetsPuppi',
+                    jetCorrLabel = 'ak4PuppiL1FastL2L3Corrector', #FIXME: Use PUPPI corrections when available?
+                    offsetCorrLabel = 'ak4PuppiL1FastjetCorrector'
+                    )
+                #del process.corrPfMetType1Puppi.offsetCorrLabel # no L1 for PUPPI jets
+
+            else :
+
+                process.corrPfMetType1Puppi = corrPfMetType1.clone(
+                    src = 'ak4PFJetsPuppi',
+                    jetCorrLabel = 'ak4PFCHSL1FastL2L3Corrector', #FIXME: Use PUPPI corrections when available?
+                    offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
+                    )
+                #del process.corrPfMetType1Puppi.offsetCorrLabel # no L1 for PUPPI jets
+
             process.pfMetT1Puppi = pfMetT1.clone(
                 src = 'pfMetPuppi',
                 srcCorrections = [ cms.InputTag("corrPfMetType1Puppi","type1") ]
@@ -664,7 +700,7 @@ def createProcess(isMC, ## isMC flag
     else:
         process.corrPfMetType1CHS = corrPfMetType1.clone(
             src             = 'ak4PFJetsCHS',
-            jetCorrLabel    = 'ak4PFL1FastL2L3Corrector',
+            jetCorrLabel    = 'ak4PFCHSL1FastL2L3Corrector',
             offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
         )
         process.pfMetT1CHS = pfMetT1.clone(
@@ -966,6 +1002,9 @@ def createProcess(isMC, ## isMC flag
                                                     mvaMETLabel = cms.string("mvaMET"),
                                                     ZbosonLabel = cms.string("ZtagBoson")
                                                     ))
+
+        if runPuppiNoMuon :
+            process.mvaPUPPET.inputMETFlags = cms.vint32(1,1,0,0,0,0,0) 
 
         process.jmfw_analyzers += getattr(process,"mvaPUPPET");
         
