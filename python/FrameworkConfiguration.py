@@ -107,7 +107,8 @@ def createProcess(isMC, ## isMC flag
                   isRunningOn25ns,
                   useJECFromLocalDB,
                   runPuppiNoMuon,
-                  etaCutForMetDiagnostic,noPtNeutralCut,redefineEtaBinPuppi, puppiConeCentral, puppiUseChargeCentral):
+                  etaCutForMetDiagnostic,noPtNeutralCut,redefineEtaBinPuppi, puppiConeCentral, puppiUseChargeCentral,
+                  useCleanedJetsForTypeICorrection):
 
     process = cms.Process("JRA")
 
@@ -188,7 +189,7 @@ def createProcess(isMC, ## isMC flag
              'AK4': {
                 'algo': 'ak4',
                 'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK4PUPPI', 'AK4PFchs', 'AK4PF'],
+                'jec_payloads': ['AK4PFPUPPI', 'AK4PFchs', 'AK4PF'],
                 'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
                 'pu_jet_id': True,
                 'qg_tagger': True,
@@ -215,6 +216,9 @@ def createProcess(isMC, ## isMC flag
 
 
             jetToolbox(process, params['algo'], 'dummy', 'out', runOnMC=isMC, PUMethod = pu_method, JETCorrPayload = jec_payload, JETCorrLevels = jec_levels, addPUJetID = False)
+
+            if useJECFromLocalDB and pu_method == "Puppi":
+                getattr(process,"patJetCorrFactors"+name+"PFPuppi").payload = cms.string(jec_payload)
 
             algo          = params['algo'].upper()
             jetCollection = '%sPFJets%s' % (params['algo'], pu_method)
@@ -557,8 +561,13 @@ def createProcess(isMC, ## isMC flag
             
         ## remove muons or electron from list of puppi particles
         if runPuppiNoMuon :
-            process.packedPFCandidatesNoMuon = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("abs(pdgId) != 13"))        
-            process.puppi.candName = cms.InputTag('packedPFCandidatesNoMuon')
+            process.packedPFCandidatesNoLepton = cms.EDProducer("packedCandidateFilterParticles",
+                                                                src      = cms.InputTag("packedPFCandidates"),
+                                                                srcMuons = cms.InputTag("slimmedMuons"+muonTypeID),
+                                                                srcElectrons = cms.InputTag("slimmedElectrons"+electronTypeID),
+                                                                srcTaus = cms.InputTag(""))
+                                                                
+            process.puppi.candName = cms.InputTag('packedPFCandidatesNoLepton')
                   
         process.pupuppi = process.puppi.clone()
         process.pupuppi.invertPuppi = True
@@ -639,11 +648,19 @@ def createProcess(isMC, ## isMC flag
         print("WARNING: No AK4 jets produced. Type 1 corrections for MET are not available.")
     else:        
 
-        process.corrPfMetType1 = corrPfMetType1.clone(
-            src = 'ak4PFJets',
-            jetCorrLabel = 'ak4PFL1FastL2L3Corrector',
-            offsetCorrLabel = 'ak4PFL1FastjetCorrector'
-        )
+        if useCleanedJetsForTypeICorrection == False :
+            process.corrPfMetType1 = corrPfMetType1.clone(
+                src = 'ak4PFJets',
+                jetCorrLabel = 'ak4PFL1FastL2L3Corrector',
+                offsetCorrLabel = 'ak4PFL1FastjetCorrector'
+                )
+        #else:
+            #process.corrPfMetType1 = corrPfMetType1.clone(
+            #    src = 'selectedPatJetsAK4PFCleanedMu'+muonTypeID+"Ele"+electronTypeID+"Tau"+tauTypeID,
+            #    jetCorrLabel = 'ak4PFL1FastL2L3Corrector',
+            #    offsetCorrLabel = 'ak4PFL1FastjetCorrector'
+            #    )
+            
         process.pfMetT1 = pfMetT1.clone(
             src = 'pfMet',
             srcCorrections = [ cms.InputTag("corrPfMetType1","type1") ]
@@ -670,20 +687,36 @@ def createProcess(isMC, ## isMC flag
                     correctors = cms.VInputTag("ak4PuppiL1FastjetCorrector", "ak4PuppiL2RelativeCorrector", "ak4PuppiL3AbsoluteCorrector")
                     )
 
-                process.corrPfMetType1Puppi = corrPfMetType1.clone(
-                    src = 'ak4PFJetsPuppi',
-                    jetCorrLabel = 'ak4PuppiL1FastL2L3Corrector', #FIXME: Use PUPPI corrections when available?
-                    offsetCorrLabel = 'ak4PuppiL1FastjetCorrector'
-                    )
+                if useCleanedJetsForTypeICorrection == False :
+                    process.corrPfMetType1Puppi = corrPfMetType1.clone(
+                        src = 'ak4PFJetsPuppi',
+                        jetCorrLabel = 'ak4PuppiL1FastL2L3Corrector', #FIXME: Use PUPPI corrections when available?
+                        offsetCorrLabel = 'ak4PuppiL1FastjetCorrector'
+                        )
+        #        else:
+        #            process.corrPfMetType1Puppi = corrPfMetType1.clone(
+        #                src =  'selectedPatJetsAK4PFPuppiCleanedMu'+muonTypeID+"Ele"+electronTypeID+"Tau"+tauTypeID,
+        #                jetCorrLabel = 'ak4PuppiL1FastL2L3Corrector', #FIXME: Use PUPPI corrections when available?
+        #                offsetCorrLabel = 'ak4PuppiL1FastjetCorrector'
+        #                )
+
                 #del process.corrPfMetType1Puppi.offsetCorrLabel # no L1 for PUPPI jets
 
             else :
 
-                process.corrPfMetType1Puppi = corrPfMetType1.clone(
-                    src = 'ak4PFJetsPuppi',
-                    jetCorrLabel = 'ak4PFCHSL1FastL2L3Corrector', #FIXME: Use PUPPI corrections when available?
-                    offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
-                    )
+                if useCleanedJetsForTypeICorrection == False :
+                    process.corrPfMetType1Puppi = corrPfMetType1.clone(
+                        src = 'ak4PFJetsPuppi',
+                        jetCorrLabel = 'ak4PFCHSL1FastL2L3Corrector', #FIXME: Use PUPPI corrections when available?
+                        offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
+                        )
+       #         else:
+       #             process.corrPfMetType1Puppi = corrPfMetType1.clone(
+       #                 src =  'selectedPatJetsAK4PFPuppiCleanedMu'+muonTypeID+"Ele"+electronTypeID+"Tau"+tauTypeID,
+       #                 jetCorrLabel = 'ak4CHSL1FastL2L3Corrector', #FIXME: Use PUPPI corrections when available?
+       #                 offsetCorrLabel = 'ak4CHSL1FastjetCorrector'
+       #                 )
+
                 #del process.corrPfMetType1Puppi.offsetCorrLabel # no L1 for PUPPI jets
 
             process.pfMetT1Puppi = pfMetT1.clone(
@@ -698,11 +731,21 @@ def createProcess(isMC, ## isMC flag
     if not hasattr(process, 'ak4PFJetsCHS'):
         print("WARNING: No AK4 CHS jets produced. Type 1 corrections for CHS MET are not available.")
     else:
-        process.corrPfMetType1CHS = corrPfMetType1.clone(
-            src             = 'ak4PFJetsCHS',
-            jetCorrLabel    = 'ak4PFCHSL1FastL2L3Corrector',
-            offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
-        )
+
+        if useCleanedJetsForTypeICorrection == False :
+            process.corrPfMetType1CHS = corrPfMetType1.clone(
+                src             = 'ak4PFJetsCHS',
+                jetCorrLabel    = 'ak4PFCHSL1FastL2L3Corrector',
+                offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
+                )
+       # else:
+       #     process.corrPfMetType1CHS = corrPfMetType1.clone(
+       #         src =  'selectedPatJetsAK4PFCHSCleanedMu'+muonTypeID+"Ele"+electronTypeID+"Tau"+tauTypeID,
+       #         jetCorrLabel = 'ak4CHSL1FastL2L3Corrector', #FIXME: Use PUPPI corrections when available?
+       #         offsetCorrLabel = 'ak4CHSL1FastjetCorrector'
+       #         )
+
+
         process.pfMetT1CHS = pfMetT1.clone(
             src = 'pfMetCHS',
             srcCorrections = [ cms.InputTag("corrPfMetType1CHS","type1") ]
@@ -982,17 +1025,18 @@ def createProcess(isMC, ## isMC flag
 
         setattr(process,"mvaPUPPET", cms.EDProducer("mvaPUPPET",
                                                     referenceMET = cms.InputTag("slimmedMETsPuppi"),
-                                                    srcMETs      = cms.VInputTag("slimmedMETs",
-                                                                                 "slimmedMETsCHS", 
-                                                                                 "slimmedMETsPuppi",
-                                                                                 "slimmedMETsPuppiChargedPU",
-                                                                                 "slimmedMETsPuppiChargedPV",
-                                                                                 "slimmedMETsPuppiNeutralPV",
-                                                                                 "slimmedMETsPuppiNeutralPU"),
+                                                    srcMETs      = cms.VInputTag(cms.InputTag("slimmedMETs","","JRA"),
+                                                                                 cms.InputTag("slimmedMETsCHS"), 
+                                                                                 cms.InputTag("slimmedMETsPuppi","","JRA"),
+                                                                                 cms.InputTag("slimmedMETsPuppiChargedPU"),
+                                                                                 cms.InputTag("slimmedMETsPuppiChargedPV"),
+                                                                                 cms.InputTag("slimmedMETsPuppiNeutralPV"),
+                                                                                 cms.InputTag("slimmedMETsPuppiNeutralPU")),
                                                     inputMETFlags  = cms.vint32(1,1,1,0,1,0,0),
                                                     srcJets        = cms.InputTag(jetColl),
                                                     srcVertices    = cms.InputTag("offlineSlimmedPrimaryVertices"),
                                                     srcTaus        = cms.InputTag("slimmedTaus"+tauTypeID+"Cleaned"),
+                                                    srcMuons       = cms.InputTag("slimmedMuons"+muonTypeID),
                                                     srcPuppiWeights     = cms.InputTag("puppi"),
                                                     inputFileNames = cms.PSet(
                     #                    PhiCorrectionWeightFile = cms.FileInPath('JMEAnalysis/JMEValidator/data/PhiCor_13TeV.root'),
@@ -1164,6 +1208,9 @@ def createProcess(isMC, ## isMC flag
                                srcGenJetsCleaned   = cms.InputTag("selectedPatak4GenJetsNoNuCleaned"),
                                srcGenParticles     = cms.InputTag("prunedGenParticles","","PAT"),
                                srcGenEventInfo     = cms.InputTag("generator"),
+                               srcPFMet            = cms.InputTag("slimmedMETs","","JRA"),
+                               srcPFCHSMet         = cms.InputTag("slimmedMETsCHS","","JRA"),
+                               srcPFPuppiMet       = cms.InputTag("slimmedMETsPuppi","","JRA"),
                                srcRecoilPFMet      = cms.InputTag("mvaPUPPET","recoilslimmedMETs"),
                                srcRecoilPFCHSMet   = cms.InputTag("mvaPUPPET","recoilslimmedMETsCHS"),
                                srcRecoilPFPuppiMet = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppi"),

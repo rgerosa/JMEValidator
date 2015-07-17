@@ -57,6 +57,18 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
     srcRecoilPFMet_ = iConfig.getParameter<edm::InputTag>("srcRecoilPFMet");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFMet recoil not given \n";
 
+  if (iConfig.existsAs<edm::InputTag>("srcPFMet"))
+    srcPFMet_ = iConfig.getParameter<edm::InputTag>("srcPFMet");
+  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFMet not given \n";
+
+  if (iConfig.existsAs<edm::InputTag>("srcPFCHSMet"))
+    srcPFCHSMet_ = iConfig.getParameter<edm::InputTag>("srcPFCHSMet");
+  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFCHSMet not given \n";
+
+  if (iConfig.existsAs<edm::InputTag>("srcPFPuppiMet"))
+    srcPFPuppiMet_ = iConfig.getParameter<edm::InputTag>("srcPFPuppiMet");
+  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFPuppiMet not given \n";
+
   if (iConfig.existsAs<edm::InputTag>("srcRecoilPFCHSMet"))
     srcRecoilPFCHSMet_ = iConfig.getParameter<edm::InputTag>("srcRecoilPFCHSMet");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFCHSMet recoil not given \n";
@@ -116,11 +128,20 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
   if(!(srcRecoilPFMet_ == edm::InputTag("")))
     srcRecoilPFMetToken_ = consumes<pat::METCollection>(srcRecoilPFMet_);
 
+  if(!(srcPFMet_ == edm::InputTag("")))
+    srcPFMetToken_ = consumes<pat::METCollection>(srcPFMet_);
+
   if(!(srcRecoilPFCHSMet_ == edm::InputTag("")))
     srcRecoilPFCHSMetToken_ = consumes<pat::METCollection>(srcRecoilPFCHSMet_);
 
+  if(!(srcPFCHSMet_ == edm::InputTag("")))
+    srcPFCHSMetToken_ = consumes<pat::METCollection>(srcPFCHSMet_);
+
   if(!(srcRecoilPFPuppiMet_ == edm::InputTag("")))
     srcRecoilPFPuppiMetToken_ = consumes<pat::METCollection>(srcRecoilPFPuppiMet_);
+
+  if(!(srcPFPuppiMet_ == edm::InputTag("")))
+    srcPFPuppiMetToken_ = consumes<pat::METCollection>(srcPFPuppiMet_);
 
   if(!(srcRecoilPFPuppiMet_ChargedPV_ == edm::InputTag("")))
     srcRecoilPFPuppiMet_ChargedPVToken_ = consumes<pat::METCollection>(srcRecoilPFPuppiMet_ChargedPV_);
@@ -311,10 +332,22 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   edm::Handle<std::vector<pat::MET>> RecoilPFMetHandle;
   iEvent.getByToken(srcRecoilPFMetToken_, RecoilPFMetHandle);
 
+  edm::Handle<std::vector<pat::MET>> PFMetHandle;
+  iEvent.getByToken(srcPFMetToken_, PFMetHandle);
+
+  const pat::MET& MetPF = PFMetHandle->at(0);
+  PFMet_sumEt_ = MetPF.sumEt();
+  PFMet_Pt_    = MetPF.pt();
+  PFMet_Phi_   = MetPF.phi();
+  PFMet_uncorrected_sumEt_ = MetPF.uncorrectedSumEt();
+  PFMet_uncorrected_Pt_    = MetPF.uncorrectedPt();
+  PFMet_uncorrected_Phi_   = MetPF.uncorrectedPhi();
+
   const pat::MET& recoilMetPF = RecoilPFMetHandle->at(0);
   recoilPFMet_sumEt_ = recoilMetPF.sumEt();
   recoilPFMet_Pt_    = recoilMetPF.pt();
   recoilPFMet_Phi_   = recoilMetPF.phi();
+
   RecoilVec.SetMagPhi(recoilPFMet_Pt_,reco::deltaPhi(recoilPFMet_Phi_ ,Boson_Phi_));
   recoilPFMet_PerpZ_ = RecoilVec.Py();
   recoilPFMet_LongZ_ = RecoilVec.Px();
@@ -335,6 +368,17 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   edm::Handle<std::vector<pat::MET>> RecoilPFMetCHSHandle;
   iEvent.getByToken(srcRecoilPFCHSMetToken_, RecoilPFMetCHSHandle);
 
+  edm::Handle<std::vector<pat::MET>> PFCHSMetHandle;
+  iEvent.getByToken(srcPFCHSMetToken_, PFCHSMetHandle);
+
+  const pat::MET& MetCHSPF = PFCHSMetHandle->at(0);
+  PFCHSMet_sumEt_ = MetCHSPF.sumEt();
+  PFCHSMet_Pt_    = MetCHSPF.pt();
+  PFCHSMet_Phi_   = MetCHSPF.phi();
+  PFCHSMet_uncorrected_sumEt_ = MetCHSPF.uncorrectedSumEt();
+  PFCHSMet_uncorrected_Pt_    = MetCHSPF.uncorrectedPt();
+  PFCHSMet_uncorrected_Phi_   = MetCHSPF.uncorrectedPhi();
+
   const pat::MET& recoilMetPFCHS = RecoilPFMetCHSHandle->at(0);
   recoilPFCHSMet_sumEt_ = recoilMetPFCHS.sumEt();
   recoilPFCHSMet_Pt_    = recoilMetPFCHS.pt();
@@ -353,6 +397,18 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   // reco recoil puppi met
   edm::Handle<std::vector<pat::MET>> RecoilPFMetPuppiHandle;
   iEvent.getByToken(srcRecoilPFPuppiMetToken_, RecoilPFMetPuppiHandle);
+
+  edm::Handle<std::vector<pat::MET>> PFPuppiMetHandle;
+  iEvent.getByToken(srcPFPuppiMetToken_, PFPuppiMetHandle);
+
+  const pat::MET& MetPuppiPF = PFPuppiMetHandle->at(0);
+  PFPuppiMet_sumEt_ = MetPuppiPF.sumEt();
+  PFPuppiMet_Pt_    = MetPuppiPF.pt();
+  PFPuppiMet_Phi_   = MetPuppiPF.phi();
+  PFPuppiMet_uncorrected_sumEt_ = MetPuppiPF.uncorrectedSumEt();
+  PFPuppiMet_uncorrected_Pt_    = MetPuppiPF.uncorrectedPt();
+  PFPuppiMet_uncorrected_Phi_   = MetPuppiPF.uncorrectedPhi();
+
 
   const pat::MET& recoilMetPFPuppi = RecoilPFMetPuppiHandle->at(0);
   recoilPFPuppiMet_sumEt_ = recoilMetPFPuppi.sumEt();
@@ -387,13 +443,6 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   recoilPFPuppiMet_ChargedPV_PerpZ_ = RecoilVec.Py();
   recoilPFPuppiMet_ChargedPV_LongZ_ = RecoilVec.Px();
 
-  recoilPFPuppiMet_ChargedPV_uncorrected_sumEt_ = recoilMetPFPuppi_ChargedPV.uncorrectedSumEt();
-  recoilPFPuppiMet_ChargedPV_uncorrected_Pt_    = recoilMetPFPuppi_ChargedPV.uncorrectedPt();
-  recoilPFPuppiMet_ChargedPV_uncorrected_Phi_   = recoilMetPFPuppi_ChargedPV.uncorrectedPhi();
-  RecoilVec.SetMagPhi(recoilPFPuppiMet_ChargedPV_uncorrected_Pt_,reco::deltaPhi(recoilPFPuppiMet_ChargedPV_uncorrected_Phi_,Boson_Phi_));
-  recoilPFPuppiMet_ChargedPV_uncorrected_PerpZ_ = RecoilVec.Py();
-  recoilPFPuppiMet_ChargedPV_uncorrected_LongZ_ = RecoilVec.Px();
-
   // charged from PU
   edm::Handle<std::vector<pat::MET>> RecoilPFMetPuppi_ChargedPUHandle;
   iEvent.getByToken(srcRecoilPFPuppiMet_ChargedPUToken_, RecoilPFMetPuppi_ChargedPUHandle);
@@ -406,15 +455,7 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   recoilPFPuppiMet_ChargedPU_PerpZ_ = RecoilVec.Py();
   recoilPFPuppiMet_ChargedPU_LongZ_ = RecoilVec.Px();
 
-  recoilPFPuppiMet_ChargedPU_uncorrected_sumEt_ = recoilMetPFPuppi_ChargedPU.uncorrectedSumEt();
-  recoilPFPuppiMet_ChargedPU_uncorrected_Pt_    = recoilMetPFPuppi_ChargedPU.uncorrectedPt();
-  recoilPFPuppiMet_ChargedPU_uncorrected_Phi_   = recoilMetPFPuppi_ChargedPU.uncorrectedPhi();
-  RecoilVec.SetMagPhi(recoilPFPuppiMet_ChargedPU_uncorrected_Pt_,reco::deltaPhi(recoilPFPuppiMet_ChargedPU_uncorrected_Phi_,Boson_Phi_));
-  recoilPFPuppiMet_ChargedPU_uncorrected_PerpZ_ = RecoilVec.Py();
-  recoilPFPuppiMet_ChargedPU_uncorrected_LongZ_ = RecoilVec.Px();
-
   // neutral puppi from PV
-
   edm::Handle<std::vector<pat::MET>> RecoilPFMetPuppi_NeutralPVHandle;
   iEvent.getByToken(srcRecoilPFPuppiMet_NeutralPVToken_, RecoilPFMetPuppi_NeutralPVHandle);
 
@@ -426,15 +467,7 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   recoilPFPuppiMet_NeutralPV_PerpZ_ = RecoilVec.Py();
   recoilPFPuppiMet_NeutralPV_LongZ_ = RecoilVec.Px();
 
-  recoilPFPuppiMet_NeutralPV_uncorrected_sumEt_ = recoilMetPFPuppi_NeutralPV.uncorrectedSumEt();
-  recoilPFPuppiMet_NeutralPV_uncorrected_Pt_    = recoilMetPFPuppi_NeutralPV.uncorrectedPt();
-  recoilPFPuppiMet_NeutralPV_uncorrected_Phi_   = recoilMetPFPuppi_NeutralPV.uncorrectedPhi();
-  RecoilVec.SetMagPhi(recoilPFPuppiMet_NeutralPV_uncorrected_Pt_,reco::deltaPhi(recoilPFPuppiMet_NeutralPV_uncorrected_Phi_,Boson_Phi_));
-  recoilPFPuppiMet_NeutralPV_uncorrected_PerpZ_ = RecoilVec.Py();
-  recoilPFPuppiMet_NeutralPV_uncorrected_LongZ_ = RecoilVec.Px();
-
   // neutral puppi from PU
-
   edm::Handle<std::vector<pat::MET>> RecoilPFMetPuppi_NeutralPUHandle;
   iEvent.getByToken(srcRecoilPFPuppiMet_NeutralPUToken_, RecoilPFMetPuppi_NeutralPUHandle);
 
@@ -446,15 +479,7 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   recoilPFPuppiMet_NeutralPU_PerpZ_ = RecoilVec.Py();
   recoilPFPuppiMet_NeutralPU_LongZ_ = RecoilVec.Px();
 
-  recoilPFPuppiMet_NeutralPU_uncorrected_sumEt_ = recoilMetPFPuppi_NeutralPU.uncorrectedSumEt();
-  recoilPFPuppiMet_NeutralPU_uncorrected_Pt_    = recoilMetPFPuppi_NeutralPU.uncorrectedPt();
-  recoilPFPuppiMet_NeutralPU_uncorrected_Phi_   = recoilMetPFPuppi_NeutralPU.uncorrectedPhi();
-  RecoilVec.SetMagPhi(recoilPFPuppiMet_NeutralPU_uncorrected_Pt_,reco::deltaPhi(recoilPFPuppiMet_NeutralPU_uncorrected_Phi_,Boson_Phi_));
-  recoilPFPuppiMet_NeutralPU_uncorrected_PerpZ_ = RecoilVec.Py();
-  recoilPFPuppiMet_NeutralPU_uncorrected_LongZ_ = RecoilVec.Px();
-
   // MVA met
-
   edm::Handle<std::vector<pat::MET>> MVAMetHandle;
   iEvent.getByToken(srcMVAMetToken_, MVAMetHandle);
 
@@ -468,7 +493,6 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
 
 
   // dump all jet info
-
   AllJets_Pt_.clear();
   AllJets_Eta_.clear();
   AllJets_Phi_.clear();

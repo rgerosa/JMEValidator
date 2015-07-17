@@ -9,7 +9,7 @@ options.register ('isMC'     ,        True,            VarParsing.multiplicity.s
 options.register ('globalTag',        "MCRUN2_74_V9",  VarParsing.multiplicity.singleton, VarParsing.varType.string, 'input global tag to be used');
 ## iPUPPI options
 options.register ('runPuppiMuonIso',  False,           VarParsing.multiplicity.singleton, VarParsing.varType.bool,   'flag to indicate to run or not puppi iso for mons');
-options.register ('runPuppiNoMuon',   True,            VarParsing.multiplicity.singleton, VarParsing.varType.bool,   'skip muon when run puppi algo');
+options.register ('runPuppiNoMuon',   False,            VarParsing.multiplicity.singleton, VarParsing.varType.bool,   'skip muon when run puppi algo');
 options.register ('muonIsoCone',      0.4,             VarParsing.multiplicity.singleton, VarParsing.varType.float,  'value to be used for muon isolation cone');
 ## PUPPET analysis
 options.register ('runMVAPUPPETAnalysis', True,        VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'run a specific analysis for MVA MET : Z->LL events');
@@ -34,7 +34,7 @@ options.register ('puppiConeCentral',         0.4,    VarParsing.multiplicity.si
 options.register ('noPtNeutralCut',           False,  VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'disable pt neutral cut in puppi');
 options.register ('redefineEtaBinPuppi',      False,  VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'use a different eta bin between tracker and forward region');
 options.register ('puppiUseChargeCentral',    True,   VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'use CHS for central puppi algo');
-
+options.register ('useCleanedJetsForTypeICorrection', False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'exclude jets overlayed with leptons for the typeI');
 options.parseArguments()
 
 ## import the function to create the process
@@ -58,7 +58,8 @@ process = createProcess(options.isMC, ## MC or data
                         options.noPtNeutralCut,
                         options.redefineEtaBinPuppi,
                         options.puppiConeCentral, 
-                        options.puppiUseChargeCentral);
+                        options.puppiUseChargeCentral,
+                        options.useCleanedJetsForTypeICorrection);
 
 ####### files
 if len(options.inputFiles) == 0 and options.isMC == True:
@@ -125,7 +126,9 @@ if options.dropAnalyzerDumpEDM :
                                                                              'keep *_*pfChargedPU*_*_*',
                                                                              'keep *_*pfCandidatesForMET*_*_*',
                                                                              'keep *_*pfCandidatesForMETCH*_*_*',
-                                                                             'keep *_*packed*Candidates*_*_*'
+                                                                             'keep *_*packed*Candidates*_*_*',
+                                                                             'keep *_*Met*_*_*'
+                                                                             
 ),
                                       SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring('p'))
                                       )

@@ -37,18 +37,19 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg){
     debug_ = false;
 
   // get vertices
-  srcVertices_ = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("srcVertices"));
-  // get jets
-  srcJets_     = consumes<pat::JetCollection>(cfg.getParameter<edm::InputTag>("srcJets"));
+  srcVertices_  = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("srcVertices"));
+  // get jets 
+  srcJets_      = consumes<pat::JetCollection>(cfg.getParameter<edm::InputTag>("srcJets"));
   // get taus
-  srcTaus_     = consumes<pat::TauCollection>(cfg.getParameter<edm::InputTag>("srcTaus"));
+  srcTaus_      = consumes<pat::TauCollection>(cfg.getParameter<edm::InputTag>("srcTaus"));
+  // get muons
+  srcMuons_     = consumes<pat::MuonCollection>(cfg.getParameter<edm::InputTag>("srcMuons"));
 
   // get puppi weights
   if(cfg.existsAs<edm::InputTag>("srcPuppiWeights"))
     srcPuppiWeights_ = cfg.getParameter<edm::InputTag>("srcPuppiWeights");  
 
   puppiWeights_         = consumes<edm::ValueMap<float> >(srcPuppiWeights_);
-  
   
   // load weight files
   edm::ParameterSet cfgInputFileNames = cfg.getParameter<edm::ParameterSet>("inputFileNames");
@@ -94,6 +95,12 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
   edm::Handle<pat::TauCollection> tauCollectionHandle;
   evt.getByToken(srcTaus_, tauCollectionHandle);
   const pat::TauCollection tauCollection = *(tauCollectionHandle.product());
+
+  // take mu lepton collection
+  edm::Handle<pat::MuonCollection> muCollectionHandle;
+  evt.getByToken(srcMuons_, muCollectionHandle);
+  const pat::MuonCollection muCollection = *(muCollectionHandle.product());
+
   
   // vector of packaed candidates to store charged and neutral particles belonging to the tau jets
   std::vector<reco::CandidatePtr> chargedTauJetCandidates;
@@ -109,10 +116,24 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
     for ( reco::CandidateView::const_iterator lepton = leptons->begin();
 	  lepton != leptons->end(); ++lepton ){
 
-      Z.setP4(Z.p4()+ lepton->p4());
-      Z.setPdgId(abs(lepton->pdgId()));
-      sumEt_Leptons += lepton->p4().Et();
+      math::PtEtaPhiELorentzVectorD p4Photon;      
+      for (auto muon : muCollection){
+	if( muon.p4() == lepton->p4()){
+	  p4Photon.SetPt(muon.pfEcalEnergy()/TMath::CosH(muon.p4().eta()));
+	  p4Photon.SetEta(muon.p4().eta());
+	  p4Photon.SetPhi(muon.p4().phi());
+	  p4Photon.SetE(muon.pfEcalEnergy());
+	}
+      }
 
+      if(p4Photon.E() > 0 )
+	Z.setP4(Z.p4()+ lepton->p4()+p4Photon);
+      else
+	Z.setP4(Z.p4()+ lepton->p4());
+
+      Z.setPdgId(abs(lepton->pdgId()));
+      sumEt_Leptons += lepton->p4().Et()+p4Photon.Et();
+      
       for(std::vector<pat::Tau>::const_iterator tau = tauCollection.begin();
 	  tau!= tauCollection.end(); ++tau){
 	

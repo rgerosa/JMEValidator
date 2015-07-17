@@ -13,6 +13,7 @@
 #include <DataFormats/METReco/interface/PFMET.h>
 #include <DataFormats/PatCandidates/interface/MET.h>
 #include <DataFormats/PatCandidates/interface/Tau.h>
+#include <DataFormats/PatCandidates/interface/Muon.h>
 #include <DataFormats/PatCandidates/interface/Jet.h>
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -21,6 +22,8 @@
 
 #include <TFile.h>
 #include <TVector2.h>
+#include <TLorentzVector.h>
+#include <TMath.h>
 
 class mvaPUPPET : public edm::stream::EDProducer<> {
 
@@ -63,6 +66,7 @@ private:
   edm::EDGetTokenT<pat::JetCollection>                 srcJets_;
   std::vector<edm::EDGetTokenT<reco::CandidateView > > srcLeptons_;
   edm::EDGetTokenT<pat::TauCollection>                 srcTaus_;
+  edm::EDGetTokenT<pat::MuonCollection>                srcMuons_;
   
   edm::InputTag srcPuppiWeights_;
   edm::EDGetTokenT<edm::ValueMap<float> > puppiWeights_;
