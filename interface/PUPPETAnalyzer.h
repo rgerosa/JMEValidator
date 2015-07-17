@@ -23,6 +23,7 @@ class PUPPETAnalyzer : public JME::Analyzer
 
         // member functions
         void analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup);
+        pat::MET getUncorrectedRecoil(const pat::MET& input);
 
     private:
 

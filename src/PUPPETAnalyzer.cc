@@ -7,7 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "JMEAnalysis/JMEValidator/interface/PUPPETAnalyzer.h"
-
+#include "DataFormats/Math/interface/normalizedPhi.h"
 #include <vector>
 #include <iostream>
 #include <regex>
@@ -354,9 +354,10 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   BosonVec.SetMagPhi(Boson_Pt_, reco::deltaPhi(Boson_Phi_, recoilPFMet_Phi_ + TMath::Pi()));
   recoilPFMet_Boson_PerpU_ = - BosonVec.Py();
   recoilPFMet_Boson_LongU_ = BosonVec.Px() - recoilPFMet_Pt_; 
-  recoilPFMet_uncorrected_sumEt_ = recoilMetPF.uncorrectedSumEt();
-  recoilPFMet_uncorrected_Pt_    = recoilMetPF.uncorrectedPt();
-  recoilPFMet_uncorrected_Phi_   = recoilMetPF.uncorrectedPhi();
+  pat::MET recoilMetPF_uncorrected = getUncorrectedRecoil(recoilMetPF);
+  recoilPFMet_uncorrected_sumEt_ = recoilMetPF_uncorrected.sumEt();
+  recoilPFMet_uncorrected_Pt_    = recoilMetPF_uncorrected.pt();
+  recoilPFMet_uncorrected_Phi_   = recoilMetPF_uncorrected.phi();
   RecoilVec.SetMagPhi(recoilPFMet_uncorrected_Pt_,reco::deltaPhi(recoilPFMet_uncorrected_Phi_,Boson_Phi_));
   recoilPFMet_uncorrected_PerpZ_ = RecoilVec.Py();
   recoilPFMet_uncorrected_LongZ_ = RecoilVec.Px();
@@ -387,9 +388,10 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   recoilPFCHSMet_PerpZ_ = RecoilVec.Py();
   recoilPFCHSMet_LongZ_ = RecoilVec.Px();
 
-  recoilPFCHSMet_uncorrected_sumEt_ = recoilMetPFCHS.uncorrectedSumEt();
-  recoilPFCHSMet_uncorrected_Pt_    = recoilMetPFCHS.uncorrectedPt();
-  recoilPFCHSMet_uncorrected_Phi_   = recoilMetPFCHS.uncorrectedPhi();
+  pat::MET recoilMetPFCHS_uncorrected = getUncorrectedRecoil( recoilMetPFCHS);
+  recoilPFCHSMet_uncorrected_sumEt_ = recoilMetPFCHS_uncorrected.sumEt();
+  recoilPFCHSMet_uncorrected_Pt_    = recoilMetPFCHS_uncorrected.pt();
+  recoilPFCHSMet_uncorrected_Phi_   = recoilMetPFCHS_uncorrected.phi();
   RecoilVec.SetMagPhi(recoilPFCHSMet_uncorrected_Pt_,reco::deltaPhi(recoilPFCHSMet_uncorrected_Phi_,Boson_Phi_));
   recoilPFCHSMet_uncorrected_PerpZ_ = RecoilVec.Py();
   recoilPFCHSMet_uncorrected_LongZ_ = RecoilVec.Px();
@@ -421,9 +423,10 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   recoilPFPuppiMet_Boson_PerpU_ = - BosonVec.Py();
   recoilPFPuppiMet_Boson_LongU_ = BosonVec.Px() - recoilPFPuppiMet_Pt_; 
 
-  recoilPFPuppiMet_uncorrected_sumEt_ = recoilMetPFPuppi.uncorrectedSumEt();
-  recoilPFPuppiMet_uncorrected_Pt_    = recoilMetPFPuppi.uncorrectedPt();
-  recoilPFPuppiMet_uncorrected_Phi_   = recoilMetPFPuppi.uncorrectedPhi();
+  pat::MET recoilMetPFPuppi_uncorrected = getUncorrectedRecoil( recoilMetPFPuppi );
+  recoilPFPuppiMet_uncorrected_sumEt_ = recoilMetPFPuppi_uncorrected.sumEt();
+  recoilPFPuppiMet_uncorrected_Pt_    = recoilMetPFPuppi_uncorrected.pt();
+  recoilPFPuppiMet_uncorrected_Phi_   = recoilMetPFPuppi_uncorrected.phi();
   RecoilVec.SetMagPhi(recoilPFPuppiMet_uncorrected_Pt_,reco::deltaPhi(recoilPFPuppiMet_uncorrected_Phi_,Boson_Phi_));
   recoilPFPuppiMet_uncorrected_PerpZ_ = RecoilVec.Py();
   recoilPFPuppiMet_uncorrected_LongZ_ = RecoilVec.Px();
@@ -523,6 +526,24 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   
 }
 
+pat::MET PUPPETAnalyzer::getUncorrectedRecoil(const pat::MET& input)
+{
+  // turn recoil in direction of MET
+  TVector2 helperVector2(input.px(), input.py());
+  helperVector2 = helperVector2.Rotate(M_PI);
+  reco::Candidate::LorentzVector helperVector4( helperVector2.Px(), helperVector2.Py(), 0, input.sumEt());
+  pat::MET negRecoil(input);
+  negRecoil.setP4(helperVector4);
+
+  //retrieve uncorrected values and rotate them back by PI
+  helperVector2.SetMagPhi( negRecoil.uncorrectedPt(), negRecoil.uncorrectedPhi());
+  helperVector2 = helperVector2.Rotate(- M_PI);
+  helperVector4.SetXYZT(helperVector2.Px(), helperVector2.Py(), 0, negRecoil.sumEt());
+  pat::MET uncorrectedRecoil(input);
+  uncorrectedRecoil.setP4(helperVector4);
+  uncorrectedRecoil.setSumEt(negRecoil.uncorrectedSumEt());
+  return uncorrectedRecoil;
+}
 ////////////////////////////////////////////////////////////////////////////////
 // define PUPPETAnalyzer as a plugin
 ////////////////////////////////////////////////////////////////////////////////
