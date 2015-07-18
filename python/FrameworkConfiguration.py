@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import sys
 
 from PhysicsTools.PatAlgos.tools.tauTools import *
 
@@ -107,8 +108,13 @@ def createProcess(isMC, ## isMC flag
                   isRunningOn25ns,
                   useJECFromLocalDB,
                   runPuppiNoMuon,
-                  etaCutForMetDiagnostic,noPtNeutralCut,redefineEtaBinPuppi, puppiConeCentral, puppiUseChargeCentral,
-                  useCleanedJetsForTypeICorrection):
+                  etaCutForMetDiagnostic,
+                  ptNeutralCut,
+                  ptNeutralCutSlope,
+                  etaBinPuppi,
+                  puppiCone,
+                  puppiUseCharge,
+                  ptThresholdForTypeIPuppi):
 
     process = cms.Process("JRA")
 
@@ -533,31 +539,20 @@ def createProcess(isMC, ## isMC flag
     if runMVAPUPPETAnalysis:          
 
         ## change cone and use charge for the tracking region
-        process.puppi.algos[0].puppiAlgos[0].cone       = puppiConeCentral
-        process.puppi.algos[0].puppiAlgos[0].useCharged = puppiUseChargeCentral
-
-        ## cut particles for met response studies in some region of the detector
-        if abs(etaCutForMetDiagnostic) <= 2.5:
-            ## drop the pT cut
-            if noPtNeutralCut :
-                process.puppi.algos[0].MinNeutralPt = 0;
-                process.puppi.algos[0].MinNeutralPtSlope = 0;                
-        ## extend to the transition region        
-        if abs(etaCutForMetDiagnostic) > 2.5 and abs(etaCutForMetDiagnostic) <= 3.0 :
-            if redefineEtaBinPuppi :
-                process.puppi.algos[0].etaMax = 2.2;
-                process.puppi.algos[1].etaMin = 2.2;    
-            if noPtNeutralCut :
-                process.puppi.algos[1].MinNeutralPt = 0;
-                process.puppi.algos[1].MinNeutralPtSlope = 0;
-            
-        elif abs(etaCutForMetDiagnostic) >= 3.0 :
-            if redefineEtaBinPuppi :
-                process.puppi.algos[0].etaMax = 2.2;
-                process.puppi.algos[1].etaMin = 2.2;    
-            if noPtNeutralCut :
-                process.puppi.algos[2].MinNeutralPt = 0;
-                process.puppi.algos[2].MinNeutralPtSlope = 0;
+        if len(ptNeutralCut) !=3 or len(ptNeutralCutSlope)!=3 or len(etaBinPuppi)!=3 or len(puppiCone)!=3 or len(puppiUseCharge)!=3 :
+            sys.exit("puppi parameters not corrected --> please check")
+        
+        for iBin in range(len(ptNeutralCut)):
+            if iBin == 0 :
+                process.puppi.algos[iBin].etaMin = cms.double(0.);
+            else:
+                process.puppi.algos[iBin].etaMin = cms.double(etaBinPuppi[iBin-1]);
+ 
+            process.puppi.algos[iBin].etaMax            = cms.double(etaBinPuppi[iBin]);
+            process.puppi.algos[iBin].MinNeutralPt      = cms.double(ptNeutralCut[iBin]);
+            process.puppi.algos[iBin].MinNeutralPtSlope        = cms.double(ptNeutralCutSlope[iBin]);
+            process.puppi.algos[iBin].puppiAlgos[0].cone       = cms.double(puppiCone[iBin])
+            process.puppi.algos[iBin].puppiAlgos[0].useCharged = cms.bool(puppiUseCharge[iBin])
             
         ## remove muons or electron from list of puppi particles
         if runPuppiNoMuon :
@@ -648,19 +643,12 @@ def createProcess(isMC, ## isMC flag
         print("WARNING: No AK4 jets produced. Type 1 corrections for MET are not available.")
     else:        
 
-        if useCleanedJetsForTypeICorrection == False :
-            process.corrPfMetType1 = corrPfMetType1.clone(
-                src = 'ak4PFJets',
-                jetCorrLabel = 'ak4PFL1FastL2L3Corrector',
-                offsetCorrLabel = 'ak4PFL1FastjetCorrector'
-                )
-        #else:
-            #process.corrPfMetType1 = corrPfMetType1.clone(
-            #    src = 'selectedPatJetsAK4PFCleanedMu'+muonTypeID+"Ele"+electronTypeID+"Tau"+tauTypeID,
-            #    jetCorrLabel = 'ak4PFL1FastL2L3Corrector',
-            #    offsetCorrLabel = 'ak4PFL1FastjetCorrector'
-            #    )
-            
+        process.corrPfMetType1 = corrPfMetType1.clone(
+            src = 'ak4PFJets',
+            jetCorrLabel = 'ak4PFL1FastL2L3Corrector',
+            offsetCorrLabel = 'ak4PFL1FastjetCorrector',
+            )
+                
         process.pfMetT1 = pfMetT1.clone(
             src = 'pfMet',
             srcCorrections = [ cms.InputTag("corrPfMetType1","type1") ]
@@ -686,38 +674,23 @@ def createProcess(isMC, ## isMC flag
                 process.ak4PuppiL1FastL2L3Corrector = process.ak4PFL1FastL2L3Corrector.clone(
                     correctors = cms.VInputTag("ak4PuppiL1FastjetCorrector", "ak4PuppiL2RelativeCorrector", "ak4PuppiL3AbsoluteCorrector")
                     )
+                
+                process.corrPfMetType1Puppi = corrPfMetType1.clone(
+                    src = 'ak4PFJetsPuppi',
+                    jetCorrLabel = 'ak4PuppiL1FastL2L3Corrector', #FIXME: Use PUPPI corrections when available?
+                    offsetCorrLabel = 'ak4PuppiL1FastjetCorrector',
+                    type1JetPtThreshold = cms.double(ptThresholdForTypeIPuppi)
+                    )
 
-                if useCleanedJetsForTypeICorrection == False :
-                    process.corrPfMetType1Puppi = corrPfMetType1.clone(
-                        src = 'ak4PFJetsPuppi',
-                        jetCorrLabel = 'ak4PuppiL1FastL2L3Corrector', #FIXME: Use PUPPI corrections when available?
-                        offsetCorrLabel = 'ak4PuppiL1FastjetCorrector'
-                        )
-        #        else:
-        #            process.corrPfMetType1Puppi = corrPfMetType1.clone(
-        #                src =  'selectedPatJetsAK4PFPuppiCleanedMu'+muonTypeID+"Ele"+electronTypeID+"Tau"+tauTypeID,
-        #                jetCorrLabel = 'ak4PuppiL1FastL2L3Corrector', #FIXME: Use PUPPI corrections when available?
-        #                offsetCorrLabel = 'ak4PuppiL1FastjetCorrector'
-        #                )
-
-                #del process.corrPfMetType1Puppi.offsetCorrLabel # no L1 for PUPPI jets
 
             else :
 
-                if useCleanedJetsForTypeICorrection == False :
-                    process.corrPfMetType1Puppi = corrPfMetType1.clone(
-                        src = 'ak4PFJetsPuppi',
-                        jetCorrLabel = 'ak4PFCHSL1FastL2L3Corrector', #FIXME: Use PUPPI corrections when available?
-                        offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
-                        )
-       #         else:
-       #             process.corrPfMetType1Puppi = corrPfMetType1.clone(
-       #                 src =  'selectedPatJetsAK4PFPuppiCleanedMu'+muonTypeID+"Ele"+electronTypeID+"Tau"+tauTypeID,
-       #                 jetCorrLabel = 'ak4CHSL1FastL2L3Corrector', #FIXME: Use PUPPI corrections when available?
-       #                 offsetCorrLabel = 'ak4CHSL1FastjetCorrector'
-       #                 )
+                process.corrPfMetType1Puppi = corrPfMetType1.clone(
+                    src = 'ak4PFJetsPuppi',
+                    jetCorrLabel = 'ak4PFCHSL1FastL2L3Corrector', #FIXME: Use PUPPI corrections when available?
+                    offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
+                    )
 
-                #del process.corrPfMetType1Puppi.offsetCorrLabel # no L1 for PUPPI jets
 
             process.pfMetT1Puppi = pfMetT1.clone(
                 src = 'pfMetPuppi',
@@ -732,19 +705,11 @@ def createProcess(isMC, ## isMC flag
         print("WARNING: No AK4 CHS jets produced. Type 1 corrections for CHS MET are not available.")
     else:
 
-        if useCleanedJetsForTypeICorrection == False :
-            process.corrPfMetType1CHS = corrPfMetType1.clone(
-                src             = 'ak4PFJetsCHS',
-                jetCorrLabel    = 'ak4PFCHSL1FastL2L3Corrector',
-                offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
-                )
-       # else:
-       #     process.corrPfMetType1CHS = corrPfMetType1.clone(
-       #         src =  'selectedPatJetsAK4PFCHSCleanedMu'+muonTypeID+"Ele"+electronTypeID+"Tau"+tauTypeID,
-       #         jetCorrLabel = 'ak4CHSL1FastL2L3Corrector', #FIXME: Use PUPPI corrections when available?
-       #         offsetCorrLabel = 'ak4CHSL1FastjetCorrector'
-       #         )
-
+        process.corrPfMetType1CHS = corrPfMetType1.clone(
+            src             = 'ak4PFJetsCHS',
+            jetCorrLabel    = 'ak4PFCHSL1FastL2L3Corrector',
+            offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
+            )
 
         process.pfMetT1CHS = pfMetT1.clone(
             src = 'pfMetCHS',
