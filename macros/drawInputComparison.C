@@ -2,15 +2,16 @@
 
   gStyle->SetOptStat(00000);
 
-  TFile* file1 = new TFile("eos/cms/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt25ns_MCRUN2_74_V9_last.root","OPEN");
+  TFile* file2 = TFile::Open("root://eoscms.cern.ch//store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_last_fixed.root","OPEN");
+  file2->cd();
+  TDirectory* dir2 = (TDirectory*) file2->Get("PUPPET");
+  TTree* t2 = (TTree*) dir2->Get("t");
+
+  TFile* file1 = TFile::Open("root://eoscms.cern.ch//store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_noMuon_JEC_pt20.root","OPEN");
   file1->cd();
   TDirectory* dir1 = (TDirectory*) file1->Get("PUPPET");
   TTree* t1 = (TTree*) dir1->Get("t");
 
-  TFile* file2 = new TFile("eos/cms/store/user/rgerosa/PUPPETAnalysis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_last_fixed.root","OPEN");
-  file2->cd();
-  TDirectory* dir2 = (TDirectory*) file2->Get("PUPPET");
-  TTree* t2 = (TTree*) dir2->Get("t");
   
   TH1F* NVertex_1 = new TH1F("NVertex_1","",50,0,50);
   TH1F* NVertex_2 = new TH1F("NVertex_2","",50,0,50);

@@ -126,13 +126,16 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
 	}
       }
 
-      if(p4Photon.E() > 0 )
+      if(p4Photon.E() > 0 ){
 	Z.setP4(Z.p4()+ lepton->p4()+p4Photon);
-      else
+        sumEt_Leptons += lepton->p4().Et()+p4Photon.Et();
+      }
+      else{
 	Z.setP4(Z.p4()+ lepton->p4());
-
+        sumEt_Leptons += lepton->p4().Et();
+      }
+      
       Z.setPdgId(abs(lepton->pdgId()));
-      sumEt_Leptons += lepton->p4().Et()+p4Photon.Et();
       
       for(std::vector<pat::Tau>::const_iterator tau = tauCollection.begin();
 	  tau!= tauCollection.end(); ++tau){
@@ -242,8 +245,10 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
 	Recoil.setP4(tauJetSpouriousComponents.p4() - (*MET)[0].p4());      
         Recoil.setSumEt((*MET)[0].sumEt()-sumEt_TauJetNeutral);    
       }
-      else
+      else{
 	Recoil.setP4(-(*MET)[0].p4());		
+	Recoil.setSumEt((*MET)[0].sumEt());
+      }
     }
 
     std::auto_ptr<pat::METCollection> patMETRecoilCollection(new pat::METCollection());

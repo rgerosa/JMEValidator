@@ -26,6 +26,7 @@ options.register ('tauTypeID',"Loose", VarParsing.multiplicity.singleton, VarPar
 ## selections
 options.register ('applyZSelections',True,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'apply selection for Zll events when runMVAPUPPETAnalysis is true');
 options.register ('applyWSelections',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'apply selection for Wlnu events when runMVAPUPPETAnalysis is true');
+options.register ('jetPtCut',0.,VarParsing.multiplicity.singleton, VarParsing.varType.float, 'apply a jet pt cut for mva met input');
 ## JEC
 options.register ('applyJECtoPuppiJets',  False,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'apply or not JEC on puppi jets');
 options.register ('isRunningOn25ns',      False,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'true when running on 25ns and JEC from DB should be red');
@@ -39,7 +40,7 @@ options.register ('ptNeutralCut',           [],     VarParsing.multiplicity.list
 options.register ('ptNeutralCutSlope',      [],  VarParsing.multiplicity.list, VarParsing.varType.float, 'ptNeutral cut in each eta bin');
 options.register ('etaBinPuppi',            [],     VarParsing.multiplicity.list, VarParsing.varType.float, 'eta bin for puppi algo');
 options.register ('puppiUseCharge',         [], VarParsing.multiplicity.list, VarParsing.varType.bool, 'use charge constraint in puppi algo');
-options.register ('ptThresholdForTypeIPuppi', 10.,    VarParsing.multiplicity.singleton, VarParsing.varType.float, 'pt threshold for typeI puppi Met');
+options.register ('ptThresholdForTypeIPuppi', 20.,    VarParsing.multiplicity.singleton, VarParsing.varType.float, 'pt threshold for typeI puppi Met');
 options.parseArguments()
 
 if len(options.puppiCone) == 0:
@@ -71,6 +72,7 @@ process = createProcess(options.isMC, ## MC or data
                         options.tauTypeID,## taus
                         options.dropAnalyzerDumpEDM, ## debug in EDM file
                         options.runMVAPUPPETAnalysis, options.applyZSelections, options.applyWSelections, ## special flags for PUPPI analysis
+                        options.jetPtCut,
                         options.applyJECtoPuppiJets, ## JEC for puppi
                         options.runPuppiDiagnostics, ## puppi diagnostic
                         options.isRunningOn25ns, options.useJECFromDB, ## JEC
@@ -149,9 +151,8 @@ if options.dropAnalyzerDumpEDM :
                                                                              'keep *_*pfCandidatesForMET*_*_*',
                                                                              'keep *_*pfCandidatesForMETCH*_*_*',
                                                                              'keep *_*packed*Candidates*_*_*',
-                                                                             'keep *_*Met*_*_*'
-                                                                             
-),
+                                                                             'keep *_*Met*_*_*',                                                                       
+                                                                             ),        
                                       SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring('p'))
                                       )
     

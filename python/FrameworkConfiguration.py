@@ -103,6 +103,7 @@ def createProcess(isMC, ## isMC flag
                   tauTypeID, ## taus
                   dropAnalyzerDumpEDM, ## debug EDM 
                   runMVAPUPPETAnalysis,applyZSelections,applyWSelections, ## special settings for PUPPET
+                  jetPtCut,
                   applyJECtoPuppiJets,
                   runPuppiDiagnostics,
                   isRunningOn25ns,
@@ -483,7 +484,7 @@ def createProcess(isMC, ## isMC flag
 
                 postfix       = '%sPF%s' % (algo, pu_method)
 
-                setattr(getattr(process,"selectedPatJets"+postfix),"cut",cms.string('pt > 0'))
+                setattr(getattr(process,"selectedPatJets"+postfix),"cut",cms.string('pt > %f'%jetPtCut))
                 
                 cleanJetsFromLeptons(process,
                                      "Cleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID+"Tau"+tauTypeID,                                 
@@ -491,7 +492,7 @@ def createProcess(isMC, ## isMC flag
                                      muonCollection     = "slimmedMuons"+muonTypeID,
                                      electronCollection = "slimmedElectrons"+electronTypeID,
                                      tauCollection      = "slimmedTaus"+tauTypeID+"Cleaned",
-                                     jetPtCut   = 0.,
+                                     jetPtCut   = jetPtCut,
                                      jetEtaCut  = 5.,
                                      dRCleaning = 0.3) 
 
@@ -521,14 +522,14 @@ def createProcess(isMC, ## isMC flag
              ))
 
             setattr(process,"selectedPat"+genAlgo+"GenJetsNoNu",cms.EDFilter("PATJetSelector",
-                                                                             cut = cms.string('pt > 0'),
+                                                                             cut = cms.string('pt > %f'%jetPtCut),
                                                                              src = cms.InputTag("pat"+genAlgo+"GenJetsNoNu")
                                                                              ))
 
             cleanGenJetsFromGenLeptons (process,
                                         jetCollection       = "selectedPat"+genAlgo+"GenJetsNoNu",
                                         genLeptonCollection = "packedGenLeptons",
-                                        jetPtCut         = 0,
+                                        jetPtCut         = jetPtCut,
                                         jetEtaCut        = 5,
                                         dRCleaning       = 0.3)
 
@@ -541,7 +542,9 @@ def createProcess(isMC, ## isMC flag
         ## change cone and use charge for the tracking region
         if len(ptNeutralCut) !=3 or len(ptNeutralCutSlope)!=3 or len(etaBinPuppi)!=3 or len(puppiCone)!=3 or len(puppiUseCharge)!=3 :
             sys.exit("puppi parameters not corrected --> please check")
-        
+
+        process.puppi.producePackedCollection = cms.bool(True)
+
         for iBin in range(len(ptNeutralCut)):
             if iBin == 0 :
                 process.puppi.algos[iBin].etaMin = cms.double(0.);
