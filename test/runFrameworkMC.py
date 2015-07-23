@@ -98,6 +98,10 @@ if len(options.inputFiles) == 0 and options.isMC == True:
       #options.inputFiles.append('/store/relval/CMSSW_7_4_6/RelValZTT_13/MINIAODSIM/PU25ns_MCRUN2_74_V9-v2/00000/00D5878D-FF1A-E511-BB28-0025905964B2.root')
       #options.inputFiles.append('/store/relval/CMSSW_7_4_6_patch1/RelValWM_13/MINIAODSIM/MCRUN2_74_V9-v1/00000/7E90A8B1-C31E-E511-82D1-0025905B858C.root')
       #options.inputFiles.append('/store/relval/CMSSW_7_4_6/RelValWE_13/MINIAODSIM/MCRUN2_74_V9-v2/00000/60C13AF5-481A-E511-A0F3-0025905A60B0.root')
+elif len(options.inputFiles) == 0 and options.isMC == False:
+      options.inputFiles.append('/store/data/Run2015B/DoubleMuon/MINIAOD/PromptReco-v1/000/251/244/00000/E42FEF61-6E27-E511-B93A-02163E0143C0.root')
+
+
 ## set input files
 process.source.fileNames = cms.untracked.vstring(options.inputFiles);
 ## set max events 

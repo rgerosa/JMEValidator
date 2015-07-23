@@ -468,11 +468,12 @@ def createProcess(isMC, ## isMC flag
     ##################
 
     ## define gen leptons (muons and electrons)\        
-    process.packedGenLeptons = cms.EDFilter("CandPtrSelector",
-                                            cut = cms.string('(abs(pdgId) = 11 || abs(pdgId) = 13) && pt > 10'),
-                                            src = cms.InputTag("packedGenParticles")
-                                            )
-    
+    if isMC :
+        process.packedGenLeptons = cms.EDFilter("CandPtrSelector",
+                                                cut = cms.string('(abs(pdgId) = 11 || abs(pdgId) = 13) && pt > 10'),
+                                                src = cms.InputTag("packedGenParticles")
+                                                )
+        
         
     if runMVAPUPPETAnalysis :
 
@@ -497,41 +498,42 @@ def createProcess(isMC, ## isMC flag
                                      dRCleaning = 0.3) 
 
             ## clean also the related Gen Jet Collection
-            genAlgo = algo.replace("AK","ak")
-            setattr(process,"pat"+genAlgo+"GenJetsNoNu", cms.EDProducer("PATJetProducer",
-                                                                        jetSource = cms.InputTag(genAlgo+"GenJetsNoNu"),
-                                                                        addJetCorrFactors = cms.bool(False),
-                                                                        addJetCharge = cms.bool(False),
-                                                                        addGenJetMatch = cms.bool(False),
-                                                                        embedGenJetMatch = cms.bool(False),
-                                                                        addAssociatedTracks = cms.bool(False),
-                                                                        addBTagInfo = cms.bool(False),
-                                                                        partonJetSource = cms.InputTag("NOT_IMPLEMENTED"),
-                                                                        addGenPartonMatch = cms.bool(False),
-                                                                        addTagInfos = cms.bool(False),
-                                                                        addPartonJetMatch = cms.bool(False),
-                                                                        embedGenPartonMatch = cms.bool(False),
-                                                                        useLegacyJetMCFlavour = cms.bool(False),
-                                                                        addEfficiencies = cms.bool(False),
-                                                                        embedPFCandidates = cms.bool(False),
-                                                                        addJetFlavourInfo = cms.bool(False),
-                                                                        addResolutions = cms.bool(False),
-                                                                        getJetMCFlavour = cms.bool(False),
-                                                                        addDiscriminators = cms.bool(False),
-                                                                        addJetID = cms.bool(False)
-             ))
-
-            setattr(process,"selectedPat"+genAlgo+"GenJetsNoNu",cms.EDFilter("PATJetSelector",
-                                                                             cut = cms.string('pt > %f'%jetPtCut),
-                                                                             src = cms.InputTag("pat"+genAlgo+"GenJetsNoNu")
-                                                                             ))
-
-            cleanGenJetsFromGenLeptons (process,
-                                        jetCollection       = "selectedPat"+genAlgo+"GenJetsNoNu",
-                                        genLeptonCollection = "packedGenLeptons",
-                                        jetPtCut         = jetPtCut,
-                                        jetEtaCut        = 5,
-                                        dRCleaning       = 0.3)
+            if isMC: 
+                genAlgo = algo.replace("AK","ak")
+                setattr(process,"pat"+genAlgo+"GenJetsNoNu", cms.EDProducer("PATJetProducer",
+                                                                            jetSource = cms.InputTag(genAlgo+"GenJetsNoNu"),
+                                                                            addJetCorrFactors = cms.bool(False),
+                                                                            addJetCharge = cms.bool(False),
+                                                                            addGenJetMatch = cms.bool(False),
+                                                                            embedGenJetMatch = cms.bool(False),
+                                                                            addAssociatedTracks = cms.bool(False),
+                                                                            addBTagInfo = cms.bool(False),
+                                                                            partonJetSource = cms.InputTag("NOT_IMPLEMENTED"),
+                                                                            addGenPartonMatch = cms.bool(False),
+                                                                            addTagInfos = cms.bool(False),
+                                                                            addPartonJetMatch = cms.bool(False),
+                                                                            embedGenPartonMatch = cms.bool(False),
+                                                                            useLegacyJetMCFlavour = cms.bool(False),
+                                                                            addEfficiencies = cms.bool(False),
+                                                                            embedPFCandidates = cms.bool(False),
+                                                                            addJetFlavourInfo = cms.bool(False),
+                                                                            addResolutions = cms.bool(False),
+                                                                            getJetMCFlavour = cms.bool(False),
+                                                                            addDiscriminators = cms.bool(False),
+                                                                            addJetID = cms.bool(False)
+                                                                            ))
+                
+                setattr(process,"selectedPat"+genAlgo+"GenJetsNoNu",cms.EDFilter("PATJetSelector",
+                                                                                 cut = cms.string('pt > %f'%jetPtCut),
+                                                                                 src = cms.InputTag("pat"+genAlgo+"GenJetsNoNu")
+                                                                                 ))
+                
+                cleanGenJetsFromGenLeptons (process,
+                                            jetCollection       = "selectedPat"+genAlgo+"GenJetsNoNu",
+                                            genLeptonCollection = "packedGenLeptons",
+                                            jetPtCut         = jetPtCut,
+                                            jetEtaCut        = 5,
+                                            dRCleaning       = 0.3)
 
 
     ##################################                    
@@ -577,9 +579,10 @@ def createProcess(isMC, ## isMC flag
     ## Gen MET ###
     ### Copied from https://github.com/cms-sw/cmssw/blob/2b75137e278b50fc967f95929388d430ef64710b/RecoMET/Configuration/python/GenMETParticles_cff.py#L37
 
-    process.load('RecoMET.METProducers.genMetTrue_cfi')
-
-    process.genParticlesForMETAllVisible = cms.EDProducer(
+    if isMC :
+        process.load('RecoMET.METProducers.genMetTrue_cfi')
+    
+        process.genParticlesForMETAllVisible = cms.EDProducer(
             "InputGenJetsParticleSelector",
             src = cms.InputTag("prunedGenParticles"),
             partonicFinalState = cms.bool(False),
@@ -835,7 +838,7 @@ def createProcess(isMC, ## isMC flag
         process.pfMetPuppiChargedPV.src   = cms.InputTag("pfAllChargedParticlesPuppi") ## packed candidates without fromPV < 1
         process.pfMetPuppiChargedPV.alias = cms.string('pfMetPuppiChargedPV')
         addMETCollection(process, labelName='patPFMetPuppiChargedPV', metSource='pfMetPuppiChargedPV') # Convert the CHS PFMet in PAT MET
-        process.patPFMetPuppiChargedPV.addGenMET = True
+        process.patPFMetPuppiChargedPV.addGenMET = isMC
 
         process.slimmedMETsPuppiChargedPV = slimmedMETs.clone()
         process.slimmedMETsPuppiChargedPV.src = cms.InputTag("patPFMetPuppiChargedPV")
@@ -848,7 +851,7 @@ def createProcess(isMC, ## isMC flag
         process.pfMetChargedPU.src   = cms.InputTag("pfChargedPU")
         process.pfMetChargedPU.alias = cms.string('pfMetPuppiChargedPU')
         addMETCollection(process, labelName='patPFMetChargedPU', metSource='pfMetChargedPU') 
-        process.patPFMetChargedPU.addGenMET = True
+        process.patPFMetChargedPU.addGenMET = isMC
 
         process.slimmedMETsPuppiChargedPU = slimmedMETs.clone()
         process.slimmedMETsPuppiChargedPU.src = cms.InputTag("patPFMetChargedPU")
@@ -862,7 +865,7 @@ def createProcess(isMC, ## isMC flag
         process.pfMetPuppiNeutralPV.src   = cms.InputTag("pfAllNeutralParticlesPuppi")
         process.pfMetPuppiNeutralPV.alias = cms.string('pfMetPuppiNeutralPV')
         addMETCollection(process, labelName='patPFMetPuppiNeutralPV', metSource='pfMetPuppiNeutralPV') 
-        process.patPFMetPuppiNeutralPV.addGenMET = True
+        process.patPFMetPuppiNeutralPV.addGenMET = isMC
         
         process.slimmedMETsPuppiNeutralPV = slimmedMETs.clone()
         process.slimmedMETsPuppiNeutralPV.src = cms.InputTag("patPFMetPuppiNeutralPV")
@@ -877,7 +880,7 @@ def createProcess(isMC, ## isMC flag
         process.pfMetPuppiNeutralPU.src   = cms.InputTag("pfAllNeutralParticlesPuppiPU")
         process.pfMetPuppiNeutralPU.alias = cms.string('pfMetPuppiNeutralPU')
         addMETCollection(process, labelName='patPFMetPuppiNeutralPU', metSource='pfMetPuppiNeutralPU') 
-        process.patPFMetPuppiNeutralPU.addGenMET = True
+        process.patPFMetPuppiNeutralPU.addGenMET = isMC
 
         process.slimmedMETsPuppiNeutralPU = slimmedMETs.clone()
         process.slimmedMETsPuppiNeutralPU.src = cms.InputTag("patPFMetPuppiNeutralPU")
@@ -1168,6 +1171,7 @@ def createProcess(isMC, ## isMC flag
 
         setattr(process, "PUPPET", 
                 cms.EDAnalyzer('PUPPETAnalyzer',
+                               isMC      = cms.bool(isMC),
                                srcJet    = cms.InputTag("selectedPatJetsAK4PFPuppiCleaned"+"Mu"+muonTypeID+"Ele"+electronTypeID+"Tau"+tauTypeID),
                                srcVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
                                srcZboson = cms.InputTag("mvaPUPPET","ZtagBoson"),

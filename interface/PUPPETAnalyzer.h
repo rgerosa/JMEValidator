@@ -28,6 +28,7 @@ class PUPPETAnalyzer : public JME::Analyzer
     private:
 
         double dRgenMatching_;
+	bool   isMC_;
         TVector2 RecoilVec;
         TVector2 BosonVec;
 

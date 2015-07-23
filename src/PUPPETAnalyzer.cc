@@ -101,6 +101,10 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
     dRgenMatching_ = iConfig.getParameter<double>("dRgenMatching");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input dR for gen jet matching not given \n";
 
+  if (iConfig.existsAs<bool>("isMC"))
+    isMC_ = iConfig.getParameter<bool>("isMC");
+  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input isMC \n";
+
   if(!(srcJet_ == edm::InputTag("")))
     srcJetToken_ = consumes<pat::JetCollection>(srcJet_);
 
@@ -110,19 +114,19 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
   if(!(srcVertex_ == edm::InputTag("")))
     srcVertexToken_ = consumes<reco::VertexCollection>(srcVertex_);
 
-  if(!(srcGenJets_ == edm::InputTag("")))
+  if(!(srcGenJets_ == edm::InputTag("")) and isMC_)
     srcGenJetsToken_ = consumes<reco::GenJetCollection>(srcGenJets_);
 
-  if(!(srcGenJetsCleaned_ == edm::InputTag("")))
+  if(!(srcGenJetsCleaned_ == edm::InputTag("")) and isMC_)
     srcGenJetsCleanedToken_ = consumes<pat::JetCollection>(srcGenJetsCleaned_);
 
-  if(!(srcGenMet_ == edm::InputTag("")))
+  if(!(srcGenMet_ == edm::InputTag("")) and isMC_)
     srcGenMetToken_ = consumes<pat::METCollection>(srcGenMet_);
 
-  if(!(srcGenParticles_ == edm::InputTag("")))
+  if(!(srcGenParticles_ == edm::InputTag("")) and isMC_)
     srcGenParticlesToken_ = consumes<reco::GenParticleCollection>(srcGenParticles_);
 
-  if(!(srcGenEventInfo_ == edm::InputTag("")))
+  if(!(srcGenEventInfo_ == edm::InputTag("")) and isMC_)
     srcGenEventInfoToken_ = consumes<GenEventInfoProduct>(srcGenEventInfo_);
 
   if(!(srcRecoilPFMet_ == edm::InputTag("")))
@@ -175,98 +179,122 @@ PUPPETAnalyzer::~PUPPETAnalyzer(){}
 void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
 			     const edm::EventSetup& iSetup){
 
-  // take gen level info weight
-  edm::Handle<GenEventInfoProduct> GenEventInfoHandle;
-  iEvent.getByToken(srcGenEventInfoToken_,GenEventInfoHandle);
-  eventMCWeight = GenEventInfoHandle->weight()/fabs(GenEventInfoHandle->weight());
-
-  // find generator level Z kinematics
-  edm::Handle<reco::GenParticleCollection> GenParticlesHandle;
-  iEvent.getByToken(srcGenParticlesToken_, GenParticlesHandle);
-  reco::GenParticle GenBoson;
-
-  for(auto aGenParticle : *GenParticlesHandle){
-    if(aGenParticle.pdgId() == 23 or abs(aGenParticle.pdgId()) == 24 or aGenParticle.pdgId() == 22){
-      if(aGenParticle.numberOfDaughters() !=2) continue;
-      bool goodBoson = false;
-      int numberOfLeptonDaughter   = 0;
-      int leptonDaughterPdgId      = 0;
-      int numberOfNeutrinoDaughter = 0;
-      for(unsigned int i0 = 0; i0 < aGenParticle.numberOfDaughters(); i0++) {
-        const reco::GenParticle *daughter = aGenParticle.daughterRef(i0).get();
-	if(abs(daughter->pdgId()) == 11 or abs(daughter->pdgId()) == 13 or abs(daughter->pdgId()) == 15){
-	  numberOfLeptonDaughter ++;
-	  leptonDaughterPdgId = abs(daughter->pdgId());
-	}
-	else if(abs(daughter->pdgId()) == 12 or abs(daughter->pdgId()) == 14 or abs(daughter->pdgId()) == 16)
-	  numberOfNeutrinoDaughter++;
-      }
-
-      if(numberOfLeptonDaughter == 1 and numberOfNeutrinoDaughter == 1)
-	goodBoson = true;
-
-      if(numberOfLeptonDaughter == 2 and numberOfNeutrinoDaughter == 0)
-	goodBoson = true;
-
-      if(goodBoson == false) continue;
-
-      GenBoson_Pt_  = aGenParticle.pt();
-      GenBoson_Eta_ = aGenParticle.eta();
-      GenBoson_Phi_ = aGenParticle.phi();
-      GenBoson_M_   = aGenParticle.mass();
-      GenBoson.setP4(aGenParticle.p4());
-      GenBoson_daughter_ = leptonDaughterPdgId;
-    }
-  }  
-
-  // store gen jets and gen jets cleaned info
-  edm::Handle<reco::GenJetCollection> GenJetsHandle;
-  iEvent.getByToken(srcGenJetsToken_, GenJetsHandle);
-
-  edm::Handle<pat::JetCollection> GenJetsCleanedHandle;
-  iEvent.getByToken(srcGenJetsCleanedToken_, GenJetsCleanedHandle);
-
-  NGenJets_        = GenJetsHandle->size();
-  NGenJetsCleaned_ = GenJetsHandle->size();
-
+  // take gen level info weight  
   int ijet = 0;
-  for( auto GenJet : *GenJetsHandle){     
-    if(ijet == 0){
-      GenLeadingJet_Pt_  = GenJet.pt();
-      GenLeadingJet_Eta_ = GenJet.eta();
-      GenLeadingJet_Phi_ = GenJet.phi();
-      GenLeadingJet_M_   = GenJet.mass();
-      ijet++;
-      continue;
+
+  if(isMC_){
+    edm::Handle<GenEventInfoProduct> GenEventInfoHandle;
+    iEvent.getByToken(srcGenEventInfoToken_,GenEventInfoHandle);
+    eventMCWeight = GenEventInfoHandle->weight()/fabs(GenEventInfoHandle->weight());
+
+    // find generator level Z kinematics
+    edm::Handle<reco::GenParticleCollection> GenParticlesHandle;
+    iEvent.getByToken(srcGenParticlesToken_, GenParticlesHandle);
+    reco::GenParticle GenBoson;
+
+    for(auto aGenParticle : *GenParticlesHandle){
+      if(aGenParticle.pdgId() == 23 or abs(aGenParticle.pdgId()) == 24 or aGenParticle.pdgId() == 22){
+	if(aGenParticle.numberOfDaughters() !=2) continue;
+	bool goodBoson = false;
+	int numberOfLeptonDaughter   = 0;
+	int leptonDaughterPdgId      = 0;
+	int numberOfNeutrinoDaughter = 0;
+	for(unsigned int i0 = 0; i0 < aGenParticle.numberOfDaughters(); i0++) {
+	  const reco::GenParticle *daughter = aGenParticle.daughterRef(i0).get();
+	  if(abs(daughter->pdgId()) == 11 or abs(daughter->pdgId()) == 13 or abs(daughter->pdgId()) == 15){
+	    numberOfLeptonDaughter ++;
+	    leptonDaughterPdgId = abs(daughter->pdgId());
+	}
+	  else if(abs(daughter->pdgId()) == 12 or abs(daughter->pdgId()) == 14 or abs(daughter->pdgId()) == 16)
+	    numberOfNeutrinoDaughter++;
+	}
+	
+	if(numberOfLeptonDaughter == 1 and numberOfNeutrinoDaughter == 1)
+	  goodBoson = true;
+
+	if(numberOfLeptonDaughter == 2 and numberOfNeutrinoDaughter == 0)
+	  goodBoson = true;
+	
+	if(goodBoson == false) continue;
+
+	GenBoson_Pt_  = aGenParticle.pt();
+	GenBoson_Eta_ = aGenParticle.eta();
+	GenBoson_Phi_ = aGenParticle.phi();
+	GenBoson_M_   = aGenParticle.mass();
+	GenBoson.setP4(aGenParticle.p4());
+	GenBoson_daughter_ = leptonDaughterPdgId;
+      }
     }
-    else if(ijet == 1){
-      GenTrailingJet_Pt_  = GenJet.pt();
-      GenTrailingJet_Eta_ = GenJet.eta();
-      GenTrailingJet_Phi_ = GenJet.phi();
-      GenTrailingJet_M_   = GenJet.mass();
-      break;
+  
+
+    // store gen jets and gen jets cleaned info
+    edm::Handle<reco::GenJetCollection> GenJetsHandle;
+    iEvent.getByToken(srcGenJetsToken_, GenJetsHandle);
+    
+    edm::Handle<pat::JetCollection> GenJetsCleanedHandle;
+    iEvent.getByToken(srcGenJetsCleanedToken_, GenJetsCleanedHandle);
+    
+    NGenJets_        = GenJetsHandle->size();
+    NGenJetsCleaned_ = GenJetsHandle->size();
+
+    for( auto GenJet : *GenJetsHandle){     
+      if(ijet == 0){
+	GenLeadingJet_Pt_  = GenJet.pt();
+	GenLeadingJet_Eta_ = GenJet.eta();
+	GenLeadingJet_Phi_ = GenJet.phi();
+	GenLeadingJet_M_   = GenJet.mass();
+	ijet++;
+	continue;
+      }
+      else if(ijet == 1){
+	GenTrailingJet_Pt_  = GenJet.pt();
+	GenTrailingJet_Eta_ = GenJet.eta();
+	GenTrailingJet_Phi_ = GenJet.phi();
+	GenTrailingJet_M_   = GenJet.mass();
+	break;
+      }
     }
+    
+    ijet = 0;
+    
+    for( auto GenJet : *GenJetsCleanedHandle){     
+      if(ijet == 0){
+	GenLeadingJetCleaned_Pt_  = GenJet.pt();
+	GenLeadingJetCleaned_Eta_ = GenJet.eta();
+	GenLeadingJetCleaned_Phi_ = GenJet.phi();
+	GenLeadingJetCleaned_M_   = GenJet.mass();
+	ijet++;
+	continue;
+      }
+      else if(ijet == 1){
+	GenTrailingJetCleaned_Pt_  = GenJet.pt();
+	GenTrailingJetCleaned_Eta_ = GenJet.eta();
+	GenTrailingJetCleaned_Phi_ = GenJet.phi();
+	GenTrailingJetCleaned_M_   = GenJet.mass();
+	break;
+      }
+    }
+
+
+    edm::Handle<std::vector<pat::MET>> GenMetHandle;
+    iEvent.getByToken(srcGenMetToken_, GenMetHandle);
+    
+    const reco::GenMET* genMET_ = GenMetHandle->at(0).genMET();
+    GenRecoil_sumEt_ = genMET_->sumEt();
+    
+    pat::MET genRecoil;
+    genRecoil.setP4(-GenBoson.p4()-genMET_->p4());
+    GenRecoil_Pt_    = genRecoil.pt();
+    GenRecoil_Phi_   = genRecoil.phi();
+    RecoilVec.SetMagPhi(GenRecoil_Pt_,reco::deltaPhi(GenRecoil_Phi_,GenBoson.phi()));
+    GenRecoil_PerpZ_ = RecoilVec.Py();
+    GenRecoil_LongZ_ = RecoilVec.Px();
+    
+    BosonVec.SetMagPhi(GenBoson.pt(),reco::deltaPhi(GenBoson.phi(),GenRecoil_Phi_));
+    GenBoson_PerpU_ = BosonVec.Py();
+    GenBoson_LongU_ = BosonVec.Px() - GenBoson.pt();
   }
 
-  ijet = 0;
-
-  for( auto GenJet : *GenJetsCleanedHandle){     
-    if(ijet == 0){
-      GenLeadingJetCleaned_Pt_  = GenJet.pt();
-      GenLeadingJetCleaned_Eta_ = GenJet.eta();
-      GenLeadingJetCleaned_Phi_ = GenJet.phi();
-      GenLeadingJetCleaned_M_   = GenJet.mass();
-      ijet++;
-      continue;
-    }
-    else if(ijet == 1){
-      GenTrailingJetCleaned_Pt_  = GenJet.pt();
-      GenTrailingJetCleaned_Eta_ = GenJet.eta();
-      GenTrailingJetCleaned_Phi_ = GenJet.phi();
-      GenTrailingJetCleaned_M_   = GenJet.mass();
-      break;
-    }
-  }
 
   // store jet info
   edm::Handle<std::vector<pat::Jet>> jetHandle;
@@ -308,25 +336,6 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   Boson_Phi_ = Boson.phi();
   Boson_M_   = Boson.p4().M();
   Boson_daughter_ = Boson.pdgId();
-
-  // Gen Recoils
-  edm::Handle<std::vector<pat::MET>> GenMetHandle;
-  iEvent.getByToken(srcGenMetToken_, GenMetHandle);
-
-  const reco::GenMET* genMET_ = GenMetHandle->at(0).genMET();
-  GenRecoil_sumEt_ = genMET_->sumEt();
-
-  pat::MET genRecoil;
-  genRecoil.setP4(-GenBoson.p4()-genMET_->p4());
-  GenRecoil_Pt_    = genRecoil.pt();
-  GenRecoil_Phi_   = genRecoil.phi();
-  RecoilVec.SetMagPhi(GenRecoil_Pt_,reco::deltaPhi(GenRecoil_Phi_,GenBoson.phi()));
-  GenRecoil_PerpZ_ = RecoilVec.Py();
-  GenRecoil_LongZ_ = RecoilVec.Px();
-
-  BosonVec.SetMagPhi(GenBoson.pt(),reco::deltaPhi(GenBoson.phi(),GenRecoil_Phi_));
-  GenBoson_PerpU_ = BosonVec.Py();
-  GenBoson_LongU_ = BosonVec.Px() - GenBoson.pt();
 
   // reco recoils
   edm::Handle<std::vector<pat::MET>> RecoilPFMetHandle;
@@ -510,13 +519,17 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
     AllJets_Eta_.push_back(jet.eta());
     AllJets_Phi_.push_back(jet.phi());
     AllJets_M_.push_back(jet.mass());
-    for(auto GenJet : *GenJetsHandle){
-      if(reco::deltaR(jet.eta(),jet.phi(),GenJet.eta(),GenJet.phi()) < dRgenMatching_){
-        GenMatchedJets_Pt_.push_back(GenJet.pt());
-        GenMatchedJets_Eta_.push_back(GenJet.eta());
-        GenMatchedJets_Phi_.push_back(GenJet.phi());
-        GenMatchedJets_M_.push_back(GenJet.mass());
-        break;
+    if(isMC_){
+      edm::Handle<reco::GenJetCollection> GenJetsHandle;
+      iEvent.getByToken(srcGenJetsToken_, GenJetsHandle);
+      for(auto GenJet : *GenJetsHandle){
+	if(reco::deltaR(jet.eta(),jet.phi(),GenJet.eta(),GenJet.phi()) < dRgenMatching_){
+	  GenMatchedJets_Pt_.push_back(GenJet.pt());
+	  GenMatchedJets_Eta_.push_back(GenJet.eta());
+	  GenMatchedJets_Phi_.push_back(GenJet.phi());
+	  GenMatchedJets_M_.push_back(GenJet.mass());
+	  break;
+	}
       }
     }
   }
