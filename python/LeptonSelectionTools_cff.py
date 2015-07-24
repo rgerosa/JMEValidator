@@ -16,7 +16,7 @@ def applyMuonID(process,
                 ):
 
   if "Tight" in label or "tight" in label :
-    relativeIsolationCutVal = 0.13
+    relativeIsolationCutVal = 0.16
   else:
     relativeIsolationCutVal = 0.20
 
@@ -51,7 +51,7 @@ def applyElectronID(process,
                     ):
 
   if "Tight" in label or "tight" in label  or "Medium" in label or "medium" in label  :
-    relativeIsolationCutVal = 0.13
+    relativeIsolationCutVal = 0.15
   else:
     relativeIsolationCutVal = 0.20
 

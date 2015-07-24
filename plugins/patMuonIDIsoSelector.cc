@@ -57,9 +57,11 @@ private:
   double relativeIsolationCut_;
   double ptCut_;
   double etaCut_;
+  double ptThresholdForHighPt_;
 
   // tipe of muon id : tightID, mediumID, looseID, softID and highPt
   std::string  typeID_;
+
   // type of relative isolation cut: 0 means no PU correction, 1 means standard dBeta, 2 means rho*Area, 3 means DbetaWeighted to be provided as maps, 4 means puppi (To be provided as maps)
   int   typeIso_;
 
@@ -117,18 +119,33 @@ patMuonIDIsoSelector::patMuonIDIsoSelector(const edm::ParameterSet& iConfig){
 
   if(iConfig.existsAs<double>("relativeIsolationCut"))
     relativeIsolationCut_ = iConfig.getParameter<double>("relativeIsolationCut");
+  else
+    relativeIsolationCut_ = 0.2;
 
   if(iConfig.existsAs<double>("ptCut"))
     ptCut_ = iConfig.getParameter<double>("ptCut");
+  else
+    ptCut_ = 10.;
 
   if(iConfig.existsAs<double>("etaCut"))
     etaCut_ = iConfig.getParameter<double>("etaCut");
+  else
+    etaCut_ = 2.4;
   
   if(iConfig.existsAs<std::string>("typeID"))
     typeID_ = iConfig.getParameter<std::string>("typeID");
+  else
+    typeID_ = "TightID";
 
   if(iConfig.existsAs<int>("typeIso"))
     typeIso_ = iConfig.getParameter<int>("typeIso");
+  else
+    typeIso_ = 1;
+
+  if(iConfig.existsAs<double>("ptThresholdForHighPt"))
+     ptThresholdForHighPt_ = iConfig.getParameter<double>("ptThresholdForHighPt");
+  else
+    ptThresholdForHighPt_ = 100;
 
   // tokens
   if(!(src_ == edm::InputTag(""))) 
@@ -148,7 +165,6 @@ patMuonIDIsoSelector::patMuonIDIsoSelector(const edm::ParameterSet& iConfig){
 
   if(!(photon_iso_ == edm::InputTag(""))) 
     photon_isoToken_ = consumes<edm::ValueMap<double> >(photon_iso_);
-
 
    produces<pat::MuonCollection>();
 }
@@ -247,13 +263,29 @@ void patMuonIDIsoSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSe
 
     // apply standard muon id
     if(typeID_ == "tightID" or typeID_ == "TightID"){
-      if( not muon::isTightMuon(*itMuon, primaryVertex)) continue;
+      if( muonPt < ptThresholdForHighPt_ ){
+	if( not muon::isTightMuon(*itMuon, primaryVertex)) continue;
+      }
+      else{
+	if( not muon::isTightMuon(*itMuon, primaryVertex) and not muon::isHighPtMuon(*itMuon,primaryVertex)) continue;
+      }
+	  
     }
     else if(typeID_ == "mediumID" or typeID_ == "MediumID"){
-      if( not muon::isMediumMuon(*itMuon)) continue;
+      if( muonPt < ptThresholdForHighPt_ ){
+	if( not muon::isMediumMuon(*itMuon)) continue;
+      }
+      else{
+	if( not muon::isMediumMuon(*itMuon) and not muon::isHighPtMuon(*itMuon,primaryVertex)) continue;
+      }
     }
     else if(typeID_ == "looseID" or typeID_ == "LooseID"){
-      if( not muon::isLooseMuon(*itMuon)) continue;
+      if( muonPt < ptThresholdForHighPt_ ){
+	if( not muon::isLooseMuon(*itMuon)) continue;
+      }
+      else{
+	if( not muon::isLooseMuon(*itMuon) and not muon::isHighPtMuon(*itMuon,primaryVertex)) continue;
+      }
     }
     else if(typeID_ == "softID" or typeID_ == "SoftID"){
       if( not muon::isSoftMuon(*itMuon,primaryVertex)) continue;
