@@ -10,11 +10,18 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg){
   referenceMET_      = consumes<pat::METCollection>(cfg.getParameter<edm::InputTag>("referenceMET"));
   referenceMET_name_ = cfg.getParameter<edm::InputTag>("referenceMET").label();
 
+  if (cfg.existsAs<bool>("produceRecoils"))
+    produceRecoils_ = cfg.getParameter<bool>("produceRecoils");
+  else
+    produceRecoils_ = false;
+
+
   // get tokens for input METs and prepare for saving the corresponding recoils to the event
   srcMETTags_   = cfg.getParameter<vInputTag>("srcMETs");
   for(vInputTag::const_iterator it=srcMETTags_.begin();it!=srcMETTags_.end();it++) {
     srcMETs_.push_back( consumes<pat::METCollection >( *it ) );
-    produces<pat::METCollection>( "recoil"+(*it).label() );
+    if(produceRecoils_)
+      produces<pat::METCollection>( "recoil"+(*it).label() );
   }
 
   // take flags for the met
@@ -78,7 +85,8 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg){
   else
     ZbosonLabel_ = "ZtagBoson";
   
-  produces<ParticleCollection>(ZbosonLabel_);
+  if(produceRecoils_)
+    produces<ParticleCollection>(ZbosonLabel_);
 }
 
 mvaPUPPET::~mvaPUPPET(){}
@@ -163,9 +171,11 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
   // var_["z_m"]   = Z.mass();
 
   // and save the Z back to the event 
-  std::auto_ptr<ParticleCollection> recoZParticleCollection(new ParticleCollection());
-  recoZParticleCollection->push_back(Z);
-  evt.put(recoZParticleCollection,ZbosonLabel_);
+  if(produceRecoils_){
+    std::auto_ptr<ParticleCollection> recoZParticleCollection(new ParticleCollection());
+    recoZParticleCollection->push_back(Z);
+    evt.put(recoZParticleCollection,ZbosonLabel_);
+  }
 
   // get puppi weights
   edm::Handle<edm::ValueMap<float> > puppiWeightsHandle;
@@ -251,9 +261,11 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
       }
     }
 
-    std::auto_ptr<pat::METCollection> patMETRecoilCollection(new pat::METCollection());
-    patMETRecoilCollection->push_back(Recoil);
-    evt.put(patMETRecoilCollection, "recoil"+collection_name);
+    if(produceRecoils_){
+      std::auto_ptr<pat::METCollection> patMETRecoilCollection(new pat::METCollection());
+      patMETRecoilCollection->push_back(Recoil);
+      evt.put(patMETRecoilCollection, "recoil"+collection_name);
+    }
 
     if (TString(collection_name).Contains(referenceMET_name_) and collection_name != referenceMET_name_){
       TString tempName = Form("%s",collection_name.c_str());

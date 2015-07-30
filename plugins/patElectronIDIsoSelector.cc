@@ -61,8 +61,8 @@ private:
   double ptCut_;
   double etaCut_;
 
-  // type of relative isolation cut: 0 means no PU correction, 1 means standard dBeta, 2 means rho*Area, 3 means DbetaWeighted to be provided as maps, 4 means puppi (To be provided as maps)
-  int   typeIso_;
+  // type of relative isolation cut
+  std::string typeIso_;
 
   // tokens
   edm::EDGetTokenT<pat::ElectronCollection> srcToken_ ;
@@ -133,8 +133,8 @@ patElectronIDIsoSelector::patElectronIDIsoSelector(const edm::ParameterSet& iCon
   if(iConfig.existsAs<double>("etaCut"))
     etaCut_ = iConfig.getParameter<double>("etaCut");
   
-  if(iConfig.existsAs<int>("typeIso"))
-    typeIso_ = iConfig.getParameter<int>("typeIso");
+  if(iConfig.existsAs<std::string>("typeIso"))
+    typeIso_ = iConfig.getParameter<std::string>("typeIso");
 
   // tokens
   if(!(src_ == edm::InputTag(""))) 
@@ -235,10 +235,10 @@ void patElectronIDIsoSelector::produce(edm::Event& iEvent,const edm::EventSetup&
   if(isGoodEleValueMap == false)
     throw cms::Exception("Configuration")<<"[patElectronIDIsoSelector] failed to get the value map for ele id .. please check \n";
 
-  if((typeIso_ == 3 and not isGoodNeutralIsoMap) or (typeIso_ == 3 and not isGoodPhotonIsoMap))
+  if((typeIso_ == "dBetaWeight" and not isGoodNeutralIsoMap) or (typeIso_ == 3 and not isGoodPhotonIsoMap))
     throw cms::Exception("Configuration")<<"[patElectronIDIsoSelector] empty maps for neutrals with PFWeight Dbeta correction .. please check \n";
 
-  if((typeIso_ == 4 and not isGoodNeutralIsoMap) or (typeIso_ == 4 and not isGoodPhotonIsoMap) or (typeIso_ == 4 and not isGoodChargeIsoMap))
+  if((typeIso_ == "puppi" and not isGoodNeutralIsoMap) or (typeIso_ == "puppi" and not isGoodPhotonIsoMap) or (typeIso_ == "puppi" and not isGoodChargeIsoMap))
     throw cms::Exception("Configuration")<<"[patElectronIDIsoSelector] empty maps for puppi isolation correction .. please check \n";
 
   // Loop on muon collection
@@ -290,13 +290,13 @@ void patElectronIDIsoSelector::produce(edm::Event& iEvent,const edm::EventSetup&
       photonIso = itElectron->userIsolation("PfGammaIso");
     }
 
-    if(typeIso_ == 0 or typeIso_ == 3 or typeIso_ == 4){
+    if(typeIso_ == "" or typeIso_ == "dBetaWeight" or typeIso_ == "puppi"){
       if( (chargeIso+neutralIso+photonIso)/electronPt >= relativeIsolationCut_) continue;
     }
-    else if(typeIso_ == 1){
+    else if(typeIso_ == "dBeta"){
       if( (chargeIso+max(neutralIso+photonIso-0.5*itElectron->userIsolation("PfPUChargedHadronIso"),0.))/electronPt >= relativeIsolationCut_) continue;
     }
-    else if(typeIso_ == 2){
+    else if(typeIso_ == ""){
       if( (chargeIso+max(neutralIso+photonIso-rho*TMath::Pi()*0.4*0.4,0.))/electronPt >= relativeIsolationCut_) continue;
     }
 

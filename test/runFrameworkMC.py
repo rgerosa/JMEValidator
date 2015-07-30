@@ -13,24 +13,23 @@ options.register ('isMC',True,VarParsing.multiplicity.singleton,VarParsing.varTy
 options.register ('globalTag',"MCRUN2_74_V9",VarParsing.multiplicity.singleton,VarParsing.varType.string,'input global tag to be used');
 ## iPUPPI options
 options.register ('runPuppiMuonIso',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool,   'flag to indicate to run or not puppi iso for mons');
-options.register ('runPuppiNoMuon',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool,   'skip muon when run puppi algo');
 options.register ('muonIsoCone',0.4,VarParsing.multiplicity.singleton, VarParsing.varType.float,  'value to be used for muon isolation cone');
 ## PUPPET analysis
 options.register ('runMVAPUPPETAnalysis',True, VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'run a specific analysis for MVA MET : Z->LL events');
 ## store and edm to debug
 options.register ('dropAnalyzerDumpEDM',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'do not run the analyzer and store an edm file');
 ## Lepton ID
-options.register ('muonTypeID',"Tight", VarParsing.multiplicity.singleton, VarParsing.varType.string, 'muon ID to be considered for MVA PUPPET analysis ');
+options.register ('muonTypeID',    "Tight",  VarParsing.multiplicity.singleton, VarParsing.varType.string, 'muon ID to be considered for MVA PUPPET analysis ');
 options.register ('electronTypeID',"Medium", VarParsing.multiplicity.singleton, VarParsing.varType.string, 'electron ID to be considered for MVA PUPPET analysis ');
-options.register ('tauTypeID',"Loose", VarParsing.multiplicity.singleton, VarParsing.varType.string, 'tau ID to be considered for MVA PUPPET analysis ');
+options.register ('tauTypeID',     "Loose",  VarParsing.multiplicity.singleton, VarParsing.varType.string, 'tau ID to be considered for MVA PUPPET analysis ');
 ## selections
 options.register ('applyZSelections',True,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'apply selection for Zll events when runMVAPUPPETAnalysis is true');
 options.register ('applyWSelections',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'apply selection for Wlnu events when runMVAPUPPETAnalysis is true');
 options.register ('jetPtCut',0.,VarParsing.multiplicity.singleton, VarParsing.varType.float, 'apply a jet pt cut for mva met input');
 ## JEC
-options.register ('applyJECtoPuppiJets',  False,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'apply or not JEC on puppi jets');
 options.register ('isRunningOn25ns',      False,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'true when running on 25ns and JEC from DB should be red');
 options.register ('useJECFromDB',         False,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'read JEC from the database for special JEC not in GT');
+options.register ('applyJECtoPuppiJets',  False,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'apply or not JEC on puppi jets');
 ## Puppi particles
 options.register ('runPuppiDiagnostics',  False,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'run Puppi diagnostic and store in the output');
 ## Puppi special setup
@@ -43,6 +42,7 @@ options.register ('puppiUseCharge',         [], VarParsing.multiplicity.list, Va
 options.register ('ptThresholdForTypeIPuppi', 20.,    VarParsing.multiplicity.singleton, VarParsing.varType.float, 'pt threshold for typeI puppi Met');
 options.parseArguments()
 
+## setup of puppi algorithm
 if len(options.puppiCone) == 0:
   options.puppiCone.extend([0.4, 0.4, 0.4])
 
@@ -65,6 +65,7 @@ from JMEAnalysis.JMEValidator.FrameworkConfiguration import createProcess
 if options.applyWSelections and options.applyZSelections :
       sys.exit("both options applyZSelections and applyWSelections are set to true --> please check")
 
+## create the process with all the information
 process = createProcess(options.isMC, ## MC or data
                         options.globalTag, ## GT
                         options.muonTypeID, options.runPuppiMuonIso, options.muonIsoCone, ## muons
@@ -76,7 +77,6 @@ process = createProcess(options.isMC, ## MC or data
                         options.applyJECtoPuppiJets, ## JEC for puppi
                         options.runPuppiDiagnostics, ## puppi diagnostic
                         options.isRunningOn25ns, options.useJECFromDB, ## JEC
-                        options.runPuppiNoMuon,
                         options.etaCutForMetDiagnostic,
                         options.ptNeutralCut,
                         options.ptNeutralCutSlope,

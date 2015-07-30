@@ -136,9 +136,10 @@ private:
 							     "NCleanedJets"
         };
 	
-	const GBRForest* mvaReaderPhiCorrection_;
-	const GBRForest* mvaReaderRecoilCorrection_;
+  const GBRForest* mvaReaderPhiCorrection_;
+  const GBRForest* mvaReaderRecoilCorrection_;
 
-	bool debug_;
+  bool debug_;
+  bool produceRecoils_;
 }; 
 #endif

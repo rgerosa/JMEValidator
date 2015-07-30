@@ -4,21 +4,16 @@ import FWCore.ParameterSet.Config as cms
 def applyMuonID(process, 
                 label = "Tight",  ##add to the process module
                 src   = 'slimmedMuons',  ## input collection
-                type  = 'tightID',  ## string to identify the type of the muon ID                                                                                             
                 iso_map_charged_hadron = '', ## isolation value map from charged hadrons                                                                          
                 iso_map_neutral_hadron = '', ## isolation value map from neutral hadrons                                                                                
                 iso_map_photon         = '', ## isolation value map from photons
                 rho     = 'fixedGridRhoFastjetAll',                                                                                                                      
                 vertex  = 'offlineSlimmedPrimaryVertices',
-                ptVal   = 10., ## pt Cut 
-                etaVal  = 2.4, ## eta Cut
-                typeIsoVal = 0 ## inter number to identify the type of isolation to be used in the lepton ID
+                ptVal   = 10.,
+                etaVal  = 2.4,
+                typeIso = "dBeta",
+                relativeIsolationCutVal = 0.12
                 ):
-
-  if "Tight" in label or "tight" in label :
-    relativeIsolationCutVal = 0.16
-  else:
-    relativeIsolationCutVal = 0.20
 
   setattr(process,src+label, cms.EDProducer("patMuonIDIsoSelector",
                                             src = cms.InputTag(src),
@@ -27,18 +22,17 @@ def applyMuonID(process,
                                             charged_hadron_iso = cms.InputTag(iso_map_charged_hadron),
                                             neutral_hadron_iso = cms.InputTag(iso_map_neutral_hadron),
                                             photon_iso         = cms.InputTag(iso_map_photon),                                                       
-                                            relativeIsolationCut = cms.double(relativeIsolationCutVal),
-                                            typeID = cms.string(type),
+                                            typeID = cms.string(label),
                                             ptCut  = cms.double(ptVal),
                                             etaCut = cms.double(etaVal),
-                                            typeIso = cms.int32(typeIsoVal)
+                                            typeIso = cms.string(typeIso),                                            
+                                            relativeIsolationCut = cms.double(relativeIsolationCutVal)
                                             ))
 
 ##### to apply electron ID
 def applyElectronID(process, 
                     label = "Tight", ##add to the process module 
                     src  = 'slimmedElectrons', ## input collection
-                    type = 'tightID', ## string to identify the type of the electron ID                                                                            
                     iso_map_charged_hadron = '', ## isolation value map from charged hadrons                                                                              
                     iso_map_neutral_hadron = '', ## isolation value map from neutral hadrons                                                                         
                     iso_map_photon         = '', ## isolation value map from photons
@@ -46,27 +40,25 @@ def applyElectronID(process,
                     rho     = 'fixedGridRhoFastjetAll',                                                                                                                      
                     vertex  = 'offlineSlimmedPrimaryVertices',
                     ptVal   = 10., ## pt Cut
-                    etaVal  = 2.4, ## eta Cut
-                    typeIsoVal = 0 ## inter number to identify the type of isolation to be used in the lepton ID 
+                    etaVal  = 2.4, ## eta Cut                    
+                    typeIso = "rhoCorr",
+                    relativeIsolationCutVal = 0.13
                     ):
 
-  if "Tight" in label or "tight" in label  or "Medium" in label or "medium" in label  :
-    relativeIsolationCutVal = 0.15
-  else:
-    relativeIsolationCutVal = 0.20
 
   setattr(process,src+label, cms.EDProducer("patElectronIDIsoSelector",
                                             src = cms.InputTag(src),
+                                            typeID = cms.string(label), ## string to identify the type of the electron ID                                                       
                                             rho = cms.InputTag(rho),
                                             vertex = cms.InputTag(vertex),
                                             charged_hadron_iso = cms.InputTag(iso_map_charged_hadron),
                                             neutral_hadron_iso = cms.InputTag(iso_map_neutral_hadron),
                                             photon_iso         = cms.InputTag(iso_map_photon),                                                       
-                                            relativeIsolationCut = cms.double(relativeIsolationCutVal),
                                             electron_id = cms.InputTag(electron_id_map),
                                             ptCut    = cms.double(ptVal),
                                             etaCut   = cms.double(etaVal),
-                                            typeIso  = cms.int32(typeIsoVal)
+                                            typeIso  = cms.string(typeIso),
+                                            relativeIsolationCut = cms.double(relativeIsolationCutVal)
                                             ))
 
 
@@ -82,7 +74,7 @@ def    applyTauID( process,
                    ):
 
 
-  if label == "Loose" :
+  if label == "Loose" or label == "loose" :
 
     ## apply tau loose ID
     setattr(process,src+label,cms.EDFilter("PATTauRefSelector",
@@ -93,7 +85,7 @@ def    applyTauID( process,
 
 
   ## medium tau id
-  elif label == "Medium" :  
+  elif label == "Medium" or label == "medium" :  
 
     setattr(process,src+label, cms.EDFilter("PATTauRefSelector",
                                             src = cms.InputTag(src),
@@ -101,7 +93,7 @@ def    applyTauID( process,
                                             cut  = cms.string('pt > %f & abs(eta) < %f & tauID("byMediumCombinedIsolationDeltaBetaCorr3Hits") < 1.5 & tauID("againstMuonMedium3") > 0.5 & tauID("againstElectronMediumMVA5") > 0.5 '%(ptCut,etaCut)),
                                            ));
   ## tau tight ID
-  elif label == "Tight" :  
+  elif label == "Tight" or label == "tight" :  
 
     setattr(process,src+label, cms.EDFilter("PATTauRefSelector",
                                            src = cms.InputTag(src),
@@ -194,6 +186,7 @@ def cleanJetsFromLeptons (process,
   setattr(process,jetCollection+label,jetsNotOverlappingWithLeptons);
 
 
+## clean gen jets from gen leptons
 def cleanGenJetsFromGenLeptons (process, 
                                 jetCollection    = "",
                                 genLeptonCollection = "",

@@ -62,8 +62,8 @@ private:
   // tipe of muon id : tightID, mediumID, looseID, softID and highPt
   std::string  typeID_;
 
-  // type of relative isolation cut: 0 means no PU correction, 1 means standard dBeta, 2 means rho*Area, 3 means DbetaWeighted to be provided as maps, 4 means puppi (To be provided as maps)
-  int   typeIso_;
+  // type of relative isolation cut
+  std::string   typeIso_;
 
   // tokens
   edm::EDGetTokenT<pat::MuonCollection>    srcToken_ ;
@@ -137,10 +137,10 @@ patMuonIDIsoSelector::patMuonIDIsoSelector(const edm::ParameterSet& iConfig){
   else
     typeID_ = "TightID";
 
-  if(iConfig.existsAs<int>("typeIso"))
-    typeIso_ = iConfig.getParameter<int>("typeIso");
+  if(iConfig.existsAs<std::string>("typeIso"))
+    typeIso_ = iConfig.getParameter<std::string>("typeIso");
   else
-    typeIso_ = 1;
+    typeIso_ = "dBeta";
 
   if(iConfig.existsAs<double>("ptThresholdForHighPt"))
      ptThresholdForHighPt_ = iConfig.getParameter<double>("ptThresholdForHighPt");
@@ -229,10 +229,10 @@ void patMuonIDIsoSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSe
       isGoodPhotonIsoMap = true;
   }
 
-  if((typeIso_ == 3 and not isGoodNeutralIsoMap) or (typeIso_ == 3 and not isGoodPhotonIsoMap))
+  if((typeIso_ == "dBetaWeight" and not isGoodNeutralIsoMap) or (typeIso_ == "dBetaWeight" and not isGoodPhotonIsoMap))
     throw cms::Exception("Configuration")<<"[patMuonIDIsoSelector] empty maps for neutrals with PFWeight Dbeta correction .. please check \n";
 
-  if((typeIso_ == 4 and not isGoodNeutralIsoMap) or (typeIso_ == 4 and not isGoodPhotonIsoMap) or (typeIso_ == 4 and not isGoodChargeIsoMap))
+  if((typeIso_ == "puppi" and not isGoodNeutralIsoMap) or (typeIso_ == "puppi" and not isGoodPhotonIsoMap) or (typeIso_ == "puppi" and not isGoodChargeIsoMap))
     throw cms::Exception("Configuration")<<"[patMuonIDIsoSelector] empty maps for puppi isolation correction .. please check \n";
 
   // Loop on muon collection
@@ -262,7 +262,7 @@ void patMuonIDIsoSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSe
     }
 
     // apply standard muon id
-    if(typeID_ == "tightID" or typeID_ == "TightID"){
+    if(typeID_ == "tightID" or typeID_ == "TightID" or typeID_  == "tight" or typeID_ == "Tight"){
       if( muonPt < ptThresholdForHighPt_ ){
 	if( not muon::isTightMuon(*itMuon, primaryVertex)) continue;
       }
@@ -271,7 +271,7 @@ void patMuonIDIsoSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSe
       }
 	  
     }
-    else if(typeID_ == "mediumID" or typeID_ == "MediumID"){
+    else if(typeID_ == "mediumID" or typeID_ == "MediumID" or typeID_  == "medium" or typeID_ == "Medium"){
       if( muonPt < ptThresholdForHighPt_ ){
 	if( not muon::isMediumMuon(*itMuon)) continue;
       }
@@ -279,7 +279,7 @@ void patMuonIDIsoSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSe
 	if( not muon::isMediumMuon(*itMuon) and not muon::isHighPtMuon(*itMuon,primaryVertex)) continue;
       }
     }
-    else if(typeID_ == "looseID" or typeID_ == "LooseID"){
+    else if(typeID_ == "looseID" or typeID_ == "LooseID" or typeID_  == "loose" or typeID_ == "Loose"){
       if( muonPt < ptThresholdForHighPt_ ){
 	if( not muon::isLooseMuon(*itMuon)) continue;
       }
@@ -287,7 +287,7 @@ void patMuonIDIsoSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSe
 	if( not muon::isLooseMuon(*itMuon) and not muon::isHighPtMuon(*itMuon,primaryVertex)) continue;
       }
     }
-    else if(typeID_ == "softID" or typeID_ == "SoftID"){
+    else if(typeID_ == "softID" or typeID_ == "SoftID" or typeID_  == "soft" or typeID_ == "Soft"){
       if( not muon::isSoftMuon(*itMuon,primaryVertex)) continue;
     }
     else if(typeID_ == "highPt" or typeID_ == "HightPt"){
@@ -318,22 +318,22 @@ void patMuonIDIsoSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSe
       photonIso = itMuon->userIsolation("PfGammaIso");
     }
 
-    if(typeIso_ == 0 or typeIso_ == 3 or typeIso_ == 4){
+    if(typeIso_ == "" or typeIso_ == "dBetaWeight" or typeIso_ == "puppi"){
       if( (chargeIso+neutralIso+photonIso)/muonPt >= relativeIsolationCut_) continue;
     }
-    else if(typeIso_ == 1){
+    else if(typeIso_ == "dBeta"){
       if( (chargeIso+max(neutralIso+photonIso-0.5*itMuon->userIsolation("PfPUChargedHadronIso"),0.))/muonPt >= relativeIsolationCut_) continue;
     }
-    else if(typeIso_ == 2){
+    else if(typeIso_ == "rhoCorr"){
       if( (chargeIso+max(neutralIso+photonIso-rho*TMath::Pi()*0.4*0.4,0.))/muonPt >= relativeIsolationCut_) continue;
     }
 
     pat::Muon newMuon = *(itMuon->clone());
-    if(typeIso_ == 3){
+    if(typeIso_ == "dBetaWeight"){
       newMuon.addUserFloat("neutralHadronIsoPFWeight04",neutralIso);
       newMuon.addUserFloat("photonIsoPFWeight04",photonIso);
     }
-    else if(typeIso_ == 4){
+    else if(typeIso_ == "puppi"){
       newMuon.addUserFloat("neutralHadronIsoPuppi04",neutralIso);
       newMuon.addUserFloat("photonIsoPuppi04",photonIso);
       newMuon.addUserFloat("chargedHadronIsoPuppi04",chargeIso);
