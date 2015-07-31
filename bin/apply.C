@@ -17,9 +17,6 @@
 
 using namespace std;
 
-
-
-
 int main(int argc, char* argv[] ) {
 	// config file einlesen
   boost::property_tree::ptree pt;
@@ -47,11 +44,15 @@ int main(int argc, char* argv[] ) {
   TFile *inputFile = TFile::Open(inputFilename.c_str());
   TTree *inputTree = (TTree*)(inputFile->Get("PUPPET/t"));
 
-
+  std::cout << "input tree: " << inputTree << std::endl;
+  std::cout << "This many: " << trainingProperties.size() << std::endl;
   for(size_t iTrain = 0; iTrain < trainingProperties.size(); ++iTrain)
   { // does probably not work any more to evaluate MVAs this way. But it's good to produce additional input values, as in the past
+    std::cout << "Starting: " << iTrain << std::endl;
     applyTraining *user = new applyTraining(trainingProperties[iTrain], inputTree);
+    std::cout << "Initialized." << std::endl;
     user->getResults();
+    delete user;
   }
 }
 

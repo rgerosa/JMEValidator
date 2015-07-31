@@ -32,7 +32,7 @@ class applyTraining {
     void calculateUpdatedMET();
     void calculateUpdatedMETCovMatrix();
     void getResults();
-    ~applyTraining();
+    virtual ~applyTraining();
 
   protected:
   int _mode = 0;

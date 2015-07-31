@@ -95,7 +95,7 @@ void applyTraining::eventLoop()
 
   for (Long64_t i0=0; i0<_lNEvents;i0++)
     {
-      if (i0 % 2000000 == 0) std::cout << "--- ... Processing event: " << double(i0)/double(_lNEvents) << std::endl;
+      if (i0 % 10000 == 0) std::cout << "--- ... Processing event: " << double(i0)/double(_lNEvents) << std::endl;
       _lTree->GetEntry(i0);
       for(int i1 = 0; i1 < _lN; i1++)
       { 

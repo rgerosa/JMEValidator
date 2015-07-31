@@ -105,7 +105,8 @@ elif len(options.inputFiles) == 0 and options.isMC == False:
 ## set input files
 process.source.fileNames = cms.untracked.vstring(options.inputFiles);
 ## set max events 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(options.maxEvents))
+# process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(options.maxEvents))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(200))
 ## output name
 if not options.dropAnalyzerDumpEDM :
    if options.outputFile == "" or options.outputFile == "output.root" :
