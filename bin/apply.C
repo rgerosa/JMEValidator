@@ -45,7 +45,7 @@ int main(int argc, char* argv[] ) {
   std::string inputFilename = pt.get<std::string>("inputFile");
 
   TFile *inputFile = TFile::Open(inputFilename.c_str());
-  TTree *inputTree = (TTree*)(inputFile->Get("Flat"));
+  TTree *inputTree = (TTree*)(inputFile->Get("PUPPET/t"));
 
 
   for(size_t iTrain = 0; iTrain < trainingProperties.size(); ++iTrain)
