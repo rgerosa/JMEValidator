@@ -172,6 +172,10 @@ def createProcess(isMC, ## isMC flag
     process.TFileService.fileName = cms.string('output_mc.root') if isMC else cms.string('output_data.root')
     process.TFileService.closeFileFast = cms.untracked.bool(True)
 
+    ## count the number of events
+    process.AllEvents = cms.EDFilter("PassFilter")
+    process.counterPath = cms.Path(process.AllEvents)
+
     # Jet corrections
     process.load('JetMETCorrections.Configuration.JetCorrectorsAllAlgos_cff')
 
