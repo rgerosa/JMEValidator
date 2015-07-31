@@ -1,7 +1,7 @@
 { 
   "activeTrainings" : ["phiTraining", "recoilTraining"],
   "activeReweightings" : ["flattenpT"],
-  "inputFile": "file:/storage/a/friese/puppet/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_forMVATraining.root",
+  "inputFile": "file:/afs/desy.de/user/r/rfriese/dust/puppet/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_forMVATraining.root",
   "Folder" : "PUPPET/t",
   "flattenpT" :
   {
@@ -26,7 +26,7 @@
   	  "minCutSignificance" : 2.0,
   	  "nTrees" : 1000,
   	  "weightfilename" : "PhiCorection_PUPPI.root",
-  	  "targetVariables" : ["(Boson_Phi-recoilPFPuppiMet_Phi+TMath::Pi()) - 2.*TMath::Pi()*((Boson_Phi-recoilPFPuppiMet_Phi) > 0)"],
+  	  "targetVariable" : "(Boson_Phi-recoilPFPuppiMet_Phi+TMath::Pi()) - 2.*TMath::Pi()*((Boson_Phi-recoilPFPuppiMet_Phi) > 0)",
   	  "trainingVariables" : 
   	  [	
 		"recoilPFMet_Pt",
@@ -62,7 +62,7 @@
   "recoilTraining":
   {
   	  "mode" : 2,
-  	  "friends" : ["PhiCorrectedRecoil", "flatPtWeight"],
+  	  "friends" : ["PhiCorrectedRecoil"],
   	  "desc" : "Second training on Recoil",
   	  "apply_MVA_to" : "PhiCorrectedRecoil",
   	  "weight" : "(Boson_daughter==13)*(Boson_Pt>5)*(flatPtWeight*(flatPtWeight<10)+10*(flatPtWeight>=10))",
@@ -73,7 +73,7 @@
   	  "minCutSignificance" : 3.0,
   	  "nTrees" : 1000,
   	  "weightfilename" : "RecoilCorrection_PUPPI.root",
-  	  "targetVariable" : ["-Boson_Pt/PhiCorrectedRecoil_LongZ"],
+  	  "targetVariable" : "-Boson_Pt/PhiCorrectedRecoil_LongZ",
   	  "trainingVariables" : 
   	  [	
 		"recoilPFMet_Pt",
