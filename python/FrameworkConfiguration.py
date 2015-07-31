@@ -104,8 +104,6 @@ def appendJECToDB(process, payload, prefix, postfix=""):
             )]
 
 
-
-
 def createProcess(isMC, ## isMC flag
                   globalTag, ## global tag
                   muonTypeID, runPuppiMuonIso, muonIsoCone, ## muons
@@ -133,7 +131,6 @@ def createProcess(isMC, ## isMC flag
     process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 
     process.GlobalTag.globaltag = globalTag
-
     # Common parameters used in all modules
     JetAnalyserCommonParameters = cms.PSet(
         # record flavor information, consider both RefPt and JetPt

@@ -1,7 +1,7 @@
 { 
   "activeTrainings" : ["phiTraining", "recoilTraining"],
   "activeReweightings" : ["flattenpT"],
-  "inputFile": "file:/storage/a/friese/puppet/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt25ns_MCRUN2_74_V9_new_v2.root",
+  "inputFile": "/afs/cern.ch/user/d/dabercro/public/CMSSW_7_4_6_patch2/src/JMEAnalysis/JMEValidator/test/output_mc.root",
   "Folder" : "PUPPET/t",
   "flattenpT" :
   {
@@ -25,7 +25,7 @@
   	  "shrinkage" : 0.05,
   	  "minCutSignificance" : 2.0,
   	  "nTrees" : 1000,
-  	  "weightfilename" : "PhiCorection_PUPPI.root",
+  	  "weightfilename" : "/afs/desy.de/user/r/rfriese/public/13-full-combination/PhiCorection_PUPPI.root",
   	  "targetVariables" : ["(Boson_Phi-recoilPFPuppiMet_Phi+TMath::Pi()) - 2.*TMath::Pi()*((Boson_Phi-recoilPFPuppiMet_Phi) > 0)"],
   	  "trainingVariables" : 
   	  [	
@@ -58,7 +58,7 @@
   "recoilTraining":
   {
   	  "mode" : 2,
-  	  "friends" : ["PhiCorrectedRecoil", "flatPtWeight"],
+  	  "friends" : ["PhiCorrectedRecoil"],
   	  "desc" : "Second training on Recoil",
   	  "apply_MVA_to" : "PhiCorrectedRecoil",
   	  "weight" : "(Boson_daughter==13)*flatPtWeight",
@@ -68,7 +68,7 @@
   	  "shrinkage" : 0.05,
   	  "minCutSignificance" : 3.0,
   	  "nTrees" : 1000,
-  	  "weightfilename" : "RecoilCorrection_PUPPI.root",
+  	  "weightfilename" : "/afs/desy.de/user/r/rfriese/public/13-full-combination/RecoilCorrection_PUPPI.root",
   	  "targetVariables" : ["-Boson_Pt/PhiCorrectedRecoil_LongZ"],
   	  "trainingVariables" : 
   	  [	
@@ -112,7 +112,7 @@
   	  "shrinkage" : 0.2,
   	  "minCutSignificance" : 3.0,
   	  "nTrees" : 1000,
-  	  "weightfilename" : "CovU1_13TeV.root",
+  	  "weightfilename" : "/afs/desy.de/user/r/rfriese/public/mvaTrainingSample-DYSpring15-50ns-v2/CovU1_13TeV.root",
   	  "targetVariables" : ["abs(z_pT*cos(z_Phi-RecoilCor_UPhi)-RecoilCor_U)/RecoilCor_U*sqrt(TMath::Pi()/2.)"],
   	  "trainingVariables" : 
   	  [ "particleFlow_U", 
@@ -156,7 +156,7 @@
   	  "shrinkage" : 0.2,
   	  "minCutSignificance" : 3.0,
   	  "nTrees" : 1000,
-  	  "weightfilename" : "CovU2_13TeV.root",
+  	  "weightfilename" : "/afs/desy.de/user/r/rfriese/public/mvaTrainingSample-DYSpring15-50ns-v2/CovU2_13TeV.root",
   	  "targetVariables" : ["abs(z_pT*sin(z_Phi-RecoilCor_UPhi))*sqrt(TMath::Pi()/2.)/RecoilCor_U"],
   	  "trainingVariables" : 
   	  [ "particleFlow_U", 
