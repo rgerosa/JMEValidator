@@ -155,7 +155,8 @@ if options.dropAnalyzerDumpEDM :
                                                                              'keep *_*pfCandidatesForMET*_*_*',
                                                                              'keep *_*pfCandidatesForMETCH*_*_*',
                                                                              'keep *_*packed*Candidates*_*_*',
-                                                                             'keep *_*Met*_*_*',                                                                       
+                                                                             'keep *_*Met*_*_*',
+                                                                             'keep *_*TriggerResults*_*_*'
                                                                              ),        
                                       SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring('p'))
                                       )

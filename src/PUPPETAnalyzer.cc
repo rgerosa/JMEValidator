@@ -105,6 +105,18 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
     isMC_ = iConfig.getParameter<bool>("isMC");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input isMC \n";
 
+  if (iConfig.existsAs<edm::InputTag >("srcMetFiltersBits"))
+    srcMetFiltersBits_ = iConfig.getParameter<edm::InputTag >("srcMetFiltersBits");
+  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] missing met filter bits  \n";
+
+  if (iConfig.existsAs<edm::InputTag >("srcTriggerBits"))
+    srcTriggerBits_ = iConfig.getParameter<edm::InputTag >("srcTriggerBits");
+  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] missing trigger bits  \n";
+
+  if (iConfig.existsAs<edm::InputTag >("srcTriggerPrescales"))
+    srcTriggerPrescales_ = iConfig.getParameter<edm::InputTag >("srcTriggerBits");
+  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] missing trigger prescales  \n";
+  
   if(!(srcJet_ == edm::InputTag("")))
     srcJetToken_ = consumes<pat::JetCollection>(srcJet_);
 
@@ -162,6 +174,15 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
   if(!(srcMVAMet_ == edm::InputTag("")))
     srcMVAMetToken_ = consumes<pat::METCollection>(srcMVAMet_);
 
+  if(!(srcMetFiltersBits_ == edm::InputTag("")))
+      srcMetFiltersBitsToken_ = consumes<edm::TriggerResults>(srcMetFiltersBits_);
+
+  if(!(srcTriggerBits_ == edm::InputTag("")))
+      srcTriggerBitsToken_ = consumes<edm::TriggerResults>(srcTriggerBits_);
+
+  if(!(srcTriggerPrescales_ == edm::InputTag("")))
+    srcTriggerPrescalesToken_ = consumes<pat::PackedTriggerPrescales>(srcTriggerPrescales_);
+
 }
 
 
@@ -178,6 +199,64 @@ PUPPETAnalyzer::~PUPPETAnalyzer(){}
 //______________________________________________________________________________
 void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
 			     const edm::EventSetup& iSetup){
+
+
+  // met filters
+  edm::Handle<edm::TriggerResults> triggerBit;
+  iEvent.getByToken(srcMetFiltersBitsToken_,triggerBit);
+  const edm::TriggerNames &metNames = iEvent.triggerNames(*triggerBit);
+  for(size_t ibit = 0; ibit < triggerBit->size(); ibit++){
+    if( metNames.triggerName(ibit) == "Flag_trackingFailureFilter")
+      flag_trackingFailureFilter_ = triggerBit->accept(ibit);
+    else if(metNames.triggerName(ibit) ==  "Flag_goodVertices")
+      flag_goodVertices_ = triggerBit->accept(ibit);
+    else if(metNames.triggerName(ibit) == "Flag_CSCTightHaloFilter")
+      flag_CSCTightHaloFilter_ = triggerBit->accept(ibit);
+    else if(metNames.triggerName(ibit) == "Flag_trkPOGFilters") 
+      flag_trkPOGFilters_ = triggerBit->accept(ibit);
+    else if(metNames.triggerName(ibit) == "Flag_trkPOG_logErrorTooManyClusters") 
+      flag_trkPOG_logErrorTooManyClusters_ = triggerBit->accept(ibit);
+    else if(metNames.triggerName(ibit) == "Flag_EcalDeadCellTriggerPrimitiveFilter") 
+      flag_EcalDeadCellTriggerPrimitiveFilter_ = triggerBit->accept(ibit);
+    else if(metNames.triggerName(ibit) == "Flag_ecalLaserCorrFilter") 
+      flag_ecalLaserCorrFilter_ = triggerBit->accept(ibit);
+    else if(metNames.triggerName(ibit) == "Flag_trkPOG_manystripclus53X") 
+      flag_trkPOG_manystripclus53X_ = triggerBit->accept(ibit);
+    else if(metNames.triggerName(ibit) == "Flag_eeBadScFilter") 
+      flag_eeBadScFilter_ = triggerBit->accept(ibit);
+    else if(metNames.triggerName(ibit) == "Flag_METFilters") 
+      flag_METFilters_ = triggerBit->accept(ibit);
+    else if(metNames.triggerName(ibit) == "Flag_trkPOG_toomanystripclus53X") 
+      flag_trkPOG_toomanystripclus53X_ = triggerBit->accept(ibit);
+    else if(metNames.triggerName(ibit) == "Flag_hcalLaserEventFilter") 
+      flag_hcalLaserEventFilter_ = triggerBit->accept(ibit);
+    else if( metNames.triggerName(ibit) == "Flag_HBHENoiseFilter") 
+      flag_HBHENoiseFilter_ = triggerBit->accept(ibit);
+  }
+
+  // trigger bits 
+  iEvent.getByToken(srcTriggerBitsToken_,triggerBit);
+  const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerBit);
+  edm::Handle<pat::PackedTriggerPrescales> triggerPrescales;
+  iEvent.getByToken(srcTriggerPrescalesToken_, triggerPrescales);
+
+  for (size_t iBit = 0 ; iBit < triggerBit->size(); iBit++) {
+    if (triggerPrescales.isValid()){
+      if(triggerPrescales->getPrescaleForIndex(iBit) !=1) 
+	continue;
+    }
+
+    if((TString(triggerNames.triggerName(iBit)).Contains("HLT_DoubleMu") or TString(triggerNames.triggerName(iBit)).Contains("HLT_Mu")) and triggerBit->accept(iBit)){
+      DoubleMuPaths_.push_back(triggerNames.triggerName(iBit));
+    }
+    else if((TString(triggerNames.triggerName(iBit)).Contains("HLT_DoubleEle") or TString(triggerNames.triggerName(iBit)).Contains("HLT_Ele")) and triggerBit->accept(iBit)){
+      DoubleElePaths_.push_back(triggerNames.triggerName(iBit));
+    }
+    else if((TString(triggerNames.triggerName(iBit)).Contains("Double") and TString(triggerNames.triggerName(iBit)).Contains("Tau")) and triggerBit->accept(iBit)){
+      DoubleTauPaths_.push_back(triggerNames.triggerName(iBit));
+    }
+  }
+
 
   // take gen level info weight  
   int ijet = 0;
