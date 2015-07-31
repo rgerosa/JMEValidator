@@ -146,13 +146,6 @@ def createProcess(isMC, ## isMC flag
         nJetMax         = cms.uint32( 0),
     )
 
-    process = cms.Process("JRA")
-
-    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-    process.load("Configuration.EventContent.EventContent_cff")
-    process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-    process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-
     process.GlobalTag.globaltag = globalTag
 
     jec_database_PF = 'PY8_RunIISpring15DR74_bx50_MC_PFCHS.db'
@@ -175,6 +168,10 @@ def createProcess(isMC, ## isMC flag
     process.load('CommonTools.UtilAlgos.TFileService_cfi')
     process.TFileService.fileName = cms.string('output_mc.root') if isMC else cms.string('output_data.root')
     process.TFileService.closeFileFast = cms.untracked.bool(True)
+
+    ## count the number of events
+    process.AllEvents = cms.EDFilter("PassFilter")
+    process.counterPath = cms.Path(process.AllEvents)
 
     # Jet corrections
     process.load('JetMETCorrections.Configuration.JetCorrectorsAllAlgos_cff')
@@ -546,6 +543,18 @@ def createProcess(isMC, ## isMC flag
 
     if runMVAPUPPETAnalysis :
 
+        ## re run HBHE filter
+        process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
+        process.HBHENoiseFilterResultProducer.minZeros = cms.int32(99999)
+
+        process.ApplyBaselineHBHENoiseFilter = cms.EDFilter('BooleanFlagFilter',
+                                                            inputLabel = cms.InputTag('HBHENoiseFilterResultProducer','HBHENoiseFilterResult'),
+                                                            reverseDecision = cms.bool(False)
+                                                            )
+
+        process.jmfw_analyzers += process.HBHENoiseFilterResultProducer
+        process.jmfw_analyzers += process.ApplyBaselineHBHENoiseFilter 
+
         from JMEAnalysis.JMEValidator.runMVAPUPPET_cff import runMVAPUPPET
 
         runMVAPUPPET( process, 
@@ -566,6 +575,7 @@ def createProcess(isMC, ## isMC flag
                       dRCleaning = 0.3, 
                       jetPtCut = jetPtCut, 
                       jetEtaCut = 5.,
+                      etaCutForMetDiagnostic = etaCutForMetDiagnostic,
                       genJetCollection = "ak4GenJetsNoNu",
                       cleanGenJets = True,
                       applyTypeICorrection = applyJECtoPuppiJets, 
@@ -633,49 +643,53 @@ def createProcess(isMC, ## isMC flag
 
         process.jmfw_analyzers += getattr(process,"mvaPUPPET");
         
+        
 
     if dropAnalyzerDumpEDM:        
         return process
    
     
     # Run
-    if isMC:
+    if isMC and not runMVAPUPPETAnalysis:
         process.run = cms.EDAnalyzer('RunAnalyzer')
         process.jmfw_analyzers += process.run
-
     
-    # Event
-    from RecoJets.Configuration.RecoPFJets_cff import kt6PFJets
-    process.kt6PFJetsRhos = kt6PFJets.clone(
+
+    if not runMVAPUPPETAnalysis:
+
+     # Event
+        from RecoJets.Configuration.RecoPFJets_cff import kt6PFJets
+        process.kt6PFJetsRhos = kt6PFJets.clone(
             src = cms.InputTag('packedPFCandidates'),
             doFastJetNonUniform = cms.bool(True),
             puCenters = cms.vdouble(5,-4,-3,-2,-1,0,1,2,3,4,5),
             puWidth = cms.double(.8),
             nExclude = cms.uint32(2))
 
-    process.event = cms.EDAnalyzer('EventAnalyzer',
-            rho        = cms.InputTag('fixedGridRhoFastjetAll'),
-            rhos       = cms.InputTag('kt6PFJetsRhos', 'rhos'),
-            vertices   = cms.InputTag('offlineSlimmedPrimaryVertices')
+
+        process.event = cms.EDAnalyzer('EventAnalyzer',
+                                       rho        = cms.InputTag('fixedGridRhoFastjetAll'),
+                                       rhos       = cms.InputTag('kt6PFJetsRhos', 'rhos'),
+                                       vertices   = cms.InputTag('offlineSlimmedPrimaryVertices')
             )
+        
+        process.jmfw_analyzers += process.event
 
-    process.jmfw_analyzers += process.event
+        # HLTs
+        process.hlt = cms.EDAnalyzer('HLTAnalyzer',
+                                     src = cms.InputTag('TriggerResults', '', 'HLT'),
+                                     prescales = cms.InputTag('patTrigger'),
+                                     objects = cms.InputTag("selectedPatTrigger"),
+                                     )
 
-    # HLTs
-    process.hlt = cms.EDAnalyzer('HLTAnalyzer',
-            src = cms.InputTag('TriggerResults', '', 'HLT'),
-            prescales = cms.InputTag('patTrigger'),
-            objects = cms.InputTag("selectedPatTrigger"),
-            )
+        process.jmfw_analyzers += process.hlt
 
-    process.jmfw_analyzers += process.hlt
+        # Vertices
+        process.vertex = cms.EDAnalyzer('VertexAnalyzer',
+                                        src = cms.InputTag('offlineSlimmedPrimaryVertices')
+                                        )
 
-    # Vertices
-    process.vertex = cms.EDAnalyzer('VertexAnalyzer',
-            src = cms.InputTag('offlineSlimmedPrimaryVertices')
-            )
-
-    process.jmfw_analyzers += process.vertex
+        process.jmfw_analyzers += process.vertex
 
     # Muons : tight muons, DBWeight and puppiNoMu corrected
     if not runMVAPUPPETAnalysis :
@@ -801,8 +815,15 @@ def createProcess(isMC, ## isMC flag
                                srcRecoilPFPuppiMet_NeutralPV = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiNeutralPV"),
                                srcRecoilPFPuppiMet_NeutralPU = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiNeutralPU"),
                                srcMVAMet     = cms.InputTag("mvaPUPPET","mvaMET"),
-                               dRgenMatching = cms.double(0.3)))
+                               dRgenMatching = cms.double(0.3),
+                               srcMetFiltersBits = cms.InputTag("TriggerResults","","PAT"),
+                               srcTriggerBits = cms.InputTag("TriggerResults","","HLT"),
+                               srcTriggerPrescales = cms.InputTag('patTrigger')
+                               )
+                )
         
+        if not isMC:
+            getattr(process,"PUPPET").srcMetFiltersBits = cms.InputTag("TriggerResults","","RECO")
 
         process.jmfw_analyzers += getattr(process,"PUPPET")
                                            

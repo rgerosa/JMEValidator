@@ -12,8 +12,11 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
-class PUPPETAnalyzer : public JME::Analyzer
-{
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
+
+class PUPPETAnalyzer : public JME::Analyzer {
     public:
         // construction/destruction
         explicit PUPPETAnalyzer(const edm::ParameterSet& iConfig);
@@ -58,6 +61,11 @@ class PUPPETAnalyzer : public JME::Analyzer
         edm::InputTag srcGenParticles_;
 	edm::InputTag srcGenEventInfo_;
 
+
+	edm::InputTag srcMetFiltersBits_;
+	edm::InputTag srcTriggerBits_;
+	edm::InputTag srcTriggerPrescales_;
+
 	edm::EDGetTokenT<std::vector<pat::MET>> srcPFMetToken_;
 	edm::EDGetTokenT<std::vector<pat::MET>> srcPFCHSMetToken_;
 	edm::EDGetTokenT<std::vector<pat::MET>> srcPFPuppiMetToken_;
@@ -82,15 +90,21 @@ class PUPPETAnalyzer : public JME::Analyzer
         edm::EDGetTokenT<std::vector<reco::GenParticle>> srcGenParticlesToken_;
 	edm::EDGetTokenT<GenEventInfoProduct> srcGenEventInfoToken_;
 
-        // Tree branches
+	edm::EDGetTokenT<edm::TriggerResults>  srcMetFiltersBitsToken_;
+	edm::EDGetTokenT<edm::TriggerResults>  srcTriggerBitsToken_;
+	edm::EDGetTokenT<pat::PackedTriggerPrescales>  srcTriggerPrescalesToken_;
+
+        // MC weight factor
 	float& eventMCWeight = tree["eventMCWeight"].write<float>(); 
 	
+	// Generator level boson 
         float& GenBoson_Pt_  = tree["GenBoson_Pt"].write<float>();
         float& GenBoson_Eta_ = tree["GenBoson_Eta"].write<float>();
         float& GenBoson_Phi_ = tree["GenBoson_Phi"].write<float>();
         float& GenBoson_M_   = tree["GenBoson_M"].write<float>();
-        int& GenBoson_daughter_ = tree["GenBoson_daughter"].write<int>();
+        int&   GenBoson_daughter_ = tree["GenBoson_daughter"].write<int>();
 
+	// Generator level jets
         int& NGenJets_        = tree["NGenJets"].write<int>();
         int& NGenJetsCleaned_ = tree["NGenJetsCleaned"].write<int>();
         int& NGenMatchedJets_ = tree["NGenMatchedJets"].write< int>();
@@ -115,6 +129,8 @@ class PUPPETAnalyzer : public JME::Analyzer
         float& GenTrailingJetCleaned_Phi_ = tree["GenTrailingJetCleaned_Phi"].write<float>();
         float& GenTrailingJetCleaned_M_   = tree["GenTrailingJetCleaned_M"].write<float>();
 
+	// Generator level recoil
+
         float& GenRecoil_sumEt_ = tree["GenRecoil_sumEt"].write<float>();
         float& GenRecoil_Pt_    = tree["GenRecoil_Pt"].write<float>();
         float& GenRecoil_Phi_   = tree["GenRecoil_Phi"].write<float>();
@@ -124,6 +140,7 @@ class PUPPETAnalyzer : public JME::Analyzer
         float& GenBoson_PerpU_  = tree["GenBoson_PerpZ"].write<float>();
         float& GenBoson_LongU_  = tree["GenBoson_LongZ"].write<float>();
 
+	// recoils
         float& recoilPFMet_sumEt_       = tree["recoilPFMet_sumEt"].write<float>();
         float& recoilPFMet_Pt_          = tree["recoilPFMet_Pt"].write<float>();
         float& recoilPFMet_Phi_         = tree["recoilPFMet_Phi"].write<float>();
@@ -222,6 +239,7 @@ class PUPPETAnalyzer : public JME::Analyzer
 	float& MVAMet_PerpZ_ = tree["MVAMet_PerpZ"].write<float>();
 	float& MVAMet_LongZ_ = tree["MVAMet_LongZ"].write<float>();
 
+	// jets and boson
 	int& NCleanedJets_ =  tree["NCleanedJets"].write<int>();
 	int& NVertex_      =  tree["NVertex"].write<int>();
 
@@ -250,6 +268,26 @@ class PUPPETAnalyzer : public JME::Analyzer
         std::vector<float>& GenMatchedJets_Eta_ = tree["GenMatchedJets_Eta"].write<std::vector<float>>();
         std::vector<float>& GenMatchedJets_Phi_ = tree["GenMatchedJets_Phi"].write<std::vector<float>>();
         std::vector<float>& GenMatchedJets_M_   = tree["GenMatchedJets_M"].write<std::vector<float>>();
+
+	/// met filter
+	int& flag_HBHENoiseFilter_      =  tree["flag_HBHENoiseFilter"].write<int>();
+	int& flag_CSCTightHaloFilter_   =  tree["flag_CSCTightHaloFilter"].write<int>();
+        int& flag_hcalLaserEventFilter_ =  tree["flag_hcalLaserEventFilter"].write<int>();
+	int& flag_EcalDeadCellTriggerPrimitiveFilter_ = tree["flag_EcalDeadCellTriggerPrimitiveFilter"].write<int>();
+	int& flag_goodVertices_          = tree["flag_goodVertices"].write<int>();
+	int& flag_trackingFailureFilter_ = tree["flag_trackingFailureFilter"].write<int>();
+	int& flag_eeBadScFilter_         = tree["flag_eeBadScFilter"].write<int>();
+	int& flag_ecalLaserCorrFilter_   = tree["flag_ecalLaserCorrFilter"].write<int>();
+	int& flag_trkPOGFilters_         =  tree["flag_trkPOGFilters"].write<int>();  
+	int& flag_trkPOG_manystripclus53X_    = tree["flag_trkPOG_manystripclus53X"].write<int>();
+	int& flag_trkPOG_toomanystripclus53X_ = tree["flag_trkPOG_toomanystripclus53X"].write<int>();
+	int& flag_trkPOG_logErrorTooManyClusters_ = tree["flag_trkPOG_logErrorTooManyClusters"].write<int>();
+	int& flag_METFilters_ = tree["flag_METFilters"].write<int>();
+
+
+	std::vector<std::string>& DoubleMuPaths_    = tree["DoubleMuPaths"].write<std::vector<std::string> >();
+	std::vector<std::string>& DoubleElePaths_   = tree["DoubleElePaths"].write<std::vector<std::string> >();
+	std::vector<std::string>& DoubleTauPaths_   = tree["DoubleTauPaths"].write<std::vector<std::string> >();
 
 };
 

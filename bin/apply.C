@@ -47,8 +47,7 @@ int main(int argc, char* argv[] ) {
   std::cout << "input tree: " << inputTree << std::endl;
   std::cout << "This many: " << trainingProperties.size() << std::endl;
   for(size_t iTrain = 0; iTrain < trainingProperties.size(); ++iTrain)
-  { // does probably not work any more to evaluate MVAs this way. But it's good to produce additional input values, as in the past
-    std::cout << "Starting: " << iTrain << std::endl;
+  {
     applyTraining *user = new applyTraining(trainingProperties[iTrain], inputTree);
     std::cout << "Initialized." << std::endl;
     user->getResults();
