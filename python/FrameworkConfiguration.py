@@ -34,12 +34,24 @@ def get_jec_levels(pu_method, isMC = True, useJECFromDB = False):
 
     if isMC or useJECFromDB:
 
-        jec_levels = {
-            'Puppi': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-            'CHS': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-            'SK': ['L2Relative', 'L3Absolute'],
-            '': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-            }
+        if isMC :
+
+            jec_levels = {
+                'Puppi': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+                'CHS': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+                'SK': ['L2Relative', 'L3Absolute'],
+                '': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+                }
+
+        else:
+
+            jec_levels = {
+                'Puppi': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+                'CHS': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+                'SK': ['L2Relative', 'L3Absolute'],
+                '': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Relative'],
+                }
+
     else:
 
         jec_levels = {
@@ -200,16 +212,34 @@ def createProcess(isMC, ## isMC flag
 
     if isMC or useJECFromLocalDB :
 
-        jetsCollections = {
-            'AK4': {
-                'algo': 'ak4',
-                'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK4PFPUPPI', 'AK4PFchs', 'AK4PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                'pu_jet_id': True,
-                'qg_tagger': True,
-                },
-            }
+        if isMC:
+            
+            jetsCollections = {
+                'AK4': {
+                    'algo': 'ak4',
+                    'pu_methods': ['Puppi', 'CHS', ''],
+                    'jec_payloads': ['AK4PFPUPPI', 'AK4PFchs', 'AK4PF'],
+                    'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+                    'pu_jet_id': True,
+                    'qg_tagger': True,
+                    },
+                }
+            
+        else:
+
+            jetsCollections = {
+                'AK4': {
+                    'algo': 'ak4',
+                    'pu_methods': ['Puppi', 'CHS', ''],
+                    'jec_payloads': ['AK4PFPUPPI', 'AK4PFchs', 'AK4PF'],
+                    'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+                    'pu_jet_id': True,
+                    'qg_tagger': True,
+                    },
+                }
+            
+
+
     else:
 
         jetsCollections = {
@@ -241,7 +271,6 @@ def createProcess(isMC, ## isMC flag
                     appendJECToDB(process, jec_payload, jec_database_Puppi.replace("_PUPPI","").replace("_Puppi",""),"_puppi")
                 else:
                     appendJECToDB(process, jec_payload, jec_database_PF.replace("_PFCHS","").replace("_PF",""))
-
 
             jetToolbox(process, params['algo'], 'dummy', 'out', runOnMC=isMC, PUMethod = pu_method, JETCorrPayload = jec_payload, JETCorrLevels = jec_levels, addPUJetID = False)
 
@@ -470,15 +499,17 @@ def createProcess(isMC, ## isMC flag
             jetCorrLabel = 'ak4PFL1FastL2L3Corrector',
             offsetCorrLabel = 'ak4PFL1FastjetCorrector',
             )
-                
+        
+        
         process.pfMetT1 = pfMetT1.clone(
             src = 'pfMet',
             srcCorrections = [ cms.InputTag("corrPfMetType1","type1") ]
-        )
-
+            )
+        
         addMETCollection(process, labelName='patMET', metSource='pfMetT1') # T1 MET
         process.patMET.addGenMET = False
 
+            
     ### CHS TypeI corrected
     if not hasattr(process, 'ak4PFJetsCHS'):
         print("WARNING: No AK4 CHS jets produced. Type 1 corrections for CHS MET are not available.")
@@ -574,7 +605,8 @@ def createProcess(isMC, ## isMC flag
                       srcTaus = "slimmedTaus", 
                       tauTypeID = tauTypeID, 
                       doTauCleaning = True,
-                      jetCollection = "selectedPatJetsAK4PFPuppi", 
+                      jetCollectionPuppi = "selectedPatJetsAK4PFPuppi", 
+                      jetCollectionPF    = "selectedPatJetsAK4PF", 
                       dRCleaning = 0.3, 
                       jetPtCut = jetPtCut, 
                       jetEtaCut = 5.,
@@ -587,7 +619,6 @@ def createProcess(isMC, ## isMC flag
                       applyWSelections = applyWSelections
                       )
     
-
 
         ## change cone and use charge for the tracking region
         if len(ptNeutralCut) !=3 or len(ptNeutralCutSlope)!=3 or len(etaBinPuppi)!=3 or len(puppiCone)!=3 or len(puppiUseCharge)!=3 :
@@ -802,6 +833,7 @@ def createProcess(isMC, ## isMC flag
                                srcJet    = cms.InputTag("selectedPatJetsAK4PFPuppiCleaned"),
                                srcVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
                                srcZboson = cms.InputTag("mvaPUPPET","ZtagBoson"),
+                               srcLeptons = cms.InputTag("LeptonMerge"),
                                srcGenMet = cms.InputTag("slimmedMETs","","PAT"),
                                srcGenJets          = cms.InputTag("slimmedGenJets","","PAT"),
                                srcGenJetsCleaned   = cms.InputTag("selectedPatak4GenJetsNoNuCleaned"),

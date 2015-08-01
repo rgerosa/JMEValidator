@@ -33,6 +33,10 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
     srcZboson_ = iConfig.getParameter<edm::InputTag>("srcZboson");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input Zboson collection not given \n";
 
+  if (iConfig.existsAs<edm::InputTag>("srcLeptons"))
+    srcLeptons_ = iConfig.getParameter<edm::InputTag>("srcLeptons");
+  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input Leptons collection not given \n";
+
   if (iConfig.existsAs<edm::InputTag>("srcGenJets"))
     srcGenJets_ = iConfig.getParameter<edm::InputTag>("srcGenJets");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input gen jet collection not given \n";
@@ -122,6 +126,9 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
 
   if(!(srcZboson_ == edm::InputTag("")))
     srcZbosonToken_ = consumes<std::vector<reco::Particle>>(srcZboson_);
+
+  if(!(srcLeptons_ == edm::InputTag("")))
+    srcLeptonsToken_ = consumes<reco::CandidateView>(srcLeptons_);
 
   if(!(srcVertex_ == edm::InputTag("")))
     srcVertexToken_ = consumes<reco::VertexCollection>(srcVertex_);
@@ -416,6 +423,43 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   Boson_M_   = Boson.p4().M();
   Boson_daughter_ = Boson.pdgId();
 
+  // Leptons
+  edm::Handle<reco::CandidateView> LeptonHandle;
+  iEvent.getByToken(srcLeptonsToken_, LeptonHandle);
+
+  int iLep = 0;
+  for(reco::CandidateView::const_iterator lepton = LeptonHandle->begin(); lepton != LeptonHandle->end(); ++lepton){
+
+    if(iLep == 0){
+      LeadingLepton_Pt_  = (*lepton).pt();
+      LeadingLepton_Eta_ = (*lepton).eta();
+      LeadingLepton_Phi_ = (*lepton).phi();
+      LeadingLepton_M_   = (*lepton).p4().M();
+    }
+    else if(iLep == 1){
+
+      if((*lepton).pt() > LeadingLepton_Pt_){
+
+	TrailingLepton_Pt_  = LeadingLepton_Pt_;
+	TrailingLepton_Eta_ = LeadingLepton_Eta_;
+	TrailingLepton_Phi_ = LeadingLepton_Phi_;
+	TrailingLepton_M_   = LeadingLepton_M_;
+	
+	LeadingLepton_Pt_  = (*lepton).pt();
+	LeadingLepton_Eta_ = (*lepton).eta();
+	LeadingLepton_Phi_ = (*lepton).phi();
+	LeadingLepton_M_   = (*lepton).p4().M();
+      }
+      else {
+	TrailingLepton_Pt_  = (*lepton).pt();
+	TrailingLepton_Eta_ = (*lepton).eta();
+	TrailingLepton_Phi_ = (*lepton).phi();
+	TrailingLepton_M_   = (*lepton).p4().M();
+      }
+    }
+    iLep++;
+  }
+    
   // reco recoils
   edm::Handle<std::vector<pat::MET>> RecoilPFMetHandle;
   iEvent.getByToken(srcRecoilPFMetToken_, RecoilPFMetHandle);
