@@ -58,7 +58,7 @@
         "Boson_daughter==13"
     ], 
     "x_bins": [
-        "50,0,250"
+        "70,0,350"
     ], 
     "x_errors": [
         false
@@ -72,8 +72,8 @@
     "x_label": "MET (GeV)", 
     "y_label": "Events", 
     "y_lims": [
-        1.0, 
-        3000000.0
+        0.1, 
+        10000000.0
     ], 
     "y_log": true
 }

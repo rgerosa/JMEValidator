@@ -6,6 +6,7 @@
         "kRed", 
         "kOrange"
     ], 
+    "dict": true, 
     "directories": [
         "/afs/desy.de/user/r/rfriese/dust/puppet/Samples50ns/inclusive/"
     ], 
@@ -52,7 +53,7 @@
         "Boson_daughter==13"
     ], 
     "x_bins": [
-        "50,0,200"
+        "50,0,250"
     ], 
     "x_errors": [
         false
@@ -61,8 +62,12 @@
         "PFMet_Pt", 
         "PFMet_uncorrected_Pt", 
         "PFPuppiMet2_Pt", 
-        "PFPuppiMet2_uncorrected_Pt"
+        "PFPuppiMet_uncorrected_Pt"
     ], 
     "x_label": "MET (GeV)", 
-    "y_label": "Events"
+    "y_label": "Events", 
+    "y_lims": [
+        0.0, 
+        500000.0
+    ]
 }

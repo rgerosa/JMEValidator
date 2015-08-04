@@ -6,6 +6,7 @@
         "kRed", 
         "kOrange"
     ], 
+    "dict": true, 
     "directories": [
         "/afs/desy.de/user/r/rfriese/dust/puppet/Samples50ns/inclusive/"
     ], 
@@ -48,7 +49,7 @@
     "markers": [
         "1"
     ], 
-    "output_dir": "studies/study7-dp-rootstyle", 
+    "output_dir": "studies/study7-dp-rootstyle/", 
     "plot_modules": [
         "PlotRoot"
     ], 
@@ -73,7 +74,7 @@
     "x_expressions": [
         "Boson_Pt"
     ], 
-    "x_label": "$p_T^Z \\, \\mathrm{(GeV)}$", 
+    "x_label": "p_{T}^{Z} (GeV)", 
     "y_errors": [
         false
     ], 
@@ -83,7 +84,7 @@
         "recoilPFPuppiMet_LongZ/-Boson_Pt", 
         "recoilPFPuppiMet_uncorrected_LongZ/-Boson_Pt"
     ], 
-    "y_label": "$\\langle- U_{\\parallel} \\rangle / p_T^Z \\, \\mathrm{(GeV)}$", 
+    "y_label": "#LT- U_{#parallel} #GT / p_{T}^{Z} (GeV)", 
     "y_lims": [
         0.0, 
         1.2

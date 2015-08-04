@@ -84,7 +84,7 @@
         "recoilPFPuppiMet_LongZ/-Boson_Pt", 
         "recoilPFPuppiMet_uncorrected_LongZ/-Boson_Pt"
     ], 
-    "y_label": "#LT- U_{#parallel} #GT / p_T^Z(GeV)", 
+    "y_label": "#LT- U_{#parallel} #GT / p_{T}^{Z} (GeV)", 
     "y_lims": [
         0.0, 
         1.2

@@ -6,8 +6,9 @@
         "kRed", 
         "kOrange"
     ], 
+    "dict": true, 
     "directories": [
-        "/nfs/dust/cms/user/rfriese/puppet/"
+        "/afs/desy.de/user/r/rfriese/dust/puppet/Samples50ns/inclusive/"
     ], 
     "energies": [
         13.0
@@ -15,7 +16,7 @@
     "extra_text": "simulation preliminary", 
     "filename": "uperp", 
     "files": [
-        "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_forMVATraining.root"
+        "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_inclusive_puppiMET.root"
     ], 
     "folders": [
         "PUPPET/t"
@@ -48,7 +49,7 @@
         "line", 
         "line"
     ], 
-    "output_dir": "studies/study7-dp-rootstyle", 
+    "output_dir": "studies/study7-dp-rootstyle/", 
     "plot_modules": [
         "PlotRoot"
     ], 
@@ -77,6 +78,6 @@
         "recoilPFPuppiMet_PerpZ", 
         "recoilPFPuppiMet_uncorrected_PerpZ"
     ], 
-    "x_label": "$U_{\\perp} \\, \\mathrm{(GeV)}$", 
+    "x_label": "U_{#perp} (GeV)", 
     "y_label": "Events"
 }

@@ -78,6 +78,6 @@
         "recoilPFPuppiMet_PerpZ", 
         "recoilPFPuppiMet_uncorrected_PerpZ"
     ], 
-    "x_label": "$U_{#perp} (GeV)", 
+    "x_label": "U_{#perp} (GeV)", 
     "y_label": "Events"
 }

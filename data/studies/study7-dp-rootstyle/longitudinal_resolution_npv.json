@@ -13,8 +13,9 @@
         "kRed", 
         "kOrange"
     ], 
+    "dict": true, 
     "directories": [
-        "/nfs/dust/cms/user/rfriese/puppet"
+        "/afs/desy.de/user/r/rfriese/dust/puppet/Samples50ns/inclusive/"
     ], 
     "energies": [
         13.0
@@ -22,7 +23,7 @@
     "extra_text": "simulation preliminary", 
     "filename": "longitudinal_resolution_npv", 
     "files": [
-        "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_forMVATraining.root"
+        "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_inclusive_puppiMET.root"
     ], 
     "fit_backend": [
         "ROOT"
@@ -62,7 +63,7 @@
     "markers": [
         "1"
     ], 
-    "output_dir": "studies/study7-dp-rootstyle", 
+    "output_dir": "studies/study7-dp-rootstyle/", 
     "plot_modules": [
         "PlotRoot"
     ], 
@@ -122,7 +123,7 @@
         "recoilPFPuppiMet_LongZ+Boson_Pt", 
         "recoilPFPuppiMet_uncorrected_LongZ+Boson_Pt"
     ], 
-    "y_label": "$\\sigma(U_{\\parallel}) \\, \\mathrm{(GeV)}$", 
+    "y_label": "#sigma(U_{#parallel}) (GeV)", 
     "y_lims": [
         0.0, 
         40.0
