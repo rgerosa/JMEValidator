@@ -16,7 +16,7 @@
     "extra_text": "simulation preliminary", 
     "filename": "Met_comparisons", 
     "files": [
-        "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A.root"
+        "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_puppiMET.root"
     ], 
     "folders": [
         "PUPPET/t"
@@ -53,7 +53,7 @@
         "Boson_daughter==13"
     ], 
     "x_bins": [
-        "50,0,200"
+        "70,0,350"
     ], 
     "x_errors": [
         false
@@ -61,13 +61,17 @@
     "x_expressions": [
         "PFMet_Pt", 
         "PFMet_uncorrected_Pt", 
-        "PFPuppiMet_Pt", 
+        "PFPuppiMet2_Pt", 
         "PFPuppiMet_uncorrected_Pt"
     ], 
     "x_label": "MET (GeV)", 
+    "x_lims": [
+        0.0, 
+        350.0
+    ], 
     "y_label": "Events", 
     "y_lims": [
         0.0, 
-        300000.0
+        1000000.0
     ]
 }

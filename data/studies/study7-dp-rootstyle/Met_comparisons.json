@@ -7,7 +7,7 @@
         "kOrange"
     ], 
     "directories": [
-        "/nfs/dust/cms/user/rfriese/puppet/"
+        "/afs/desy.de/user/r/rfriese/dust/puppet/Samples50ns/inclusive/"
     ], 
     "energies": [
         13.0
@@ -15,7 +15,7 @@
     "extra_text": "simulation preliminary", 
     "filename": "Met_comparisons", 
     "files": [
-        "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_forMVATraining.root"
+        "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_inclusive_puppiMET.root"
     ], 
     "folders": [
         "PUPPET/t"
@@ -60,8 +60,8 @@
     "x_expressions": [
         "PFMet_Pt", 
         "PFMet_uncorrected_Pt", 
-        "PFPuppiMet_Pt", 
-        "PFPuppiMet_uncorrected_Pt"
+        "PFPuppiMet2_Pt", 
+        "PFPuppiMet2_uncorrected_Pt"
     ], 
     "x_label": "MET (GeV)", 
     "y_label": "Events"

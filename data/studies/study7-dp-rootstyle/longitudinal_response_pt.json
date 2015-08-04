@@ -7,7 +7,7 @@
         "kOrange"
     ], 
     "directories": [
-        "/nfs/dust/cms/user/rfriese/puppet"
+        "/afs/desy.de/user/r/rfriese/dust/puppet/Samples50ns/inclusive/"
     ], 
     "energies": [
         13.0
@@ -15,7 +15,7 @@
     "extra_text": "simulation preliminary", 
     "filename": "longitudinal_response_pt", 
     "files": [
-        "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_forMVATraining.root"
+        "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_inclusive_puppiMET.root"
     ], 
     "folders": [
         "PUPPET/t"
