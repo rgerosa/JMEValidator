@@ -1,0 +1,79 @@
+{
+    "cms": true, 
+    "colors": [
+        "kBlue", 
+        "kCyan", 
+        "kRed", 
+        "kOrange"
+    ], 
+    "dict": true, 
+    "directories": [
+        "/afs/desy.de/user/r/rfriese/dust/puppet/Samples50ns/met30"
+    ], 
+    "energies": [
+        13.0
+    ], 
+    "extra_text": "simulation preliminary", 
+    "filename": "Met_comparisons_log", 
+    "files": [
+        "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A.root"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "formats": [
+        "png", 
+        "pdf"
+    ], 
+    "iPeriod": 0, 
+    "labels": [
+        "PF type1", 
+        "PF raw", 
+        "PUPPI type1", 
+        "PUPPI"
+    ], 
+    "legend": [
+        0.6, 
+        0.6, 
+        0.9, 
+        0.9
+    ], 
+    "line_styles": [
+        1, 
+        2, 
+        1, 
+        2
+    ], 
+    "markers": [
+        "line", 
+        "line", 
+        "line", 
+        "line"
+    ], 
+    "output_dir": "studies/study7-dp-rootstyle-met30/", 
+    "plot_modules": [
+        "PlotRoot"
+    ], 
+    "weights": [
+        "Boson_daughter==13"
+    ], 
+    "x_bins": [
+        "50,0,500"
+    ], 
+    "x_errors": [
+        false
+    ], 
+    "x_expressions": [
+        "PFMet_Pt", 
+        "PFMet_uncorrected_Pt", 
+        "PFPuppiMet_Pt", 
+        "PFPuppiMet_uncorrected_Pt"
+    ], 
+    "x_label": "MET (GeV)", 
+    "y_label": "Events", 
+    "y_lims": [
+        0.01, 
+        10000000.0
+    ], 
+    "y_log": true
+}

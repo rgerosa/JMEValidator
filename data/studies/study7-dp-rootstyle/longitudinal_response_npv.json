@@ -1,0 +1,105 @@
+{
+    "cms": true, 
+    "colors": [
+        "kBlue", 
+        "kCyan", 
+        "kRed", 
+        "kOrange"
+    ], 
+    "directories": [
+        "/nfs/dust/cms/user/rfriese/puppet"
+    ], 
+    "energies": [
+        13.0
+    ], 
+    "extra_text": "simulation preliminary", 
+    "filename": "longitudinal_response_npv", 
+    "files": [
+        "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A_forMVATraining.root"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "formats": [
+        "pdf", 
+        "png", 
+        "root"
+    ], 
+    "labels": [
+        "PF type1", 
+        "PF raw", 
+        "PUPPI type1", 
+        "PUPPI raw"
+    ], 
+    "legend": [
+        0.6, 
+        0.2, 
+        0.9, 
+        0.4
+    ], 
+    "legend_markers": [
+        "PL"
+    ], 
+    "line_styles": [
+        1, 
+        2, 
+        1, 
+        2
+    ], 
+    "markers": [
+        "1"
+    ], 
+    "output_dir": "studies/study7-dp-rootstyle", 
+    "plot_modules": [
+        "PlotRoot"
+    ], 
+    "projection_to_nick": [
+        "nick0", 
+        "nick1", 
+        "nick2", 
+        "nick3"
+    ], 
+    "texts": [
+        "p_{T}^{Z} > 50 GeV"
+    ], 
+    "texts_size": [
+        0.05
+    ], 
+    "texts_x": [
+        0.33
+    ], 
+    "texts_y": [
+        0.3
+    ], 
+    "title": "", 
+    "tree_draw_options": [
+        "prof"
+    ], 
+    "weights": [
+        "Boson_daughter==13&&Boson_Pt>50"
+    ], 
+    "x_bins": [
+        "20,5,25"
+    ], 
+    "x_errors": [
+        false
+    ], 
+    "x_expressions": [
+        "NVertex"
+    ], 
+    "x_label": "primary vertices", 
+    "y_errors": [
+        false
+    ], 
+    "y_expressions": [
+        "recoilPFMet_LongZ/-Boson_Pt", 
+        "recoilPFMet_uncorrected_LongZ/-Boson_Pt", 
+        "recoilPFPuppiMet_LongZ/-Boson_Pt", 
+        "recoilPFPuppiMet_uncorrected_LongZ/-Boson_Pt"
+    ], 
+    "y_label": "$\\langle -U_{\\parallel}\\rangle / p_T^Z \\, \\mathrm{(GeV)}$", 
+    "y_lims": [
+        0.0, 
+        1.2
+    ]
+}

@@ -1,0 +1,82 @@
+{
+    "cms": true, 
+    "colors": [
+        "kBlue", 
+        "kCyan", 
+        "kRed", 
+        "kOrange"
+    ], 
+    "dict": true, 
+    "directories": [
+        "/afs/desy.de/user/r/rfriese/dust/puppet/Samples50ns/met30"
+    ], 
+    "energies": [
+        13.0
+    ], 
+    "extra_text": "simulation preliminary", 
+    "filename": "upar", 
+    "files": [
+        "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A.root"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "formats": [
+        "png", 
+        "pdf"
+    ], 
+    "labels": [
+        "PF type1", 
+        "PF raw", 
+        "PUPPI type1", 
+        "PUPPI"
+    ], 
+    "legend": [
+        0.7, 
+        0.6, 
+        0.9, 
+        0.8
+    ], 
+    "line_styles": [
+        1, 
+        2, 
+        1, 
+        2
+    ], 
+    "markers": [
+        "line", 
+        "line", 
+        "line", 
+        "line"
+    ], 
+    "output_dir": "studies/study7-dp-rootstyle-met30/", 
+    "plot_modules": [
+        "PlotRoot"
+    ], 
+    "texts": [
+        "p_{T}^{Z} > 30 GeV"
+    ], 
+    "texts_x": [
+        0.33
+    ], 
+    "texts_y": [
+        0.5
+    ], 
+    "weights": [
+        "Boson_daughter==13&&Boson_Pt>30"
+    ], 
+    "x_bins": [
+        "100,-100,100"
+    ], 
+    "x_errors": [
+        false
+    ], 
+    "x_expressions": [
+        "recoilPFMet_LongZ+Boson_Pt", 
+        "recoilPFMet_uncorrected_LongZ+Boson_Pt", 
+        "recoilPFPuppiMet_LongZ+Boson_Pt", 
+        "recoilPFPuppiMet_uncorrected_LongZ+Boson_Pt"
+    ], 
+    "x_label": "U_{#parallel}+p_{T}^{Z} (GeV)", 
+    "y_label": "Events"
+}
