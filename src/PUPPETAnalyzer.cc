@@ -33,6 +33,10 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
     srcZboson_ = iConfig.getParameter<edm::InputTag>("srcZboson");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input Zboson collection not given \n";
 
+  if (iConfig.existsAs<edm::InputTag>("srcLeptons"))
+    srcLeptons_ = iConfig.getParameter<edm::InputTag>("srcLeptons");
+  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input Leptons collection not given \n";
+
   if (iConfig.existsAs<edm::InputTag>("srcGenJets"))
     srcGenJets_ = iConfig.getParameter<edm::InputTag>("srcGenJets");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input gen jet collection not given \n";
@@ -93,6 +97,18 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
     srcRecoilPFPuppiMet_NeutralPU_ = iConfig.getParameter<edm::InputTag>("srcRecoilPFPuppiMet_NeutralPU");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFPuppiMet_NeutralPU recoil not given \n";
 
+  if (iConfig.existsAs<edm::InputTag>("srcRecoilPFChargedPVNeutralPVPUJetID"))
+   srcRecoilPFChargedPVNeutralPVPUJetID_ = iConfig.getParameter<edm::InputTag>("srcRecoilPFChargedPVNeutralPVPUJetID");
+  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFChargedPVNeutralPVPUJetID recoil not given \n";
+
+  if (iConfig.existsAs<edm::InputTag>("srcRecoilPFChargedPUNeutralPUPUJetID"))
+   srcRecoilPFChargedPUNeutralPUPUJetID_ = iConfig.getParameter<edm::InputTag>("srcRecoilPFChargedPUNeutralPUPUJetID");
+  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFChargedPUNeutralPUPUJetID recoil not given \n";
+
+  if (iConfig.existsAs<edm::InputTag>("srcRecoilPFChargedPVNeutralPV"))
+   srcRecoilPFChargedPVNeutralPV_ = iConfig.getParameter<edm::InputTag>("srcRecoilPFChargedPVNeutralPV");
+  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFChargedPVNeutralPV recoil not given \n";
+
   if (iConfig.existsAs<edm::InputTag>("srcMVAMet"))
     srcMVAMet_ = iConfig.getParameter<edm::InputTag>("srcMVAMet");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input MVAMet recoil not given \n";
@@ -122,6 +138,9 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
 
   if(!(srcZboson_ == edm::InputTag("")))
     srcZbosonToken_ = consumes<std::vector<reco::Particle>>(srcZboson_);
+
+  if(!(srcLeptons_ == edm::InputTag("")))
+    srcLeptonsToken_ = consumes<reco::CandidateView>(srcLeptons_);
 
   if(!(srcVertex_ == edm::InputTag("")))
     srcVertexToken_ = consumes<reco::VertexCollection>(srcVertex_);
@@ -170,6 +189,15 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
 
   if(!(srcRecoilPFPuppiMet_NeutralPU_ == edm::InputTag("")))
     srcRecoilPFPuppiMet_NeutralPUToken_ = consumes<pat::METCollection>(srcRecoilPFPuppiMet_NeutralPU_);
+
+  if(!(srcRecoilPFChargedPVNeutralPVPUJetID_ == edm::InputTag("")))
+    srcRecoilPFChargedPVNeutralPVPUJetIDToken_ = consumes<pat::METCollection>(srcRecoilPFChargedPVNeutralPVPUJetID_);
+
+  if(!(srcRecoilPFChargedPUNeutralPUPUJetID_ == edm::InputTag("")))
+    srcRecoilPFChargedPUNeutralPUPUJetIDToken_ = consumes<pat::METCollection>(srcRecoilPFChargedPUNeutralPUPUJetID_);
+
+  if(!(srcRecoilPFChargedPVNeutralPV_ == edm::InputTag("")))
+    srcRecoilPFChargedPVNeutralPVToken_ = consumes<pat::METCollection>(srcRecoilPFChargedPVNeutralPV_);
 
   if(!(srcMVAMet_ == edm::InputTag("")))
     srcMVAMetToken_ = consumes<pat::METCollection>(srcMVAMet_);
@@ -416,6 +444,43 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   Boson_M_   = Boson.p4().M();
   Boson_daughter_ = Boson.pdgId();
 
+  // Leptons
+  edm::Handle<reco::CandidateView> LeptonHandle;
+  iEvent.getByToken(srcLeptonsToken_, LeptonHandle);
+
+  int iLep = 0;
+  for(reco::CandidateView::const_iterator lepton = LeptonHandle->begin(); lepton != LeptonHandle->end(); ++lepton){
+
+    if(iLep == 0){
+      LeadingLepton_Pt_  = (*lepton).pt();
+      LeadingLepton_Eta_ = (*lepton).eta();
+      LeadingLepton_Phi_ = (*lepton).phi();
+      LeadingLepton_M_   = (*lepton).p4().M();
+    }
+    else if(iLep == 1){
+
+      if((*lepton).pt() > LeadingLepton_Pt_){
+
+	TrailingLepton_Pt_  = LeadingLepton_Pt_;
+	TrailingLepton_Eta_ = LeadingLepton_Eta_;
+	TrailingLepton_Phi_ = LeadingLepton_Phi_;
+	TrailingLepton_M_   = LeadingLepton_M_;
+	
+	LeadingLepton_Pt_  = (*lepton).pt();
+	LeadingLepton_Eta_ = (*lepton).eta();
+	LeadingLepton_Phi_ = (*lepton).phi();
+	LeadingLepton_M_   = (*lepton).p4().M();
+      }
+      else {
+	TrailingLepton_Pt_  = (*lepton).pt();
+	TrailingLepton_Eta_ = (*lepton).eta();
+	TrailingLepton_Phi_ = (*lepton).phi();
+	TrailingLepton_M_   = (*lepton).p4().M();
+      }
+    }
+    iLep++;
+  }
+    
   // reco recoils
   edm::Handle<std::vector<pat::MET>> RecoilPFMetHandle;
   iEvent.getByToken(srcRecoilPFMetToken_, RecoilPFMetHandle);
@@ -570,6 +635,43 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   RecoilVec.SetMagPhi(recoilPFPuppiMet_NeutralPU_Pt_,reco::deltaPhi(recoilPFPuppiMet_NeutralPU_Phi_,Boson_Phi_));
   recoilPFPuppiMet_NeutralPU_PerpZ_ = RecoilVec.Py();
   recoilPFPuppiMet_NeutralPU_LongZ_ = RecoilVec.Px();
+
+
+  // charged PV + neutrals in jet passing PUJet ID
+  edm::Handle<std::vector<pat::MET>> RecoilPFMet_ChargedPVNeutralPVPUJetIDHandle;
+  iEvent.getByToken(srcRecoilPFChargedPVNeutralPVPUJetIDToken_, RecoilPFMet_ChargedPVNeutralPVPUJetIDHandle);
+
+  const pat::MET& recoilMetPF_ChargedPVNeutralPVPUJetID = RecoilPFMet_ChargedPVNeutralPVPUJetIDHandle->at(0);
+  recoilPFMet_ChargedPVNeutralPVPUJetID_sumEt_ = recoilMetPF_ChargedPVNeutralPVPUJetID.sumEt();
+  recoilPFMet_ChargedPVNeutralPVPUJetID_Pt_    = recoilMetPF_ChargedPVNeutralPVPUJetID.pt();
+  recoilPFMet_ChargedPVNeutralPVPUJetID_Phi_   = recoilMetPF_ChargedPVNeutralPVPUJetID.phi();
+  RecoilVec.SetMagPhi(recoilPFMet_ChargedPVNeutralPVPUJetID_Pt_,reco::deltaPhi(recoilPFMet_ChargedPVNeutralPVPUJetID_Phi_,Boson_Phi_));
+  recoilPFMet_ChargedPVNeutralPVPUJetID_PerpZ_ = RecoilVec.Py();
+  recoilPFMet_ChargedPVNeutralPVPUJetID_LongZ_ = RecoilVec.Px();
+
+  // charged PU + neutrals in jet failing PUJet ID
+  edm::Handle<std::vector<pat::MET>> RecoilPFMet_ChargedPUNeutralPUPUJetIDHandle;
+  iEvent.getByToken(srcRecoilPFChargedPUNeutralPUPUJetIDToken_, RecoilPFMet_ChargedPUNeutralPUPUJetIDHandle);
+
+  const pat::MET& recoilMetPF_ChargedPUNeutralPUPUJetID = RecoilPFMet_ChargedPUNeutralPUPUJetIDHandle->at(0);
+  recoilPFMet_ChargedPUNeutralPUPUJetID_sumEt_ = recoilMetPF_ChargedPUNeutralPUPUJetID.sumEt();
+  recoilPFMet_ChargedPUNeutralPUPUJetID_Pt_    = recoilMetPF_ChargedPUNeutralPUPUJetID.pt();
+  recoilPFMet_ChargedPUNeutralPUPUJetID_Phi_   = recoilMetPF_ChargedPUNeutralPUPUJetID.phi();
+  RecoilVec.SetMagPhi(recoilPFMet_ChargedPUNeutralPUPUJetID_Pt_,reco::deltaPhi(recoilPFMet_ChargedPUNeutralPUPUJetID_Phi_,Boson_Phi_));
+  recoilPFMet_ChargedPUNeutralPUPUJetID_PerpZ_ = RecoilVec.Py();
+  recoilPFMet_ChargedPUNeutralPUPUJetID_LongZ_ = RecoilVec.Px();
+
+  // charged PV + neutrals PV as all neutrals -  neutrals in jet failing PVJet ID
+  edm::Handle<std::vector<pat::MET>> RecoilPFMet_ChargedPVNeutralPVHandle;
+  iEvent.getByToken(srcRecoilPFChargedPVNeutralPVToken_, RecoilPFMet_ChargedPVNeutralPVHandle);
+
+  const pat::MET& recoilMetPF_ChargedPVNeutralPV = RecoilPFMet_ChargedPVNeutralPVHandle->at(0);
+  recoilPFMet_ChargedPVNeutralPV_sumEt_ = recoilMetPF_ChargedPVNeutralPV.sumEt();
+  recoilPFMet_ChargedPVNeutralPV_Pt_    = recoilMetPF_ChargedPVNeutralPV.pt();
+  recoilPFMet_ChargedPVNeutralPV_Phi_   = recoilMetPF_ChargedPVNeutralPV.phi();
+  RecoilVec.SetMagPhi(recoilPFMet_ChargedPVNeutralPV_Pt_,reco::deltaPhi(recoilPFMet_ChargedPVNeutralPV_Phi_,Boson_Phi_));
+  recoilPFMet_ChargedPVNeutralPV_PerpZ_ = RecoilVec.Py();
+  recoilPFMet_ChargedPVNeutralPV_LongZ_ = RecoilVec.Px();
 
   // MVA met
   edm::Handle<std::vector<pat::MET>> MVAMetHandle;

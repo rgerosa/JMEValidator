@@ -46,10 +46,14 @@ class PUPPETAnalyzer : public JME::Analyzer {
 	edm::InputTag srcRecoilPFPuppiMet_ChargedPU_;
 	edm::InputTag srcRecoilPFPuppiMet_NeutralPV_;
 	edm::InputTag srcRecoilPFPuppiMet_NeutralPU_;
+	edm::InputTag srcRecoilPFChargedPVNeutralPVPUJetID_;
+	edm::InputTag srcRecoilPFChargedPUNeutralPUPUJetID_;
+	edm::InputTag srcRecoilPFChargedPVNeutralPV_;
 
 	edm::InputTag srcJet_;
 
 	edm::InputTag srcZboson_;
+	edm::InputTag srcLeptons_;
 	edm::InputTag srcVertex_;
 	edm::InputTag srcMVAMet_;
 
@@ -77,9 +81,13 @@ class PUPPETAnalyzer : public JME::Analyzer {
         edm::EDGetTokenT<std::vector<pat::MET>> srcRecoilPFPuppiMet_ChargedPUToken_;
         edm::EDGetTokenT<std::vector<pat::MET>> srcRecoilPFPuppiMet_NeutralPVToken_;
         edm::EDGetTokenT<std::vector<pat::MET>> srcRecoilPFPuppiMet_NeutralPUToken_;
+	edm::EDGetTokenT<std::vector<pat::MET>> srcRecoilPFChargedPVNeutralPVPUJetIDToken_;
+	edm::EDGetTokenT<std::vector<pat::MET>> srcRecoilPFChargedPUNeutralPUPUJetIDToken_;
+	edm::EDGetTokenT<std::vector<pat::MET>> srcRecoilPFChargedPVNeutralPVToken_;
 
         edm::EDGetTokenT<std::vector<pat::Jet>> srcJetToken_;
         edm::EDGetTokenT<std::vector<reco::Particle>>   srcZbosonToken_;
+        edm::EDGetTokenT<reco::CandidateView>           srcLeptonsToken_;
         edm::EDGetTokenT<reco::VertexCollection>        srcVertexToken_;
 
 	edm::EDGetTokenT<std::vector<pat::MET>>         srcMVAMetToken_;
@@ -233,6 +241,25 @@ class PUPPETAnalyzer : public JME::Analyzer {
         float& recoilPFPuppiMet_NeutralPU_PerpZ_ = tree["recoilPFPuppiMet_NeutralPU_PerpZ"].write<float>();
         float& recoilPFPuppiMet_NeutralPU_LongZ_ = tree["recoilPFPuppiMet_NeutralPU_LongZ"].write<float>();
 
+        float& recoilPFMet_ChargedPVNeutralPVPUJetID_sumEt_ = tree["recoilPFMet_ChargedPVNeutralPVPUJetID_sumEt"].write<float>();
+        float& recoilPFMet_ChargedPVNeutralPVPUJetID_Pt_    = tree["recoilPFMet_ChargedPVNeutralPVPUJetID_Pt"].write<float>();
+        float& recoilPFMet_ChargedPVNeutralPVPUJetID_Phi_   = tree["recoilPFMet_ChargedPVNeutralPVPUJetID_Phi"].write<float>();
+        float& recoilPFMet_ChargedPVNeutralPVPUJetID_PerpZ_ = tree["recoilPFMet_ChargedPVNeutralPVPUJetID_PerpZ"].write<float>();
+        float& recoilPFMet_ChargedPVNeutralPVPUJetID_LongZ_ = tree["recoilPFMet_ChargedPVNeutralPVPUJetID_LongZ"].write<float>();
+
+        float& recoilPFMet_ChargedPUNeutralPUPUJetID_sumEt_ = tree["recoilPFMet_ChargedPUNeutralPUPUJetID_sumEt"].write<float>();
+        float& recoilPFMet_ChargedPUNeutralPUPUJetID_Pt_    = tree["recoilPFMet_ChargedPUNeutralPUPUJetID_Pt"].write<float>();
+        float& recoilPFMet_ChargedPUNeutralPUPUJetID_Phi_   = tree["recoilPFMet_ChargedPUNeutralPUPUJetID_Phi"].write<float>();
+        float& recoilPFMet_ChargedPUNeutralPUPUJetID_PerpZ_ = tree["recoilPFMet_ChargedPUNeutralPUPUJetID_PerpZ"].write<float>();
+        float& recoilPFMet_ChargedPUNeutralPUPUJetID_LongZ_ = tree["recoilPFMet_ChargedPUNeutralPUPUJetID_LongZ"].write<float>();
+
+        float& recoilPFMet_ChargedPVNeutralPV_sumEt_ = tree["recoilPFMet_ChargedPVNeutralPV_sumEt"].write<float>();
+        float& recoilPFMet_ChargedPVNeutralPV_Pt_    = tree["recoilPFMet_ChargedPVNeutralPV_Pt"].write<float>();
+        float& recoilPFMet_ChargedPVNeutralPV_Phi_   = tree["recoilPFMet_ChargedPVNeutralPV_Phi"].write<float>();
+        float& recoilPFMet_ChargedPVNeutralPV_PerpZ_ = tree["recoilPFMet_ChargedPVNeutralPV_PerpZ"].write<float>();
+        float& recoilPFMet_ChargedPVNeutralPV_LongZ_ = tree["recoilPFMet_ChargedPVNeutralPV_LongZ"].write<float>();
+
+
 	float& MVAMet_sumEt_ = tree["MVAMet_sumEt"].write<float>();
 	float& MVAMet_Pt_    = tree["MVAMet_Pt"].write<float>();
 	float& MVAMet_Phi_   = tree["MVAMet_Phi"].write<float>();
@@ -258,6 +285,16 @@ class PUPPETAnalyzer : public JME::Analyzer {
 	float& Boson_Eta_    =  tree["Boson_Eta"].write<float>();
 	float& Boson_M_      =  tree["Boson_M"].write<float>();
 	int& Boson_daughter_ =  tree["Boson_daughter"].write<int>();
+
+	float& LeadingLepton_Pt_     =  tree["LeadingLepton_Pt"].write<float>();
+	float& LeadingLepton_Phi_    =  tree["LeadingLepton_Phi"].write<float>();
+	float& LeadingLepton_Eta_    =  tree["LeadingLepton_Eta"].write<float>();
+	float& LeadingLepton_M_      =  tree["LeadingLepton_M"].write<float>();
+
+	float& TrailingLepton_Pt_     =  tree["TrailingLepton_Pt"].write<float>();
+	float& TrailingLepton_Phi_    =  tree["TrailingLepton_Phi"].write<float>();
+	float& TrailingLepton_Eta_    =  tree["TrailingLepton_Eta"].write<float>();
+	float& TrailingLepton_M_      =  tree["TrailingLepton_M"].write<float>();
 
         std::vector<float>& AllJets_Pt_  = tree["AllJets_Pt"].write<std::vector<float>>();
         std::vector<float>& AllJets_Eta_ = tree["AllJets_Eta"].write<std::vector<float>>();
