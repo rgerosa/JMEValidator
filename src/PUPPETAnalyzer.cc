@@ -449,9 +449,10 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   RecoilVec.SetMagPhi(recoilPFMet_uncorrected_Pt_,reco::deltaPhi(recoilPFMet_uncorrected_Phi_,Boson_Phi_));
   recoilPFMet_uncorrected_PerpZ_ = RecoilVec.Py();
   recoilPFMet_uncorrected_LongZ_ = RecoilVec.Px();
+  // fix this
   BosonVec.SetMagPhi(Boson_Pt_, reco::deltaPhi(Boson_Phi_, recoilPFMet_uncorrected_Phi_ + TMath::Pi()));
-  recoilPFMet_Boson_PerpU_ = - BosonVec.Py();
-  recoilPFMet_Boson_LongU_ = BosonVec.Px() - recoilPFMet_uncorrected_Pt_; 
+  recoilPFMet_uncorrected_Boson_PerpU_ = - BosonVec.Py();
+  recoilPFMet_uncorrected_Boson_LongU_ = BosonVec.Px() - recoilPFMet_uncorrected_Pt_; 
 
   // reco recoil CHS met
   edm::Handle<std::vector<pat::MET>> RecoilPFMetCHSHandle;
