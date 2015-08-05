@@ -1,6 +1,7 @@
 {
     "analysis_modules": [
         "ProjectByFit", 
+        "Divide", 
         "Ratio"
     ], 
     "cms": true, 
@@ -16,6 +17,24 @@
     "dict": true, 
     "directories": [
         "/afs/desy.de/user/r/rfriese/dust/puppet/Samples50ns/met30"
+    ], 
+    "divide_denominator_nicks": [
+        "scale_pfMet", 
+        "scale_pfMet_u", 
+        "scale_puppiMet", 
+        "scale_puppiMet_u"
+    ], 
+    "divide_numerator_nicks": [
+        "pfMet", 
+        "pfMet_u", 
+        "puppiMet", 
+        "puppiMet_u"
+    ], 
+    "divide_result_nicks": [
+        "c_pfMet", 
+        "c_pfMet_u", 
+        "c_puppiMet", 
+        "c_puppiMet_u"
     ], 
     "energies": [
         13.0
@@ -36,18 +55,17 @@
         "png"
     ], 
     "labels": [
-        "PF type1", 
+        "PF w/JEC", 
         "PF raw", 
-        "PUPPI type1", 
+        "PUPPI w/JEC", 
         "PUPPI raw"
     ], 
     "legend": [
-        0.5, 
-        0.7, 
+        0.65, 
+        0.2, 
         0.9, 
-        0.9
+        0.5
     ], 
-    "legend_cols": 2, 
     "legend_markers": [
         "PI"
     ], 
@@ -63,6 +81,20 @@
     "markers": [
         "1"
     ], 
+    "nicks": [
+        "pfMet", 
+        "pfMet_u", 
+        "puppiMet", 
+        "puppiMet_u", 
+        "scale_pfMet", 
+        "scale_pfMet_u", 
+        "scale_puppiMet", 
+        "scale_puppiMet_u"
+    ], 
+    "nicks_whitelist": [
+        "^c_", 
+        "^ratio_"
+    ], 
     "output_dir": "studies/study7-dp-rootstyle-met30/", 
     "plot_modules": [
         "PlotRoot"
@@ -74,30 +106,49 @@
         "1000,10,10"
     ], 
     "projection_to_nick": [
-        "nick0", 
-        "nick1", 
-        "nick2", 
-        "nick3"
+        "pfMet", 
+        "pfMet_u", 
+        "puppiMet", 
+        "puppiMet_u"
     ], 
     "projection_to_plot": [
         "2"
     ], 
     "ratio_denominator_nicks": [
-        "nick0"
+        "c_pfMet"
     ], 
     "ratio_numerator_nicks": [
-        "nick1", 
-        "nick2", 
-        "nick3"
+        "c_pfMet_u", 
+        "c_puppiMet", 
+        "c_puppiMet_u"
     ], 
     "subplot_fraction": 30, 
     "texts": [
-        "p_{T}^{Z} > 50 GeV"
+        "p_{T}^{Z} > 50 GeV", 
+        "#left| #eta #right| > 3.0", 
+        "response corrected"
+    ], 
+    "texts_x": [
+        0.4, 
+        0.4, 
+        0.4
     ], 
     "texts_y": [
-        0.5
+        0.4, 
+        0.5, 
+        0.6
     ], 
     "title": "", 
+    "tree_draw_options": [
+        "", 
+        "", 
+        "", 
+        "", 
+        "prof", 
+        "prof", 
+        "prof", 
+        "prof"
+    ], 
     "weights": [
         "Boson_daughter==13&&Boson_Pt>50"
     ], 
@@ -112,7 +163,14 @@
     ], 
     "x_label": "primary vertices", 
     "y_bins": [
-        "50,-100,100"
+        "50,-100,100", 
+        "50,-100,100", 
+        "50,-100,100", 
+        "50,-100,100", 
+        "None", 
+        "None", 
+        "None", 
+        "None"
     ], 
     "y_errors": [
         false
@@ -121,7 +179,11 @@
         "recoilPFMet_LongZ+Boson_Pt", 
         "recoilPFMet_uncorrected_LongZ+Boson_Pt", 
         "recoilPFPuppiMet_LongZ+Boson_Pt", 
-        "recoilPFPuppiMet_uncorrected_LongZ+Boson_Pt"
+        "recoilPFPuppiMet_uncorrected_LongZ+Boson_Pt", 
+        "recoilPFMet_LongZ/-Boson_Pt", 
+        "recoilPFMet_uncorrected_LongZ/-Boson_Pt", 
+        "recoilPFPuppiMet_LongZ/-Boson_Pt", 
+        "recoilPFPuppiMet_uncorrected_LongZ/-Boson_Pt"
     ], 
     "y_label": "#sigma(U_{#parallel}) (GeV)", 
     "y_lims": [
