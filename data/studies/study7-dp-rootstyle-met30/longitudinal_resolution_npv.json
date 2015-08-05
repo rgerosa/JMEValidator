@@ -9,9 +9,6 @@
         "kBlue", 
         "kCyan", 
         "kRed", 
-        "kOrange", 
-        "kCyan", 
-        "kRed", 
         "kOrange"
     ], 
     "dict": true, 
@@ -73,9 +70,6 @@
         1, 
         2, 
         1, 
-        2, 
-        2, 
-        1, 
         2
     ], 
     "markers": [
@@ -118,6 +112,7 @@
         "c_pfMet"
     ], 
     "ratio_numerator_nicks": [
+        "c_pfMet", 
         "c_pfMet_u", 
         "c_puppiMet", 
         "c_puppiMet_u"
