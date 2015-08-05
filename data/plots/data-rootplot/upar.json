@@ -1,0 +1,24 @@
+{
+    "filename" : "upar",
+    "x_expressions": [
+        "recoilPFMet_LongZ",
+        "recoilPFMet_LongZ",
+        "recoilPFMet_LongZ",
+        "recoilPFMet_LongZ",
+        "recoilPFMet_LongZ",
+        "recoilPFMet_LongZ",
+        "recoilPFPuppiMet_LongZ",
+        "recoilPFPuppiMet_LongZ",
+        "recoilPFPuppiMet_LongZ",
+        "recoilPFPuppiMet_LongZ",
+        "recoilPFPuppiMet_LongZ",
+        "recoilPFPuppiMet_LongZ"
+         ],
+    "x_bins" : "50,-100,100",
+    "x_label": "U_{#parallel} (GeV)",
+    "y_lims": [
+        0.0, 
+        2500.0
+    ],
+    "legend" : [0.6, 0.6, 0.9, 0.9]
+}

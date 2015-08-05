@@ -1,0 +1,15 @@
+{
+   "analysis_modules": [
+        "Ratio"
+    ], 
+    "ratio_denominator_nicks": [
+        "PFMC"
+    ], 
+    "ratio_numerator_nicks": [
+        "PFData",
+        "PFMC",
+        "PUPPETData",
+        "PUPPETMC"
+    ], 
+    "subplot_fraction": 30
+}

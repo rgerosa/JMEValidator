@@ -1,0 +1,66 @@
+{
+    "analysis_modules": [
+        "ProjectByFit"
+    ], 
+    "filename": "longitudinal_resolution_npv", 
+    "fit_backend": [
+        "ROOT" ],
+    "legend": [
+        0.4, 
+        0.6, 
+        0.7, 
+        0.9
+    ], 
+    "alegend_cols": 2, 
+    "projection_function": [
+        "gaus"
+    ], 
+    "projection_parameters": [
+        "1000,10,10"
+    ], 
+    "projection_to_nick": [
+        "PFData", 
+        "PFMC" ,
+        "PUPPETData",
+        "PUPPETMC"
+    ], 
+    "projection_to_plot": [
+        "2"
+    ], 
+    "texts": [
+        ""
+    ], 
+    "texts_y": [
+        0.5
+    ], 
+    "title": "", 
+    "x_bins": [
+        "5,5,25"
+    ], 
+    "x_expressions": [
+        "NVertex"
+    ], 
+    "x_label": "primary vertices", 
+    "y_bins": [
+        "50,-100,100"
+    ], 
+    "y_expressions": [
+        "recoilPFMet_LongZ+Boson_Pt",
+        "recoilPFMet_LongZ+Boson_Pt",
+        "recoilPFMet_LongZ+Boson_Pt",
+        "recoilPFMet_LongZ+Boson_Pt",
+        "recoilPFMet_LongZ+Boson_Pt",
+        "recoilPFMet_LongZ+Boson_Pt",
+        "recoilPFPuppiMet_LongZ+Boson_Pt",
+        "recoilPFPuppiMet_LongZ+Boson_Pt",
+        "recoilPFPuppiMet_LongZ+Boson_Pt",
+        "recoilPFPuppiMet_LongZ+Boson_Pt",
+        "recoilPFPuppiMet_LongZ+Boson_Pt",
+        "recoilPFPuppiMet_LongZ+Boson_Pt"
+    ], 
+    "y_label": "#sigma(U_{#parallel}) (GeV)", 
+    "y_lims": [
+        0.0, 
+        40.0
+    ]
+}

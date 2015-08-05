@@ -1,0 +1,24 @@
+{
+    "filename" : "uperp",
+    "x_expressions": [
+        "recoilPFMet_PerpZ",
+        "recoilPFMet_PerpZ",
+        "recoilPFMet_PerpZ",
+        "recoilPFMet_PerpZ",
+        "recoilPFMet_PerpZ",
+        "recoilPFMet_PerpZ",
+        "recoilPFPuppiMet_PerpZ",
+        "recoilPFPuppiMet_PerpZ",
+        "recoilPFPuppiMet_PerpZ",
+        "recoilPFPuppiMet_PerpZ",
+        "recoilPFPuppiMet_PerpZ",
+        "recoilPFPuppiMet_PerpZ"
+         ],
+    "x_bins" : "50,-100,100",
+    "x_label": "U_{#perp} (GeV)",
+    "y_lims": [
+        0.0, 
+        2500.0
+    ],
+    "legend" : [0.7, 0.6, 1.0, 0.9]
+}

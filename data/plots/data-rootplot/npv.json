@@ -1,0 +1,12 @@
+{
+    "filename" : "npv",
+    "x_expressions": [
+        "NVertex"
+         ],
+    "x_bins" : "40,0,40",
+    "x_label": "nPV",
+    "y_lims": [
+        0.1, 
+        2000.0
+    ]
+}

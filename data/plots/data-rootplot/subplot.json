@@ -1,0 +1,13 @@
+{
+   "analysis_modules": [
+        "Ratio"
+    ], 
+    "ratio_numerator_nicks": [
+        "data"
+    ], 
+    "ratio_denominator_nicks": [
+        "DY ttbar diboson"
+    ], 
+    "subplot_fraction": 30, 
+    "subplot_grid": true
+}
