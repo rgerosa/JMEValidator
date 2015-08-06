@@ -120,7 +120,7 @@
     "subplot_fraction": 30, 
     "texts": [
         "p_{T}^{Z} > 50 GeV", 
-        "#left| #eta #right| > 3.0", 
+        "#left|#eta#right| < 3.0", 
         "response corrected"
     ], 
     "texts_x": [

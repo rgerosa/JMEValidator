@@ -3,13 +3,13 @@
         "Ratio"
     ], 
     "ratio_denominator_nicks": [
-        "PFMC"
+        "c_PFMC"
     ], 
     "ratio_numerator_nicks": [
-        "PFData",
-        "PFMC",
-        "PUPPETData",
-        "PUPPETMC"
+        "c_PFData",
+        "c_PFMC",
+        "c_PUPPETData",
+        "c_PUPPETMC"
     ], 
     "subplot_fraction": 30
 }

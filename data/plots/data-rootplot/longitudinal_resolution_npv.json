@@ -28,10 +28,13 @@
         "2"
     ], 
     "texts": [
-        ""
+        "#left| #eta #right| < 3.0"
+    ], 
+    "texts_x": [
+        0.5
     ], 
     "texts_y": [
-        0.5
+        0.4
     ], 
     "title": "", 
     "x_bins": [
