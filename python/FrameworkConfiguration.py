@@ -15,7 +15,7 @@ def get_jec_payload(algo, pu_method):
     
     # FIXME: Until PUPPI and SK payloads are in the GT, use CHS corrections
     jec_payloads = {
-                'Puppi': 'AK%dPUPPI',
+                'Puppi': 'AK%dPFPuppi',
                 'CHS': 'AK%dPFchs',
                 'SK': 'AK%dPFchs',
                 '': 'AK%dPF',
