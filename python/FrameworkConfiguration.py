@@ -55,8 +55,8 @@ def get_jec_levels(pu_method, isMC = True, useJECFromDB = False):
     else:
 
         jec_levels = {
-            'Puppi': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Relative'],
-            'CHS': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Relative'],
+            'Puppi': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual'],
+            'CHS': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual'],
             'SK': ['L2Relative', 'L3Absolute','L2L3Relative'],
             '': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Relative'],
             }
@@ -163,13 +163,14 @@ def createProcess(isMC, ## isMC flag
 
     process.GlobalTag.globaltag = globalTag
 
-    jec_database_PF = 'PY8_RunIISpring15DR74_bx50_MC_PFCHS.db'
+    jec_database_PF = 'Summer15_50nsV2_DATA.db'
     if not isRunningOn25ns:
-        jec_database_PF = 'PY8_RunIISpring15DR74_bx50_MC_PFCHS.db'
+        jec_database_PF = 'Summer15_50nsV2_DATA.db'
 
-    jec_database_Puppi = 'PY8_RunIISpring15DR74_bx50_MC_Puppi.db'
+    jec_database_Puppi = 'Summer15_50nsV2_DATA.db'
+
     if not isRunningOn25ns:
-        jec_database_Puppi = 'PY8_RunIISpring15DR74_bx50_MC_Puppi.db'
+        jec_database_Puppi = 'Summer15_50nsV2_DATA.db'
 
     if useJECFromLocalDB:
         useJECFromDB(process, jec_database_PF)
@@ -219,7 +220,7 @@ def createProcess(isMC, ## isMC flag
                     'algo': 'ak4',
                     'pu_methods': ['Puppi', 'CHS', ''],
                     'jec_payloads': ['AK4PFPUPPI', 'AK4PFchs', 'AK4PF'],
-                    'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+                    'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'],
                     'pu_jet_id': True,
                     'qg_tagger': True,
                     },
@@ -232,7 +233,7 @@ def createProcess(isMC, ## isMC flag
                     'algo': 'ak4',
                     'pu_methods': ['Puppi', 'CHS', ''],
                     'jec_payloads': ['AK4PFPUPPI', 'AK4PFchs', 'AK4PF'],
-                    'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+                    'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'],
                     'pu_jet_id': True,
                     'qg_tagger': True,
                     },
@@ -496,7 +497,7 @@ def createProcess(isMC, ## isMC flag
 
         process.corrPfMetType1 = corrPfMetType1.clone(
             src = 'ak4PFJets',
-            jetCorrLabel = 'ak4PFL1FastL2L3Corrector',
+            jetCorrLabel = 'ak4PFL1FastL2L3ResidualCorrector',
             offsetCorrLabel = 'ak4PFL1FastjetCorrector',
             )
         

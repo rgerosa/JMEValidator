@@ -338,7 +338,7 @@ def runMVAPUPPET(process,
                 
                 process.corrPfMetType1Puppi = corrPfMetType1.clone(
                     src = 'ak4PFJetsPuppi',
-                    jetCorrLabel = 'ak4PuppiL1FastL2L3Corrector',
+                    jetCorrLabel = 'ak4PuppiL1FastL2L3ResidualCorrector',
                     offsetCorrLabel = 'ak4PuppiL1FastjetCorrector',
                     type1JetPtThreshold = cms.double(ptThresholdForTypeIPuppi)
                     )

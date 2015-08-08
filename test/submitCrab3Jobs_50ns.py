@@ -29,7 +29,7 @@ config.JobType.pluginName  = 'Analysis'
 config.JobType.pyCfgParams = ['globalTag=74X_dataRun2_Prompt_v0','useJECFromDB=True','applyJECtoPuppiJets=True','ptNeutralCut=0.1,1.7,2.0','isMC=False','etaCutForMetDiagnostic=3.0']
 #config.JobType.pyCfgParams = ['globalTag=74X_dataRun2_Prompt_v0','useJECFromDB=True','applyJECtoPuppiJets=True','ptNeutralCut=0.1,1.7,2.0','isMC=False']
 
-config.JobType.inputFiles  = ['PY8_RunIISpring15DR74_bx50_MC_PFCHS.db','PY8_RunIISpring15DR74_bx50_MC_Puppi.db']
+config.JobType.inputFiles  = ['Summer15_50nsV2_DATA.db']
 config.JobType.allowUndistributedCMSSW = True
 
 config.section_('Data')
