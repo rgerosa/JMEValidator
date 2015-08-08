@@ -49,7 +49,7 @@ def get_jec_levels(pu_method, isMC = True, useJECFromDB = False):
                 'Puppi': ['L1FastJet', 'L2Relative', 'L3Absolute'],
                 'CHS': ['L1FastJet', 'L2Relative', 'L3Absolute'],
                 'SK': ['L2Relative', 'L3Absolute'],
-                '': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Relative'],
+                '': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual'],
                 }
 
     else:
@@ -57,8 +57,8 @@ def get_jec_levels(pu_method, isMC = True, useJECFromDB = False):
         jec_levels = {
             'Puppi': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual'],
             'CHS': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual'],
-            'SK': ['L2Relative', 'L3Absolute','L2L3Relative'],
-            '': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Relative'],
+            'SK': ['L2Relative', 'L3Absolute','L2L3Residual'],
+            '': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual'],
             }
     
     
@@ -248,7 +248,7 @@ def createProcess(isMC, ## isMC flag
                 'algo': 'ak4',
                 'pu_methods': ['Puppi', 'CHS', ''],
                 'jec_payloads': ['AK4PFPUPPI', 'AK4PFchs', 'AK4PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Relative'],
+                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual'],
                 'pu_jet_id': True,
                 'qg_tagger': True,
                 },
