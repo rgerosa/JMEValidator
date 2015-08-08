@@ -186,7 +186,10 @@ def createProcess(isMC, ## isMC flag
     process.TFileService.closeFileFast = cms.untracked.bool(True)
 
     ## count the number of events
-    process.AllEvents = cms.EDFilter("PassFilter")
+    process.AllEvents = cms.EDFilter("PassFilter",
+        srcGenEventInfo     = cms.InputTag("generator"),
+        isMC      = cms.bool(isMC),
+      )
     process.counterPath = cms.Path(process.AllEvents)
 
     # Jet corrections
