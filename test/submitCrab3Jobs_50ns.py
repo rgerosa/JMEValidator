@@ -26,8 +26,8 @@ config.JobType.pyCfgParams = ['globalTag=MCRUN2_74_V9A','useJECFromDB=True','app
 #config.JobType.pyCfgParams = ['globalTag=MCRUN2_74_V9A','useJECFromDB=True','applyJECtoPuppiJets=True','ptNeutralCut=0.1,1.7,2.0']
 
 ## DATA
-#config.JobType.pyCfgParams = ['globalTag=74X_dataRun2_Prompt_v0','useJECFromDB=True','applyJECtoPuppiJets=True','ptNeutralCut=0.1,1.7,2.0','isMC=False','etaCutForMetDiagnostic=3.0']
-#config.JobType.pyCfgParams = ['globalTag=74X_dataRun2_Prompt_v0','useJECFromDB=True','applyJECtoPuppiJets=True','ptNeutralCut=0.1,1.7,2.0','isMC=False']
+#config.JobType.pyCfgParams = ['globalTag=74X_dataRun2_Prompt_v1','useJECFromDB=True','applyJECtoPuppiJets=True','ptNeutralCut=0.1,1.7,2.0','isMC=False','etaCutForMetDiagnostic=3.0']
+#config.JobType.pyCfgParams = ['globalTag=74X_dataRun2_Prompt_v1','useJECFromDB=True','applyJECtoPuppiJets=True','ptNeutralCut=0.1,1.7,2.0','isMC=False']
 
 config.JobType.inputFiles  = ['Summer15_50nsV2_DATA.db']
 config.JobType.allowUndistributedCMSSW = True

@@ -32,24 +32,13 @@ def get_jec_payload(algo, pu_method):
 
 def get_jec_levels(pu_method, isMC = True, useJECFromDB = False):
 
-    if isMC or useJECFromDB:
-
-        if isMC :
+    if isMC :
 
             jec_levels = {
                 'Puppi': ['L1FastJet', 'L2Relative', 'L3Absolute'],
                 'CHS': ['L1FastJet', 'L2Relative', 'L3Absolute'],
                 'SK': ['L2Relative', 'L3Absolute'],
                 '': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                }
-
-        else:
-
-            jec_levels = {
-                'Puppi': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                'CHS': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                'SK': ['L2Relative', 'L3Absolute'],
-                '': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual'],
                 }
 
     else:
@@ -61,7 +50,7 @@ def get_jec_levels(pu_method, isMC = True, useJECFromDB = False):
             '': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual'],
             }
     
-    
+        
     if not pu_method in jec_levels:
         print('WARNING: JEC levels not found for method %r. Using default ones.' % pu_method)
         return ['None']
@@ -214,36 +203,19 @@ def createProcess(isMC, ## isMC flag
     #      "pu_jet_id": run the pu jet id or not. Very time consuming
     #  }
 
-    if isMC or useJECFromLocalDB :
-
-        if isMC:
-            
-            jetsCollections = {
-                'AK4': {
-                    'algo': 'ak4',
-                    'pu_methods': ['Puppi', 'CHS', ''],
-                    'jec_payloads': ['AK4PFPUPPI', 'AK4PFchs', 'AK4PF'],
-                    'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'],
-                    'pu_jet_id': True,
-                    'qg_tagger': True,
-                    },
-                }
-            
-        else:
-
-            jetsCollections = {
-                'AK4': {
-                    'algo': 'ak4',
-                    'pu_methods': ['Puppi', 'CHS', ''],
-                    'jec_payloads': ['AK4PFPUPPI', 'AK4PFchs', 'AK4PF'],
-                    'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'],
-                    'pu_jet_id': True,
-                    'qg_tagger': True,
-                    },
-                }
-            
-
-
+    if isMC:
+        
+        jetsCollections = {
+            'AK4': {
+                'algo': 'ak4',
+                'pu_methods': ['Puppi', 'CHS', ''],
+                'jec_payloads': ['AK4PFPUPPI', 'AK4PFchs', 'AK4PF'],
+                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+                'pu_jet_id': True,
+                'qg_tagger': True,
+                },
+            }
+        
     else:
 
         jetsCollections = {
@@ -498,11 +470,20 @@ def createProcess(isMC, ## isMC flag
         print("WARNING: No AK4 jets produced. Type 1 corrections for MET are not available.")
     else:        
 
-        process.corrPfMetType1 = corrPfMetType1.clone(
-            src = 'ak4PFJets',
-            jetCorrLabel = 'ak4PFL1FastL2L3ResidualCorrector',
-            offsetCorrLabel = 'ak4PFL1FastjetCorrector',
-            )
+        
+        if isMC :
+            process.corrPfMetType1 = corrPfMetType1.clone(
+                src = 'ak4PFJets',
+                jetCorrLabel = 'ak4PFL1FastL2L3Corrector',
+                offsetCorrLabel = 'ak4PFL1FastjetCorrector',
+                )
+        else:
+            process.corrPfMetType1 = corrPfMetType1.clone(
+                src = 'ak4PFJets',
+                jetCorrLabel = 'ak4PFL1FastL2L3ResidualCorrector',
+                offsetCorrLabel = 'ak4PFL1FastjetCorrector',
+                )
+
         
         
         process.pfMetT1 = pfMetT1.clone(
@@ -519,12 +500,19 @@ def createProcess(isMC, ## isMC flag
         print("WARNING: No AK4 CHS jets produced. Type 1 corrections for CHS MET are not available.")
     else:
 
-        process.corrPfMetType1CHS = corrPfMetType1.clone(
-            src             = 'ak4PFJetsCHS',
-            jetCorrLabel    = 'ak4PFCHSL1FastL2L3Corrector',
-            offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
-            )
-
+        if isMC:
+            process.corrPfMetType1CHS = corrPfMetType1.clone(
+                src             = 'ak4PFJetsCHS',
+                jetCorrLabel    = 'ak4PFCHSL1FastL2L3Corrector',
+                offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
+                )
+        else:
+            process.corrPfMetType1CHS = corrPfMetType1.clone(
+                src             = 'ak4PFJetsCHS',
+                jetCorrLabel    = 'ak4PFCHSL1FastL2L3ResidualCorrector',
+                offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
+                )
+            
         process.pfMetT1CHS = pfMetT1.clone(
             src = 'pfMetCHS',
             srcCorrections = [ cms.InputTag("corrPfMetType1CHS","type1") ]
