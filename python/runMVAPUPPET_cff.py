@@ -335,7 +335,7 @@ def runMVAPUPPET(process,
                 process.ak4PuppiL1FastL2L3Corrector = process.ak4PFL1FastL2L3Corrector.clone(
                     correctors = cms.VInputTag("ak4PuppiL1FastjetCorrector", "ak4PuppiL2RelativeCorrector", "ak4PuppiL3AbsoluteCorrector")
                     )
-                process.ak4PuppiResidualCorrector = process.ak4PFL1L2L3ResidualCorrector.clone( algorithm = 'AK4PFPuppi' )
+                process.ak4PuppiResidualCorrector = process.ak4PFResidualCorrector.clone( algorithm = 'AK4PFPuppi' )
                 process.ak4PuppiL1FastL2L3ResidualCorrector = process.ak4PFL1FastL2L3ResidualCorrector.clone( 
                     correctors = cms.VInputTag("ak4PuppiL1FastjetCorrector", "ak4PuppiL2RelativeCorrector", "ak4PuppiL3AbsoluteCorrector", "ak4PuppiResidualCorrector")
                     )
