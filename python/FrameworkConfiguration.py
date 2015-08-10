@@ -466,20 +466,29 @@ def createProcess(isMC, ## isMC flag
     ### Standard TypeI correction
     ######
 
+    from CommonTools.RecoAlgos.pfJetSelector_cfi import pfJetSelector
+
     if not hasattr(process, 'ak4PFJets'):
         print("WARNING: No AK4 jets produced. Type 1 corrections for MET are not available.")
     else:        
 
         
+        process.ak4PFJetsForTypeI = pfJetSelector.clone(
+            src = cms.InputTag( "ak4PFJets" ),
+            cut = cms.string( "abs(eta)< %f"%(etaCutForMetDiagnostic) )
+                )
+        
         if isMC :
+
             process.corrPfMetType1 = corrPfMetType1.clone(
-                src = 'ak4PFJets',
+                src = 'ak4PFJetsForTypeI',
                 jetCorrLabel = 'ak4PFL1FastL2L3Corrector',
                 offsetCorrLabel = 'ak4PFL1FastjetCorrector',
                 )
         else:
+
             process.corrPfMetType1 = corrPfMetType1.clone(
-                src = 'ak4PFJets',
+                src = 'ak4PFJetsForTypeI',
                 jetCorrLabel = 'ak4PFL1FastL2L3ResidualCorrector',
                 offsetCorrLabel = 'ak4PFL1FastjetCorrector',
                 )
@@ -500,15 +509,20 @@ def createProcess(isMC, ## isMC flag
         print("WARNING: No AK4 CHS jets produced. Type 1 corrections for CHS MET are not available.")
     else:
 
+        process.ak4PFJetsCHSForTypeI = pfJetSelector.clone(
+            src = cms.InputTag( "ak4PFJetsCHS" ),
+            cut = cms.string( "abs(eta)<%f"%(etaCutForMetDiagnostic) )
+            )
+
         if isMC:
             process.corrPfMetType1CHS = corrPfMetType1.clone(
-                src             = 'ak4PFJetsCHS',
+                src             = 'ak4PFJetsCHSForTypeI',
                 jetCorrLabel    = 'ak4PFCHSL1FastL2L3Corrector',
                 offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
                 )
         else:
             process.corrPfMetType1CHS = corrPfMetType1.clone(
-                src             = 'ak4PFJetsCHS',
+                src             = 'ak4PFJetsCHSForTypeI',
                 jetCorrLabel    = 'ak4PFCHSL1FastL2L3ResidualCorrector',
                 offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
                 )

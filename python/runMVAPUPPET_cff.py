@@ -327,6 +327,13 @@ def runMVAPUPPET(process,
     else:
         if applyTypeICorrection :
 
+            from CommonTools.RecoAlgos.pfJetSelector_cfi import pfJetSelector
+
+            process.ak4PFJetsPuppiForTypeI = pfJetSelector.clone(
+                src = cms.InputTag( "ak4PFJetsPuppi" ),
+                cut = cms.string( "abs(eta)<%f"%(etaCutForMetDiagnostic) )
+                )
+
             if useJECFromLocalDB :
                 
                 process.ak4PuppiL1FastjetCorrector = process.ak4PFCHSL1FastjetCorrector.clone(algorithm   = cms.string('AK4PFPuppi'))
@@ -343,7 +350,7 @@ def runMVAPUPPET(process,
                 if isMC:
 
                     process.corrPfMetType1Puppi = corrPfMetType1.clone(
-                        src = 'ak4PFJetsPuppi',
+                        src = 'ak4PFJetsPuppiForTypeI',
                         jetCorrLabel = 'ak4PuppiL1FastL2L3Corrector',
                         offsetCorrLabel = 'ak4PuppiL1FastjetCorrector',
                         type1JetPtThreshold = cms.double(ptThresholdForTypeIPuppi)
@@ -351,7 +358,7 @@ def runMVAPUPPET(process,
 
                 else:
                     process.corrPfMetType1Puppi = corrPfMetType1.clone(
-                        src = 'ak4PFJetsPuppi',
+                        src = 'ak4PFJetsPuppiForTypeI',
                         jetCorrLabel = 'ak4PuppiL1FastL2L3ResidualCorrector',
                         offsetCorrLabel = 'ak4PuppiL1FastjetCorrector',
                         type1JetPtThreshold = cms.double(ptThresholdForTypeIPuppi)
@@ -361,13 +368,13 @@ def runMVAPUPPET(process,
                 
                 if isMC :
                     process.corrPfMetType1Puppi = corrPfMetType1.clone(
-                        src = 'ak4PFJetsPuppi',
+                        src = 'ak4PFJetsPuppiForTypeI',
                         jetCorrLabel = 'ak4PFCHSL1FastL2L3Corrector', #FIXME: Use PUPPI corrections when available?                                                             
                         offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
                         )
                 else:           
                     process.corrPfMetType1Puppi = corrPfMetType1.clone(
-                        src = 'ak4PFJetsPuppi',
+                        src = 'ak4PFJetsPuppiForTypeI',
                         jetCorrLabel = 'ak4PFCHSL1FastL2L3ResidualCorrector', #FIXME: Use PUPPI corrections when available?                                                 
                         offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
                         )
