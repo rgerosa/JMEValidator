@@ -31,12 +31,6 @@ void doTraining(boost::property_tree::ptree &pt, TTree* lRegress)
   for (int i=0; i<int(friends->size()); ++i) {
     lRegress->AddFriend(friends->at(i).c_str(), (friends->at(i)+".root").c_str());
   }
-  std::vector<std::string> *targetVariables = new std::vector<std::string>;
-  BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt.get_child("targetVariables"))
-  {
-    assert(v.first.empty());
-    targetVariables->push_back( v.second.data() );
-  }
 
   std::vector<std::string> *lVec = new std::vector<std::string>;
   BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt.get_child("trainingVariables"))
@@ -47,9 +41,6 @@ void doTraining(boost::property_tree::ptree &pt, TTree* lRegress)
 
   std::string weight = pt.get<std::string>("weight");
 
-  if( targetVariables->size() == 1)
-  {
-    // 1-dim training
     GBRTrainer *train = new GBRTrainer;
     train->AddTree(lRegress);
     train->SetTrainingCut(weight);
@@ -70,11 +61,6 @@ void doTraining(boost::property_tree::ptree &pt, TTree* lRegress)
     fout->WriteObject(lVec, "varlist");
     fout->WriteObject(forest, mvaResponseName.c_str());
     fout->Close();
-  }
-  else if (targetVariables->size() == 2)
-  {
-   // 2-dim training
-  } 
 
 
 
