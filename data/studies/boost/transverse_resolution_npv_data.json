@@ -1,0 +1,266 @@
+{
+    "analysis_modules": [
+        "ProjectByFit", 
+        "Divide", 
+        "Ratio"
+    ], 
+    "cms": true, 
+    "colors": [
+        "kBlack", 
+        "kBlue", 
+        "kRed", 
+        "kOrange"
+    ], 
+    "dict": true, 
+    "directories": [
+        "/afs/desy.de/user/r/rfriese/dust/puppet/Samples50ns3/"
+    ], 
+    "divide_denominator_nicks": [
+        "scale_PFMC", 
+        "scale_PFMC", 
+        "scale_PUPPETMC", 
+        "scale_PUPPETMC"
+    ], 
+    "divide_numerator_nicks": [
+        "PFData", 
+        "PFMC", 
+        "PUPPETData", 
+        "PUPPETMC"
+    ], 
+    "divide_result_nicks": [
+        "c_PFData", 
+        "c_PFMC", 
+        "c_PUPPETData", 
+        "c_PUPPETMC"
+    ], 
+    "energies": [
+        13
+    ], 
+    "extra_text": "preliminary", 
+    "filename": "transverse_resolution_npv_data", 
+    "files": [
+        "data_puppiMET.root", 
+        "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_puppiMET_pu_weight.root", 
+        "WWTo2L2Nu_13TeV-powheg_puppiMET_pu_weight.root", 
+        "WZ_TuneCUETP8M1_13TeV-pythia8_puppiMET_pu_weight.root", 
+        "ZZ_TuneCUETP8M1_13TeV-pythia8_puppiMET_pu_weight.root", 
+        "TTTo2L2Nu_13TeV-powheg_puppiMET_pu_weight.root"
+    ], 
+    "fit_backend": [
+        "ROOT"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "formats": [
+        "pdf", 
+        "png"
+    ], 
+    "labels": [
+        "PF Data", 
+        "PF MC", 
+        "PUPPI Data", 
+        "PUPPI MC"
+    ], 
+    "legend": [
+        0.6, 
+        0.05, 
+        0.9, 
+        0.35
+    ], 
+    "legend_markers": [
+        "PI"
+    ], 
+    "line_styles": [
+        1
+    ], 
+    "lumis": [
+        0.04003
+    ], 
+    "marker_styles": [
+        20, 
+        24, 
+        20, 
+        24
+    ], 
+    "markers": [
+        "dot", 
+        "o"
+    ], 
+    "nicks": [
+        "PFData", 
+        "PFMC", 
+        "PFMC", 
+        "PFMC", 
+        "PFMC", 
+        "PFMC", 
+        "PUPPETData", 
+        "PUPPETMC", 
+        "PUPPETMC", 
+        "PUPPETMC", 
+        "PUPPETMC", 
+        "PUPPETMC", 
+        "scale_PFData", 
+        "scale_PFMC", 
+        "scale_PFMC", 
+        "scale_PFMC", 
+        "scale_PFMC", 
+        "scale_PFMC", 
+        "scale_PUPPETData", 
+        "scale_PUPPETMC", 
+        "scale_PUPPETMC", 
+        "scale_PUPPETMC", 
+        "scale_PUPPETMC", 
+        "scale_PUPPETMC"
+    ], 
+    "nicks_whitelist": [
+        "^c_", 
+        "^ratio_"
+    ], 
+    "output_dir": "studies/boost", 
+    "plot_modules": [
+        "PlotRoot"
+    ], 
+    "projection_function": [
+        "gaus"
+    ], 
+    "projection_parameters": [
+        "1000,10,10"
+    ], 
+    "projection_to_nick": [
+        "PFData", 
+        "PFMC", 
+        "PUPPETData", 
+        "PUPPETMC"
+    ], 
+    "projection_to_plot": [
+        "2"
+    ], 
+    "ratio_denominator_nicks": [
+        "c_PFMC"
+    ], 
+    "ratio_numerator_nicks": [
+        "c_PFData", 
+        "c_PFMC", 
+        "c_PUPPETData", 
+        "c_PUPPETMC"
+    ], 
+    "subplot_fraction": 30, 
+    "texts": [
+        "#left|#eta#right| < 3.0", 
+        "response corrected"
+    ], 
+    "texts_x": [
+        0.4, 
+        0.4
+    ], 
+    "texts_y": [
+        0.4, 
+        0.5
+    ], 
+    "title": "", 
+    "tree_draw_options": [
+        "", 
+        "", 
+        "", 
+        "", 
+        "", 
+        "", 
+        "", 
+        "", 
+        "", 
+        "", 
+        "", 
+        "", 
+        "prof", 
+        "prof", 
+        "prof", 
+        "prof", 
+        "prof", 
+        "prof", 
+        "prof", 
+        "prof", 
+        "prof", 
+        "prof", 
+        "prof", 
+        "prof"
+    ], 
+    "weights": [
+        "(flag_goodVertices ==1)*(flag_CSCTightHaloFilter == 1)*(Boson_daughter==13)*(LeadingLepton_Pt>25)*(TrailingLepton_Pt>20)", 
+        "puWeight*(flag_goodVertices ==1)*(flag_CSCTightHaloFilter == 1)*(Boson_daughter==13)*eventMCWeight*(LeadingLepton_Pt>25)*(TrailingLepton_Pt>20)*(0.84277/1.992551e+07)*6025.2*40.03", 
+        "puWeight*(flag_goodVertices ==1)*(flag_CSCTightHaloFilter == 1)*(Boson_daughter==13)*eventMCWeight*(LeadingLepton_Pt>25)*(TrailingLepton_Pt>20)*(1/4.983260e+05)*12.5*40.03", 
+        "puWeight*(flag_goodVertices ==1)*(flag_CSCTightHaloFilter == 1)*(Boson_daughter==13)*eventMCWeight*(LeadingLepton_Pt>25)*(TrailingLepton_Pt>20)*(1/9.969200e+05)*66.1*40.03", 
+        "puWeight*(flag_goodVertices ==1)*(flag_CSCTightHaloFilter == 1)*(Boson_daughter==13)*eventMCWeight*(LeadingLepton_Pt>25)*(TrailingLepton_Pt>20)*(1/9.988480e+05)*31.8*40.03", 
+        "puWeight*(flag_goodVertices ==1)*(flag_CSCTightHaloFilter == 1)*(Boson_daughter==13)*eventMCWeight*(LeadingLepton_Pt>25)*(TrailingLepton_Pt>20)*(1/4.997000e+06)*87.3*40.03"
+    ], 
+    "x_bins": [
+        "5,5,25"
+    ], 
+    "x_errors": [
+        false
+    ], 
+    "x_expressions": [
+        "NVertex"
+    ], 
+    "x_label": "primary vertices", 
+    "y_bins": [
+        "50,-100,100", 
+        "50,-100,100", 
+        "50,-100,100", 
+        "50,-100,100", 
+        "50,-100,100", 
+        "50,-100,100", 
+        "50,-100,100", 
+        "50,-100,100", 
+        "50,-100,100", 
+        "50,-100,100", 
+        "50,-100,100", 
+        "50,-100,100", 
+        "None", 
+        "None", 
+        "None", 
+        "None", 
+        "None", 
+        "None", 
+        "None", 
+        "None", 
+        "None", 
+        "None", 
+        "None", 
+        "None"
+    ], 
+    "y_errors": [
+        false
+    ], 
+    "y_expressions": [
+        "recoilPFMet_PerpZ", 
+        "recoilPFMet_PerpZ", 
+        "recoilPFMet_PerpZ", 
+        "recoilPFMet_PerpZ", 
+        "recoilPFMet_PerpZ", 
+        "recoilPFMet_PerpZ", 
+        "recoilPFPuppiMet_PerpZ", 
+        "recoilPFPuppiMet_PerpZ", 
+        "recoilPFPuppiMet_PerpZ", 
+        "recoilPFPuppiMet_PerpZ", 
+        "recoilPFPuppiMet_PerpZ", 
+        "recoilPFPuppiMet_PerpZ", 
+        "recoilPFMet_LongZ/-Boson_Pt", 
+        "recoilPFMet_LongZ/-Boson_Pt", 
+        "recoilPFMet_LongZ/-Boson_Pt", 
+        "recoilPFMet_LongZ/-Boson_Pt", 
+        "recoilPFMet_LongZ/-Boson_Pt", 
+        "recoilPFMet_LongZ/-Boson_Pt", 
+        "recoilPFPuppiMet_LongZ/-Boson_Pt", 
+        "recoilPFPuppiMet_LongZ/-Boson_Pt", 
+        "recoilPFPuppiMet_LongZ/-Boson_Pt", 
+        "recoilPFPuppiMet_LongZ/-Boson_Pt", 
+        "recoilPFPuppiMet_LongZ/-Boson_Pt", 
+        "recoilPFPuppiMet_LongZ/-Boson_Pt"
+    ], 
+    "y_label": "#sigma #left( U_{#perp} #right) (GeV)", 
+    "y_lims": [
+        0, 
+        45
+    ]
+}

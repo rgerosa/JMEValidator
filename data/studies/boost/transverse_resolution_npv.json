@@ -1,0 +1,188 @@
+{
+    "analysis_modules": [
+        "ProjectByFit", 
+        "Divide", 
+        "Ratio"
+    ], 
+    "cms": true, 
+    "colors": [
+        "kBlue", 
+        "kCyan", 
+        "kRed", 
+        "kOrange"
+    ], 
+    "dict": true, 
+    "directories": [
+        "/afs/desy.de/user/r/rfriese/dust/puppet/Samples50ns3"
+    ], 
+    "divide_denominator_nicks": [
+        "scale_pfMet", 
+        "scale_pfMet_u", 
+        "scale_puppiMet", 
+        "scale_puppiMet_u"
+    ], 
+    "divide_numerator_nicks": [
+        "pfMet", 
+        "pfMet_u", 
+        "puppiMet", 
+        "puppiMet_u"
+    ], 
+    "divide_result_nicks": [
+        "c_pfMet", 
+        "c_pfMet_u", 
+        "c_puppiMet", 
+        "c_puppiMet_u"
+    ], 
+    "energies": [
+        13.0
+    ], 
+    "extra_text": "simulation preliminary", 
+    "filename": "transverse_resolution_npv", 
+    "files": [
+        "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_puppiMET_pu_weight.root"
+    ], 
+    "fit_backend": [
+        "ROOT"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "formats": [
+        "pdf", 
+        "png"
+    ], 
+    "labels": [
+        "PF w/JEC", 
+        "PF raw", 
+        "PUPPI w/JEC", 
+        "PUPPI raw"
+    ], 
+    "legend": [
+        0.65, 
+        0.1, 
+        0.95, 
+        0.4
+    ], 
+    "legend_markers": [
+        "PI"
+    ], 
+    "line_styles": [
+        1, 
+        2, 
+        1, 
+        2
+    ], 
+    "markers": [
+        "1"
+    ], 
+    "nicks": [
+        "pfMet", 
+        "pfMet_u", 
+        "puppiMet", 
+        "puppiMet_u", 
+        "scale_pfMet", 
+        "scale_pfMet_u", 
+        "scale_puppiMet", 
+        "scale_puppiMet_u"
+    ], 
+    "nicks_whitelist": [
+        "^c_", 
+        "^ratio_"
+    ], 
+    "output_dir": "studies/boost", 
+    "plot_modules": [
+        "PlotRoot"
+    ], 
+    "projection_function": [
+        "gaus"
+    ], 
+    "projection_parameters": [
+        "1000,10,10"
+    ], 
+    "projection_to_nick": [
+        "pfMet", 
+        "pfMet_u", 
+        "puppiMet", 
+        "puppiMet_u"
+    ], 
+    "projection_to_plot": [
+        "2"
+    ], 
+    "ratio_denominator_nicks": [
+        "c_pfMet"
+    ], 
+    "ratio_numerator_nicks": [
+        "c_pfMet", 
+        "c_pfMet_u", 
+        "c_puppiMet", 
+        "c_puppiMet_u"
+    ], 
+    "subplot_fraction": 30, 
+    "texts": [
+        "p_{T}^{Z} > 50 GeV", 
+        "#left|#eta#right| < 3.0", 
+        "response corrected"
+    ], 
+    "texts_x": [
+        0.4, 
+        0.4, 
+        0.4
+    ], 
+    "texts_y": [
+        0.38, 
+        0.45, 
+        0.52
+    ], 
+    "title": "", 
+    "tree_draw_options": [
+        "", 
+        "", 
+        "", 
+        "", 
+        "prof", 
+        "prof", 
+        "prof", 
+        "prof"
+    ], 
+    "weights": [
+        "Boson_daughter==13&&Boson_Pt>50"
+    ], 
+    "x_bins": [
+        "10,5,25"
+    ], 
+    "x_errors": [
+        false
+    ], 
+    "x_expressions": [
+        "NVertex"
+    ], 
+    "x_label": "primary vertices", 
+    "y_bins": [
+        "50,-100,100", 
+        "50,-100,100", 
+        "50,-100,100", 
+        "50,-100,100", 
+        "None", 
+        "None", 
+        "None", 
+        "None"
+    ], 
+    "y_errors": [
+        false
+    ], 
+    "y_expressions": [
+        "recoilPFMet_PerpZ", 
+        "recoilPFMet_uncorrected_PerpZ", 
+        "recoilPFPuppiMet_PerpZ", 
+        "recoilPFPuppiMet_uncorrected_PerpZ", 
+        "recoilPFMet_LongZ/-Boson_Pt", 
+        "recoilPFMet_uncorrected_LongZ/-Boson_Pt", 
+        "recoilPFPuppiMet_LongZ/-Boson_Pt", 
+        "recoilPFPuppiMet_uncorrected_LongZ/-Boson_Pt"
+    ], 
+    "y_label": "#sigma #left( U_{#perp} #right)  (GeV)", 
+    "y_lims": [
+        0.0, 
+        40.0
+    ]
+}
