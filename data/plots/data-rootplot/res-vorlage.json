@@ -3,7 +3,7 @@
         "PlotRoot"
     ], 
     "cms" : "true",
-    "extra_text": "simulation preliminary", 
+    "extra_text": "preliminary", 
     "nicks": [
           "PFData",
           "PFMC",
@@ -27,12 +27,7 @@
           "puWeight*(flag_goodVertices ==1)*(flag_CSCTightHaloFilter == 1)*(Boson_daughter==13)*eventMCWeight*(LeadingLepton_Pt>25)*(TrailingLepton_Pt>20)*(1/4.997000e+06)*87.3*40.03"
     ],
     "folders": [
-        "PUPPET/t",
-        "t",
-        "t",
-        "t",
-        "t",
-        "t"
+        "PUPPET/t"
     ], 
     "colors": ["kBlack", "kBlue", "kRed", "kOrange"],
     "labels": [

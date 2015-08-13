@@ -13,7 +13,7 @@
     ], 
     "dict": true, 
     "directories": [
-        "/afs/desy.de/user/r/rfriese/dust/puppet/Samples50ns/met30"
+        "/afs/desy.de/user/r/rfriese/dust/puppet/Samples50ns3"
     ], 
     "divide_denominator_nicks": [
         "scale_pfMet", 
@@ -39,7 +39,7 @@
     "extra_text": "simulation preliminary", 
     "filename": "longitudinal_resolution_npv", 
     "files": [
-        "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_Asympt50ns_MCRUN2_74_V9A.root"
+        "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_puppiMET_pu_weight.root"
     ], 
     "fit_backend": [
         "ROOT"
@@ -89,7 +89,7 @@
         "^c_", 
         "^ratio_"
     ], 
-    "output_dir": "studies/study7-dp-rootstyle-met30/", 
+    "output_dir": "studies/boost", 
     "plot_modules": [
         "PlotRoot"
     ], 
