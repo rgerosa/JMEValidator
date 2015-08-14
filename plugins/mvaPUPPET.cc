@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "JMEAnalysis/JMEValidator/plugins/mvaPUPPET.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -65,11 +67,20 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg){
     inputFileNamePhiCorrection_ = cfgInputFileNames.getParameter<edm::FileInPath>("PhiCorrectionWeightFile");
     mvaReaderPhiCorrection_     = loadMVAfromFile(inputFileNamePhiCorrection_, variablesForPhiTraining_, "PhiCor");
   }
+  else {
+    inputFileNamePhiCorrection_ = edm::FileInPath("JMEAnalysis/JMEValidator/Corr/PhiCorection_PUPPI.root");
+    mvaReaderPhiCorrection_     = loadMVAfromFile(inputFileNamePhiCorrection_, variablesForPhiTraining_, "PhiCorrectedRecoil");
+  }
+    
   
   if(cfgInputFileNames.existsAs<edm::FileInPath>("RecoilCorrectionWeightFile")){
     inputFileNameRecoilCorrection_ = cfgInputFileNames.getParameter<edm::FileInPath>("RecoilCorrectionWeightFile");
     mvaReaderRecoilCorrection_  = loadMVAfromFile(inputFileNameRecoilCorrection_, variablesForRecoilTraining_, "RecoilCor");
   }
+  else {
+    inputFileNameRecoilCorrection_ = edm::FileInPath("JMEAnalysis/JMEValidator/Corr/RecoilCorrection_PUPPI.root");
+    mvaReaderRecoilCorrection_  = loadMVAfromFile(inputFileNameRecoilCorrection_, variablesForRecoilTraining_, "LongZCorrectedRecoil");
+   }
   
   // prepare for saving the final mvaPUPPET to the event
   if(cfg.existsAs<std::string>("mvaMETLabel"))
@@ -188,7 +199,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
   auto referenceMET = (*referenceMETs)[0];
   reco::Candidate::LorentzVector referenceRecoil = - Z.p4() - referenceMET.p4();
   std::string reference = "recoilPFPuppiMet";
-  addToMap(referenceRecoil, referenceMET.sumEt()-sumEt_Leptons, "", reference,referenceMET.sumEt());
+  addToMap(referenceRecoil, referenceMET.sumEt()-sumEt_Leptons, "", reference); //,referenceMET.sumEt());
   
   // calculate the recoils and save them to MET objects
   int i = 0;
@@ -267,18 +278,26 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
       evt.put(patMETRecoilCollection, "recoil"+collection_name);
     }
 
+    // This only does the PU and PV stuff here
     if (TString(collection_name).Contains(referenceMET_name_) and collection_name != referenceMET_name_){
       TString tempName = Form("%s",collection_name.c_str());
       tempName.ReplaceAll(referenceMET_name_,"");
       collection_name = tempName;
-      addToMap(Recoil.p4(), Recoil.sumEt(), collection_name, reference, referenceMET.sumEt());
+      addToMap(Recoil.p4(), Recoil.sumEt(), collection_name, reference);//, referenceMET.sumEt());
+    }
+    else {
+      TString tempName = Form("%s",collection_name.c_str());
+      tempName.ReplaceAll("slimmedMETs","recoilPF");
+      tempName = tempName + "Met";
+      collection_name = tempName;
+      addToMap(Recoil.p4(), Recoil.sumEt(), "", collection_name);//, referenceMET.sumEt());
     }
   }
 
   // print whole map
   for(auto entry : var_){
     if(debug_)
-      std::cout << "map" << entry.first << "/" << entry.second << std::endl;
+      std::cout << "map " << entry.first << "/" << entry.second << std::endl;
   }
   
   edm::Handle<pat::JetCollection> jets;
@@ -300,7 +319,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
     else break;
   }
 
-  var_["NCleanedJets"] = countJets(*jets, 30);
+  var_["NCleanedJets"] = countJets(*jets, 5);
 
   // treat other collections and save to map
   edm::Handle<reco::VertexCollection> vertices;
@@ -312,20 +331,24 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
   Float_t PhiAngle = 0.;
   if(inputFileNamePhiCorrection_.fullPath() != "")
     PhiAngle = GetResponse(mvaReaderPhiCorrection_, variablesForPhiTraining_);
-  
+
+  std::cout << "Phi Correction: " << PhiAngle << std::endl;
   
   auto refRecoil = TVector2(referenceRecoil.px(), referenceRecoil.py());
   refRecoil = refRecoil.Rotate(PhiAngle);
   reco::Candidate::LorentzVector phiCorrectedRecoil(refRecoil.Px(), refRecoil.Py(), 0, referenceMET.sumEt());
-  addToMap(phiCorrectedRecoil, referenceMET.sumEt(), "", reference, referenceMET.sumEt());
+  // addToMap(phiCorrectedRecoil, referenceMET.sumEt(), "", reference); //, referenceMET.sumEt());
   
+  var_["PhiCorrectedRecoil_Phi"] = refRecoil.Phi();
+
   // evaluate second training and apply recoil correction
   Float_t RecoilCorrection = 1.0;
   if(inputFileNameRecoilCorrection_.fullPath() != "")
     RecoilCorrection = GetResponse(mvaReaderRecoilCorrection_, variablesForRecoilTraining_);
+  std::cout << "Recoil Correction: " << RecoilCorrection << std::endl;
   refRecoil *= RecoilCorrection;
   
-	// calculate new mvaPUPPET
+  // calculate new mvaPUPPET
   pat::MET mvaMET(referenceMET);
   reco::Candidate::LorentzVector recoilP4(refRecoil.Px(), refRecoil.Py(), 0, referenceMET.sumEt());
   reco::Candidate::LorentzVector metP4 = - Z.p4() - recoilP4;
@@ -345,7 +368,7 @@ void mvaPUPPET::addToMap(reco::Candidate::LorentzVector p4, double sumEt, const 
 
 void mvaPUPPET::addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &name, const std::string &type, double divisor){
   if(debug_)
-    std::cout << "hier" << name << ", " << type << std::endl;
+    std::cout << "hier " << name << ", " << type << std::endl;
   if(name == ""){
     var_[type + "_Pt" ] = p4.pt();
     var_[type + "_Phi" ] = p4.phi();
@@ -382,6 +405,7 @@ const Float_t mvaPUPPET::GetResponse(const GBRForest * Reader, std::vector<std::
 
 const GBRForest* mvaPUPPET::loadMVAfromFile(const edm::FileInPath& inputFileName, std::vector<std::string>& trainingVariableNames, std::string mvaName){
   
+  std::cout << "Input File Name: " << inputFileName << std::endl;
   if ( inputFileName.location()==edm::FileInPath::Unknown ) 
     throw cms::Exception("PFMETAlgorithmMVA::loadMVA") << " Failed to find File = " << inputFileName << " !!\n";
   
@@ -403,6 +427,7 @@ Float_t* mvaPUPPET::createFloatVector(std::vector<std::string> variableNames){
   Float_t* floatVector = new Float_t[variableNames.size()];
   for(size_t i = 0; i < variableNames.size(); ++i){
       floatVector[i] = var_[variableNames[i]];
+      std::cout << variableNames[i] << " = " << floatVector[i] << std::endl;
   }
   return floatVector;
 }
