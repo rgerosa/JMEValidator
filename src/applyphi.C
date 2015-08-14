@@ -99,10 +99,8 @@ void applyTraining::eventLoop()
       for(int i1 = 0; i1 < _lN; i1++)
       { 
         _lVals[i1] = _lFVars[i1]->EvalInstance();
-        std::cout << _lFVars[i1]->GetName() << "; " << _lVals[i1] << std::endl;
       }
     _mvaResponse = (_mode>0) ? float(_lForest->GetResponse(_lVals)) : 0;
-    std::cout << "Response: " << _mvaResponse << std::endl;
   //do additional calculations
     _z.SetPtEtaPhiM(_z_pT, 0, _z_Phi,0);
     if(_mode >  -1) calculateUpdatedFourVector();
@@ -183,10 +181,8 @@ applyTraining::~applyTraining() {
   {
     _lTree->ResetBranchAddress((TBranch*)listOfBranches->At(i));
   }
-  std::cout << "Writing output file...";
   _lOTree->Write();
   _lOFile->Close();
-  std::cout << "done!" << std::endl;
 }
   
   
