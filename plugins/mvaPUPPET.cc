@@ -188,9 +188,9 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
   evt.getByToken(referenceMET_, referenceMETs);
   assert((*referenceMETs).size() == 1);
   auto referenceMET = (*referenceMETs)[0];
-  reco::Candidate::LorentzVector referenceRecoil = - Z.p4() - referenceMET.p4();
+  reco::Candidate::LorentzVector referenceRecoil = - referenceMET.p4(); // - Z.p4()
   std::string reference = "recoilPFPuppiMet";
-  addToMap(referenceRecoil, referenceMET.sumEt()-sumEt_Leptons, "", reference);
+  // addToMap(referenceRecoil, referenceMET.sumEt()-sumEt_Leptons, "", reference);
   
   // calculate the recoils and save them to MET objects
   int i = 0;
@@ -328,7 +328,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
   reco::Candidate::LorentzVector phiCorrectedRecoil(refRecoil.Px(), refRecoil.Py(), 0, referenceMET.sumEt());
   // addToMap(phiCorrectedRecoil, referenceMET.sumEt(), "", reference); //, referenceMET.sumEt());
   
-  var_["PhiCorrectedRecoil_Phi"] = refRecoil.Phi();
+  var_["PhiCorrectedRecoil_Phi"] = TVector2::Phi_mpi_pi(refRecoil.Phi());
 
   // evaluate second training and apply recoil correction
   Float_t RecoilCorrection = 1.0;
@@ -339,7 +339,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
   // calculate new mvaPUPPET
   pat::MET mvaMET(referenceMET);
   reco::Candidate::LorentzVector recoilP4(refRecoil.Px(), refRecoil.Py(), 0, referenceMET.sumEt());
-  reco::Candidate::LorentzVector metP4 = - Z.p4() - recoilP4;
+  reco::Candidate::LorentzVector metP4 = - Z.p4() + recoilP4;
   mvaMET.setP4(metP4);
   
   //// save results to event
