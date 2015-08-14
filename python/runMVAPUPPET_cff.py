@@ -590,8 +590,8 @@ def runMVAPUPPET(process,
                                                 srcMuons       = cms.InputTag(srcMuons+muonTypeID),
                                                 srcPuppiWeights     = cms.InputTag("puppi"),
                                                 inputFileNames = cms.PSet(
-                #                    PhiCorrectionWeightFile = cms.FileInPath('JMEAnalysis/JMEValidator/data/PhiCor_13TeV.root'),                                            
-                #                    RecoilCorrectionWeightFile  = cms.FileInPath('JMEAnalysis/JMEValidator/data/RecoilCor_13TeV.root')                                      
+                                    PhiCorrectionWeightFile = cms.FileInPath('JMEAnalysis/JMEValidator/data/PhiCorrection_PUPPI.root'),                                            
+                                    RecoilCorrectionWeightFile  = cms.FileInPath('JMEAnalysis/JMEValidator/data/RecoilCorrection_PUPPI.root')                                      
                     ),
                                                 srcLeptons  = cms.VInputTag("LeptonMerge"),
                                                 mvaMETLabel = cms.string("mvaMET"),

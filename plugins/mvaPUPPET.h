@@ -81,60 +81,9 @@ private:
   edm::FileInPath inputFileNameRecoilCorrection_;
   
   
-  std::vector<std::string> variablesForPhiTraining_    = {"recoilPFPuppiMet_Pt",
-							  "recoilPFPuppiMet_Phi",
-							  "recoilPFPuppiMet_sumEt",
-							  "recoilPFPuppiMet_ChargedPU_Pt",
-							  "recoilPFPuppiMet_ChargedPU_Phi",
-							  "recoilPFPuppiMet_ChargedPU_sumEt",
-							  "recoilPFPuppiMet_ChargedPV_Pt",
-							  "recoilPFPuppiMet_ChargedPV_Phi",
-							  "recoilPFPuppiMet_ChargedPV_sumEt",
-							  "recoilPFPuppiMet_NeutralPV_Pt",
-							  "recoilPFPuppiMet_NeutralPV_Phi",
-							  "recoilPFPuppiMet_NeutralPV_sumEt",
-							  "recoilPFPuppiMet_NeutralPU_Pt",
-							  "recoilPFPuppiMet_NeutralPU_Phi",
-							  "recoilPFPuppiMet_NeutralPU_sumEt",
-							  "LeadingJet_Phi",
-							  "LeadingJet_Eta",
-							  "LeadingJet_M",
-							  "LeadingJet_Pt",
-							  "TrailingJet_Phi",
-							  "TrailingJet_Eta",
-							  "TrailingJet_M",
-							  "TrailingJet_Pt",
-							  "NVertex",
-							  "NCleanedJets"
-        };
+  std::vector<std::string> variablesForPhiTraining_  = {};
 
-
-  std::vector<std::string> variablesForRecoilTraining_    = {"recoilPFPuppiMet_Pt",
-							     "recoilPFPuppiMet_Phi",
-							     "recoilPFPuppiMet_sumEt",
-							     "recoilPFPuppiMet_ChargedPU_Pt",
-							     "recoilPFPuppiMet_ChargedPU_Phi",
-							     "recoilPFPuppiMet_ChargedPU_sumEt",
-							     "recoilPFPuppiMet_ChargedPV_Pt",
-							     "recoilPFPuppiMet_ChargedPV_Phi",
-							     "recoilPFPuppiMet_ChargedPV_sumEt",
-							     "recoilPFPuppiMet_NeutralPV_Pt",
-							     "recoilPFPuppiMet_NeutralPV_Phi",
-							     "recoilPFPuppiMet_NeutralPV_sumEt",
-							     "recoilPFPuppiMet_NeutralPU_Pt",
-							     "recoilPFPuppiMet_NeutralPU_Phi",
-							     "recoilPFPuppiMet_NeutralPU_sumEt",
-							     "LeadingJet_Phi",
-							     "LeadingJet_Eta",
-							     "LeadingJet_M",
-							     "LeadingJet_Pt",
-							     "TrailingJet_Phi",
-							     "TrailingJet_Eta",
-							     "TrailingJet_M",
-							     "TrailingJet_Pt",
-							     "NVertex",
-							     "NCleanedJets"
-        };
+  std::vector<std::string> variablesForRecoilTraining_  = {};
 	
   const GBRForest* mvaReaderPhiCorrection_;
   const GBRForest* mvaReaderRecoilCorrection_;

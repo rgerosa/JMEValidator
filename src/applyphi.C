@@ -181,10 +181,8 @@ applyTraining::~applyTraining() {
   {
     _lTree->ResetBranchAddress((TBranch*)listOfBranches->At(i));
   }
-  std::cout << "Writing output file...";
   _lOTree->Write();
   _lOFile->Close();
-  std::cout << "done!" << std::endl;
 }
   
   
