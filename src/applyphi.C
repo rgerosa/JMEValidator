@@ -1,4 +1,27 @@
 #include "../interface/applyphi.h"
+applyTraining::applyTraining(std::string name, std::string apply_MVA_to, std::string weightfilename, int mode, TTree *inputTree, std::string input_filename) :
+  _mode(mode),
+  _iTrain(weightfilename),
+  _applyMVAto(apply_MVA_to),
+  _mvaResponseName(name),
+  // Forest
+  _lFForest(new TFile(_iTrain.c_str())),
+  _lForest( (GBRForest*) _lFForest->Get(_mvaResponseName.c_str()) ),
+  _lVars( (std::vector<std::string>*) _lFForest->Get("varlist") ),
+  _lN(_lVars->size()),
+  _lFVars(new TTreeFormula*[_lN]),
+  _lVals(new Float_t[_lN]),
+  //inputs
+  _lTree(inputTree),
+  _lNEvents(_lTree->GetEntries()),
+  //outputs
+  _outputFilename(input_filename + "_" + _mvaResponseName + ".root"),
+  _lOFile(new TFile( _outputFilename.c_str(),"RECREATE")),
+  _lOTree(_lTree)
+{
+  std::cout << "new constructur" << std::endl;
+  _lOTree = _lTree->CloneTree(0);
+}
 
 applyTraining::applyTraining(boost::property_tree::ptree &pt, TTree *inputTree) :
   _mode(pt.get<int>("mode")),

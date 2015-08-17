@@ -18,6 +18,31 @@
 using namespace std;
 
 int main(int argc, char* argv[] ) {
+
+  std::string config = argv[1];
+  std::cout << argv[1] << std::endl;
+  if(strstr(argv[1], "manual") )
+  {
+    //mauell
+    std::string filename1 = argv[2];
+    TFile *inputFile1 = TFile::Open(filename1.c_str());
+    TTree *inputTree1 = (TTree*)(inputFile1->Get("PUPPET/t"));
+    
+    applyTraining *phi = new applyTraining("PhiCorrectedRecoil", "recoilPFMet", "PhiCorection_PUPPI.root", 1, inputTree1, filename1);
+    phi->getResults();
+    delete phi;
+
+    std::string filename2 = filename1 + "_PhiCorrectedRecoil.root";
+    TFile *inputFile2 = TFile::Open(filename2.c_str());
+    TTree *inputTree2 = (TTree*)(inputFile2->Get("t"));
+    std::cout << filename2 << std::endl;
+    applyTraining *recoil = new applyTraining("LongZCorrectedRecoil", "PhiCorrectedRecoil", "RecoilCorrection_PUPPI.root", 2, inputTree2, filename2);
+    recoil->getResults();
+    delete recoil;
+    return 0;
+  }
+
+
 	// config file einlesen
   boost::property_tree::ptree pt;
   try 
