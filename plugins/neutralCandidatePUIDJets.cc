@@ -192,14 +192,12 @@ void neutralCandidatePUIDJets::produce(edm::Event& iEvent, const edm::EventSetup
 
   
   // loop on pfParticles
-  int nNeutral = 0;
   int indexColl = 0;
   for(reco::CandidateView::const_iterator itCand = candCollection->begin(); itCand != candCollection->end(); itCand++){
     if(itCand->charge() !=0){
       indexColl++;
       continue;
     }
-    nNeutral++;      
     bool neutralPU = false;
     for(edm::PtrVector<reco::Candidate>::const_iterator iParticle = neutralParticlesPUJets->begin();  iParticle != neutralParticlesPUJets->end(); iParticle++){
       if( itCand->p4() == iParticle->get()->p4()){

@@ -32,6 +32,15 @@ def get_jec_payload(algo, pu_method):
 
 def get_jec_levels(pu_method, isMC = True, useJECFromDB = False):
 
+    print("Using database %r for JECs" % db)
+
+    process.jec = cms.ESSource("PoolDBESSource",
+            DBParameters = cms.PSet(
+                messageLevel = cms.untracked.int32(0)
+                ),
+            timetype = cms.string('runnumber'),
+            toGet = cms.VPSet(),
+
     if isMC :
 
             jec_levels = {
@@ -106,7 +115,6 @@ def appendJECToDB(process, payload, prefix, postfix=""):
 
 
 
-
 def createProcess(isMC, ## isMC flag
                   globalTag, ## global tag
                   muonTypeID, runPuppiMuonIso, muonIsoCone, ## muons
@@ -135,6 +143,9 @@ def createProcess(isMC, ## isMC flag
     process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 
     process.GlobalTag.globaltag = globalTag
+=======
+def createProcess(isMC, globalTag, readJECFromDB=False, jec_database=None, jec_db_prefix=None):
+>>>>>>> upstream/CMSSW_7_4_X
 
     # Common parameters used in all modules
     JetAnalyserCommonParameters = cms.PSet(
@@ -161,6 +172,9 @@ def createProcess(isMC, ## isMC flag
 
     if not isRunningOn25ns:
         jec_database_Puppi = 'Summer15_50nsV2_DATA.db'
+
+    if readJECFromDB and (not jec_database or not jec_db_prefix):
+        raise LogicError("You must specify the parameters jec_database and jec_db_prefix when reading JEC from DB")
 
     if useJECFromLocalDB:
         useJECFromDB(process, jec_database_PF)

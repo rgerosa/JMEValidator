@@ -41,7 +41,8 @@ def runMVAPUPPET(process,
                  useJECFromLocalDB = True,                  
                  applyZSelections = True,
                  applyWSelections = False,
-                 putRecoilInsideEvent = True
+                 putRecoilInsideEvent = True,
+                 runPUPPINoLeptons = True
                  ):
 
 
@@ -295,7 +296,8 @@ def runMVAPUPPET(process,
                                                         srcElectrons = cms.InputTag(srcElectrons+electronTypeID),
                                                         srcTaus = cms.InputTag(""))
 
-    process.puppi.candName = cms.InputTag('packedPFCandidatesNoLepton')
+    if runPUPPINoLeptons :
+        process.puppi.candName = cms.InputTag('packedPFCandidatesNoLepton')
     
     process.pupuppi = process.puppi.clone()
     process.pupuppi.invertPuppi = True
@@ -571,7 +573,7 @@ def runMVAPUPPET(process,
     del process.slimmedMETsChargedPVNeutralPV.type1p2Uncertainties # not available                                                                                              
 
     ### MVA PUPPET
-    setattr(process,"mvaPUPPET", cms.EDProducer("mvaPUPPET",
+    setattr(process,"mvaPUPPET", cms.EDProducer("mvaPUPPET",                                                
                                                 referenceMET = cms.InputTag("slimmedMETsPuppi"),
                                                 srcMETs      = cms.VInputTag(cms.InputTag("slimmedMETs","","JRA"),
                                                                              cms.InputTag("slimmedMETsCHS"),
@@ -583,7 +585,7 @@ def runMVAPUPPET(process,
                                                                              cms.InputTag("slimmedMETsChargedPVNeutralPVPUJetID"),
                                                                              cms.InputTag("slimmedMETsChargedPUNeutralPUPUJetID"),
                                                                              cms.InputTag("slimmedMETsChargedPVNeutralPV")),
-                                                inputMETFlags = cms.vint32(1,1,0,0,0,0,0,1,0,1),
+                                                inputMETFlags = cms.vint32(0,1,1,0,0,0,0,0,0,0,0),
                                                 srcJets        = cms.InputTag(jetCollectionPuppi+"Cleaned"),
                                                 srcVertices    = cms.InputTag("offlineSlimmedPrimaryVertices"),
                                                 srcTaus        = cms.InputTag(srcTaus+tauTypeID+"Cleaned"),
@@ -598,3 +600,6 @@ def runMVAPUPPET(process,
                                                 ZbosonLabel = cms.string("ZtagBoson"),
                                                 produceRecoils = cms.bool(putRecoilInsideEvent)
                                                 ))
+
+    if not runPUPPINoLeptons:
+        getattr(process,"mvaPUPPET").inputMETFlags = cms.vint32(1,1,1,1,0,1,0,0,1,0,1)
