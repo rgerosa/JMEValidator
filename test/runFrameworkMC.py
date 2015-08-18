@@ -40,6 +40,7 @@ options.register ('ptNeutralCutSlope',      [],  VarParsing.multiplicity.list, V
 options.register ('etaBinPuppi',            [],     VarParsing.multiplicity.list, VarParsing.varType.float, 'eta bin for puppi algo');
 options.register ('puppiUseCharge',         [], VarParsing.multiplicity.list, VarParsing.varType.bool, 'use charge constraint in puppi algo');
 options.register ('ptThresholdForTypeIPuppi', 20.,    VarParsing.multiplicity.singleton, VarParsing.varType.float, 'pt threshold for typeI puppi Met');
+options.register ('runPUPPINoLeptons', True, VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'remove charged identified leptons before running puppi');
 options.parseArguments()
 
 ## setup of puppi algorithm
@@ -83,7 +84,8 @@ process = createProcess(options.isMC, ## MC or data
                         options.etaBinPuppi,
                         options.puppiCone, 
                         options.puppiUseCharge,
-                        options.ptThresholdForTypeIPuppi);
+                        options.ptThresholdForTypeIPuppi,
+                        options.runPUPPINoLeptons);
 
 ####### files
 if len(options.inputFiles) == 0 and options.isMC == True:

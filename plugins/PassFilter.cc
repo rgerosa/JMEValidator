@@ -43,7 +43,7 @@ private:
 //! ctor
 PassFilter::PassFilter(const edm::ParameterSet& iConfig) {
   edm::Service<TFileService> fs;
-  _totalEvents = fs -> make<TH1F>("totalEvents",     "totalEvents", 1,  0., 1.);
+  _totalEvents = fs -> make<TH1F>("totalEvents",   "totalEvents", 1,  0., 1.);
   _weightEvents = fs -> make<TH1F>("weightEvents", "weightEvents", 2,  -2., 2.);
 
   if (iConfig.existsAs<edm::InputTag>("srcGenEventInfo"))

@@ -123,7 +123,8 @@ def createProcess(isMC, ## isMC flag
                   etaBinPuppi,
                   puppiCone,
                   puppiUseCharge,
-                  ptThresholdForTypeIPuppi):
+                  ptThresholdForTypeIPuppi,
+                  runPUPPINoLeptons):
 
     process = cms.Process("JRA")
 
@@ -132,6 +133,7 @@ def createProcess(isMC, ## isMC flag
     process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 
     process.GlobalTag.globaltag = globalTag
+
     # Common parameters used in all modules
     JetAnalyserCommonParameters = cms.PSet(
         # record flavor information, consider both RefPt and JetPt
@@ -158,6 +160,7 @@ def createProcess(isMC, ## isMC flag
     if not isRunningOn25ns:
         jec_database_Puppi = 'Summer15_50nsV2_DATA.db'
 
+
     if useJECFromLocalDB:
         useJECFromDB(process, jec_database_PF)
         useJECFromDB(process, jec_database_Puppi,"_puppi")
@@ -171,6 +174,7 @@ def createProcess(isMC, ## isMC flag
     process.TFileService.fileName = cms.string('output_mc.root') if isMC else cms.string('output_data.root')
     process.TFileService.closeFileFast = cms.untracked.bool(True)
 
+    
     ## count the number of events
     process.AllEvents = cms.EDFilter("PassFilter",
         srcGenEventInfo     = cms.InputTag("generator"),
@@ -180,7 +184,7 @@ def createProcess(isMC, ## isMC flag
 
     # Jet corrections
     process.load('JetMETCorrections.Configuration.JetCorrectorsAllAlgos_cff')
-
+    
     # QG tagger
     process.load('RecoJets.JetProducers.QGTagger_cfi')
     # tool box
@@ -577,7 +581,6 @@ def createProcess(isMC, ## isMC flag
     process.jmfw_analyzers = cms.Sequence()
     process.p = cms.Path(process.jmfw_analyzers)
 
-
     if runMVAPUPPETAnalysis :
 
         ## re run HBHE filter
@@ -619,7 +622,8 @@ def createProcess(isMC, ## isMC flag
                       applyTypeICorrection = applyJECtoPuppiJets, 
                       useJECFromLocalDB = useJECFromLocalDB,                      
                       applyZSelections = applyZSelections, 
-                      applyWSelections = applyWSelections
+                      applyWSelections = applyWSelections,
+                      runPUPPINoLeptons = runPUPPINoLeptons,
                       )
     
 
@@ -681,11 +685,9 @@ def createProcess(isMC, ## isMC flag
         process.jmfw_analyzers += getattr(process,"mvaPUPPET");
         
         
-
     if dropAnalyzerDumpEDM:        
         return process
    
-    
     # Run
     if isMC and not runMVAPUPPETAnalysis:
         process.run = cms.EDAnalyzer('RunAnalyzer')
@@ -834,6 +836,7 @@ def createProcess(isMC, ## isMC flag
                 cms.EDAnalyzer('PUPPETAnalyzer',
                                isMC      = cms.bool(isMC),
                                srcJet    = cms.InputTag("selectedPatJetsAK4PFPuppiCleaned"),
+                               srcJetPF  = cms.InputTag("selectedPatJetsAK4PFCleaned"),
                                srcVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
                                srcZboson = cms.InputTag("mvaPUPPET","ZtagBoson"),
                                srcLeptons = cms.InputTag("LeptonMerge"),
@@ -885,10 +888,10 @@ def createProcess(isMC, ## isMC flag
                                              )
         
         process.jmfw_analyzers += process.puppiReader
-
+ 
     return process
 
     #!
     #! THAT'S ALL! CAN YOU BELIEVE IT? :-D
     #!
-
+    

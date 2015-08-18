@@ -30,7 +30,7 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg){
   if (cfg.existsAs<std::vector<int> >("inputMETFlags"))
     srcMETFlags_ = cfg.getParameter<std::vector<int>>("inputMETFlags");
   
-  if(srcMETFlags_.size() != srcMETTags_.size())
+  if(srcMETFlags_.size() != srcMETTags_.size()+1)
     throw cms::Exception("mvaPUPPET::mvaPUPPET") << " Failed to load MET flags   !!\n";
 
   //get leptons to calculate Z vector and save it as a reco::candidate back to the event
@@ -188,7 +188,12 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
   evt.getByToken(referenceMET_, referenceMETs);
   assert((*referenceMETs).size() == 1);
   auto referenceMET = (*referenceMETs)[0];
-  reco::Candidate::LorentzVector referenceRecoil = - referenceMET.p4(); // - Z.p4()
+  reco::Candidate::LorentzVector referenceRecoil;
+  if(srcMETFlags_.at(0))
+    referenceRecoil = - referenceMET.p4() - Z.p4();
+  else
+    referenceRecoil = - referenceMET.p4();
+
   std::string reference = "recoilPFPuppiMet";
   // addToMap(referenceRecoil, referenceMET.sumEt()-sumEt_Leptons, "", reference);
   
@@ -197,6 +202,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
   float sumEt_TauJetCharge  = 0;
   float sumEt_TauJetNeutral = 0;
   std::vector<int>::const_iterator itMETFlags = srcMETFlags_.begin();
+  itMETFlags++;
   for ( std::vector<edm::EDGetTokenT<pat::METCollection> >::const_iterator srcMET = srcMETs_.begin(); 
 	srcMET != srcMETs_.end() && itMETFlags!=srcMETFlags_.end(); ++srcMET, ++itMETFlags ){    
     //get inputs
