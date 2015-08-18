@@ -125,7 +125,8 @@ def createProcess(isMC, ## isMC flag
                   etaBinPuppi,
                   puppiCone,
                   puppiUseCharge,
-                  ptThresholdForTypeIPuppi):
+                  ptThresholdForTypeIPuppi,
+                  runPUPPINoLeptons):
 
     process = cms.Process("JRA")
 
@@ -622,7 +623,8 @@ def createProcess(isMC, ## isMC flag
                       applyTypeICorrection = applyJECtoPuppiJets, 
                       useJECFromLocalDB = useJECFromLocalDB,                      
                       applyZSelections = applyZSelections, 
-                      applyWSelections = applyWSelections
+                      applyWSelections = applyWSelections,
+                      runPUPPINoLeptons = runPUPPINoLeptons,
                       )
     
 
