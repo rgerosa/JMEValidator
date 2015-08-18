@@ -571,7 +571,7 @@ def runMVAPUPPET(process,
     
     del process.slimmedMETsChargedPVNeutralPV.type1Uncertainties # not available                                                                                        
     del process.slimmedMETsChargedPVNeutralPV.type1p2Uncertainties # not available                                                                                              
-
+    
     ### MVA PUPPET
     setattr(process,"mvaPUPPET", cms.EDProducer("mvaPUPPET",                                                
                                                 referenceMET = cms.InputTag("slimmedMETsPuppi"),
@@ -594,8 +594,6 @@ def runMVAPUPPET(process,
                                                 inputFileNames = cms.PSet(
                 #PhiCorrectionWeightFile = cms.FileInPath('JMEAnalysis/JMEValidator/data/PhiCorrection_PUPPI.root'),                                    
                 #RecoilCorrectionWeightFile  = cms.FileInPath('JMEAnalysis/JMEValidator/data/RecoilCorrection_PUPPI.root')                           
-                PhiCorrectionWeightFile = cms.FileInPath(''),
-                RecoilCorrectionWeightFile = cms.FileInPath(''),
                                     ),
                                                 srcLeptons  = cms.VInputTag("LeptonMerge"),
                                                 mvaMETLabel = cms.string("mvaMET"),

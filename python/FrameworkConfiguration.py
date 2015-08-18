@@ -32,16 +32,6 @@ def get_jec_payload(algo, pu_method):
 
 def get_jec_levels(pu_method, isMC = True, useJECFromDB = False):
 
-    print("Using database %r for JECs" % db)
-
-    process.jec = cms.ESSource("PoolDBESSource",
-            DBParameters = cms.PSet(
-                messageLevel = cms.untracked.int32(0)
-                ),
-            timetype = cms.string('runnumber'),
-            toGet = cms.VPSet(),
-    )
-
     if isMC :
 
             jec_levels = {
@@ -171,9 +161,6 @@ def createProcess(isMC, ## isMC flag
         jec_database_Puppi = 'Summer15_50nsV2_DATA.db'
 
 
-    if readJECFromDB and (not jec_database or not jec_db_prefix):
-        raise LogicError("You must specify the parameters jec_database and jec_db_prefix when reading JEC from DB")
-
     if useJECFromLocalDB:
         useJECFromDB(process, jec_database_PF)
         useJECFromDB(process, jec_database_Puppi,"_puppi")
@@ -187,6 +174,7 @@ def createProcess(isMC, ## isMC flag
     process.TFileService.fileName = cms.string('output_mc.root') if isMC else cms.string('output_data.root')
     process.TFileService.closeFileFast = cms.untracked.bool(True)
 
+    
     ## count the number of events
     process.AllEvents = cms.EDFilter("PassFilter",
         srcGenEventInfo     = cms.InputTag("generator"),
@@ -196,7 +184,7 @@ def createProcess(isMC, ## isMC flag
 
     # Jet corrections
     process.load('JetMETCorrections.Configuration.JetCorrectorsAllAlgos_cff')
-
+    
     # QG tagger
     process.load('RecoJets.JetProducers.QGTagger_cfi')
     # tool box
@@ -593,7 +581,6 @@ def createProcess(isMC, ## isMC flag
     process.jmfw_analyzers = cms.Sequence()
     process.p = cms.Path(process.jmfw_analyzers)
 
-
     if runMVAPUPPETAnalysis :
 
         ## re run HBHE filter
@@ -698,11 +685,9 @@ def createProcess(isMC, ## isMC flag
         process.jmfw_analyzers += getattr(process,"mvaPUPPET");
         
         
-
     if dropAnalyzerDumpEDM:        
         return process
    
-    
     # Run
     if isMC and not runMVAPUPPETAnalysis:
         process.run = cms.EDAnalyzer('RunAnalyzer')
@@ -903,10 +888,10 @@ def createProcess(isMC, ## isMC flag
                                              )
         
         process.jmfw_analyzers += process.puppiReader
-
+ 
     return process
 
     #!
     #! THAT'S ALL! CAN YOU BELIEVE IT? :-D
     #!
-
+    
