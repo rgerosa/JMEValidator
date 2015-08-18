@@ -25,6 +25,10 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
     srcJet_ = iConfig.getParameter<edm::InputTag>("srcJet");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input jet collection not given \n";
 
+  if (iConfig.existsAs<edm::InputTag>("srcJetPF"))
+    srcJetPF_ = iConfig.getParameter<edm::InputTag>("srcJetPF");
+  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PF jet collection not given \n";
+
   if (iConfig.existsAs<edm::InputTag>("srcVertex"))
     srcVertex_ = iConfig.getParameter<edm::InputTag>("srcVertex");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input vertex collection not given \n";
@@ -135,6 +139,9 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
   
   if(!(srcJet_ == edm::InputTag("")))
     srcJetToken_ = consumes<pat::JetCollection>(srcJet_);
+
+  if(!(srcJetPF_ == edm::InputTag("")))
+    srcJetPFToken_ = consumes<pat::JetCollection>(srcJetPF_);
 
   if(!(srcZboson_ == edm::InputTag("")))
     srcZbosonToken_ = consumes<std::vector<reco::Particle>>(srcZboson_);
@@ -407,7 +414,12 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   edm::Handle<std::vector<pat::Jet>> jetHandle;
   iEvent.getByToken(srcJetToken_, jetHandle);
 
+  // store jet PF info
+  edm::Handle<std::vector<pat::Jet>> jetPFHandle;
+  iEvent.getByToken(srcJetPFToken_, jetPFHandle);
+
   NCleanedJets_  = jetHandle->size();
+  NCleanedJetsPF_  = jetPFHandle->size();
 
   ijet = 0;
   for( auto jet : *jetHandle){     
@@ -424,6 +436,26 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
       TrailingJet_Eta_ = jet.eta();
       TrailingJet_Phi_ = jet.phi();
       TrailingJet_M_   = jet.mass();
+      break;
+    }
+  }
+
+
+  ijet = 0;
+  for( auto jet : *jetPFHandle){     
+    if(ijet == 0){
+      LeadingJetPF_Pt_  = jet.pt();
+      LeadingJetPF_Eta_ = jet.eta();
+      LeadingJetPF_Phi_ = jet.phi();
+      LeadingJetPF_M_   = jet.mass();
+      ijet++;
+      continue;
+    }
+    else if(ijet == 1){
+      TrailingJetPF_Pt_  = jet.pt();
+      TrailingJetPF_Eta_ = jet.eta();
+      TrailingJetPF_Phi_ = jet.phi();
+      TrailingJetPF_M_   = jet.mass();
       break;
     }
   }
@@ -717,6 +749,39 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   }
 
   NGenMatchedJets_ = GenMatchedJets_Pt_.size();
+
+  // dump all PF jet info
+  AllJetsPF_Pt_.clear();
+  AllJetsPF_Eta_.clear();
+  AllJetsPF_Phi_.clear();
+  AllJetsPF_M_.clear();
+  GenMatchedJetsPF_Pt_.clear();
+  GenMatchedJetsPF_Eta_.clear();
+  GenMatchedJetsPF_Phi_.clear();
+  GenMatchedJetsPF_M_.clear();
+
+  for(auto jet : *jetPFHandle){
+    AllJetsPF_Pt_.push_back(jet.pt());
+    AllJetsPF_Eta_.push_back(jet.eta());
+    AllJetsPF_Phi_.push_back(jet.phi());
+    AllJetsPF_M_.push_back(jet.mass());
+    if(isMC_){
+      edm::Handle<reco::GenJetCollection> GenJetsHandle;
+      iEvent.getByToken(srcGenJetsToken_, GenJetsHandle);
+      for(auto GenJet : *GenJetsHandle){
+	if(reco::deltaR(jet.eta(),jet.phi(),GenJet.eta(),GenJet.phi()) < dRgenMatching_){
+	  GenMatchedJetsPF_Pt_.push_back(GenJet.pt());
+	  GenMatchedJetsPF_Eta_.push_back(GenJet.eta());
+	  GenMatchedJetsPF_Phi_.push_back(GenJet.phi());
+	  GenMatchedJetsPF_M_.push_back(GenJet.mass());
+	  break;
+	}
+      }
+    }
+  }
+
+  NGenMatchedJetsPF_ = GenMatchedJetsPF_Pt_.size();
+
   tree.fill();
   
 }

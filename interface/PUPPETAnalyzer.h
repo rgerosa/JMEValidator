@@ -51,6 +51,7 @@ class PUPPETAnalyzer : public JME::Analyzer {
 	edm::InputTag srcRecoilPFChargedPVNeutralPV_;
 
 	edm::InputTag srcJet_;
+	edm::InputTag srcJetPF_;
 
 	edm::InputTag srcZboson_;
 	edm::InputTag srcLeptons_;
@@ -86,6 +87,7 @@ class PUPPETAnalyzer : public JME::Analyzer {
 	edm::EDGetTokenT<std::vector<pat::MET>> srcRecoilPFChargedPVNeutralPVToken_;
 
         edm::EDGetTokenT<std::vector<pat::Jet>> srcJetToken_;
+        edm::EDGetTokenT<std::vector<pat::Jet>> srcJetPFToken_;
         edm::EDGetTokenT<std::vector<reco::Particle>>   srcZbosonToken_;
         edm::EDGetTokenT<reco::CandidateView>           srcLeptonsToken_;
         edm::EDGetTokenT<reco::VertexCollection>        srcVertexToken_;
@@ -116,6 +118,7 @@ class PUPPETAnalyzer : public JME::Analyzer {
         int& NGenJets_        = tree["NGenJets"].write<int>();
         int& NGenJetsCleaned_ = tree["NGenJetsCleaned"].write<int>();
         int& NGenMatchedJets_ = tree["NGenMatchedJets"].write< int>();
+        int& NGenMatchedJetsPF_ = tree["NGenMatchedJetsPF"].write< int>();
 
         float& GenLeadingJet_Pt_  = tree["GenLeadingJet_Pt"].write<float>();
         float& GenLeadingJet_Eta_ = tree["GenLeadingJet_Eta"].write<float>();
@@ -268,6 +271,7 @@ class PUPPETAnalyzer : public JME::Analyzer {
 
 	// jets and boson
 	int& NCleanedJets_ =  tree["NCleanedJets"].write<int>();
+	int& NCleanedJetsPF_ =  tree["NCleanedJetsPF"].write<int>();
 	int& NVertex_      =  tree["NVertex"].write<int>();
 
 	float& LeadingJet_Pt_  = tree["LeadingJet_Pt"].write<float>();
@@ -279,6 +283,16 @@ class PUPPETAnalyzer : public JME::Analyzer {
 	float& TrailingJet_Eta_ = tree["TrailingJet_Eta"].write<float>();
 	float& TrailingJet_Phi_ = tree["TrailingJet_Phi"].write<float>();
 	float& TrailingJet_M_   = tree["TrailingJet_M"].write<float>();
+
+	float& LeadingJetPF_Pt_  = tree["LeadingJet_Pt"].write<float>();
+	float& LeadingJetPF_Eta_ = tree["LeadingJet_Eta"].write<float>();
+	float& LeadingJetPF_Phi_ = tree["LeadingJet_Phi"].write<float>();
+	float& LeadingJetPF_M_   = tree["LeadingJet_M"].write<float>();
+
+	float& TrailingJetPF_Pt_  = tree["TrailingJet_Pt"].write<float>();
+	float& TrailingJetPF_Eta_ = tree["TrailingJet_Eta"].write<float>();
+	float& TrailingJetPF_Phi_ = tree["TrailingJet_Phi"].write<float>();
+	float& TrailingJetPF_M_   = tree["TrailingJet_M"].write<float>();
 
 	float& Boson_Pt_     =  tree["Boson_Pt"].write<float>();
 	float& Boson_Phi_    =  tree["Boson_Phi"].write<float>();
@@ -301,10 +315,20 @@ class PUPPETAnalyzer : public JME::Analyzer {
         std::vector<float>& AllJets_Phi_ = tree["AllJets_Phi"].write<std::vector<float>>();
         std::vector<float>& AllJets_M_   = tree["AllJets_M"].write<std::vector<float>>();
 
+        std::vector<float>& AllJetsPF_Pt_  = tree["AllJetsPF_Pt"].write<std::vector<float>>();
+        std::vector<float>& AllJetsPF_Eta_ = tree["AllJetsPF_Eta"].write<std::vector<float>>();
+        std::vector<float>& AllJetsPF_Phi_ = tree["AllJetsPF_Phi"].write<std::vector<float>>();
+        std::vector<float>& AllJetsPF_M_   = tree["AllJetsPF_M"].write<std::vector<float>>();
+
         std::vector<float>& GenMatchedJets_Pt_  = tree["GenMatchedJets_Pt"].write<std::vector<float>>();
         std::vector<float>& GenMatchedJets_Eta_ = tree["GenMatchedJets_Eta"].write<std::vector<float>>();
         std::vector<float>& GenMatchedJets_Phi_ = tree["GenMatchedJets_Phi"].write<std::vector<float>>();
         std::vector<float>& GenMatchedJets_M_   = tree["GenMatchedJets_M"].write<std::vector<float>>();
+
+        std::vector<float>& GenMatchedJetsPF_Pt_  = tree["GenMatchedJets_Pt"].write<std::vector<float>>();
+        std::vector<float>& GenMatchedJetsPF_Eta_ = tree["GenMatchedJets_Eta"].write<std::vector<float>>();
+        std::vector<float>& GenMatchedJetsPF_Phi_ = tree["GenMatchedJets_Phi"].write<std::vector<float>>();
+        std::vector<float>& GenMatchedJetsPF_M_   = tree["GenMatchedJets_M"].write<std::vector<float>>();
 
 	/// met filter
 	int& flag_HBHENoiseFilter_      =  tree["flag_HBHENoiseFilter"].write<int>();

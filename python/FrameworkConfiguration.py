@@ -40,6 +40,7 @@ def get_jec_levels(pu_method, isMC = True, useJECFromDB = False):
                 ),
             timetype = cms.string('runnumber'),
             toGet = cms.VPSet(),
+    )
 
     if isMC :
 
@@ -143,9 +144,8 @@ def createProcess(isMC, ## isMC flag
     process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 
     process.GlobalTag.globaltag = globalTag
-=======
+
 def createProcess(isMC, globalTag, readJECFromDB=False, jec_database=None, jec_db_prefix=None):
->>>>>>> upstream/CMSSW_7_4_X
 
     # Common parameters used in all modules
     JetAnalyserCommonParameters = cms.PSet(
@@ -853,6 +853,7 @@ def createProcess(isMC, globalTag, readJECFromDB=False, jec_database=None, jec_d
                 cms.EDAnalyzer('PUPPETAnalyzer',
                                isMC      = cms.bool(isMC),
                                srcJet    = cms.InputTag("selectedPatJetsAK4PFPuppiCleaned"),
+                               srcJetPF  = cms.InputTag("selectedPatJetsAK4PFCleaned"),
                                srcVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
                                srcZboson = cms.InputTag("mvaPUPPET","ZtagBoson"),
                                srcLeptons = cms.InputTag("LeptonMerge"),
