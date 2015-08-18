@@ -1,12 +1,18 @@
 {
     "plot_backend" : "PlotRoot",
     "nicks": [
-          "data",
-          "DY",
-          "diboson",
-          "diboson",
-          "diboson",
-          "ttbar"
+        "PFData", 
+        "PFMC",
+        "PFMC",
+        "PFMC",
+        "PFMC",
+        "PFMC",
+        "PUPPETData",
+        "PUPPETMC",
+        "PUPPETMC",
+        "PUPPETMC",
+        "PUPPETMC",
+        "PUPPETMC"
     ],
     "weights": [
           "(flag_goodVertices ==1)*(flag_CSCTightHaloFilter == 1)*(Boson_daughter==13)*(LeadingLepton_Pt>25)*(TrailingLepton_Pt>20)",
@@ -22,12 +28,7 @@
           "ttbar"
     ],
     "folders": [
-        "PUPPET/t",
-        "t",
-        "t",
-        "t",
-        "t",
-        "t"
+        "PUPPET/t"
     ], 
     "grid": true, 
     "colors": ["kBlack", "kYellow", "kOrange", "kRed"],

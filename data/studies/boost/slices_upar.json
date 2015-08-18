@@ -1,0 +1,76 @@
+{
+    "analysis_modules": [
+        "ProjectionY"
+    ], 
+    "cms": true, 
+    "dict": true, 
+    "directories": [
+        "/afs/desy.de/user/r/rfriese/dust/puppet/Samples50ns3"
+    ], 
+    "energies": [
+        13.0
+    ], 
+    "extra_text": "simulation preliminary", 
+    "filename": "longitudinal_resolution_slices", 
+    "files": [
+        "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_puppiMET_pu_weight.root"
+    ], 
+    "fit_backend": [
+        "ROOT"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "formats": [
+        "pdf", 
+        "png"
+    ], 
+    "labels": [
+        "PF w/JEC"],
+    "legend": [
+        0.65, 
+        0.2, 
+        0.9, 
+        0.5
+    ], 
+    "legend_markers": [
+        "PI"
+    ], 
+    "line_styles": [
+        1
+    ], 
+    "markers": [
+        "1"
+    ], 
+    "output_dir": "studies/boost", 
+    "plot_modules": [
+        "PlotRoot"
+    ], 
+    "projection_function": [
+        "gaus"
+    ], 
+    "title": "", 
+    "weights": [
+        "Boson_daughter==13&&Boson_Pt>50"
+    ], 
+    "x_bins": [
+        "10,5,25"
+    ], 
+    "x_errors": [
+        false
+    ], 
+    "x_expressions": [
+        "NVertex"
+    ], 
+    "x_label": "primary vertices", 
+    "y_bins": [
+        "50,-100,100"
+    ], 
+    "y_errors": [
+        false
+    ], 
+    "y_expressions": [
+        "recoilPFMet_LongZ"
+    ], 
+    "y_label": "#sigma(U_{#parallel}) (GeV)"
+}

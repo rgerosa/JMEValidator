@@ -1,0 +1,50 @@
+{
+    "analysis_modules": [
+        "NormalizeToUnity"
+    ], 
+    "directories": [
+        "/afs/desy.de/user/r/rfriese/dust/puppet/Samples50ns3/"
+    ], 
+    "energies": [
+        13
+    ], 
+    "filename": "npv", 
+    "files": [
+        "data.root", 
+        "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8.root", 
+        "WWTo2L2Nu_13TeV-powheg.root", 
+        "ZZ_TuneCUETP8M1_13TeV-pythia8.root", 
+        "WZ_TuneCUETP8M1_13TeV-pythia8.root", 
+        "TTTo2L2Nu_13TeV-powheg.root"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "grid": true, 
+    "labels": [
+        "Data", 
+        "MC"
+    ], 
+    "nicks": [
+        "data", 
+        "MC",
+        "MC",
+        "MC",
+        "MC",
+        "MC"
+    ], 
+    "output_dir": ".", 
+    "weights": [
+        "(flag_eeBadScFilter)*(flag_goodVertices ==1)*(flag_CSCTightHaloFilter == 1)*(Boson_daughter==13)*(LeadingLepton_Pt>25)*(TrailingLepton_Pt>20)", 
+        "(flag_eeBadScFilter)*(flag_goodVertices ==1)*(flag_CSCTightHaloFilter == 1)*(Boson_daughter==13)*eventMCWeight*(LeadingLepton_Pt>25)*(TrailingLepton_Pt>20)*(1/1.553692e+07)*6025.2*40.24", 
+        "(flag_eeBadScFilter)*(flag_goodVertices ==1)*(flag_CSCTightHaloFilter == 1)*(Boson_daughter==13)*eventMCWeight*(LeadingLepton_Pt>25)*(TrailingLepton_Pt>20)*(1/4.983260e+05)*12.5*40.24", 
+        "(flag_eeBadScFilter)*(flag_goodVertices ==1)*(flag_CSCTightHaloFilter == 1)*(Boson_daughter==13)*eventMCWeight*(LeadingLepton_Pt>25)*(TrailingLepton_Pt>20)*(1/9.969200e+05)*66.1*40.24", 
+        "(flag_eeBadScFilter)*(flag_goodVertices ==1)*(flag_CSCTightHaloFilter == 1)*(Boson_daughter==13)*eventMCWeight*(LeadingLepton_Pt>25)*(TrailingLepton_Pt>20)*(1/9.988480e+05)*31.8*40.2", 
+        "(flag_eeBadScFilter)*(flag_goodVertices ==1)*(flag_CSCTightHaloFilter == 1)*(Boson_daughter==13)*eventMCWeight*(LeadingLepton_Pt>25)*(TrailingLepton_Pt>20)*(1/4.997000e+06)*87.3*40.24"
+    ], 
+    "x_bins": "40,0,40", 
+    "x_expressions": [
+        "NVertex"
+    ] 
+    
+}

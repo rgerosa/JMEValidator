@@ -26,9 +26,9 @@
     ], 
     "legend": [
         0.6, 
-        0.1, 
+        0.05, 
         0.9, 
-        0.4
+        0.35
     ], 
     "projection_function": [
         "gaus"
@@ -166,7 +166,7 @@
     "y_label": "#sigma #left( U_{#perp} #right) (GeV)", 
     "y_lims": [
         0, 
-        40
+        45
     ],
     "nicks_whitelist" : [ "^c_", "^ratio_" ]
 }

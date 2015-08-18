@@ -37,7 +37,7 @@
         13.0
     ], 
     "extra_text": "simulation preliminary", 
-    "filename": "transverse_resolution_npv", 
+    "filename": "longitudinal_resolution_npv", 
     "files": [
         "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_puppiMET_pu_weight.root"
     ], 
@@ -59,9 +59,9 @@
     ], 
     "legend": [
         0.65, 
-        0.1, 
-        0.95, 
-        0.4
+        0.2, 
+        0.9, 
+        0.5
     ], 
     "legend_markers": [
         "PI"
@@ -129,9 +129,9 @@
         0.4
     ], 
     "texts_y": [
-        0.38, 
-        0.45, 
-        0.52
+        0.4, 
+        0.5, 
+        0.6
     ], 
     "title": "", 
     "tree_draw_options": [
@@ -171,16 +171,16 @@
         false
     ], 
     "y_expressions": [
-        "recoilPFMet_PerpZ", 
-        "recoilPFMet_uncorrected_PerpZ", 
-        "recoilPFPuppiMet_PerpZ", 
-        "recoilPFPuppiMet_uncorrected_PerpZ", 
+        "recoilPFMet_LongZ+Boson_Pt", 
+        "recoilPFMet_uncorrected_LongZ+Boson_Pt", 
+        "recoilPFPuppiMet_LongZ+Boson_Pt", 
+        "recoilPFPuppiMet_uncorrected_LongZ+Boson_Pt", 
         "recoilPFMet_LongZ/-Boson_Pt", 
         "recoilPFMet_uncorrected_LongZ/-Boson_Pt", 
         "recoilPFPuppiMet_LongZ/-Boson_Pt", 
         "recoilPFPuppiMet_uncorrected_LongZ/-Boson_Pt"
     ], 
-    "y_label": "#sigma #left( U_{#perp} #right)  (GeV)", 
+    "y_label": "#sigma(U_{#parallel}) (GeV)", 
     "y_lims": [
         0.0, 
         40.0

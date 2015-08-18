@@ -115,7 +115,6 @@ def appendJECToDB(process, payload, prefix, postfix=""):
             )]
 
 
-
 def createProcess(isMC, ## isMC flag
                   globalTag, ## global tag
                   muonTypeID, runPuppiMuonIso, muonIsoCone, ## muons
@@ -145,8 +144,6 @@ def createProcess(isMC, ## isMC flag
 
     process.GlobalTag.globaltag = globalTag
 
-def createProcess(isMC, globalTag, readJECFromDB=False, jec_database=None, jec_db_prefix=None):
-
     # Common parameters used in all modules
     JetAnalyserCommonParameters = cms.PSet(
         # record flavor information, consider both RefPt and JetPt
@@ -172,6 +169,7 @@ def createProcess(isMC, globalTag, readJECFromDB=False, jec_database=None, jec_d
 
     if not isRunningOn25ns:
         jec_database_Puppi = 'Summer15_50nsV2_DATA.db'
+
 
     if readJECFromDB and (not jec_database or not jec_db_prefix):
         raise LogicError("You must specify the parameters jec_database and jec_db_prefix when reading JEC from DB")

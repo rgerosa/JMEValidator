@@ -38,6 +38,8 @@ int main(int argc, char* argv[] ) {
   std::string outputfilename(inputstring1.substr(0, inputstring1.find_last_of(".")) + "_pu_weight.root");
 
   TFile *lOFile = new TFile(outputfilename.c_str(), "RECREATE");
+  lOFile->mkdir("PUPPET");
+  lOFile->cd("PUPPET");
   TTree *lOTree = lTree->CloneTree(0);
   int lNEvents = lTree->GetEntries();
 
