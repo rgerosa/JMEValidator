@@ -284,15 +284,15 @@ class PUPPETAnalyzer : public JME::Analyzer {
 	float& TrailingJet_Phi_ = tree["TrailingJet_Phi"].write<float>();
 	float& TrailingJet_M_   = tree["TrailingJet_M"].write<float>();
 
-	float& LeadingJetPF_Pt_  = tree["LeadingJet_Pt"].write<float>();
-	float& LeadingJetPF_Eta_ = tree["LeadingJet_Eta"].write<float>();
-	float& LeadingJetPF_Phi_ = tree["LeadingJet_Phi"].write<float>();
-	float& LeadingJetPF_M_   = tree["LeadingJet_M"].write<float>();
+	float& LeadingJetPF_Pt_  = tree["LeadingJetPF_Pt"].write<float>();
+	float& LeadingJetPF_Eta_ = tree["LeadingJetPF_Eta"].write<float>();
+	float& LeadingJetPF_Phi_ = tree["LeadingJetPF_Phi"].write<float>();
+	float& LeadingJetPF_M_   = tree["LeadingJetPF_M"].write<float>();
 
-	float& TrailingJetPF_Pt_  = tree["TrailingJet_Pt"].write<float>();
-	float& TrailingJetPF_Eta_ = tree["TrailingJet_Eta"].write<float>();
-	float& TrailingJetPF_Phi_ = tree["TrailingJet_Phi"].write<float>();
-	float& TrailingJetPF_M_   = tree["TrailingJet_M"].write<float>();
+	float& TrailingJetPF_Pt_  = tree["TrailingJetPF_Pt"].write<float>();
+	float& TrailingJetPF_Eta_ = tree["TrailingJetPF_Eta"].write<float>();
+	float& TrailingJetPF_Phi_ = tree["TrailingJetPF_Phi"].write<float>();
+	float& TrailingJetPF_M_   = tree["TrailingJetPF_M"].write<float>();
 
 	float& Boson_Pt_     =  tree["Boson_Pt"].write<float>();
 	float& Boson_Phi_    =  tree["Boson_Phi"].write<float>();
