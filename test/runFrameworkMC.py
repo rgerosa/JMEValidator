@@ -9,6 +9,8 @@ options = VarParsing ('python')
 
 ## data or MC
 options.register ('isMC',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,'flag to indicate data or MC');
+## processName
+options.register ('processName','JRA',VarParsing.multiplicity.singleton,VarParsing.varType.string,'process name to be considered');
 ## conditions
 options.register ('globalTag',"MCRUN2_74_V9",VarParsing.multiplicity.singleton,VarParsing.varType.string,'input global tag to be used');
 ## iPUPPI options
@@ -68,6 +70,7 @@ if options.applyWSelections and options.applyZSelections :
 
 ## create the process with all the information
 process = createProcess(options.isMC, ## MC or data
+                        options.processName,
                         options.globalTag, ## GT
                         options.muonTypeID, options.runPuppiMuonIso, options.muonIsoCone, ## muons
                         options.electronTypeID, ## electrons

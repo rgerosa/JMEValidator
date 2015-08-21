@@ -106,6 +106,7 @@ def appendJECToDB(process, payload, prefix, postfix=""):
 
 
 def createProcess(isMC, ## isMC flag
+                  processName,
                   globalTag, ## global tag
                   muonTypeID, runPuppiMuonIso, muonIsoCone, ## muons
                   electronTypeID, ## electrons
@@ -126,7 +127,7 @@ def createProcess(isMC, ## isMC flag
                   ptThresholdForTypeIPuppi,
                   runPUPPINoLeptons):
 
-    process = cms.Process("JRA")
+    process = cms.Process(processName)
 
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
     process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
@@ -177,8 +178,8 @@ def createProcess(isMC, ## isMC flag
     
     ## count the number of events
     process.AllEvents = cms.EDFilter("PassFilter",
-        srcGenEventInfo     = cms.InputTag("generator"),
-        isMC      = cms.bool(isMC),
+        srcGenEventInfo   = cms.InputTag("generator"),
+        isMC      = cms.bool(isMC)                              
       )
     process.counterPath = cms.Path(process.AllEvents)
 
@@ -388,23 +389,24 @@ def createProcess(isMC, ## isMC flag
     
     from PhysicsTools.SelectorUtils.tools.vid_id_tools import switchOnVIDElectronIdProducer, switchOnVIDPhotonIdProducer, DataFormat, setupAllVIDIdsInModule, setupVIDElectronSelection, setupVIDPhotonSelection
 
-    switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
-    switchOnVIDPhotonIdProducer(process, DataFormat.MiniAOD)
+    if not hasattr(process,"egmGsfElectronIDs"):
+        electronIdModules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff',
+                             'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV51_cff']
 
-    electronIdModules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff',
-                         'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV51_cff']
+        switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
 
-    photonIdModules = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_PHYS14_PU20bx25_V2_cff']
+        for idMod in electronIdModules:
+            setupAllVIDIdsInModule(process, idMod, setupVIDElectronSelection)
 
-    for idMod in electronIdModules:
-        setupAllVIDIdsInModule(process, idMod, setupVIDElectronSelection)
+    if not hasattr(process,"VersionedPhotonIdProducer"):
+        switchOnVIDPhotonIdProducer(process, DataFormat.MiniAOD)
 
-    for idMod in photonIdModules:
-        setupAllVIDIdsInModule(process, idMod, setupVIDPhotonSelection)
+        photonIdModules = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_PHYS14_PU20bx25_V2_cff']
+
+        for idMod in photonIdModules:
+            setupAllVIDIdsInModule(process, idMod, setupVIDPhotonSelection)
     
-
             
-
     # Create METs from CHS and PUPPI
     from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
 
@@ -539,12 +541,14 @@ def createProcess(isMC, ## isMC flag
 
     ## Slimmed METs
     from PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi import slimmedMETs
-    #### CaloMET is not available in MiniAOD
-    del slimmedMETs.caloMET
+    if hasattr(slimmedMETs, "caloMET"):
+        del slimmedMETs.caloMET
 
     ### PUPPI : make slimmed METs in order to embed both corrected and not corrected one after TypeI
     ### Standard
     process.slimmedMETs = slimmedMETs.clone()
+    #### CaloMET is not available in MiniAOD
+
     if hasattr(process, 'patMET'):
         # Create MET from Type 1 PF collection
         process.patMET.addGenMET = isMC
@@ -554,10 +558,14 @@ def createProcess(isMC, ## isMC flag
         # Create MET from RAW PF collection
         process.patPFMet.addGenMET = isMC
         process.slimmedMETs.src = cms.InputTag("patPFMet")
-        del process.slimmedMETs.rawUncertainties # not available
+        if hasattr(process.slimmedMETs, "rawUncertainties"):
+            del process.slimmedMETs.rawUncertainties # not available
 
-    del process.slimmedMETs.type1Uncertainties # not available
-    del process.slimmedMETs.type1p2Uncertainties # not available
+    if hasattr(process.slimmedMETs, "type1Uncertainties"):       
+        del process.slimmedMETs.type1Uncertainties # not available
+
+    if hasattr(process.slimmedMETs, "type1p2Uncertainties"):       
+        del process.slimmedMETs.type1p2Uncertainties # not available
 
 
     ### CHS
@@ -571,11 +579,13 @@ def createProcess(isMC, ## isMC flag
         # Create MET from RAW PF collection
         process.patPFMetCHS.addGenMET = isMC
         process.slimmedMETsCHS.src = cms.InputTag("patPFMetCHS")
-        del process.slimmedMETsCHS.rawUncertainties # not available
+        if hasattr(process.slimmedMETsCHS, "rawUncertainties"):
+            del process.slimmedMETsCHS.rawUncertainties # not available
 
-    del process.slimmedMETsCHS.type1Uncertainties # not available
-    del process.slimmedMETsCHS.type1p2Uncertainties # not available
-
+    if hasattr(process.slimmedMETsCHS, "type1Uncertainties"):       
+        del process.slimmedMETsCHS.type1Uncertainties # not available
+    if hasattr(process.slimmedMETsCHS, "type1p2Uncertainties"):       
+        del process.slimmedMETsCHS.type1p2Uncertainties # not available
 
     ## create the Path
     process.jmfw_analyzers = cms.Sequence()
@@ -595,9 +605,29 @@ def createProcess(isMC, ## isMC flag
         process.jmfw_analyzers += process.HBHENoiseFilterResultProducer
         process.jmfw_analyzers += process.ApplyBaselineHBHENoiseFilter 
 
+        ## change cone and use charge for the tracking region
+        if len(ptNeutralCut) !=3 or len(ptNeutralCutSlope)!=3 or len(etaBinPuppi)!=3 or len(puppiCone)!=3 or len(puppiUseCharge)!=3 :
+            sys.exit("puppi parameters not corrected --> please check")
+
+        process.puppi.producePackedCollection = cms.bool(True)
+
+        for iBin in range(len(ptNeutralCut)):
+            if iBin == 0 :
+                process.puppi.algos[iBin].etaMin = cms.double(0.);
+            else:
+                process.puppi.algos[iBin].etaMin = cms.double(etaBinPuppi[iBin-1]);
+ 
+            process.puppi.algos[iBin].etaMax            = cms.double(etaBinPuppi[iBin]);
+            process.puppi.algos[iBin].MinNeutralPt      = cms.double(ptNeutralCut[iBin]);
+            process.puppi.algos[iBin].MinNeutralPtSlope        = cms.double(ptNeutralCutSlope[iBin]);
+            process.puppi.algos[iBin].puppiAlgos[0].cone       = cms.double(puppiCone[iBin])
+            process.puppi.algos[iBin].puppiAlgos[0].useCharged = cms.bool(puppiUseCharge[iBin])
+
+
         from JMEAnalysis.JMEValidator.runMVAPUPPET_cff import runMVAPUPPET
 
         runMVAPUPPET( process, 
+                      processName,
                       isMC,
                       srcMuons = "slimmedMuons", 
                       muonTypeID = "Tight", 
@@ -626,25 +656,6 @@ def createProcess(isMC, ## isMC flag
                       runPUPPINoLeptons = runPUPPINoLeptons,
                       )
     
-
-        ## change cone and use charge for the tracking region
-        if len(ptNeutralCut) !=3 or len(ptNeutralCutSlope)!=3 or len(etaBinPuppi)!=3 or len(puppiCone)!=3 or len(puppiUseCharge)!=3 :
-            sys.exit("puppi parameters not corrected --> please check")
-
-        process.puppi.producePackedCollection = cms.bool(True)
-
-        for iBin in range(len(ptNeutralCut)):
-            if iBin == 0 :
-                process.puppi.algos[iBin].etaMin = cms.double(0.);
-            else:
-                process.puppi.algos[iBin].etaMin = cms.double(etaBinPuppi[iBin-1]);
- 
-            process.puppi.algos[iBin].etaMax            = cms.double(etaBinPuppi[iBin]);
-            process.puppi.algos[iBin].MinNeutralPt      = cms.double(ptNeutralCut[iBin]);
-            process.puppi.algos[iBin].MinNeutralPtSlope        = cms.double(ptNeutralCutSlope[iBin]);
-            process.puppi.algos[iBin].puppiAlgos[0].cone       = cms.double(puppiCone[iBin])
-            process.puppi.algos[iBin].puppiAlgos[0].useCharged = cms.bool(puppiUseCharge[iBin])
-
 
         ######## add other specific set of particles and MET collections, in this case not TypeI corrected, but we will still use the same workflow    
         ## all charge particles from PUPPI : hadrons + leptons (e,mu,tau) --> trak met
@@ -819,13 +830,13 @@ def createProcess(isMC, ## isMC flag
                 
         # MET
         process.met_chs = cms.EDAnalyzer('JMEMETAnalyzer',
-                                         src = cms.InputTag('slimmedMETsCHS', '', 'JRA'),
+                                         src = cms.InputTag('slimmedMETsCHS', '', processName),
                                          caloMET = cms.InputTag('slimmedMETs', '', 'PAT')
                                          )
         process.jmfw_analyzers += process.met_chs
             
         process.met_puppi = cms.EDAnalyzer('JMEMETAnalyzer',
-                                           src = cms.InputTag('slimmedMETsPuppi', '', 'JRA'),
+                                           src = cms.InputTag('slimmedMETsPuppi', '', processName),
                                            caloMET = cms.InputTag('slimmedMETsPuppi', '', 'PAT')
                                            )
         process.jmfw_analyzers += process.met_puppi
@@ -845,9 +856,9 @@ def createProcess(isMC, ## isMC flag
                                srcGenJetsCleaned   = cms.InputTag("selectedPatak4GenJetsNoNuCleaned"),
                                srcGenParticles     = cms.InputTag("prunedGenParticles","","PAT"),
                                srcGenEventInfo     = cms.InputTag("generator"),
-                               srcPFMet            = cms.InputTag("slimmedMETs","","JRA"),
-                               srcPFCHSMet         = cms.InputTag("slimmedMETsCHS","","JRA"),
-                               srcPFPuppiMet       = cms.InputTag("slimmedMETsPuppi","","JRA"),
+                               srcPFMet            = cms.InputTag("slimmedMETs","",processName),
+                               srcPFCHSMet         = cms.InputTag("slimmedMETsCHS","",processName),
+                               srcPFPuppiMet       = cms.InputTag("slimmedMETsPuppi","",processName),
                                srcRecoilPFMet      = cms.InputTag("mvaPUPPET","recoilslimmedMETs"),
                                srcRecoilPFCHSMet   = cms.InputTag("mvaPUPPET","recoilslimmedMETsCHS"),
                                srcRecoilPFPuppiMet = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppi"),

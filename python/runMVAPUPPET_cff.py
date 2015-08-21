@@ -13,6 +13,7 @@ from PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi import slimmedMETs
 from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1
 
 def runMVAPUPPET(process,
+                 processName,
                  isMC,
                  srcMuons =  "slimmedMuons", ## inputMuonCollection
                  muonTypeID    = "Tight", ## type of muon ID to be applied                                                                                                   
@@ -220,6 +221,12 @@ def runMVAPUPPET(process,
         process.jmfw_analyzers += getattr(process,"LeptonMergeFilter");
             
 
+        #### run loose muon selection
+
+        #### loose lepton veto
+        
+
+
     ## jet lepton cleaning
     setattr(getattr(process,jetCollectionPuppi),"cut",cms.string('pt > %f'%jetPtCut))
     setattr(getattr(process,jetCollectionPF),"cut",cms.string('pt > %f'%jetPtCut))
@@ -405,8 +412,10 @@ def runMVAPUPPET(process,
         process.slimmedMETsPuppi.src = cms.InputTag("patPFMetPuppi")
         process.slimmedMETsPuppi.rawUncertainties = cms.InputTag("patPFMetPuppi") # only central value                                                                          
 
-    del process.slimmedMETsPuppi.type1Uncertainties # not available                                                                                                             
-    del process.slimmedMETsPuppi.type1p2Uncertainties # not available                                                                                                          
+    if hasattr(process.slimmedMETsPuppi, "type1Uncertainties"):
+        del process.slimmedMETsPuppi.type1Uncertainties # not available                                                                                                     
+    if hasattr(process.slimmedMETsPuppi, "type1p2Uncertainties"):
+        del process.slimmedMETsPuppi.type1p2Uncertainties # not available                                                                                        
 
     
     #### puppi charged particles == charged PV                                                                                                                             
@@ -480,8 +489,10 @@ def runMVAPUPPET(process,
     process.slimmedMETsPuppiChargedPV.src = cms.InputTag("patPFMetPuppiChargedPV")
     process.slimmedMETsPuppiChargedPV.rawUncertainties = cms.InputTag("patPFMetPuppiChargedPV") # only central value                                                           
 
-    del process.slimmedMETsPuppiChargedPV.type1Uncertainties # not available                                                                                                 
-    del process.slimmedMETsPuppiChargedPV.type1p2Uncertainties # not available                                                                                               
+    if hasattr(process.slimmedMETsPuppiChargedPV,"type1Uncertainties"):
+        del process.slimmedMETsPuppiChargedPV.type1Uncertainties # not available                                                                                           
+    if hasattr(process.slimmedMETsPuppiChargedPV,"type1p2Uncertainties"):
+        del process.slimmedMETsPuppiChargedPV.type1p2Uncertainties # not available                                                                                        
 
     
     ### charge candidate from PU and build the Met ( we can take the one defined for the isolation)                                                                          
@@ -495,8 +506,10 @@ def runMVAPUPPET(process,
     process.slimmedMETsPuppiChargedPU.src = cms.InputTag("patPFMetChargedPU")
     process.slimmedMETsPuppiChargedPU.rawUncertainties = cms.InputTag("patPFMetChargedPU") # only central value                                                              
 
-    del process.slimmedMETsPuppiChargedPU.type1Uncertainties # not available                                                                                                 
-    del process.slimmedMETsPuppiChargedPU.type1p2Uncertainties # not available                                                                                               
+    if hasattr(process.slimmedMETsPuppiChargedPU,"type1Uncertainties"):
+        del process.slimmedMETsPuppiChargedPU.type1Uncertainties # not available                                                                                            
+    if hasattr(process.slimmedMETsPuppiChargedPU,"type1p2Uncertainties"):
+        del process.slimmedMETsPuppiChargedPU.type1p2Uncertainties # not available                                                                                       
 
     
      ## neutral particles from PV starting from puppi particles                                                                                                               
@@ -510,10 +523,10 @@ def runMVAPUPPET(process,
     process.slimmedMETsPuppiNeutralPV.src = cms.InputTag("patPFMetPuppiNeutralPV")
     process.slimmedMETsPuppiNeutralPV.rawUncertainties = cms.InputTag("patPFMetPuppiNeutralPV") # only central value                                                         
     
-    del process.slimmedMETsPuppiNeutralPV.type1Uncertainties # not available                                                                                                
-    del process.slimmedMETsPuppiNeutralPV.type1p2Uncertainties # not available                                                                                               
-
-
+    if hasattr(process.slimmedMETsPuppiNeutralPV,"type1Uncertainties"):
+        del process.slimmedMETsPuppiNeutralPV.type1Uncertainties # not available                                                                                                
+    if hasattr(process.slimmedMETsPuppiNeutralPV,"type1p2Uncertainties"):
+        del process.slimmedMETsPuppiNeutralPV.type1p2Uncertainties # not available                                                                                         
 
     ## neutral particles from PU starting from inverted puppi particles                                                                                                      
     process.pfMetPuppiNeutralPU       = pfMet.clone()
@@ -526,8 +539,10 @@ def runMVAPUPPET(process,
     process.slimmedMETsPuppiNeutralPU.src = cms.InputTag("patPFMetPuppiNeutralPU")
     process.slimmedMETsPuppiNeutralPU.rawUncertainties = cms.InputTag("patPFMetPuppiNeutralPU") # only central value                                                         
     
-    del process.slimmedMETsPuppiNeutralPU.type1Uncertainties # not available                                                                                                
-    del process.slimmedMETsPuppiNeutralPU.type1p2Uncertainties # not available                                                                                               
+    if hasattr(process.slimmedMETsPuppiNeutralPU,"type1Uncertainties"):
+        del process.slimmedMETsPuppiNeutralPU.type1Uncertainties # not available                                                                                                
+    if hasattr(process.slimmedMETsPuppiNeutralPU,"type1p2Uncertainties"):
+        del process.slimmedMETsPuppiNeutralPU.type1p2Uncertainties # not available                                                                                          
     
 
     ### last inputs for standard MVA met
@@ -541,8 +556,10 @@ def runMVAPUPPET(process,
     process.slimmedMETsChargedPVNeutralPVPUJetID.src = cms.InputTag("patPFMetChargedPVNeutralPVPUJetID")
     process.slimmedMETsChargedPVNeutralPVPUJetID.rawUncertainties = cms.InputTag("patPFMetChargedPVNeutralPVPUJetID") # only central value                                   
     
-    del process.slimmedMETsChargedPVNeutralPVPUJetID.type1Uncertainties # not available                                                                                        
-    del process.slimmedMETsChargedPVNeutralPVPUJetID.type1p2Uncertainties # not available                                                                                       
+    if hasattr(process.slimmedMETsChargedPVNeutralPVPUJetID,"type1Uncertainties"):
+        del process.slimmedMETsChargedPVNeutralPVPUJetID.type1Uncertainties # not available                                                                                  
+    if hasattr(process.slimmedMETsChargedPVNeutralPVPUJetID,"type1p2Uncertainties"):
+        del process.slimmedMETsChargedPVNeutralPVPUJetID.type1p2Uncertainties # not available                                                                                  
 
     ### last inputs for standard MVA met
     process.pfMetChargedPUNeutralPUPUJetID       = pfMet.clone()
@@ -555,8 +572,10 @@ def runMVAPUPPET(process,
     process.slimmedMETsChargedPUNeutralPUPUJetID.src = cms.InputTag("patPFMetChargedPUNeutralPUPUJetID")
     process.slimmedMETsChargedPUNeutralPUPUJetID.rawUncertainties = cms.InputTag("patPFMetChargedPUNeutralPUPUJetID") # only central value                                   
     
-    del process.slimmedMETsChargedPUNeutralPUPUJetID.type1Uncertainties # not available                                                                                        
-    del process.slimmedMETsChargedPUNeutralPUPUJetID.type1p2Uncertainties # not available                                                                                       
+    if hasattr(process.slimmedMETsChargedPUNeutralPUPUJetID,"type1Uncertainties"):
+        del process.slimmedMETsChargedPUNeutralPUPUJetID.type1Uncertainties # not available                                                                                    
+    if hasattr(process.slimmedMETsChargedPUNeutralPUPUJetID,"type1p2Uncertainties"):
+        del process.slimmedMETsChargedPUNeutralPUPUJetID.type1p2Uncertainties # not available                                                                             
 
     ### last inputs for standard MVA met
     process.pfMetChargedPVNeutralPV       = pfMet.clone()
@@ -569,15 +588,17 @@ def runMVAPUPPET(process,
     process.slimmedMETsChargedPVNeutralPV.src = cms.InputTag("patPFMetChargedPVNeutralPV")
     process.slimmedMETsChargedPVNeutralPV.rawUncertainties = cms.InputTag("patPFMetChargedPVNeutralPV") # only central value                                   
     
-    del process.slimmedMETsChargedPVNeutralPV.type1Uncertainties # not available                                                                                        
-    del process.slimmedMETsChargedPVNeutralPV.type1p2Uncertainties # not available                                                                                              
+    if hasattr(process.slimmedMETsChargedPVNeutralPV,"type1Uncertainties"):
+        del process.slimmedMETsChargedPVNeutralPV.type1Uncertainties # not available                                                                                        
+    if hasattr(process.slimmedMETsChargedPVNeutralPV,"type1p2Uncertainties"):
+        del process.slimmedMETsChargedPVNeutralPV.type1p2Uncertainties # not available                                                                                        
     
     ### MVA PUPPET
     setattr(process,"mvaPUPPET", cms.EDProducer("mvaPUPPET",                                                
                                                 referenceMET = cms.InputTag("slimmedMETsPuppi"),
-                                                srcMETs      = cms.VInputTag(cms.InputTag("slimmedMETs","","JRA"),
+                                                srcMETs      = cms.VInputTag(cms.InputTag("slimmedMETs","",processName),
                                                                              cms.InputTag("slimmedMETsCHS"),
-                                                                             cms.InputTag("slimmedMETsPuppi","","JRA"),
+                                                                             cms.InputTag("slimmedMETsPuppi","",processName),
                                                                              cms.InputTag("slimmedMETsPuppiChargedPU"),
                                                                              cms.InputTag("slimmedMETsPuppiChargedPV"),
                                                                              cms.InputTag("slimmedMETsPuppiNeutralPV"),
