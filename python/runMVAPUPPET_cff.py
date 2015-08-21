@@ -22,7 +22,8 @@ def runMVAPUPPET(process,
                  relativeIsoCutMuons = 0.12,
                  srcElectrons = "slimmedElectrons", 
                  electronTypeID= "Tight", 
-                 electronID_map = 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight',
+                 electronID_map = 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium',
+                 electronID_map_loose = 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-loose',
                  iso_map_electrons = [], 
                  typeIsoElectrons = "rhoCorr",
                  relativeIsoCutEletrons = 0.12,
@@ -46,7 +47,8 @@ def runMVAPUPPET(process,
                  runPUPPINoLeptons = True
                  ):
 
-
+    relativeIsoCutMuonsLoose = relativeIsoCutMuons+0.05;
+    relativeIsoCutEletronsLoose = relativeIsoCutEletrons+0.05;    
     ## check if puppi is setup or not
     if not hasattr(process, 'puppi'):
         process.load('CommonTools.PileupAlgos.Puppi_cff')
@@ -121,23 +123,30 @@ def runMVAPUPPET(process,
                     electronCollection = "")
 
 
+    ############
+    ############
 
-    ##### apply W or Z selections
-    if not applyWSelections :
+    if applyZSelections and applyWSelections:
+        sys.exit("Z and W selections cannot be applied at the same time --> exit");
+
+    if not applyZSelections and not applyWSelections:
+        sys.exit("Z and W selections cannot be false at the same time --> exit");
+
+    ##### apply Z selection ######
+    if applyZSelections :
+        
         setattr(process,"ZdiMuon"+muonTypeID,cms.EDProducer("CandViewCombiner",
                                                             decay       = cms.string(srcMuons+muonTypeID+"@+ "+srcMuons+muonTypeID+"@-"),
                                                             checkCharge = cms.bool(True),
-                                                            cut         = cms.string("mass > 70 && mass < 110 & charge=0"),
-                                                            ))
+                                                            cut         = cms.string("mass > 70 && mass < 110 & charge=0")))
         
-        process.jmfw_analyzers += getattr(process,"ZdiMuon"+muonTypeID);
-
         setattr(process,"ZdiElectron"+electronTypeID,cms.EDProducer("CandViewCombiner",
                                                                     decay       = cms.string(srcElectrons+electronTypeID+"@+ "+srcElectrons+electronTypeID+"@-"),
                                                                     checkCharge = cms.bool(True),
                                                                     cut         = cms.string("mass > 70 && mass < 110 & charge=0"),
                                                                     ))
 
+        process.jmfw_analyzers += getattr(process,"ZdiMuon"+muonTypeID);
         process.jmfw_analyzers += getattr(process,"ZdiElectron"+electronTypeID);
 
         if tauTypeID != "":
@@ -145,70 +154,57 @@ def runMVAPUPPET(process,
             setattr(process,"ZdiTau"+tauTypeID,cms.EDProducer("CandViewCombiner",
                                                               decay       = cms.string(srcTaus+tauTypeID+"Cleaned@+ "+srcTaus+tauTypeID+"Cleaned@-"),
                                                               checkCharge = cms.bool(True),
-                                                              cut         = cms.string("mass > 70 && mass < 110 & charge=0"),
-                                                              ))
+                                                              cut         = cms.string("mass > 70 && mass < 110 & charge=0")))
 
             process.jmfw_analyzers += getattr(process,"ZdiTau"+tauTypeID);
 
             ## merge all the Z canddates and ask for only one candidate per event                                                                                            
             setattr(process,"ZdiLepton", cms.EDProducer("CandViewMerger",
-                                                        src = cms.VInputTag("ZdiMuon"+muonTypeID,"ZdiElectron"+electronTypeID,"ZdiTau"+tauTypeID)
-                                                        ))
+                                                        src = cms.VInputTag("ZdiMuon"+muonTypeID,"ZdiElectron"+electronTypeID,"ZdiTau"+tauTypeID)))
+ 
         else:
 
                 ## merge all the Z canddates and ask for only one candidate per event                                                                                           
                 setattr(process,"ZdiLepton", cms.EDProducer("CandViewMerger",
-                                                            src = cms.VInputTag("ZdiMuon"+muonTypeID,"ZdiElectron"+electronTypeID)
-                                                            ))
+                                                            src = cms.VInputTag("ZdiMuon"+muonTypeID,"ZdiElectron"+electronTypeID)))
 
-                process.jmfw_analyzers += getattr(process,"ZdiLepton");
+        process.jmfw_analyzers += getattr(process,"ZdiLepton");
 
-        ## filter number of Z candidates                                                                                                                                    
-        if applyZSelections :
-
-            setattr(process,"ZdiLeptonFilter",cms.EDFilter("PATCandViewCountFilter",
-                                                           minNumber = cms.uint32(1),
-                                                           maxNumber = cms.uint32(1),
-                                                           src = cms.InputTag("ZdiLepton")
-                                                           ))
-            
-            process.jmfw_analyzers += getattr(process,"ZdiLeptonFilter");
-
-          ## now merge all the previous leptons in one single collection and ask for no more than 2 tight leptons                                                              
-        if tauTypeID != "" :
-            setattr(process,"LeptonMerge", cms.EDProducer("CandViewMerger",
-                                                          src = cms.VInputTag(srcMuons+muonTypeID,srcElectrons+electronTypeID,srcTaus+tauTypeID+"Cleaned")
-                                                          ))
-
-        else:
-            setattr(process,"LeptonMerge", cms.EDProducer("CandViewMerger",
-                                                          src = cms.VInputTag(srcMuons+muonTypeID,srcElectrons+electronTypeID)
-                                                          ))
-            
-            process.jmfw_analyzers += getattr(process,"LeptonMerge");
-            
-        ## apply selections on Nleptons                                                                                                                                      
-        if applyZSelections :
-            setattr(process,"LeptonMergeFilter",cms.EDFilter("PATCandViewCountFilter",
-                                                             minNumber = cms.uint32(2),
-                                                             maxNumber = cms.uint32(2),
-                                                             src = cms.InputTag("LeptonMerge")
-                                                             ))
-            process.jmfw_analyzers += getattr(process,"LeptonMergeFilter");
-
-
-    ### apply simpler selection for W+jets events                                                                                                                            
-    else:
         
+        setattr(process,"ZdiLeptonFilter",cms.EDFilter("PATCandViewCountFilter",
+                                                       minNumber = cms.uint32(1),
+                                                       maxNumber = cms.uint32(1),
+                                                       src = cms.InputTag("ZdiLepton")))
+        
+        process.jmfw_analyzers += getattr(process,"ZdiLeptonFilter");
+
+        ### count the number of leptons        
         if tauTypeID != "" :
             setattr(process,"LeptonMerge", cms.EDProducer("CandViewMerger",
-                                                          src = cms.VInputTag(srcMuons+muonTypeID,srcElectrons+electronTypeID,srcTaus+tauTypeID+"Cleaned")
-                                                              ))
+                                                          src = cms.VInputTag(srcMuons+muonTypeID,srcElectrons+electronTypeID,srcTaus+tauTypeID+"Cleaned")))
 
         else:
             setattr(process,"LeptonMerge", cms.EDProducer("CandViewMerger",
-                                                              src = cms.VInputTag(srcMuons+muonTypeID,srcElectrons+electronTypeID)
-                                                              ))
+                                                          src = cms.VInputTag(srcMuons+muonTypeID,srcElectrons+electronTypeID)))
+            
+        process.jmfw_analyzers += getattr(process,"LeptonMerge");
+            
+        setattr(process,"LeptonMergeFilter",cms.EDFilter("PATCandViewCountFilter",
+                                                         minNumber = cms.uint32(2),
+                                                         maxNumber = cms.uint32(2),
+                                                         src = cms.InputTag("LeptonMerge")
+                                                         ))
+        process.jmfw_analyzers += getattr(process,"LeptonMergeFilter");
+
+    if applyWSelections:
+
+        if tauTypeID != "" :
+            setattr(process,"LeptonMerge", cms.EDProducer("CandViewMerger",
+                                                          src = cms.VInputTag(srcMuons+muonTypeID,srcElectrons+electronTypeID,srcTaus+tauTypeID+"Cleaned")))
+
+        else:
+            setattr(process,"LeptonMerge", cms.EDProducer("CandViewMerger",
+                                                          src = cms.VInputTag(srcMuons+muonTypeID,srcElectrons+electronTypeID)))
 
         process.jmfw_analyzers += getattr(process,"LeptonMerge");
             
@@ -222,8 +218,75 @@ def runMVAPUPPET(process,
             
 
         #### run loose muon selection
+        if len(iso_map_muons) < 3 :
+        
+            applyMuonID(process, 
+                        src   = srcMuons,
+                        label = "Loose", 
+                        iso_map_charged_hadron  = '',
+                        iso_map_neutral_hadron  = '',
+                        iso_map_photon          = '',
+                        typeIso                 = typeIsoMuons,
+                        relativeIsolationCutVal = relativeIsoCutMuonsLoose
+                    )
+        else:
+
+            applyMuonID(process, 
+                        src   = srcMuons, 
+                        label = "Loose", 
+                        iso_map_charged_hadron  = iso_map_muons[0],
+                        iso_map_neutral_hadron  = iso_map_muons[1],
+                        iso_map_photon          = iso_map_muons[2],
+                        rho = 'fixedGridRhoFastjetAll',
+                        typeIso                 = typeIsoMuons,
+                        relativeIsolationCutVal = relativeIsoCutMuonsLoose
+                        )
+
+
+        ### run Electron ID
+        if len(iso_map_electrons) < 3 :
+            applyElectronID(process, 
+                            label = "Loose", 
+                            src   = srcElectrons,
+                            iso_map_charged_hadron  = '',
+                            iso_map_neutral_hadron  = '',
+                            iso_map_photon          = '',
+                            typeIso = typeIsoElectrons,
+                            electron_id_map = electronID_map_loose,
+                            relativeIsolationCutVal = relativeIsoCutEletronsLoose
+                            )
+        else:
+            applyElectronID(process, 
+                            label = "Loose", 
+                            src   = srcElectrons,
+                            iso_map_charged_hadron  = iso_map_electrons[0],
+                            iso_map_neutral_hadron  = iso_map_electrons[1],
+                            iso_map_photon          = iso_map_electrons[2],
+                            typeIso = typeIsoElectrons,
+                            electron_id_map = electronID_map_loose,
+                            relativeIsolationCutVal = relativeIsoCutEletronsLoose
+                            )
+
+
 
         #### loose lepton veto
+        if tauTypeID != "" :
+            setattr(process,"LeptonMergeLoose", cms.EDProducer("CandViewMerger",
+                                                               src = cms.VInputTag(srcMuons+"Loose",srcElectrons+"Loose",srcTaus+tauTypeID+"Cleaned")))
+
+        else:
+            setattr(process,"LeptonMergeLoose", cms.EDProducer("CandViewMerger",
+                                                               src = cms.VInputTag(srcMuons+"Loose",srcElectrons+"Loose")))
+
+        process.jmfw_analyzers += getattr(process,"LeptonMergeLoose");
+            
+        setattr(process,"LeptonMergeFilterLoose",cms.EDFilter("PATCandViewCountFilter",
+                                                              minNumber = cms.uint32(1),
+                                                              maxNumber = cms.uint32(1),
+                                                              src = cms.InputTag("LeptonMerge")
+                                                              ))
+
+        process.jmfw_analyzers += getattr(process,"LeptonMergeFilterLoose");
         
 
 
