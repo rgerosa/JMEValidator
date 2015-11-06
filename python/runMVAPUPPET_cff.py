@@ -462,6 +462,7 @@ def runMVAPUPPET(process,
             process.patMETPuppi.addGenMET = False
 
 
+    """
     ### PUPPI                                                                                                                                                             
     process.slimmedMETsPuppi = slimmedMETs.clone()
     if hasattr(process, "patMETPuppi"):
@@ -481,9 +482,10 @@ def runMVAPUPPET(process,
         del process.slimmedMETsPuppi.type1p2Uncertainties # not available                                                                                        
 
     
+    """
     #### puppi charged particles == charged PV                                                                                                                             
-    process.pfAllChargedParticlesPuppi = cms.EDFilter("CandPtrSelector",
-                                                      src = cms.InputTag("puppi"),
+    process.pfAllChargedParticles = cms.EDFilter("CandPtrSelector",
+                                                      src = cms.InputTag("packedPFCandidates"),
                                                       cut = cms.string("charge !=0 && pt > 0 && abs(eta) < %f"%etaCutForMetDiagnostic))
 
     #### charged particles PU                                                                                                                             
@@ -498,16 +500,16 @@ def runMVAPUPPET(process,
                                                        src = cms.InputTag("puppi"),
                                                        cut = cms.string("charge == 0 && pt > 0 && abs(eta) < %f"%etaCutForMetDiagnostic))
 
-
     ### particles charged PV + neutrals in jet passing PUJET 
     process.pfChargedPVNeutralsPVPUJetIDMerge = cms.EDProducer("CandViewMerger",
-                                                               src = cms.VInputTag("pfAllChargedParticlesPuppi",cms.InputTag("neutralInJets","neutralPassingPUIDJets"))
+                                                               src = cms.VInputTag("pfAllChargedParticles",cms.InputTag("neutralInJets","neutralPassingPUIDJets"))
                                                                )
 
     process.pfChargedPVNeutralsPVPUJetID = cms.EDFilter("CandPtrSelector",
                                                        src = cms.InputTag("pfChargedPVNeutralsPVPUJetIDMerge"),
                                                        cut = cms.string("pt > 0 && abs(eta) < %f"%etaCutForMetDiagnostic))
 
+    """
     ## inverted puppi : neutrals PU and charged puppi                                                                                                                        
     process.pfPUPuppi = cms.EDFilter("CandPtrSelector",
                                      src = cms.InputTag("pupuppi"),
@@ -523,6 +525,7 @@ def runMVAPUPPET(process,
 
 
     ### Charged PU + neutrals in jet failing PUID
+    """
     process.pfChargedPUNeutralsPUPUJetIDMerge = cms.EDProducer("CandViewMerger",
                                                                src = cms.VInputTag("pfChargedPU",cms.InputTag("neutralInJets","neutralFailingPUIDJets"))
                                                                )
@@ -531,16 +534,16 @@ def runMVAPUPPET(process,
                                                         src = cms.InputTag("pfChargedPUNeutralsPUPUJetIDMerge"),
                                                         cut = cms.string("pt > 0 && abs(eta) < %f"%etaCutForMetDiagnostic))
 
-    
     ## chargePV + all neutrals - PU neutrals
     process.pfChargedPVNeutralsPVMerge = cms.EDProducer("CandViewMerger",
-                                                        src = cms.VInputTag(cms.InputTag("neutralInJets","neutralParticlesPV"),"pfAllChargedParticlesPuppi"))
+                                                        src = cms.VInputTag(cms.InputTag("neutralInJets","neutralParticlesPV"),"pfAllChargedParticles"))
 
 
     process.pfChargedPVNeutralsPV = cms.EDFilter("CandPtrSelector",
                                                  src = cms.InputTag("pfChargedPVNeutralsPVMerge"),
                                                  cut = cms.string("pt > 0 && abs(eta) < %f"%etaCutForMetDiagnostic))
 
+    """"
     #### Missing energies                                                                                                                                                    
     process.pfMetPuppiChargedPV       = pfMet.clone()
     process.pfMetPuppiChargedPV.src   = cms.InputTag("pfAllChargedParticlesPuppi") ## packed candidates without fromPV < 1                                                   
@@ -606,7 +609,7 @@ def runMVAPUPPET(process,
         del process.slimmedMETsPuppiNeutralPU.type1Uncertainties # not available                                                                                                
     if hasattr(process.slimmedMETsPuppiNeutralPU,"type1p2Uncertainties"):
         del process.slimmedMETsPuppiNeutralPU.type1p2Uncertainties # not available                                                                                          
-    
+    """    
 
     ### last inputs for standard MVA met
     process.pfMetChargedPVNeutralPVPUJetID       = pfMet.clone()
@@ -657,20 +660,20 @@ def runMVAPUPPET(process,
         del process.slimmedMETsChargedPVNeutralPV.type1p2Uncertainties # not available                                                                                        
     
     ### MVA PUPPET
-    setattr(process,"mvaPUPPET", cms.EDProducer("mvaPUPPET",                                                
-                                                referenceMET = cms.InputTag("slimmedMETsPuppi"),
-                                                srcMETs      = cms.VInputTag(cms.InputTag("slimmedMETs","",processName),
+    print "process name: " 
+    print processName
+    setattr(process,"mvaMET", cms.EDProducer("mvaPUPPET",                                                
+                                                referenceMET = cms.InputTag("patPFMet"),
+
+                                                #srcMETs      = cms.VInputTag(),
+                                                srcMETs      = cms.VInputTag(cms.InputTag("slimmedMETs"),
                                                                              cms.InputTag("slimmedMETsCHS"),
-                                                                             cms.InputTag("slimmedMETsPuppi","",processName),
-                                                                             cms.InputTag("slimmedMETsPuppiChargedPU"),
-                                                                             cms.InputTag("slimmedMETsPuppiChargedPV"),
-                                                                             cms.InputTag("slimmedMETsPuppiNeutralPV"),
-                                                                             cms.InputTag("slimmedMETsPuppiNeutralPU"),
                                                                              cms.InputTag("slimmedMETsChargedPVNeutralPVPUJetID"),
                                                                              cms.InputTag("slimmedMETsChargedPUNeutralPUPUJetID"),
-                                                                             cms.InputTag("slimmedMETsChargedPVNeutralPV")),
-                                                inputMETFlags = cms.vint32(0,1,1,0,0,0,0,0,0,0,0),
-                                                srcJets        = cms.InputTag(jetCollectionPuppi+"Cleaned"),
+                                                                             cms.InputTag("slimmedMETsChargedPVNeutralPV") ),
+                                                inputMETFlags = cms.vint32(1,1,1,0,1,0),
+                                                #inputMETFlags = cms.vint32(1, 1),
+                                                srcJets        = cms.InputTag(jetCollectionPF+"Cleaned"),
                                                 srcVertices    = cms.InputTag("offlineSlimmedPrimaryVertices"),
                                                 srcTaus        = cms.InputTag(srcTaus+tauTypeID+"Cleaned"),
                                                 srcMuons       = cms.InputTag(srcMuons+muonTypeID),
@@ -685,5 +688,5 @@ def runMVAPUPPET(process,
                                                 produceRecoils = cms.bool(putRecoilInsideEvent)
                                                 ))
 
-    if not runPUPPINoLeptons:
-        getattr(process,"mvaPUPPET").inputMETFlags = cms.vint32(1,1,1,1,0,1,0,0,1,0,1)
+    #if not runPUPPINoLeptons:
+    #    getattr(process,"mvaPUPPET").inputMETFlags = cms.vint32(1,1,1,1,0,1,0,0,1,0,1)

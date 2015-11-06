@@ -693,7 +693,7 @@ def createProcess(isMC, ## isMC flag
                                                cut = cms.string("pt > 0 && charge != 0 && abs(eta) < %f"%etaCutForMetDiagnostic))
         
 
-        process.jmfw_analyzers += getattr(process,"mvaPUPPET");
+#        process.jmfw_analyzers += getattr(process,"mvaMET");
         
         
     if dropAnalyzerDumpEDM:        
@@ -705,182 +705,45 @@ def createProcess(isMC, ## isMC flag
         process.jmfw_analyzers += process.run
     
 
-    if not runMVAPUPPETAnalysis:
 
-     # Event
-        from RecoJets.Configuration.RecoPFJets_cff import kt6PFJets
-        process.kt6PFJetsRhos = kt6PFJets.clone(
-            src = cms.InputTag('packedPFCandidates'),
-            doFastJetNonUniform = cms.bool(True),
-            puCenters = cms.vdouble(5,-4,-3,-2,-1,0,1,2,3,4,5),
-            puWidth = cms.double(.8),
-            nExclude = cms.uint32(2))
-
-
-        process.event = cms.EDAnalyzer('EventAnalyzer',
-                                       rho        = cms.InputTag('fixedGridRhoFastjetAll'),
-                                       rhos       = cms.InputTag('kt6PFJetsRhos', 'rhos'),
-                                       vertices   = cms.InputTag('offlineSlimmedPrimaryVertices')
+    setattr(process, "PUPPET", 
+            cms.EDAnalyzer('PUPPETAnalyzer',
+                           isMC      = cms.bool(isMC),
+                           srcJet    = cms.InputTag("selectedPatJetsAK4PFPuppiCleaned"),
+                           srcJetPF  = cms.InputTag("selectedPatJetsAK4PFCleaned"),
+                           srcVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
+                           srcZboson = cms.InputTag("mvaMET","ZtagBoson"),
+                           srcLeptons = cms.InputTag("LeptonMerge"),
+                           srcGenMet = cms.InputTag("slimmedMETs","","PAT"),
+                           srcGenJets          = cms.InputTag("slimmedGenJets","","PAT"),
+                           srcGenJetsCleaned   = cms.InputTag("selectedPatak4GenJetsNoNuCleaned"),
+                           srcGenParticles     = cms.InputTag("prunedGenParticles","","PAT"),
+                           srcGenEventInfo     = cms.InputTag("generator"),
+                           srcPFMet            = cms.InputTag("slimmedMETs","",processName),
+                           srcPFCHSMet         = cms.InputTag("slimmedMETsCHS","",processName),
+                           #srcPFPuppiMet       = cms.InputTag("slimmedMETsPuppi","",processName),
+                           srcRecoilPFMet      = cms.InputTag("mvaMET","recoilslimmedMETs"),
+                           srcRecoilPFCHSMet   = cms.InputTag("mvaMET","recoilslimmedMETsCHS"),
+                           #srcRecoilPFPuppiMet = cms.InputTag("mvaMET","recoilslimmedMETsPuppi"),
+                           #srcRecoilPFPuppiMet_ChargedPV = cms.InputTag("mvaMET","recoilslimmedMETsPuppiChargedPV"),
+                           #srcRecoilPFPuppiMet_ChargedPU = cms.InputTag("mvaMET","recoilslimmedMETsPuppiChargedPU"),
+                           #srcRecoilPFPuppiMet_NeutralPV = cms.InputTag("mvaMET","recoilslimmedMETsPuppiNeutralPV"),
+                           #srcRecoilPFPuppiMet_NeutralPU = cms.InputTag("mvaMET","recoilslimmedMETsPuppiNeutralPU"),
+                           srcRecoilPFChargedPVNeutralPVPUJetID = cms.InputTag("mvaMET","recoilslimmedMETsChargedPVNeutralPVPUJetID"),
+                           srcRecoilPFChargedPUNeutralPUPUJetID = cms.InputTag("mvaMET","recoilslimmedMETsChargedPUNeutralPUPUJetID"),
+                           srcRecoilPFChargedPVNeutralPV        = cms.InputTag("mvaMET","recoilslimmedMETsChargedPVNeutralPV"),
+                           srcMVAMet     = cms.InputTag("mvaMET","mvaMET"),
+                           dRgenMatching = cms.double(0.3),
+                           srcMetFiltersBits = cms.InputTag("TriggerResults","","PAT"),
+                           srcTriggerBits = cms.InputTag("TriggerResults","","HLT"),
+                           srcTriggerPrescales = cms.InputTag('patTrigger')
+                           )
             )
-        
-        process.jmfw_analyzers += process.event
+    
+    if not isMC:
+        getattr(process,"PUPPET").srcMetFiltersBits = cms.InputTag("TriggerResults","","RECO")
 
-        # HLTs
-        process.hlt = cms.EDAnalyzer('HLTAnalyzer',
-                                     src = cms.InputTag('TriggerResults', '', 'HLT'),
-                                     prescales = cms.InputTag('patTrigger'),
-                                     objects = cms.InputTag("selectedPatTrigger"),
-                                     )
-
-        process.jmfw_analyzers += process.hlt
-
-        # Vertices
-        process.vertex = cms.EDAnalyzer('VertexAnalyzer',
-                                        src = cms.InputTag('offlineSlimmedPrimaryVertices')
-                                        )
-
-        process.jmfw_analyzers += process.vertex
-
-    # Muons : tight muons, DBWeight and puppiNoMu corrected
-    if not runMVAPUPPETAnalysis :
-  
-
-        process.muons = cms.EDAnalyzer('MuonAnalyzer',
-                                       src = cms.InputTag('slimmedMuons'),
-                                       vertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                                       rho = cms.InputTag('fixedGridRhoFastjetAll'),
-                                       isoValue_NH_pfWeighted_R04 = cms.InputTag('muPFIsoValueNHR04PFWGT'),
-                                       isoValue_Ph_pfWeighted_R04 = cms.InputTag('muPFIsoValuePhR04PFWGT'),                                   
-                                       isoValue_CH_puppiWeighted_R04 = cms.InputTag('muPFIsoValueCHR04PUPPI'),
-                                       isoValue_NH_puppiWeighted_R04 = cms.InputTag('muPFIsoValueNHR04PUPPI'),
-                                       isoValue_Ph_puppiWeighted_R04 = cms.InputTag('muPFIsoValuePhR04PUPPI'),                                   
-                                       isoValue_CH_puppiNoMuonWeighted_R04 = cms.InputTag('muPFIsoValueCHR04PUPPINoMu'),
-                                       isoValue_NH_puppiNoMuonWeighted_R04 = cms.InputTag('muPFIsoValueNHR04PUPPINoMu'),
-                                       isoValue_Ph_puppiNoMuonWeighted_R04 = cms.InputTag('muPFIsoValuePhR04PUPPINoMu'))
-                                       
-
-        process.jmfw_analyzers += process.muons
-
-        # Electrons
-        process.electrons = cms.EDAnalyzer('ElectronAnalyzer',
-                                                src = cms.InputTag('slimmedElectrons'),
-                                                vertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                                                conversions = cms.InputTag('reducedEgamma:reducedConversions'),
-                                                beamspot = cms.InputTag('offlineBeamSpot'),
-                                                rho = cms.InputTag('fixedGridRhoFastjetAll'),
-                                                ids = cms.VInputTag()
-                                                )
-
-        process.jmfw_analyzers += process.electrons
-
-
-        # Photons
-        process.photons = cms.EDAnalyzer('PhotonAnalyzer',
-                                         src = cms.InputTag('slimmedPhotons'),
-                                         electrons = cms.InputTag('slimmedElectrons'),
-                                         vertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                                         conversions = cms.InputTag('reducedEgamma:reducedConversions'),
-                                         beamspot = cms.InputTag('offlineBeamSpot'),
-                                         rho = cms.InputTag('fixedGridRhoFastjetAll'),
-                                         phoChargedHadronIsolation = cms.InputTag("photonIDValueMapProducer:phoChargedIsolation"),
-                                         phoNeutralHadronIsolation = cms.InputTag("photonIDValueMapProducer:phoNeutralHadronIsolation"),
-                                         phoPhotonIsolation = cms.InputTag("photonIDValueMapProducer:phoPhotonIsolation"),
-                                         effAreaChHadFile = cms.FileInPath("EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfChargedHadrons_V2.txt"),
-                                         effAreaNeuHadFile = cms.FileInPath("EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfNeutralHadrons_V2.txt"),
-                                         effAreaPhoFile = cms.FileInPath("EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfPhotons_V2.txt"),
-                                         ids = cms.VInputTag('egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-loose', 'egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-medium', 'egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-tight')
-                                         )
-        
-        process.jmfw_analyzers += process.photons
-
-        # Jets
-        for name, params in jetsCollections.items():
-            for index, pu_method in enumerate(params['pu_methods']):
-
-                algo = params['algo'].upper()
-                jetCollection = 'selectedPatJets%sPF%s' % (algo, pu_method)
-                
-                print('Adding analyzer for jets collection \'%s\'' % jetCollection)
-                
-                 # FIXME: Remove once PUPPI and SK payloads are in the GT
-                jec_payload = get_jec_payload(algo, pu_method)
-                jec_levels = get_jec_levels(pu_method)
-
-                if jec_payload == 'None':
-                    jec_payload = '';
-                    
-                if jec_levels == ['None']:
-                    jec_levels = []
-                    
-                analyzer = cms.EDAnalyzer('JMEJetAnalyzer',
-                                          JetAnalyserCommonParameters,
-                                          JetCorLabel   = cms.string(jec_payload),
-                                          JetCorLevels  = cms.vstring(params['jec_levels']),
-                                          srcJet        = cms.InputTag(jetCollection),
-                                          srcRho        = cms.InputTag('fixedGridRhoFastjetAll'),
-                                          srcVtx        = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                                          srcMuons      = cms.InputTag('selectedPatMuons')
-                                          )
-                
-                setattr(process, params['jec_payloads'][index], analyzer)
-                
-                process.jmfw_analyzers += analyzer
-                
-                
-                
-        # MET
-        process.met_chs = cms.EDAnalyzer('JMEMETAnalyzer',
-                                         src = cms.InputTag('slimmedMETsCHS', '', processName),
-                                         caloMET = cms.InputTag('slimmedMETs', '', 'PAT')
-                                         )
-        process.jmfw_analyzers += process.met_chs
-            
-        process.met_puppi = cms.EDAnalyzer('JMEMETAnalyzer',
-                                           src = cms.InputTag('slimmedMETsPuppi', '', processName),
-                                           caloMET = cms.InputTag('slimmedMETsPuppi', '', 'PAT')
-                                           )
-        process.jmfw_analyzers += process.met_puppi
-        
-    else:
-
-        setattr(process, "PUPPET", 
-                cms.EDAnalyzer('PUPPETAnalyzer',
-                               isMC      = cms.bool(isMC),
-                               srcJet    = cms.InputTag("selectedPatJetsAK4PFPuppiCleaned"),
-                               srcJetPF  = cms.InputTag("selectedPatJetsAK4PFCleaned"),
-                               srcVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
-                               srcZboson = cms.InputTag("mvaPUPPET","ZtagBoson"),
-                               srcLeptons = cms.InputTag("LeptonMerge"),
-                               srcGenMet = cms.InputTag("slimmedMETs","","PAT"),
-                               srcGenJets          = cms.InputTag("slimmedGenJets","","PAT"),
-                               srcGenJetsCleaned   = cms.InputTag("selectedPatak4GenJetsNoNuCleaned"),
-                               srcGenParticles     = cms.InputTag("prunedGenParticles","","PAT"),
-                               srcGenEventInfo     = cms.InputTag("generator"),
-                               srcPFMet            = cms.InputTag("slimmedMETs","",processName),
-                               srcPFCHSMet         = cms.InputTag("slimmedMETsCHS","",processName),
-                               srcPFPuppiMet       = cms.InputTag("slimmedMETsPuppi","",processName),
-                               srcRecoilPFMet      = cms.InputTag("mvaPUPPET","recoilslimmedMETs"),
-                               srcRecoilPFCHSMet   = cms.InputTag("mvaPUPPET","recoilslimmedMETsCHS"),
-                               srcRecoilPFPuppiMet = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppi"),
-                               srcRecoilPFPuppiMet_ChargedPV = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiChargedPV"),
-                               srcRecoilPFPuppiMet_ChargedPU = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiChargedPU"),
-                               srcRecoilPFPuppiMet_NeutralPV = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiNeutralPV"),
-                               srcRecoilPFPuppiMet_NeutralPU = cms.InputTag("mvaPUPPET","recoilslimmedMETsPuppiNeutralPU"),
-                               srcRecoilPFChargedPVNeutralPVPUJetID = cms.InputTag("mvaPUPPET","recoilslimmedMETsChargedPVNeutralPVPUJetID"),
-                               srcRecoilPFChargedPUNeutralPUPUJetID = cms.InputTag("mvaPUPPET","recoilslimmedMETsChargedPUNeutralPUPUJetID"),
-                               srcRecoilPFChargedPVNeutralPV        = cms.InputTag("mvaPUPPET","recoilslimmedMETsChargedPVNeutralPV"),
-                               srcMVAMet     = cms.InputTag("mvaPUPPET","mvaMET"),
-                               dRgenMatching = cms.double(0.3),
-                               srcMetFiltersBits = cms.InputTag("TriggerResults","","PAT"),
-                               srcTriggerBits = cms.InputTag("TriggerResults","","HLT"),
-                               srcTriggerPrescales = cms.InputTag('patTrigger')
-                               )
-                )
-        
-        if not isMC:
-            getattr(process,"PUPPET").srcMetFiltersBits = cms.InputTag("TriggerResults","","RECO")
-
-        process.jmfw_analyzers += getattr(process,"PUPPET")
+    process.jmfw_analyzers += getattr(process,"PUPPET")
                                            
 
     # Puppi ; only for the first 1000 events of the job
@@ -901,8 +764,4 @@ def createProcess(isMC, ## isMC flag
         process.jmfw_analyzers += process.puppiReader
  
     return process
-
-    #!
-    #! THAT'S ALL! CAN YOU BELIEVE IT? :-D
-    #!
     
