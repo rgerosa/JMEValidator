@@ -535,7 +535,7 @@ def createProcess(isMC, ## isMC flag
     from PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi import slimmedMETs
     if hasattr(slimmedMETs, "caloMET"):
         del slimmedMETs.caloMET
-
+    """"
     ### PUPPI : make slimmed METs in order to embed both corrected and not corrected one after TypeI
     ### Standard
     process.slimmedMETs = slimmedMETs.clone()
@@ -558,21 +558,15 @@ def createProcess(isMC, ## isMC flag
 
     if hasattr(process.slimmedMETs, "type1p2Uncertainties"):       
         del process.slimmedMETs.type1p2Uncertainties # not available
-
+    """
 
     ### CHS
     process.slimmedMETsCHS = slimmedMETs.clone()
-    if hasattr(process, "patMETCHS"):
-        # Create MET from Type 1 PF collection
-        process.patMETCHS.addGenMET = isMC
-        process.slimmedMETsCHS.src = cms.InputTag("patMETCHS")
-        process.slimmedMETsCHS.rawUncertainties = cms.InputTag("patPFMetCHS") # only central value
-    else:
-        # Create MET from RAW PF collection
-        process.patPFMetCHS.addGenMET = isMC
-        process.slimmedMETsCHS.src = cms.InputTag("patPFMetCHS")
-        if hasattr(process.slimmedMETsCHS, "rawUncertainties"):
-            del process.slimmedMETsCHS.rawUncertainties # not available
+    print "Create MET from RAW PF collection"
+    process.patPFMetCHS.addGenMET = isMC
+    process.slimmedMETsCHS.src = cms.InputTag("patPFMetCHS")
+    if hasattr(process.slimmedMETsCHS, "rawUncertainties"):
+        del process.slimmedMETsCHS.rawUncertainties # not available
 
     if hasattr(process.slimmedMETsCHS, "type1Uncertainties"):       
         del process.slimmedMETsCHS.type1Uncertainties # not available
@@ -675,10 +669,10 @@ def createProcess(isMC, ## isMC flag
                            srcGenParticles     = cms.InputTag("prunedGenParticles","","PAT"),
                            srcGenEventInfo     = cms.InputTag("generator"),
                            srcPFMet            = cms.InputTag("slimmedMETs"),
-                           srcPFCHSMet         = cms.InputTag("slimmedMETsCHS","",processName),
+                           srcPFCHSMet         = cms.InputTag("slimmedMETsCHS"),
                            srcPFPuppiMet       = cms.InputTag("slimmedMETsPuppi"),
 
-                           srcRecoilPFPuppiMet       = cms.InputTag("recoilslimmedMETsPuppi"),
+                           srcRecoilPFPuppiMet       = cms.InputTag("mvaMET", "recoilslimmedMETsPuppi"),
                            srcRecoilPFMet      = cms.InputTag("mvaMET","recoilslimmedMETs"),
                            srcRecoilPFCHSMet   = cms.InputTag("mvaMET","recoilslimmedMETsCHS"),
                            srcRecoilPFChargedPVNeutralPVPUJetID = cms.InputTag("mvaMET","recoilslimmedMETsChargedPVNeutralPVPUJetID"),
@@ -697,25 +691,5 @@ def createProcess(isMC, ## isMC flag
         getattr(process,"PUPPET").srcMetFiltersBits = cms.InputTag("TriggerResults","","RECO")
 
     process.jmfw_analyzers += getattr(process,"PUPPET")
-                                           
 
-    # Puppi ; only for the first 1000 events of the job
-    ## Turn on diagnostic
-    """"
-    if runPuppiDiagnostics :
-        process.puppi.puppiDiagnostics = cms.bool(True)
-        process.puppiReader = cms.EDAnalyzer("puppiAnalyzer",
-                                             treeName = cms.string("puppiTree"),
-                                             maxEvents = cms.int32(1000),
-                                             nAlgos = cms.InputTag("puppi", "PuppiNAlgos", "JRA"),
-                                             rawAlphas = cms.InputTag("puppi", "PuppiRawAlphas", "JRA"),
-                                             alphas = cms.InputTag("puppi", "PuppiAlphas", "JRA"),
-                                             alphasMed = cms.InputTag("puppi", "PuppiAlphasMed", "JRA"),
-                                             alphasRms = cms.InputTag("puppi", "PuppiAlphasRms", "JRA"),
-                                             packedPFCandidates = cms.InputTag("packedPFCandidates")
-                                             )
-        
-        process.jmfw_analyzers += process.puppiReader
- 
-    """
     return process
