@@ -36,7 +36,6 @@ options.register ('applyJECtoPuppiJets',  False,VarParsing.multiplicity.singleto
 options.register ('runPuppiDiagnostics',  False,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'run Puppi diagnostic and store in the output');
 ## Puppi special setup
 options.register ('etaCutForMetDiagnostic', 10.0,VarParsing.multiplicity.singleton, VarParsing.varType.float, 'introduce a cut for the diagnostic of the MET');
-options.register ('puppiCone',              [],      VarParsing.multiplicity.list, VarParsing.varType.float, 'dR cones for puppi (central, middle, forward)');
 options.register ('ptNeutralCut',           [],     VarParsing.multiplicity.list, VarParsing.varType.float, 'ptNeutral cut in each eta bin');
 options.register ('ptNeutralCutSlope',      [],  VarParsing.multiplicity.list, VarParsing.varType.float, 'ptNeutral cut in each eta bin');
 options.register ('etaBinPuppi',            [],     VarParsing.multiplicity.list, VarParsing.varType.float, 'eta bin for puppi algo');
@@ -44,22 +43,6 @@ options.register ('puppiUseCharge',         [], VarParsing.multiplicity.list, Va
 options.register ('ptThresholdForTypeIPuppi', 20.,    VarParsing.multiplicity.singleton, VarParsing.varType.float, 'pt threshold for typeI puppi Met');
 options.register ('runPUPPINoLeptons', True, VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'remove charged identified leptons before running puppi');
 options.parseArguments()
-
-## setup of puppi algorithm
-if len(options.puppiCone) == 0:
-  options.puppiCone.extend([0.4, 0.4, 0.4])
-
-if len(options.ptNeutralCut) == 0:
-  options.ptNeutralCut.extend([0.1, 0.75, 1.0])
-
-if len(options.ptNeutralCutSlope) == 0:
-  options.ptNeutralCutSlope.extend([0.015, 0.07, 0.07])  
-
-if len(options.etaBinPuppi) == 0:
-  options.etaBinPuppi.extend([2.5, 3.0, 10.0])  
-
-if len(options.puppiUseCharge) == 0:
-  options.puppiUseCharge.extend([True, False, False])  
 
 
 ## import the function to create the process
@@ -76,19 +59,11 @@ process = createProcess(options.isMC, ## MC or data
                         options.electronTypeID, ## electrons
                         options.tauTypeID,## taus
                         options.dropAnalyzerDumpEDM, ## debug in EDM file
-                        options.runMVAPUPPETAnalysis, options.applyZSelections, options.applyWSelections, ## special flags for PUPPI analysis
+                        options.applyZSelections, options.applyWSelections, ## special flags for PUPPI analysis
                         options.jetPtCut,
                         options.applyJECtoPuppiJets, ## JEC for puppi
-                        options.runPuppiDiagnostics, ## puppi diagnostic
-                        options.isRunningOn25ns, options.useJECFromDB, ## JEC
-                        options.etaCutForMetDiagnostic,
-                        options.ptNeutralCut,
-                        options.ptNeutralCutSlope,
-                        options.etaBinPuppi,
-                        options.puppiCone, 
-                        options.puppiUseCharge,
-                        options.ptThresholdForTypeIPuppi,
-                        options.runPUPPINoLeptons);
+                        options.useJECFromDB ## JEC
+                        );
 
 ####### files
 if len(options.inputFiles) == 0 and options.isMC == True:

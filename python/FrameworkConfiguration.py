@@ -112,20 +112,11 @@ def createProcess(isMC, ## isMC flag
                   electronTypeID, ## electrons
                   tauTypeID, ## taus
                   dropAnalyzerDumpEDM, ## debug EDM 
-                  runMVAPUPPETAnalysis,applyZSelections,applyWSelections, ## special settings for PUPPET
+                  applyZSelections,applyWSelections, ## special settings for PUPPET
                   jetPtCut,
                   applyJECtoPuppiJets,
-                  runPuppiDiagnostics,
-                  isRunningOn25ns,
-                  useJECFromLocalDB,
-                  etaCutForMetDiagnostic,
-                  ptNeutralCut,
-                  ptNeutralCutSlope,
-                  etaBinPuppi,
-                  puppiCone,
-                  puppiUseCharge,
-                  ptThresholdForTypeIPuppi,
-                  runPUPPINoLeptons):
+                  useJECFromLocalDB
+                  ):
 
     process = cms.Process(processName)
 
@@ -151,7 +142,7 @@ def createProcess(isMC, ## isMC flag
     )
 
     process.GlobalTag.globaltag = globalTag
-
+    """
     jec_database_PF = 'Summer15_50nsV2_DATA.db'
     if not isRunningOn25ns:
         jec_database_PF = 'Summer15_50nsV2_DATA.db'
@@ -165,6 +156,7 @@ def createProcess(isMC, ## isMC flag
     if useJECFromLocalDB:
         useJECFromDB(process, jec_database_PF)
         useJECFromDB(process, jec_database_Puppi,"_puppi")
+    """
 
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #! Input
@@ -436,7 +428,7 @@ def createProcess(isMC, ## isMC flag
             )
 
     ## Raw PF METs
-
+    etaCutForMetDiagnostic = 100
     ## make a selection on eta according to the value defined
     process.pfCandidatesForMET = cms.EDFilter("CandPtrSelector",
                                               src = cms.InputTag("packedPFCandidates"),
@@ -591,7 +583,7 @@ def createProcess(isMC, ## isMC flag
     process.jmfw_analyzers = cms.Sequence()
     process.p = cms.Path(process.jmfw_analyzers)
 
-    if runMVAPUPPETAnalysis :
+    if True :
 
         ## re run HBHE filter
         process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
@@ -604,25 +596,6 @@ def createProcess(isMC, ## isMC flag
 
         process.jmfw_analyzers += process.HBHENoiseFilterResultProducer
         process.jmfw_analyzers += process.ApplyBaselineHBHENoiseFilter 
-
-        ## change cone and use charge for the tracking region
-        if len(ptNeutralCut) !=3 or len(ptNeutralCutSlope)!=3 or len(etaBinPuppi)!=3 or len(puppiCone)!=3 or len(puppiUseCharge)!=3 :
-            sys.exit("puppi parameters not corrected --> please check")
-
-        process.puppi.producePackedCollection = cms.bool(True)
-
-        for iBin in range(len(ptNeutralCut)):
-            if iBin == 0 :
-                process.puppi.algos[iBin].etaMin = cms.double(0.);
-            else:
-                process.puppi.algos[iBin].etaMin = cms.double(etaBinPuppi[iBin-1]);
- 
-            process.puppi.algos[iBin].etaMax            = cms.double(etaBinPuppi[iBin]);
-            process.puppi.algos[iBin].MinNeutralPt      = cms.double(ptNeutralCut[iBin]);
-            process.puppi.algos[iBin].MinNeutralPtSlope        = cms.double(ptNeutralCutSlope[iBin]);
-            process.puppi.algos[iBin].puppiAlgos[0].cone       = cms.double(puppiCone[iBin])
-            process.puppi.algos[iBin].puppiAlgos[0].useCharged = cms.bool(puppiUseCharge[iBin])
-
 
         from JMEAnalysis.JMEValidator.runMVAPUPPET_cff import runMVAPUPPET
 
@@ -652,8 +625,7 @@ def createProcess(isMC, ## isMC flag
                       applyTypeICorrection = applyJECtoPuppiJets, 
                       useJECFromLocalDB = useJECFromLocalDB,                      
                       applyZSelections = applyZSelections, 
-                      applyWSelections = applyWSelections,
-                      runPUPPINoLeptons = runPUPPINoLeptons,
+                      applyWSelections = applyWSelections
                       )
     
 
@@ -676,23 +648,6 @@ def createProcess(isMC, ## isMC flag
                                            )
 
 
-        ## inverted puppi
-        process.pfPuppiAll = cms.EDFilter("CandPtrSelector",
-                                          src = cms.InputTag("puppi"),
-                                          cut = cms.string("pt > 0 && abs(eta) < %f"%(etaCutForMetDiagnostic)))
-
-
-
-        ## inverted puppi                                                                                                                                                      
-        process.pfPUPuppi = cms.EDFilter("CandPtrSelector",
-                                     src = cms.InputTag("pupuppi"),
-                                     cut = cms.string("pt > 0 && abs(eta) < %f"%etaCutForMetDiagnostic))
-
-        process.pfPUPuppiCharge = cms.EDFilter("CandPtrSelector",
-                                               src = cms.InputTag("pupuppi"),
-                                               cut = cms.string("pt > 0 && charge != 0 && abs(eta) < %f"%etaCutForMetDiagnostic))
-        
-
 #        process.jmfw_analyzers += getattr(process,"mvaMET");
         
         
@@ -700,7 +655,7 @@ def createProcess(isMC, ## isMC flag
         return process
    
     # Run
-    if isMC and not runMVAPUPPETAnalysis:
+    if isMC:
         process.run = cms.EDAnalyzer('RunAnalyzer')
         process.jmfw_analyzers += process.run
     
@@ -746,6 +701,7 @@ def createProcess(isMC, ## isMC flag
 
     # Puppi ; only for the first 1000 events of the job
     ## Turn on diagnostic
+    """"
     if runPuppiDiagnostics :
         process.puppi.puppiDiagnostics = cms.bool(True)
         process.puppiReader = cms.EDAnalyzer("puppiAnalyzer",
@@ -761,5 +717,5 @@ def createProcess(isMC, ## isMC flag
         
         process.jmfw_analyzers += process.puppiReader
  
+    """
     return process
-    
