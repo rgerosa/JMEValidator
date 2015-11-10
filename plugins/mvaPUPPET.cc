@@ -73,7 +73,7 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg){
     mvaReaderRecoilCorrection_  = loadMVAfromFile(inputFileNameRecoilCorrection_, variablesForRecoilTraining_, "LongZCorrectedRecoil");
   }
   
-  // prepare for saving the final mvaPUPPET to the event
+  // prepare for saving the final mvaMET to the event
   if(cfg.existsAs<std::string>("mvaMETLabel"))
     mvaMETLabel_ = cfg.getParameter<std::string>("mvaMETLabel");
   else
@@ -112,60 +112,69 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
   const pat::MuonCollection muCollection = *(muCollectionHandle.product());
 
   
-  // vector of packaed candidates to store charged and neutral particles belonging to the tau jets
+  // vector of packed candidates to store charged and neutral particles belonging to the tau jets
   std::vector<reco::CandidatePtr> chargedTauJetCandidates;
   std::vector<reco::CandidatePtr> neutralTauJetCandidates;
 
   // loop on the indentified leptons
   float sumEt_Leptons = 0;
-  for ( std::vector<edm::EDGetTokenT<reco::CandidateView > >::const_iterator srcLeptons_i = srcLeptons_.begin();
-	srcLeptons_i != srcLeptons_.end(); ++srcLeptons_i ){
+	for ( std::vector<edm::EDGetTokenT<reco::CandidateView > >::const_iterator srcLeptons_i = srcLeptons_.begin(); srcLeptons_i != srcLeptons_.end(); ++srcLeptons_i )
+	{
+		edm::Handle<reco::CandidateView> leptons;		
+		evt.getByToken(*srcLeptons_i, leptons);
+		for ( reco::CandidateView::const_iterator lepton = leptons->begin();
+			lepton != leptons->end(); ++lepton )
+		{
+				math::PtEtaPhiELorentzVectorD p4Photon;      
+				for (auto muon : muCollection)
+				{
+					if( muon.p4() == lepton->p4())
+					{
+						p4Photon.SetPt(muon.pfEcalEnergy()/TMath::CosH(muon.p4().eta()));
+						p4Photon.SetEta(muon.p4().eta());
+						p4Photon.SetPhi(muon.p4().phi());
+						p4Photon.SetE(muon.pfEcalEnergy());
+					}
+				}
 
-    edm::Handle<reco::CandidateView> leptons;		
-    evt.getByToken(*srcLeptons_i, leptons);
-    for ( reco::CandidateView::const_iterator lepton = leptons->begin();
-	  lepton != leptons->end(); ++lepton ){
+				if(p4Photon.E() > 0 )
+				{
+					Z.setP4(Z.p4()+ lepton->p4()+p4Photon);
+					sumEt_Leptons += lepton->p4().Et()+p4Photon.Et();
+				}
+			else
+			{
+				Z.setP4(Z.p4()+ lepton->p4());
+				sumEt_Leptons += lepton->p4().Et();
+			}
 
-      math::PtEtaPhiELorentzVectorD p4Photon;      
-      for (auto muon : muCollection){
-	if( muon.p4() == lepton->p4()){
-	  p4Photon.SetPt(muon.pfEcalEnergy()/TMath::CosH(muon.p4().eta()));
-	  p4Photon.SetEta(muon.p4().eta());
-	  p4Photon.SetPhi(muon.p4().phi());
-	  p4Photon.SetE(muon.pfEcalEnergy());
+			Z.setPdgId(abs(lepton->pdgId()));
+			for(std::vector<pat::Tau>::const_iterator tau = tauCollection.begin(); tau!= tauCollection.end(); ++tau)
+			{
+				if(lepton->p4() != tau->p4()) 				
+					continue;
+					
+					// take the PF constituents of tau lepton
+				for(auto candidate : tau->signalCands())
+				{
+					if(abs(candidate->pdgId()) > 11 and abs(candidate->pdgId()) < 16) continue;
+					if(candidate->charge() !=0)
+					{
+						chargedTauJetCandidates.push_back(candidate);
+					}
+					else
+					{
+						neutralTauJetCandidates.push_back(candidate);
+					}
+				}
+			}      
+		}
 	}
-      }
 
-      if(p4Photon.E() > 0 ){
-	Z.setP4(Z.p4()+ lepton->p4()+p4Photon);
-        sumEt_Leptons += lepton->p4().Et()+p4Photon.Et();
-      }
-      else{
-	Z.setP4(Z.p4()+ lepton->p4());
-        sumEt_Leptons += lepton->p4().Et();
-      }
-      
-      Z.setPdgId(abs(lepton->pdgId()));
-      
-      for(std::vector<pat::Tau>::const_iterator tau = tauCollection.begin();
-	  tau!= tauCollection.end(); ++tau){
-	
-	if(lepton->p4() != tau->p4()) 				
-	  continue;
-	
-	// take the PF constituents of tau lepton
-	for(auto candidate : tau->signalCands()){
-	  if(abs(candidate->pdgId()) > 11 and abs(candidate->pdgId()) < 16) continue;
-	  if(candidate->charge() !=0){
-	    chargedTauJetCandidates.push_back(candidate);
-	  }
-	  else{
-	    neutralTauJetCandidates.push_back(candidate);
-	  }
-	}	
-      }      
-    }
-  }
+	reco::METCovMatrix rotateToZFrame;
+	rotateToZFrame(0,0) = rotateToZFrame(1,1) = std::cos(- Z.p4().Phi());
+	rotateToZFrame(0,1) =   std::sin(- Z.p4().Phi());
+	rotateToZFrame(1,0) = - std::sin(- Z.p4().Phi());
 
   // add the Z-boson kinematic information
   // var_["z_pT"]  = Z.pt();
@@ -195,7 +204,6 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
     referenceRecoil = - referenceMET.p4();
 
   std::string reference = "recoilPFPuppiMet";
-  // addToMap(referenceRecoil, referenceMET.sumEt()-sumEt_Leptons, "", reference);
   
   // calculate the recoils and save them to MET objects
   int i = 0;
@@ -280,40 +288,28 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
       TString tempName = Form("%s",collection_name.c_str());
       tempName.ReplaceAll(referenceMET_name_,"");
       collection_name = tempName;
-      addToMap(Recoil.p4(), Recoil.sumEt(), collection_name, reference);
+      reco::METCovMatrix rotatedCovMatrix = rotateToZFrame * Recoil.getSignificanceMatrix();
+      addToMap(Recoil.p4(), Recoil.sumEt(), collection_name, reference, 1, rotatedCovMatrix);
     }
     else {
       TString tempName = Form("%s",collection_name.c_str());
       tempName.ReplaceAll("slimmedMETs","recoilPF");
       tempName = tempName + "Met";
       collection_name = tempName;
-      addToMap(Recoil.p4(), Recoil.sumEt(), "", collection_name);
+      reco::METCovMatrix rotatedCovMatrix = rotateToZFrame * Recoil.getSignificanceMatrix();
+      addToMap(Recoil.p4(), Recoil.sumEt(), "", collection_name, 1, rotatedCovMatrix);
     }
   }
 
-  // print whole map
-  for(auto entry : var_){
-    if(debug_)
-      std::cout << "map " << entry.first << "/" << entry.second << std::endl;
-  }
-  
   edm::Handle<pat::JetCollection> jets;
   evt.getByToken(srcJets_, jets);
-
-  for( size_t iJet = 0; iJet < jets->size(); iJet++){
-    if(iJet == 0){
-      var_["LeadingJet_Pt"] = jets->at(iJet).p4().pt();
-      var_["LeadingJet_Eta"] = jets->at(iJet).p4().Eta();
-      var_["LeadingJet_Phi"] = jets->at(iJet).p4().Phi();
-      var_["LeadingJet_M"] = jets->at(iJet).p4().M();
-    }
-    else if(iJet == 1){
-      var_["TrailingJet_Pt"] = jets->at(iJet).p4().pt();
-      var_["TrailingJet_Eta"] = jets->at(iJet).p4().Eta();
-      var_["TrailingJet_Phi"] = jets->at(iJet).p4().Phi();
-      var_["TrailingJet_M"] = jets->at(iJet).p4().M();
-    }
-    else break;
+  size_t jetsSize = jets->size();
+  for( size_t iJet = 0; iJet <= 1; iJet++)
+  {
+    var_["Jet" + std::to_string(iJet)+ "_Pt"]  = (jetsSize > iJet) ? jets->at(iJet).p4().pt() : 0;
+    var_["Jet" + std::to_string(iJet)+ "_Eta"] = (jetsSize > iJet) ? jets->at(iJet).p4().Eta() : 0;
+    var_["Jet" + std::to_string(iJet)+ "_Phi"] = (jetsSize > iJet) ? jets->at(iJet).p4().Phi() : 0;
+    var_["Jet" + std::to_string(iJet)+ "_M"]   = (jetsSize > iJet) ? jets->at(iJet).p4().M() : 0;
   }
 
   var_["NCleanedJets"] = countJets(*jets, 5);
@@ -324,6 +320,12 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
   var_["NVertex"] = countVertices(*vertices);
   
 
+  // print whole map
+  for(auto entry : var_){
+    if(debug_)
+      std::cout << "map " << entry.first << "/" << entry.second << std::endl;
+  }
+  
   // evaluate phi training and apply angular correction
   Float_t PhiAngle = 0.;
   if(inputFileNamePhiCorrection_.fullPath() != "")
@@ -342,33 +344,46 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
     RecoilCorrection = GetResponse(mvaReaderRecoilCorrection_, variablesForRecoilTraining_);
   refRecoil *= RecoilCorrection;
   
-  // calculate new mvaPUPPET
+  // calculate new mvaMET
   pat::MET mvaMET(referenceMET);
   reco::Candidate::LorentzVector recoilP4(refRecoil.Px(), refRecoil.Py(), 0, referenceMET.sumEt());
   reco::Candidate::LorentzVector metP4 = - Z.p4() + recoilP4;
   mvaMET.setP4(metP4);
   
   //// save results to event
-  // mvaPUPPET
   std::auto_ptr<pat::METCollection> patMETCollection(new pat::METCollection());
   patMETCollection->push_back(mvaMET);
   evt.put(patMETCollection,"mvaMET");
-	
+
 }
 
-void mvaPUPPET::addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &name, const std::string &type){
-	addToMap(p4, sumEt, name, type, 1);
+//void mvaPUPPET::addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &name, const std::string &type){
+//	addToMap(p4, sumEt, name, type, 1);
+//}
+
+void mvaPUPPET::addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &name, const std::string &type, double divisor, reco::METCovMatrix &covMatrix){
+  addToMap(p4, sumEt, name, type, divisor);
+  if(name == "")
+  {
+    var_[type + "_cov00" ] = covMatrix(0,0);
+    var_[type + "_cov11" ] = covMatrix(1,1);
+  }
+  else
+  {
+    var_[type + "_" + name + "_cov00" ] = covMatrix(0,0);
+    var_[type + "_" + name + "_cov11" ] = covMatrix(1,1);
+  }
 }
 
 void mvaPUPPET::addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &name, const std::string &type, double divisor){
-  if(debug_)
-    std::cout << "hier " << name << ", " << type << std::endl;
-  if(name == ""){
+  if(name == "")
+  {
     var_[type + "_Pt" ] = p4.pt();
     var_[type + "_Phi" ] = p4.phi();
     var_[type + "_sumEt" ] = sumEt/divisor;
   }
-  else{
+  else
+  {
     var_[type + "_" + name + "_Pt" ] = p4.pt();
     var_[type + "_" + name + "_Phi" ] = p4.phi();
     var_[type + "_" + name + "_sumEt" ] = sumEt/divisor;
@@ -405,8 +420,13 @@ const GBRForest* mvaPUPPET::loadMVAfromFile(const edm::FileInPath& inputFileName
   TFile* inputFile = new TFile(inputFileName.fullPath().data());
   
   std::vector<std::string> *lVec = (std::vector<std::string>*)inputFile->Get("varlist");
+
   for(unsigned int i=0; i< lVec->size();++i)
+  {
     trainingVariableNames.push_back(lVec->at(i));
+    if(debug_) 
+      std::cout << "training variable " << i << ":" << lVec->at(i) << std::endl;
+  }
   const GBRForest* mva = (GBRForest*)inputFile->Get(mvaName.data());
   if ( !mva )
     throw cms::Exception("PFMETAlgorithmMVA::loadMVA") << " Failed to load MVA from file = " << inputFileName.fullPath().data() << " !!\n";
@@ -418,9 +438,12 @@ const GBRForest* mvaPUPPET::loadMVAfromFile(const edm::FileInPath& inputFileName
 
 Float_t* mvaPUPPET::createFloatVector(std::vector<std::string> variableNames){
   Float_t* floatVector = new Float_t[variableNames.size()];
+  std::cout << "creating Float Vector: " << std::endl;
   for(size_t i = 0; i < variableNames.size(); ++i){
       floatVector[i] = var_[variableNames[i]];
+      std::cout << variableNames[i] << " = " << floatVector[i] << std::endl;
   }
+  std::cout << "--------" << std::endl;
   return floatVector;
 }
 

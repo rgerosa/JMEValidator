@@ -664,7 +664,7 @@ def runMVAPUPPET(process,
     print processName
     setattr(process,"mvaMET", cms.EDProducer("mvaPUPPET",                                                
                                                 referenceMET = cms.InputTag("patPFMet"),
-
+                                                debug = cms.bool(True),
                                                 #srcMETs      = cms.VInputTag(),
                                                 srcMETs      = cms.VInputTag(cms.InputTag("slimmedMETs"),
                                                                              cms.InputTag("slimmedMETsCHS"),

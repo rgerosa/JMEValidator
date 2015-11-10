@@ -48,8 +48,9 @@ class mvaPUPPET : public edm::stream::EDProducer<> {
   const Float_t GetResponse(const GBRForest * Reader,std::vector<std::string> &variableNames );
 
   // to correctly create the map of regression input vriables
-  void addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &name, const std::string &type);
+  //void addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &name, const std::string &type);
   void addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &name, const std::string &type, double divisor);
+  void addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &name, const std::string &type, double divisor, reco::METCovMatrix &covMatrix);
 
 
 private:
