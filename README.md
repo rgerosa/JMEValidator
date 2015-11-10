@@ -6,8 +6,8 @@ JMEValidator
 
 ```sh
 export SCRAM_ARCH=slc6_amd64_gcc491
-cmsrel CMSSW_7_4_6_patch2
-cd CMSSW_7_4_6_patch2/src/
+cmsrel CMSSW_7_4_14
+cd CMSSW_7_4_14/src/
 cmsenv
 
 git cms-addpkg CommonTools/PileupAlgos
@@ -19,7 +19,7 @@ cp /afs/cern.ch/user/r/rgerosa/public/PUPPETPatch/MET.h DataFormats/METReco/inte
 # Framework
 git clone git@github.com:cms-jet/JetToolbox.git JMEAnalysis/JetToolbox -b jetToolbox_74X
 git clone git@github.com:blinkseb/TreeWrapper.git JMEAnalysis/TreeWrapper
-git clone git@github.com:rgerosa/JMEValidator.git JMEAnalysis/JMEValidator -b PUPPETMVAMet
+git clone git@github.com:rgerosa/JMEValidator.git JMEAnalysis/JMEValidator -b classicMVAMET
 
 # merge with 74X branch
 cd JMEAnalysis/JMEValidator
