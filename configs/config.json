@@ -1,7 +1,7 @@
 { 
   "activeTrainings" : ["phiTraining", "recoilTraining"],
   "activeReweightings" : ["flattenpT"],
-  "inputFile": "output_mc.root",
+  "inputFile": "output.root",
   "Folder" : "PUPPET/t",
   "flattenpT" :
   {
