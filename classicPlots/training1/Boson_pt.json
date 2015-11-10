@@ -1,0 +1,18 @@
+{
+    "files": [
+        "/afs/desy.de/user/r/rfriese/dust/classicMVAMET/output1.root"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "title": "Di-Muon System Pt", 
+    "weights": [
+        "Boson_daughter==13"
+    ], 
+    "x_bins": [
+        "50,0,200"
+    ], 
+    "x_expressions": [
+        "Boson_Pt"
+    ]
+}

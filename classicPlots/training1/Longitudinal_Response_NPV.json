@@ -1,0 +1,60 @@
+{
+    "filename": "Longitudinal_Response_NPV", 
+    "files": [
+        "/afs/desy.de/user/r/rfriese/dust/classicMVAMET/output1.root"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "labels": [
+        "PF", 
+        "PF CHS", 
+        "PF ChargedPVNeutralPVPUJetID", 
+        "PF ChargedPUNeutralPUPUJetID", 
+        "PF ChargedPVNeutralPV", 
+        "PUPPI",
+        "MVA MET"
+    ], 
+    "line_styles": [
+        "-"
+    ], 
+    "markers": [
+        "."
+    ], 
+    "tree_draw_options": [
+        "prof"
+    ], 
+    "weights": [
+        "Boson_daughter==13&&Boson_Pt>30"
+    ], 
+    "x_bins": [
+        "20,5,25"
+    ], 
+    "x_errors": [
+        false
+    ], 
+    "x_expressions": [
+        "NVertex"
+    ], 
+	"title": "$p_T^Z > 30 \\mathrm{GeV}$",
+    "x_label": "NPV", 
+    "y_errors": [
+        false
+    ], 
+	"friend_filenames" : ["LongZCorrectedRecoil.root"],
+	"friend_treenames" : ["LongZCorrectedRecoil"],
+    "y_expressions": [
+        "recoilPFMet_LongZ/-Boson_Pt", 
+        "recoilPFCHSMet_LongZ/-Boson_Pt", 
+        "recoilPFMet_ChargedPVNeutralPVPUJetID_LongZ/Boson_Pt", 
+        "recoilPFMet_ChargedPUNeutralPUPUJetID_LongZ/-Boson_Pt", 
+        "recoilPFMet_ChargedPVNeutralPV_LongZ/Boson_Pt",
+        "recoilPFPuppiMet_LongZ/-Boson_Pt",
+        "LongZCorrectedRecoil_LongZ/-Boson_Pt"
+    ], 
+    "y_label": "$U_{\\parallel}/p_T^Z$", 
+    "y_lims": [
+        0.0, 
+        2.0
+    ]
+}
