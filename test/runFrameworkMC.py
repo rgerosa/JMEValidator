@@ -77,11 +77,7 @@ process.source.fileNames = cms.untracked.vstring(options.inputFiles);
 ## set max events 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(options.maxEvents))
 ## output name
-if not options.dropAnalyzerDumpEDM :
-   if options.outputFile == "" or options.outputFile == "output.root" :
-       process.TFileService.fileName = cms.string('output_mc.root') if options.isMC else cms.string('output_data.root')
-   else:    
-       process.TFileService.fileName = options.outputFile
+process.TFileService.fileName = cms.string('output.root')
 
 ## logger
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
