@@ -726,12 +726,12 @@ pat::MET PUPPETAnalyzer::getUncorrectedRecoil(const pat::MET& input)
   negRecoil.setP4(helperVector4);
 
   //retrieve uncorrected values and rotate them back by PI
-  helperVector2.SetMagPhi( negRecoil.uncorrectedPt(), negRecoil.uncorrectedPhi());
+  //helperVector2.SetMagPhi( negRecoil.uncorrectedPt(), negRecoil.uncorrectedPhi());
   helperVector2 = helperVector2.Rotate(- M_PI);
   helperVector4.SetXYZT(helperVector2.Px(), helperVector2.Py(), 0, negRecoil.sumEt());
   pat::MET uncorrectedRecoil(input);
   uncorrectedRecoil.setP4(helperVector4);
-  uncorrectedRecoil.setSumEt(negRecoil.uncorrectedSumEt());
+  //uncorrectedRecoil.setSumEt(negRecoil.uncorrectedSumEt());
   return uncorrectedRecoil;
 }
 ////////////////////////////////////////////////////////////////////////////////

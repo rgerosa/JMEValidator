@@ -53,9 +53,9 @@ void JMEMETAnalyzer::analyze(const edm::Event& iEvent,
     sumEt.push_back(met.sumEt());
     significance.push_back(met.significance());
 
-    uncorrectedPt.push_back(met.uncorrectedPt());
-    uncorrectedPhi.push_back(met.uncorrectedPhi());
-    uncorrectedSumEt.push_back(met.uncorrectedSumEt());
+    //uncorrectedPt.push_back(met.uncorrectedPt());
+    //uncorrectedPhi.push_back(met.uncorrectedPhi());
+    //uncorrectedSumEt.push_back(met.uncorrectedSumEt());
 
     extractGenProperties(met.genMET());
     if (met.genMET()) {
