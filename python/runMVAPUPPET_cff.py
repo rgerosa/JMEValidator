@@ -9,7 +9,6 @@ from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import cleanGenJetsFromGe
 #from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
 from RecoMET.METProducers.PFMET_cfi import pfMet
 from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import corrPfMetType1
-from PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi import slimmedMETs
 from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1
 
 def runMVAPUPPET(process,
@@ -50,10 +49,10 @@ def runMVAPUPPET(process,
     relativeIsoCutMuonsLoose = relativeIsoCutMuons+0.05;
     relativeIsoCutEletronsLoose = relativeIsoCutEletrons+0.05;    
     ## check if puppi is setup or not
-    if not hasattr(process, 'puppi'):
-        process.load('CommonTools.PileupAlgos.Puppi_cff')
-        puppi.candName = cms.InputTag('packedPFCandidates')
-        puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
+    #if not hasattr(process, 'puppi'):
+    #    process.load('CommonTools.PileupAlgos.Puppi_cff')
+    #    puppi.candName = cms.InputTag('packedPFCandidates')
+    #    puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
         
 
     ### run Muon ID
@@ -291,18 +290,18 @@ def runMVAPUPPET(process,
 
 
     ## jet lepton cleaning
-    setattr(getattr(process,jetCollectionPuppi),"cut",cms.string('pt > %f'%jetPtCut))
+    #setattr(getattr(process,jetCollectionPuppi),"cut",cms.string('pt > %f'%jetPtCut))
     setattr(getattr(process,jetCollectionPF),"cut",cms.string('pt > %f'%jetPtCut))
 
-    cleanJetsFromLeptons(process,
-                         label = "Cleaned",
-                         jetCollection      = jetCollectionPuppi,
-                         muonCollection     = srcMuons+muonTypeID,
-                         electronCollection = srcElectrons+electronTypeID,
-                         tauCollection      = srcTaus+tauTypeID+"Cleaned",
-                         jetPtCut   = jetPtCut,
-                         jetEtaCut  = jetEtaCut,
-                         dRCleaning = dRCleaning)
+    #cleanJetsFromLeptons(process,
+    #                     label = "Cleaned",
+    #                     jetCollection      = jetCollectionPuppi,
+    #                     muonCollection     = srcMuons+muonTypeID,
+    #                     electronCollection = srcElectrons+electronTypeID,
+    #                     tauCollection      = srcTaus+tauTypeID+"Cleaned",
+    #                     jetPtCut   = jetPtCut,
+    #                     jetEtaCut  = jetEtaCut,
+    #                     dRCleaning = dRCleaning)
 
     cleanJetsFromLeptons(process,
                          label = "Cleaned",
@@ -366,11 +365,11 @@ def runMVAPUPPET(process,
                                                         srcElectrons = cms.InputTag(srcElectrons+electronTypeID),
                                                         srcTaus = cms.InputTag(""))
 
-    if runPUPPINoLeptons :
-        process.puppi.candName = cms.InputTag('packedPFCandidatesNoLepton')
+    #if runPUPPINoLeptons :
+    #    process.puppi.candName = cms.InputTag('packedPFCandidatesNoLepton')
     
-    process.pupuppi = process.puppi.clone()
-    process.pupuppi.invertPuppi = True
+    #process.pupuppi = process.puppi.clone()
+    #process.pupuppi.invertPuppi = True
     
 
     ### produce the collection neutrals in and out jets passing PU jet id
@@ -384,19 +383,18 @@ def runMVAPUPPET(process,
                                            jetPUIDMapLabel = cms.string("fullDiscriminant"))
 
     ### puppi raw met                                                                                                                                             
-    process.pfCandidatesForPuppiMET = cms.EDFilter("CandPtrSelector",
-                                                   src = cms.InputTag("puppi"),
-                                                   cut = cms.string("abs(eta) < %f"%etaCutForMetDiagnostic))
-    process.pfMetPuppi       = pfMet.clone()
-    process.pfMetPuppi.src   = cms.InputTag("pfCandidatesForPuppiMET")
-    process.pfMetPuppi.alias = cms.string('pfMetPuppi')
-   # addMETCollection(process, labelName='patPFMetPuppi', metSource='pfMetPuppi') # RAW puppi MET                                                                   
-   # process.patPFMetPuppi.addGenMET = False
+    #process.pfCandidatesForPuppiMET = cms.EDFilter("CandPtrSelector",
+    #                                               src = cms.InputTag("puppi"),
+    #                                               cut = cms.string("abs(eta) < %f"%etaCutForMetDiagnostic))
+    #process.pfMetPuppi       = pfMet.clone()
+    #process.pfMetPuppi.src   = cms.InputTag("pfCandidatesForPuppiMET")
+    #process.pfMetPuppi.alias = cms.string('pfMetPuppi')
     
     ## Type 1 corrections                                                                                                                                                       
-    if not hasattr(process, 'ak4PFJetsPuppi'):
-        print("WARNING: No AK4 puppi jets produced. Type 1 corrections for puppi MET are not available.")
-    else:
+    #if not hasattr(process, 'ak4PFJetsPuppi'):
+    #    print("WARNING: No AK4 puppi jets produced. Type 1 corrections for puppi MET are not available.")
+    """
+    if True:
         if applyTypeICorrection :
 
             from CommonTools.RecoAlgos.pfJetSelector_cfi import pfJetSelector
@@ -461,7 +459,7 @@ def runMVAPUPPET(process,
             #addMETCollection(process, labelName='patMETPuppi', metSource='pfMetT1Puppi') # T1 puppi MET                                                                     
             #process.patMETPuppi.addGenMET = False
 
-
+    """
     #### puppi charged particles == charged PV                                                                                                                             
     process.pfAllChargedParticles = cms.EDFilter("CandPtrSelector",
                                                       src = cms.InputTag("packedPFCandidates"),
@@ -520,17 +518,6 @@ def runMVAPUPPET(process,
     
     process.patPFMetChargedPVNeutralPVPUJetID = patMETsForMVA.clone()
     process.patPFMetChargedPVNeutralPVPUJetID.metSource = cms.InputTag("pfMetChargedPVNeutralPVPUJetID")
-    
-    #process.patPFMetChargedPVNeutralPVPUJetID.addGenMET = isMC
-    
-    process.slimmedMETsChargedPVNeutralPVPUJetID = slimmedMETs.clone()
-    process.slimmedMETsChargedPVNeutralPVPUJetID.src = cms.InputTag("patPFMetChargedPVNeutralPVPUJetID")
-    process.slimmedMETsChargedPVNeutralPVPUJetID.rawUncertainties = cms.InputTag("patPFMetChargedPVNeutralPVPUJetID") # only central value                                   
-    
-    if hasattr(process.slimmedMETsChargedPVNeutralPVPUJetID,"type1Uncertainties"):
-        del process.slimmedMETsChargedPVNeutralPVPUJetID.type1Uncertainties # not available                                                                                  
-    if hasattr(process.slimmedMETsChargedPVNeutralPVPUJetID,"type1p2Uncertainties"):
-        del process.slimmedMETsChargedPVNeutralPVPUJetID.type1p2Uncertainties # not available                                                                                  
 
     ### last inputs for standard MVA met
     process.pfMetChargedPUNeutralPUPUJetID       = pfMet.clone()
@@ -539,42 +526,17 @@ def runMVAPUPPET(process,
     process.patPFMetChargedPUNeutralPUPUJetID = patMETsForMVA.clone()
     process.patPFMetChargedPUNeutralPUPUJetID.metSource = cms.InputTag("pfMetChargedPUNeutralPUPUJetID")
     
-    process.slimmedMETsChargedPUNeutralPUPUJetID = slimmedMETs.clone()
-    process.slimmedMETsChargedPUNeutralPUPUJetID.src = cms.InputTag("patPFMetChargedPUNeutralPUPUJetID")
-    process.slimmedMETsChargedPUNeutralPUPUJetID.rawUncertainties = cms.InputTag("patPFMetChargedPUNeutralPUPUJetID") # only central value                                   
-    #configurePFMetForMiniAOD(process)
-    #process.slimmedMETsPF = slimmedMETs.clone()
-    #process.slimmedMETsPF.src = cms.InputTag("pfMet")
-    #process.slimmedMETsPF.rawUncertainties = cms.InputTag("pfMet") # only central value                                   
-
-    if hasattr(process.slimmedMETsChargedPUNeutralPUPUJetID,"type1Uncertainties"):
-        del process.slimmedMETsChargedPUNeutralPUPUJetID.type1Uncertainties # not available                                                                                    
-    if hasattr(process.slimmedMETsChargedPUNeutralPUPUJetID,"type1p2Uncertainties"):
-        del process.slimmedMETsChargedPUNeutralPUPUJetID.type1p2Uncertainties # not available                                                                             
-
     ### last inputs for standard MVA met
     process.pfMetChargedPVNeutralPV       = pfMet.clone()
     process.pfMetChargedPVNeutralPV.src   = cms.InputTag("pfChargedPVNeutralsPV")
     process.pfMetChargedPVNeutralPV.alias = cms.string('pfMetChargedPVNeutralPV')
     process.patPFMetChargedPVNeutralPV = patMETsForMVA.clone()
     process.patPFMetChargedPVNeutralPV.metSource = cms.InputTag("pfMetChargedPVNeutralPV")
-    
-    process.slimmedMETsChargedPVNeutralPV = slimmedMETs.clone()
-    process.slimmedMETsChargedPVNeutralPV.src = cms.InputTag("patPFMetChargedPVNeutralPV")
-    process.slimmedMETsChargedPVNeutralPV.rawUncertainties = cms.InputTag("patPFMetChargedPVNeutralPV") # only central value                                   
-    
-    if hasattr(process.slimmedMETsChargedPVNeutralPV,"type1Uncertainties"):
-        del process.slimmedMETsChargedPVNeutralPV.type1Uncertainties # not available                                                                                        
-    if hasattr(process.slimmedMETsChargedPVNeutralPV,"type1p2Uncertainties"):
-        del process.slimmedMETsChargedPVNeutralPV.type1p2Uncertainties # not available                                                                                        
-
 
     process.patPFMetCHS = patMETsForMVA.clone()
     process.patPFMetCHS.metSource = cms.InputTag("pfMetCHS")
     
     ### MVA PUPPET
-    print "process name: " 
-    print processName
     setattr(process,"mvaMET", cms.EDProducer("mvaPUPPET",                                                
                                                 referenceMET = cms.InputTag("slimmedMETs"),
                                                 debug = cms.bool(True),

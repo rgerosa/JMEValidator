@@ -15,9 +15,9 @@ def get_jec_payload(algo, pu_method):
     
     # FIXME: Until PUPPI and SK payloads are in the GT, use CHS corrections
     jec_payloads = {
-                'Puppi': 'AK%dPFPuppi',
+                #'Puppi': 'AK%dPFPuppi',
                 'CHS': 'AK%dPFchs',
-                'SK': 'AK%dPFchs',
+                #'SK': 'AK%dPFchs',
                 '': 'AK%dPF',
                 }
     
@@ -35,18 +35,18 @@ def get_jec_levels(pu_method, isMC = True, useJECFromDB = False):
     if isMC :
 
             jec_levels = {
-                'Puppi': ['L1FastJet', 'L2Relative', 'L3Absolute'],
+                #'Puppi': ['L1FastJet', 'L2Relative', 'L3Absolute'],
                 'CHS': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                'SK': ['L2Relative', 'L3Absolute'],
+                #'SK': ['L2Relative', 'L3Absolute'],
                 '': ['L1FastJet', 'L2Relative', 'L3Absolute'],
                 }
 
     else:
 
         jec_levels = {
-            'Puppi': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual'],
+            #'Puppi': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual'],
             'CHS': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual'],
-            'SK': ['L2Relative', 'L3Absolute','L2L3Residual'],
+            #'SK': ['L2Relative', 'L3Absolute','L2L3Residual'],
             '': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual'],
             }
     
@@ -142,21 +142,6 @@ def createProcess(isMC, ## isMC flag
     )
 
     process.GlobalTag.globaltag = globalTag
-    """
-    jec_database_PF = 'Summer15_50nsV2_DATA.db'
-    if not isRunningOn25ns:
-        jec_database_PF = 'Summer15_50nsV2_DATA.db'
-
-    jec_database_Puppi = 'Summer15_50nsV2_DATA.db'
-
-    if not isRunningOn25ns:
-        jec_database_Puppi = 'Summer15_50nsV2_DATA.db'
-
-
-    if useJECFromLocalDB:
-        useJECFromDB(process, jec_database_PF)
-        useJECFromDB(process, jec_database_Puppi,"_puppi")
-    """
 
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #! Input
@@ -437,8 +422,6 @@ def createProcess(isMC, ## isMC flag
 
     process.load('RecoMET.METProducers.PFMET_cfi')
     process.pfMet.src = cms.InputTag('pfCandidatesForMET')
-    #addMETCollection(process, labelName='patPFMet', metSource='pfMet') # RAW MET
-    #process.patPFMet.addGenMET = False
 
     ## CHS pat MET; raw PF is the slimmedMet in miniAOD + typeI correction
     from RecoMET.METProducers.PFMET_cfi import pfMet
@@ -450,8 +433,6 @@ def createProcess(isMC, ## isMC flag
     process.pfMetCHS        = pfMet.clone()
     process.pfMetCHS.src    = cms.InputTag("pfCandidatesForMETCHS") ## packed candidates without fromPV < 1
     process.pfMetCHS.alias  = cms.string('pfMetCHS')
-    #addMETCollection(process, labelName='patPFMetCHS', metSource='pfMetCHS') # Convert the CHS PFMet in PAT MET
-    #process.patPFMetCHS.addGenMET = False
 
     ## Type 1 corrections
     from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import corrPfMetType1
@@ -495,8 +476,6 @@ def createProcess(isMC, ## isMC flag
             srcCorrections = [ cms.InputTag("corrPfMetType1","type1") ]
             )
         
-        #addMETCollection(process, labelName='patMET', metSource='pfMetT1') # T1 MET
-        #process.patMET.addGenMET = False
 
             
     ### CHS TypeI corrected
@@ -527,29 +506,13 @@ def createProcess(isMC, ## isMC flag
             srcCorrections = [ cms.InputTag("corrPfMetType1CHS","type1") ]
         )
 
-        #addMETCollection(process, labelName='patMETCHS', metSource='pfMetT1CHS') # T1 CHS MET
-        #process.patMETCHS.addGenMET = False
 
 
     ## Slimmed METs
-    from PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi import slimmedMETs
-    if hasattr(slimmedMETs, "caloMET"):
-        del slimmedMETs.caloMET
+    #from PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi import slimmedMETs
+    #if hasattr(slimmedMETs, "caloMET"):
+    #    del slimmedMETs.caloMET
 
-    ### CHS
-    """
-    process.slimmedMETsCHS = slimmedMETs.clone()
-    print "Create MET from RAW PF collection"
-    process.patPFMetCHS.addGenMET = isMC
-    process.slimmedMETsCHS.src = cms.InputTag("patPFMetCHS")
-    if hasattr(process.slimmedMETsCHS, "rawUncertainties"):
-        del process.slimmedMETsCHS.rawUncertainties # not available
-
-    if hasattr(process.slimmedMETsCHS, "type1Uncertainties"):       
-        del process.slimmedMETsCHS.type1Uncertainties # not available
-    if hasattr(process.slimmedMETsCHS, "type1p2Uncertainties"):       
-        del process.slimmedMETsCHS.type1p2Uncertainties # not available
-    """
     ## create the Path
     process.jmfw_analyzers = cms.Sequence()
     process.p = cms.Path(process.jmfw_analyzers)
@@ -618,10 +581,6 @@ def createProcess(isMC, ## isMC flag
                                            src = cms.InputTag("packedPFCandidates")
                                            )
 
-
-#        process.jmfw_analyzers += getattr(process,"mvaMET");
-        
-        
     if dropAnalyzerDumpEDM:        
         return process
    
@@ -635,7 +594,7 @@ def createProcess(isMC, ## isMC flag
     setattr(process, "PUPPET", 
             cms.EDAnalyzer('PUPPETAnalyzer',
                            isMC      = cms.bool(isMC),
-                           srcJet    = cms.InputTag("selectedPatJetsAK4PFPuppiCleaned"),
+                           srcJet    = cms.InputTag("selectedPatJetsAK4PFCleaned"),
                            srcJetPF  = cms.InputTag("selectedPatJetsAK4PFCleaned"),
                            srcVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
                            srcZboson = cms.InputTag("mvaMET","ZtagBoson"),
