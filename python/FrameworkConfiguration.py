@@ -126,39 +126,9 @@ def createProcess(isMC, ## isMC flag
 
     process.GlobalTag.globaltag = globalTag
 
-    # Common parameters used in all modules
-    JetAnalyserCommonParameters = cms.PSet(
-        # record flavor information, consider both RefPt and JetPt
-        doComposition   = cms.bool(True),
-        doFlavor        = cms.bool(True),
-        doRefPt         = cms.bool(True),
-        doJetPt         = cms.bool(True),
-        # MATCHING MODE: deltaR(ref,jet)
-        deltaRMax       = cms.double(99.9),
-        # deltaR(ref,parton) IF doFlavor is True
-        deltaRPartonMax = cms.double(0.25),
-        # consider all matched references
-        nJetMax         = cms.uint32( 0),
-    )
-
-    process.GlobalTag.globaltag = globalTag
-
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #! Input
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    process.source = cms.Source("PoolSource")
-
-    process.load('CommonTools.UtilAlgos.TFileService_cfi')
-    process.TFileService.fileName = cms.string('output_mc.root') if isMC else cms.string('output_data.root')
-    process.TFileService.closeFileFast = cms.untracked.bool(True)
-
-    
-    ## count the number of events
-    process.AllEvents = cms.EDFilter("PassFilter",
-        srcGenEventInfo   = cms.InputTag("generator"),
-        isMC      = cms.bool(isMC)                              
-      )
-    process.counterPath = cms.Path(process.AllEvents)
 
     # Jet corrections
     process.load('JetMETCorrections.Configuration.JetCorrectorsAllAlgos_cff')
@@ -187,8 +157,8 @@ def createProcess(isMC, ## isMC flag
         jetsCollections = {
             'AK4': {
                 'algo': 'ak4',
-                'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK4PFPUPPI', 'AK4PFchs', 'AK4PF'],
+                'pu_methods': ['CHS', ''],
+                'jec_payloads': ['AK4PFchs', 'AK4PF'],
                 'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
                 'pu_jet_id': True,
                 'qg_tagger': True,
@@ -200,8 +170,8 @@ def createProcess(isMC, ## isMC flag
         jetsCollections = {
             'AK4': {
                 'algo': 'ak4',
-                'pu_methods': ['Puppi', 'CHS', ''],
-                'jec_payloads': ['AK4PFPUPPI', 'AK4PFchs', 'AK4PF'],
+                'pu_methods': ['CHS', ''],
+                'jec_payloads': ['AK4PFchs', 'AK4PF'],
                 'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual'],
                 'pu_jet_id': True,
                 'qg_tagger': True,
@@ -222,22 +192,14 @@ def createProcess(isMC, ## isMC flag
             jec_levels  = get_jec_levels(pu_method,isMC,useJECFromLocalDB)
 
             if useJECFromLocalDB:
-                if pu_method == "Puppi":
-                    appendJECToDB(process, jec_payload, jec_database_Puppi.replace("_PUPPI","").replace("_Puppi",""),"_puppi")
-                else:
-                    appendJECToDB(process, jec_payload, jec_database_PF.replace("_PFCHS","").replace("_PF",""))
+                appendJECToDB(process, jec_payload, jec_database_PF.replace("_PFCHS","").replace("_PF",""))
 
-            jetToolbox(process, params['algo'], 'dummy', 'out', runOnMC=isMC, PUMethod = pu_method, JETCorrPayload = jec_payload, JETCorrLevels = jec_levels, addPUJetID = False)
-
-            if useJECFromLocalDB and pu_method == "Puppi":
-                getattr(process,"patJetCorrFactors"+name+"PFPuppi").payload = cms.string(jec_payload)
+            jetToolbox(process, params['algo'], 'dummy', 'out', runOnMC=isMC, PUMethod = pu_method, JETCorrPayload = jec_payload, JETCorrLevels = jec_levels, addPUJetID = True)
 
             algo          = params['algo'].upper()
             jetCollection = '%sPFJets%s' % (params['algo'], pu_method)
             postfix       = '%sPF%s' % (algo, pu_method)
-
-            # FIXME: PU Jet id is not working with puppi jets or SK jets
-            if params['pu_jet_id'] and pu_method != 'Puppi' and pu_method != 'SK':
+            if params['pu_jet_id']:
 
                 # PU jet Id  .. the pileup jet id is run at posteriori since it does not work in the jet tool box for puppi and SK jets
                 loadWithPostfix(process, 'RecoJets.JetProducers.pileupjetidproducer_cfi', postfix)
@@ -253,14 +215,8 @@ def createProcess(isMC, ## isMC flag
                 applyPostfix(process, 'patJets', postfix).userData.userInts.src   += ['pileupJetIdEvaluator%s:cutbasedId' % postfix, 'pileupJetIdEvaluator%s:fullId' % postfix]
 
 
-            if applyJECtoPuppiJets == False and pu_method == 'Puppi':
-                applyPostfix(process, 'patJets', postfix).addJetCorrFactors = cms.bool(False)
-                applyPostfix(process, 'patJets', postfix).jetCorrFactorsSource = cms.VInputTag(cms.InputTag(""))
-
             # Quark / gluon discriminator
-            # FIXME: Puppi needs some love
-            # FIXME: So does SK
-            if 'qg_tagger' in params and params['qg_tagger'] and pu_method != 'Puppi' and pu_method != 'SK':
+            if 'qg_tagger' in params and params['qg_tagger']:
 
                 taggerPayload = 'QGL_%sPF%s' % (algo, pu_method.lower())
 
@@ -291,37 +247,6 @@ def createProcess(isMC, ## isMC flag
                                                  cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 2212 || pdgId == -2212"))
     process.pfPileUpAllChargedParticles = process.pfAllChargedParticles.clone( src = 'pfPileUpIso')
     
-    ### Using puppi with R05 for muons isolation, is not the once of jets but the puppi cone in the barrel region
-    if runPuppiMuonIso :
-
-        process.puppiR05 = process.puppi.clone()
-        process.puppiR05.algos[0].puppiAlgos[0].cone = 0.5
-
-        process.pfAllPhotonsPuppi        = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR05"), cut = cms.string("pdgId == 22"))
-        process.pfAllNeutralHadronsPuppi = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR05"), cut = cms.string("pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
-        process.pfAllChargedHadronsPuppi = cms.EDFilter("CandPtrSelector", src = cms.InputTag("puppiR05"), cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 2212 || pdgId == -2212"))
-
-        ### Using puppi, but without muons
-        ### FIXME: Reference code [1] excludes particles no coming from PV. It leads to an inconsistency between the two puppi collections (one is done on all pf candidates, the other only on candidates coming from PV)
-        ### [1] https://github.com/cms-jet/JMEValidator/blob/a61ebd818c82dc9eab9d47b616ea85136488e77c/python/runMuonIsolation_cff.py#L16
-        process.packedPFCandidatesNoMuon = cms.EDFilter("CandPtrSelector", 
-                                                        src = cms.InputTag("packedPFCandidates"), 
-                                                        cut = cms.string("fromPV > 1 && abs(pdgId) != 13"))
-        process.puppiR05NoMu = process.puppiR05.clone(
-            candName = 'packedPFCandidatesNoMuon'
-            )
-
-        process.pfAllPhotonsPuppiNoMuon        = cms.EDFilter("CandPtrSelector", 
-                                                              src = cms.InputTag("puppiR05NoMu"), 
-                                                              cut = cms.string("pdgId == 22"))
-        process.pfAllNeutralHadronsPuppiNoMuon = cms.EDFilter("CandPtrSelector", 
-                                                              src = cms.InputTag("puppiR05NoMu"), 
-                                                              cut = cms.string("pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
-        process.pfAllChargedHadronsPuppiNoMuon = cms.EDFilter("CandPtrSelector", 
-                                                              src = cms.InputTag("puppiR05NoMu"), 
-                                                              cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 2212 || pdgId == -2212"))
-
-
     ## Create pf weighted collections
     process.load('CommonTools.ParticleFlow.deltaBetaWeights_cff')
 
@@ -337,28 +262,6 @@ def createProcess(isMC, ## isMC flag
                             src_photon         = 'pfWeightedPhotons',
                             coneR = muonIsoCone
                             )
-    if runPuppiMuonIso :
-
-        ### PUPPI weighted isolation
-        load_muonPFiso_sequence(process, 
-                                'MuonPFIsoSequencePUPPI', 
-                                algo = 'R04PUPPI',
-                                src =  "slimmedMuons",
-                                src_charged_hadron = 'pfAllChargedHadronsPuppi',
-                                src_neutral_hadron = 'pfAllNeutralHadronsPuppi',
-                                src_photon         = 'pfAllPhotonsPuppi',
-                                coneR = muonIsoCone
-                                )
-    
-        ### PUPPI weighted isolation without muons
-        load_muonPFiso_sequence(process, 'MuonPFIsoSequencePUPPINoMu', algo = 'R04PUPPINoMu',
-                                src =  "slimmedMuons",
-                                src_charged_hadron = 'pfAllChargedHadronsPuppiNoMuon',
-                                src_neutral_hadron = 'pfAllNeutralHadronsPuppiNoMuon',
-                                src_photon         = 'pfAllPhotonsPuppiNoMuon',
-                                coneR = muonIsoCone
-                                )
-
     
     ###########################
     ## Electrons and photons ##
@@ -386,31 +289,6 @@ def createProcess(isMC, ## isMC flag
             
     # Create METs from CHS and PUPPI
     #from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
-
-    ## Gen MET ###
-    ### Copied from https://github.com/cms-sw/cmssw/blob/2b75137e278b50fc967f95929388d430ef64710b/RecoMET/Configuration/python/GenMETParticles_cff.py#L37
-
-    if isMC :
-        process.load('RecoMET.METProducers.genMetTrue_cfi')
-    
-        process.genParticlesForMETAllVisible = cms.EDProducer(
-            "InputGenJetsParticleSelector",
-            src = cms.InputTag("prunedGenParticles"),
-            partonicFinalState = cms.bool(False),
-            excludeResonances = cms.bool(False),
-            excludeFromResonancePids = cms.vuint32(),
-            tausAsJets = cms.bool(False),
-
-            ignoreParticleIDs = cms.vuint32(
-                1000022,
-                1000012, 1000014, 1000016,
-                2000012, 2000014, 2000016,
-                1000039, 5100039,
-                4000012, 4000014, 4000016,
-                9900012, 9900014, 9900016,
-                39, 12, 14, 16
-                )
-            )
 
     ## Raw PF METs
     etaCutForMetDiagnostic = 100

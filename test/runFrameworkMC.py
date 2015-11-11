@@ -79,11 +79,22 @@ elif len(options.inputFiles) == 0 and options.isMC == False:
 
 
 ## set input files
+process.source = cms.Source("PoolSource")
 process.source.fileNames = cms.untracked.vstring(options.inputFiles);
+
+## count the number of events
+process.AllEvents = cms.EDFilter("PassFilter",
+    srcGenEventInfo   = cms.InputTag("generator"),
+    isMC      = cms.bool(options.isMC)                              
+  )
+process.counterPath = cms.Path(process.AllEvents)
 ## set max events 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(options.maxEvents))
 ## output name
+process.load('CommonTools.UtilAlgos.TFileService_cfi')
 process.TFileService.fileName = cms.string('output.root')
+process.TFileService.closeFileFast = cms.untracked.bool(True)
+
 
 ## logger
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
