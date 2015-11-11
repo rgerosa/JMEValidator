@@ -54,12 +54,6 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg){
   // get muons
   srcMuons_     = consumes<pat::MuonCollection>(cfg.getParameter<edm::InputTag>("srcMuons"));
 
-  // get puppi weights
-  if(cfg.existsAs<edm::InputTag>("srcPuppiWeights"))
-    srcPuppiWeights_ = cfg.getParameter<edm::InputTag>("srcPuppiWeights");  
-
-  puppiWeights_         = consumes<edm::ValueMap<float> >(srcPuppiWeights_);
-  
   // load weight files
   edm::ParameterSet cfgInputFileNames = cfg.getParameter<edm::ParameterSet>("inputFileNames");
   
@@ -188,10 +182,6 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
     evt.put(recoZParticleCollection,ZbosonLabel_);
   }
 
-  // get puppi weights
-  edm::Handle<edm::ValueMap<float> > puppiWeightsHandle;
-  evt.getByToken(puppiWeights_,puppiWeightsHandle);
-  
   // get reference MET and calculate its recoil
   edm::Handle<pat::METCollection> referenceMETs;
   evt.getByToken(referenceMET_, referenceMETs);
@@ -211,8 +201,8 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
   float sumEt_TauJetNeutral = 0;
   std::vector<int>::const_iterator itMETFlags = srcMETFlags_.begin();
   itMETFlags++;
-  for ( std::vector<edm::EDGetTokenT<pat::METCollection> >::const_iterator srcMET = srcMETs_.begin(); 
-	srcMET != srcMETs_.end() && itMETFlags!=srcMETFlags_.end(); ++srcMET, ++itMETFlags ){    
+  for ( std::vector<edm::EDGetTokenT<pat::METCollection> >::const_iterator srcMET = srcMETs_.begin(); srcMET != srcMETs_.end() && itMETFlags!=srcMETFlags_.end(); ++srcMET, ++itMETFlags )
+  {
     //get inputs
     std::string collection_name = srcMETTags_[i++].label();
     if(debug_) 
@@ -228,28 +218,20 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
     reco::Particle tauJetSpouriousComponents;
     tauJetSpouriousComponents.setP4(reco::Candidate::LorentzVector(0, 0, 0, 0));
 
-    if(collection_name.find("ChargedPV") != std::string::npos){
-      for( auto particle : neutralTauJetCandidates){
-	if(puppiWeightsHandle->contains(particle.id())){
-	  tauJetSpouriousComponents.setP4(tauJetSpouriousComponents.p4()+particle->p4()*(*puppiWeightsHandle)[particle]);            
-	  sumEt_TauJetNeutral += particle->p4().Et()*(*puppiWeightsHandle)[particle];	
-	}
-	else{
-	  tauJetSpouriousComponents.setP4(tauJetSpouriousComponents.p4()+particle->p4());            
-	  sumEt_TauJetNeutral += particle->p4().Et();	
-	}
+    if(collection_name.find("ChargedPV") != std::string::npos)
+    {
+      for( auto particle : neutralTauJetCandidates)
+      {
+        tauJetSpouriousComponents.setP4(tauJetSpouriousComponents.p4()+particle->p4());            
+        sumEt_TauJetNeutral += particle->p4().Et();	
       }
     }    
-    else if(collection_name.find("NeutralPV") != std::string::npos){
-      for( auto particle : chargedTauJetCandidates){
-	if(puppiWeightsHandle->contains(particle.id())){
-	  tauJetSpouriousComponents.setP4(tauJetSpouriousComponents.p4()+particle->p4()*(*puppiWeightsHandle)[particle]);            
-	  sumEt_TauJetCharge += particle->p4().Et()*(*puppiWeightsHandle)[particle];
-	}
-	else{
-	  tauJetSpouriousComponents.setP4(tauJetSpouriousComponents.p4()+particle->p4());            
-	  sumEt_TauJetCharge += particle->p4().Et();
-	}
+    else if(collection_name.find("NeutralPV") != std::string::npos)
+    {
+      for( auto particle : chargedTauJetCandidates)
+      {
+        tauJetSpouriousComponents.setP4(tauJetSpouriousComponents.p4()+particle->p4());            
+        sumEt_TauJetCharge += particle->p4().Et();
       }
     }
 
