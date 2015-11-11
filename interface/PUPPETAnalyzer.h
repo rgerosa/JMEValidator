@@ -120,25 +120,25 @@ class PUPPETAnalyzer : public JME::Analyzer {
         int& NGenMatchedJets_ = tree["NGenMatchedJets"].write< int>();
         int& NGenMatchedJetsPF_ = tree["NGenMatchedJetsPF"].write< int>();
 
-        float& GenLeadingJet_Pt_  = tree["GenLeadingJet_Pt"].write<float>();
-        float& GenLeadingJet_Eta_ = tree["GenLeadingJet_Eta"].write<float>();
-        float& GenLeadingJet_Phi_ = tree["GenLeadingJet_Phi"].write<float>();
-        float& GenLeadingJet_M_   = tree["GenLeadingJet_M"].write<float>();
+        float& GenLeadingJet_Pt_  = tree["GenJet1_Pt"].write<float>();
+        float& GenLeadingJet_Eta_ = tree["GenJet1_Eta"].write<float>();
+        float& GenLeadingJet_Phi_ = tree["GenJet1_Phi"].write<float>();
+        float& GenLeadingJet_M_   = tree["GenJet1_M"].write<float>();
 
-        float& GenLeadingJetCleaned_Pt_  = tree["GenLeadingJetCleaned_Pt"].write<float>();
-        float& GenLeadingJetCleaned_Eta_ = tree["GenLeadingJetCleaned_Eta"].write<float>();
-        float& GenLeadingJetCleaned_Phi_ = tree["GenLeadingJetCleaned_Phi"].write<float>();
-        float& GenLeadingJetCleaned_M_   = tree["GenLeadingJetCleaned_M"].write<float>();
+        float& GenLeadingJetCleaned_Pt_  = tree["GenJet1Cleaned_Pt"].write<float>();
+        float& GenLeadingJetCleaned_Eta_ = tree["GenJet1Cleaned_Eta"].write<float>();
+        float& GenLeadingJetCleaned_Phi_ = tree["GenJet1Cleaned_Phi"].write<float>();
+        float& GenLeadingJetCleaned_M_   = tree["GenJet1Cleaned_M"].write<float>();
 
-        float& GenTrailingJet_Pt_  = tree["GenTrailingJet_Pt"].write<float>();
-        float& GenTrailingJet_Eta_ = tree["GenTrailingJet_Eta"].write<float>();
-        float& GenTrailingJet_Phi_ = tree["GenTrailingJet_Phi"].write<float>();
-        float& GenTrailingJet_M_   = tree["GenTrailingJet_M"].write<float>();
+        float& GenTrailingJet_Pt_  = tree["GenJet2_Pt"].write<float>();
+        float& GenTrailingJet_Eta_ = tree["GenJet2_Eta"].write<float>();
+        float& GenTrailingJet_Phi_ = tree["GenJet2_Phi"].write<float>();
+        float& GenTrailingJet_M_   = tree["GenJet2_M"].write<float>();
 
-        float& GenTrailingJetCleaned_Pt_  = tree["GenTrailingJetCleaned_Pt"].write<float>();
-        float& GenTrailingJetCleaned_Eta_ = tree["GenTrailingJetCleaned_Eta"].write<float>();
-        float& GenTrailingJetCleaned_Phi_ = tree["GenTrailingJetCleaned_Phi"].write<float>();
-        float& GenTrailingJetCleaned_M_   = tree["GenTrailingJetCleaned_M"].write<float>();
+        float& GenTrailingJetCleaned_Pt_  = tree["GenJet2Cleaned_Pt"].write<float>();
+        float& GenTrailingJetCleaned_Eta_ = tree["GenJet2Cleaned_Eta"].write<float>();
+        float& GenTrailingJetCleaned_Phi_ = tree["GenJet2Cleaned_Phi"].write<float>();
+        float& GenTrailingJetCleaned_M_   = tree["GenJet2Cleaned_M"].write<float>();
 
 	// Generator level recoil
 
@@ -160,21 +160,21 @@ class PUPPETAnalyzer : public JME::Analyzer {
         float& recoilPFMet_Boson_PerpU_ = tree["recoilPFMet_Boson_PerpU"].write<float>();
         float& recoilPFMet_Boson_LongU_ = tree["recoilPFMet_Boson_LongU"].write<float>();
 
-	float& PFMet_Pt_    = tree["PFMet_Pt"].write<float>();
-	float& PFMet_Phi_   = tree["PFMet_Phi"].write<float>();
-	float& PFMet_sumEt_ = tree["PFMet_SumEt"].write<float>();
+        float& PFMet_Pt_    = tree["PFMet_Pt"].write<float>();
+        float& PFMet_Phi_   = tree["PFMet_Phi"].write<float>();
+        float& PFMet_sumEt_ = tree["PFMet_SumEt"].write<float>();
 
-	float& PFMet_uncorrected_Pt_    = tree["PFMet_uncorrected_Pt"].write<float>();
-	float& PFMet_uncorrected_Phi_   = tree["PFMet_uncorrected_Phi"].write<float>();
-	float& PFMet_uncorrected_sumEt_ = tree["PFMet_uncorrected_SumEt"].write<float>();
+        //float& PFMet_uncorrected_Pt_    = tree["PFMet_uncorrected_Pt"].write<float>();
+        //float& PFMet_uncorrected_Phi_   = tree["PFMet_uncorrected_Phi"].write<float>();
+        //float& PFMet_uncorrected_sumEt_ = tree["PFMet_uncorrected_SumEt"].write<float>();
 
-        float& recoilPFMet_uncorrected_sumEt_ = tree["recoilPFMet_uncorrected_sumEt"].write<float>();
-        float& recoilPFMet_uncorrected_Pt_    = tree["recoilPFMet_uncorrected_Pt"].write<float>();
-        float& recoilPFMet_uncorrected_Phi_   = tree["recoilPFMet_uncorrected_Phi"].write<float>();
-        float& recoilPFMet_uncorrected_PerpZ_ = tree["recoilPFMet_uncorrected_PerpZ"].write<float>();
-        float& recoilPFMet_uncorrected_LongZ_ = tree["recoilPFMet_uncorrected_LongZ"].write<float>();
-        float& recoilPFMet_uncorrected_Boson_PerpU_ = tree["recoilPFMet_uncorrected_Boson_PerpU"].write<float>();
-        float& recoilPFMet_uncorrected_Boson_LongU_ = tree["recoilPFMet_uncorrected_Boson_LongU"].write<float>();
+        //float& recoilPFMet_uncorrected_sumEt_ = tree["recoilPFMet_uncorrected_sumEt"].write<float>();
+        //float& recoilPFMet_uncorrected_Pt_    = tree["recoilPFMet_uncorrected_Pt"].write<float>();
+        //float& recoilPFMet_uncorrected_Phi_   = tree["recoilPFMet_uncorrected_Phi"].write<float>();
+        //float& recoilPFMet_uncorrected_PerpZ_ = tree["recoilPFMet_uncorrected_PerpZ"].write<float>();
+        //float& recoilPFMet_uncorrected_LongZ_ = tree["recoilPFMet_uncorrected_LongZ"].write<float>();
+        //float& recoilPFMet_uncorrected_Boson_PerpU_ = tree["recoilPFMet_uncorrected_Boson_PerpU"].write<float>();
+        //float& recoilPFMet_uncorrected_Boson_LongU_ = tree["recoilPFMet_uncorrected_Boson_LongU"].write<float>();
 
         float& recoilPFCHSMet_sumEt_ = tree["recoilPFCHSMet_sumEt"].write<float>();
         float& recoilPFCHSMet_Pt_    = tree["recoilPFCHSMet_Pt"].write<float>();
@@ -182,19 +182,19 @@ class PUPPETAnalyzer : public JME::Analyzer {
         float& recoilPFCHSMet_PerpZ_ = tree["recoilPFCHSMet_PerpZ"].write<float>();
         float& recoilPFCHSMet_LongZ_ = tree["recoilPFCHSMet_LongZ"].write<float>();
 
-	float& PFCHSMet_Pt_    = tree["PFCHSMet_Pt"].write<float>();
-	float& PFCHSMet_Phi_   = tree["PFCHSMet_Phi"].write<float>();
-	float& PFCHSMet_sumEt_ = tree["PFCHSMet_SumEt"].write<float>();
+        float& PFCHSMet_Pt_    = tree["PFCHSMet_Pt"].write<float>();
+        float& PFCHSMet_Phi_   = tree["PFCHSMet_Phi"].write<float>();
+        float& PFCHSMet_sumEt_ = tree["PFCHSMet_SumEt"].write<float>();
 
-	float& PFCHSMet_uncorrected_Pt_    = tree["PFCHSMet_uncorrected_Pt"].write<float>();
-	float& PFCHSMet_uncorrected_Phi_   = tree["PFCHSMet_uncorrected_Phi"].write<float>();
-	float& PFCHSMet_uncorrected_sumEt_ = tree["PFCHSMet_uncorrected_SumEt"].write<float>();
+        //float& PFCHSMet_uncorrected_Pt_    = tree["PFCHSMet_uncorrected_Pt"].write<float>();
+        //float& PFCHSMet_uncorrected_Phi_   = tree["PFCHSMet_uncorrected_Phi"].write<float>();
+        //float& PFCHSMet_uncorrected_sumEt_ = tree["PFCHSMet_uncorrected_SumEt"].write<float>();
 
-        float& recoilPFCHSMet_uncorrected_sumEt_ = tree["recoilPFCHSMet_uncorrected_sumEt"].write<float>();
-        float& recoilPFCHSMet_uncorrected_Pt_    = tree["recoilPFCHSMet_uncorrected_Pt"].write<float>();
-        float& recoilPFCHSMet_uncorrected_Phi_   = tree["recoilPFCHSMet_uncorrected_Phi"].write<float>();
-        float& recoilPFCHSMet_uncorrected_PerpZ_ = tree["recoilPFCHSMet_uncorrected_PerpZ"].write<float>();
-        float& recoilPFCHSMet_uncorrected_LongZ_ = tree["recoilPFCHSMet_uncorrected_LongZ"].write<float>();
+        //float& recoilPFCHSMet_uncorrected_sumEt_ = tree["recoilPFCHSMet_uncorrected_sumEt"].write<float>();
+        //float& recoilPFCHSMet_uncorrected_Pt_    = tree["recoilPFCHSMet_uncorrected_Pt"].write<float>();
+        //float& recoilPFCHSMet_uncorrected_Phi_   = tree["recoilPFCHSMet_uncorrected_Phi"].write<float>();
+        //float& recoilPFCHSMet_uncorrected_PerpZ_ = tree["recoilPFCHSMet_uncorrected_PerpZ"].write<float>();
+        //float& recoilPFCHSMet_uncorrected_LongZ_ = tree["recoilPFCHSMet_uncorrected_LongZ"].write<float>();
 
         float& recoilPFPuppiMet_sumEt_ = tree["recoilPFPuppiMet_sumEt"].write<float>();
         float& recoilPFPuppiMet_Pt_    = tree["recoilPFPuppiMet_Pt"].write<float>();
@@ -204,22 +204,21 @@ class PUPPETAnalyzer : public JME::Analyzer {
         float& recoilPFPuppiMet_Boson_PerpU_ = tree["recoilPFPuppiMet_Boson_PerpU"].write<float>();
         float& recoilPFPuppiMet_Boson_LongU_ = tree["recoilPFPuppiMet_Boson_LongU"].write<float>();
 
-	float& PFPuppiMet_Pt_    = tree["PFPuppiMet_Pt"].write<float>();
-	float& PFPuppiMet_Phi_   = tree["PFPuppiMet_Phi"].write<float>();
-	float& PFPuppiMet_sumEt_ = tree["PFPuppiMet_SumEt"].write<float>();
+        float& PFPuppiMet_Pt_    = tree["PFPuppiMet_Pt"].write<float>();
+        float& PFPuppiMet_Phi_   = tree["PFPuppiMet_Phi"].write<float>();
+        float& PFPuppiMet_sumEt_ = tree["PFPuppiMet_SumEt"].write<float>();
 
-	float& PFPuppiMet_uncorrected_Pt_    = tree["PFPuppiMet_uncorrected_Pt"].write<float>();
-	float& PFPuppiMet_uncorrected_Phi_   = tree["PFPuppiMet_uncorrected_Phi"].write<float>();
-	float& PFPuppiMet_uncorrected_sumEt_ = tree["PFPuppiMet_uncorrected_SumEt"].write<float>();
+        //float& PFPuppiMet_uncorrected_Pt_    = tree["PFPuppiMet_uncorrected_Pt"].write<float>();
+        //float& PFPuppiMet_uncorrected_Phi_   = tree["PFPuppiMet_uncorrected_Phi"].write<float>();
+        //float& PFPuppiMet_uncorrected_sumEt_ = tree["PFPuppiMet_uncorrected_SumEt"].write<float>();
 
-        float& recoilPFPuppiMet_uncorrected_sumEt_ = tree["recoilPFPuppiMet_uncorrected_sumEt"].write<float>();
-        float& recoilPFPuppiMet_uncorrected_Pt_    = tree["recoilPFPuppiMet_uncorrected_Pt"].write<float>();
-        float& recoilPFPuppiMet_uncorrected_Phi_   = tree["recoilPFPuppiMet_uncorrected_Phi"].write<float>();
-        float& recoilPFPuppiMet_uncorrected_PerpZ_ = tree["recoilPFPuppiMet_uncorrected_PerpZ"].write<float>();
-        float& recoilPFPuppiMet_uncorrected_LongZ_ = tree["recoilPFPuppiMet_uncorrected_LongZ"].write<float>();
-        float& recoilPFPuppiMet_uncorrected_Boson_PerpU_ = tree["recoilPFPuppiMet_uncorrected_Boson_PerpU"].write<float>();
-        float& recoilPFPuppiMet_uncorrected_Boson_LongU_ = tree["recoilPFPuppiMet_uncorrected_Boson_LongU"].write<float>();
-
+        //float& recoilPFPuppiMet_uncorrected_sumEt_ = tree["recoilPFPuppiMet_uncorrected_sumEt"].write<float>();
+        //float& recoilPFPuppiMet_uncorrected_Pt_    = tree["recoilPFPuppiMet_uncorrected_Pt"].write<float>();
+        //float& recoilPFPuppiMet_uncorrected_Phi_   = tree["recoilPFPuppiMet_uncorrected_Phi"].write<float>();
+        //float& recoilPFPuppiMet_uncorrected_PerpZ_ = tree["recoilPFPuppiMet_uncorrected_PerpZ"].write<float>();
+        //float& recoilPFPuppiMet_uncorrected_LongZ_ = tree["recoilPFPuppiMet_uncorrected_LongZ"].write<float>();
+        //float& recoilPFPuppiMet_uncorrected_Boson_PerpU_ = tree["recoilPFPuppiMet_uncorrected_Boson_PerpU"].write<float>();
+        //float& recoilPFPuppiMet_uncorrected_Boson_LongU_ = tree["recoilPFPuppiMet_uncorrected_Boson_LongU"].write<float>();
 
         float& recoilPFMet_ChargedPVNeutralPVPUJetID_sumEt_ = tree["recoilPFMet_ChargedPVNeutralPVPUJetID_sumEt"].write<float>();
         float& recoilPFMet_ChargedPVNeutralPVPUJetID_Pt_    = tree["recoilPFMet_ChargedPVNeutralPVPUJetID_Pt"].write<float>();
@@ -251,25 +250,25 @@ class PUPPETAnalyzer : public JME::Analyzer {
 	int& NCleanedJetsPF_ =  tree["NCleanedJetsPF"].write<int>();
 	int& NVertex_      =  tree["NVertex"].write<int>();
 
-	float& LeadingJet_Pt_  = tree["LeadingJet_Pt"].write<float>();
-	float& LeadingJet_Eta_ = tree["LeadingJet_Eta"].write<float>();
-	float& LeadingJet_Phi_ = tree["LeadingJet_Phi"].write<float>();
-	float& LeadingJet_M_   = tree["LeadingJet_M"].write<float>();
+	float& LeadingJet_Pt_  = tree["Jet1_Pt"].write<float>();
+	float& LeadingJet_Eta_ = tree["Jet1_Eta"].write<float>();
+	float& LeadingJet_Phi_ = tree["Jet1_Phi"].write<float>();
+	float& LeadingJet_M_   = tree["Jet1_M"].write<float>();
 
-	float& TrailingJet_Pt_  = tree["TrailingJet_Pt"].write<float>();
-	float& TrailingJet_Eta_ = tree["TrailingJet_Eta"].write<float>();
-	float& TrailingJet_Phi_ = tree["TrailingJet_Phi"].write<float>();
-	float& TrailingJet_M_   = tree["TrailingJet_M"].write<float>();
+	float& TrailingJet_Pt_  = tree["Jet2_Pt"].write<float>();
+	float& TrailingJet_Eta_ = tree["Jet2_Eta"].write<float>();
+	float& TrailingJet_Phi_ = tree["Jet2_Phi"].write<float>();
+	float& TrailingJet_M_   = tree["Jet2_M"].write<float>();
 
-	float& LeadingJetPF_Pt_  = tree["LeadingJetPF_Pt"].write<float>();
-	float& LeadingJetPF_Eta_ = tree["LeadingJetPF_Eta"].write<float>();
-	float& LeadingJetPF_Phi_ = tree["LeadingJetPF_Phi"].write<float>();
-	float& LeadingJetPF_M_   = tree["LeadingJetPF_M"].write<float>();
+	float& LeadingJetPF_Pt_  = tree["Jet1PF_Pt"].write<float>();
+	float& LeadingJetPF_Eta_ = tree["Jet1PF_Eta"].write<float>();
+	float& LeadingJetPF_Phi_ = tree["Jet1PF_Phi"].write<float>();
+	float& LeadingJetPF_M_   = tree["Jet1PF_M"].write<float>();
 
-	float& TrailingJetPF_Pt_  = tree["TrailingJetPF_Pt"].write<float>();
-	float& TrailingJetPF_Eta_ = tree["TrailingJetPF_Eta"].write<float>();
-	float& TrailingJetPF_Phi_ = tree["TrailingJetPF_Phi"].write<float>();
-	float& TrailingJetPF_M_   = tree["TrailingJetPF_M"].write<float>();
+	float& TrailingJetPF_Pt_  = tree["Jet2PF_Pt"].write<float>();
+	float& TrailingJetPF_Eta_ = tree["Jet2PF_Eta"].write<float>();
+	float& TrailingJetPF_Phi_ = tree["Jet2PF_Phi"].write<float>();
+	float& TrailingJetPF_M_   = tree["Jet2PF_M"].write<float>();
 
 	float& Boson_Pt_     =  tree["Boson_Pt"].write<float>();
 	float& Boson_Phi_    =  tree["Boson_Phi"].write<float>();
