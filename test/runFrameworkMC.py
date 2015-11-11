@@ -13,13 +13,8 @@ options.register ('isMC',True,VarParsing.multiplicity.singleton,VarParsing.varTy
 options.register ('processName','JRA',VarParsing.multiplicity.singleton,VarParsing.varType.string,'process name to be considered');
 ## conditions
 options.register ('globalTag',"MCRUN2_74_V9",VarParsing.multiplicity.singleton,VarParsing.varType.string,'input global tag to be used');
-## iPUPPI options
-options.register ('runPuppiMuonIso',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool,   'flag to indicate to run or not puppi iso for mons');
 options.register ('muonIsoCone',0.4,VarParsing.multiplicity.singleton, VarParsing.varType.float,  'value to be used for muon isolation cone');
-## PUPPET analysis
-options.register ('runMVAPUPPETAnalysis',True, VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'run a specific analysis for MVA MET : Z->LL events');
-## store and edm to debug
-options.register ('dropAnalyzerDumpEDM',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'do not run the analyzer and store an edm file');
+
 ## Lepton ID
 options.register ('muonTypeID',    "Tight",  VarParsing.multiplicity.singleton, VarParsing.varType.string, 'muon ID to be considered for MVA PUPPET analysis ');
 options.register ('electronTypeID',"Medium", VarParsing.multiplicity.singleton, VarParsing.varType.string, 'electron ID to be considered for MVA PUPPET analysis ');
@@ -27,23 +22,10 @@ options.register ('tauTypeID',     "Loose",  VarParsing.multiplicity.singleton, 
 ## selections
 options.register ('applyZSelections',True,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'apply selection for Zll events when runMVAPUPPETAnalysis is true');
 options.register ('applyWSelections',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'apply selection for Wlnu events when runMVAPUPPETAnalysis is true');
-options.register ('jetPtCut',0.,VarParsing.multiplicity.singleton, VarParsing.varType.float, 'apply a jet pt cut for mva met input');
+options.register ('jetPtCut',15.,VarParsing.multiplicity.singleton, VarParsing.varType.float, 'apply a jet pt cut for mva met input');
 ## JEC
-options.register ('isRunningOn25ns',      False,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'true when running on 25ns and JEC from DB should be red');
 options.register ('useJECFromDB',         False,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'read JEC from the database for special JEC not in GT');
-options.register ('applyJECtoPuppiJets',  False,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'apply or not JEC on puppi jets');
-## Puppi particles
-options.register ('runPuppiDiagnostics',  False,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'run Puppi diagnostic and store in the output');
-## Puppi special setup
-options.register ('etaCutForMetDiagnostic', 10.0,VarParsing.multiplicity.singleton, VarParsing.varType.float, 'introduce a cut for the diagnostic of the MET');
-options.register ('ptNeutralCut',           [],     VarParsing.multiplicity.list, VarParsing.varType.float, 'ptNeutral cut in each eta bin');
-options.register ('ptNeutralCutSlope',      [],  VarParsing.multiplicity.list, VarParsing.varType.float, 'ptNeutral cut in each eta bin');
-options.register ('etaBinPuppi',            [],     VarParsing.multiplicity.list, VarParsing.varType.float, 'eta bin for puppi algo');
-options.register ('puppiUseCharge',         [], VarParsing.multiplicity.list, VarParsing.varType.bool, 'use charge constraint in puppi algo');
-options.register ('ptThresholdForTypeIPuppi', 20.,    VarParsing.multiplicity.singleton, VarParsing.varType.float, 'pt threshold for typeI puppi Met');
-options.register ('runPUPPINoLeptons', True, VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'remove charged identified leptons before running puppi');
 options.parseArguments()
-
 
 ## import the function to create the process
 from JMEAnalysis.JMEValidator.FrameworkConfiguration import createProcess
@@ -55,32 +37,25 @@ if options.applyWSelections and options.applyZSelections :
 process = createProcess(options.isMC, ## MC or data
                         options.processName,
                         options.globalTag, ## GT
-                        options.muonTypeID, options.runPuppiMuonIso, options.muonIsoCone, ## muons
+                        options.muonTypeID, options.muonIsoCone,## muons
                         options.electronTypeID, ## electrons
                         options.tauTypeID,## taus
-                        options.dropAnalyzerDumpEDM, ## debug in EDM file
                         options.applyZSelections, options.applyWSelections, ## special flags for PUPPI analysis
                         options.jetPtCut,
-                        options.applyJECtoPuppiJets, ## JEC for puppi
                         options.useJECFromDB ## JEC
                         );
 
-#process.slimmedMETsCHS.runningOnMiniAOD = cms.bool(True)
-#process.slimmedMETsChargedPVNeutralPV.runningOnMiniAOD = cms.bool(True)
-#process.slimmedMETsChargedPVNeutralPVPUJetID.runningOnMiniAOD = cms.bool(True)
-#process.slimmedMETsChargedPUNeutralPUPUJetID.runningOnMiniAOD = cms.bool(True)
-
-
 ####### files
-if len(options.inputFiles) == 0 and options.isMC == True:
-      options.inputFiles.append('/store/mc/RunIISpring15MiniAODv2/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/60000/78750D2F-726D-E511-A7F7-0025905C2CEA.root')
-elif len(options.inputFiles) == 0 and options.isMC == False:
-      options.inputFiles.append('/store/data/Run2015B/DoubleMuon/MINIAOD/PromptReco-v1/000/251/244/00000/E42FEF61-6E27-E511-B93A-02163E0143C0.root')
+inputFiles = []
+if options.isMC == True:
+     inputFiles.append('/store/mc/RunIISpring15MiniAODv2/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/60000/78750D2F-726D-E511-A7F7-0025905C2CEA.root')
+elif options.isMC == False:
+     inputFiles.append('/store/data/Run2015B/DoubleMuon/MINIAOD/PromptReco-v1/000/251/244/00000/E42FEF61-6E27-E511-B93A-02163E0143C0.root')
 
 
 ## set input files
 process.source = cms.Source("PoolSource")
-process.source.fileNames = cms.untracked.vstring(options.inputFiles);
+process.source.fileNames = cms.untracked.vstring(inputFiles);
 
 ## count the number of events
 process.AllEvents = cms.EDFilter("PassFilter",
@@ -104,8 +79,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 50
 process.options   = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 process.options.allowUnscheduled = cms.untracked.bool(True)
  
-if options.dropAnalyzerDumpEDM :
-
+"""
     process.output = cms.OutputModule("PoolOutputModule",
                                       fileName = cms.untracked.string('output_particles.root'),
                                       outputCommands = cms.untracked.vstring('keep *_slimmedMuons'+options.muonTypeID+'*_*_*',
@@ -148,5 +122,6 @@ if options.dropAnalyzerDumpEDM :
     process.out = cms.EndPath(process.output)
     
 
+"""
 processDumpFile = open('processDump.py', 'w')
 print >> processDumpFile, process.dumpPython()

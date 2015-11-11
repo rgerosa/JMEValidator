@@ -108,13 +108,11 @@ def appendJECToDB(process, payload, prefix, postfix=""):
 def createProcess(isMC, ## isMC flag
                   processName,
                   globalTag, ## global tag
-                  muonTypeID, runPuppiMuonIso, muonIsoCone, ## muons
+                  muonTypeID, muonIsoCone, ## muons
                   electronTypeID, ## electrons
                   tauTypeID, ## taus
-                  dropAnalyzerDumpEDM, ## debug EDM 
                   applyZSelections,applyWSelections, ## special settings for PUPPET
                   jetPtCut,
-                  applyJECtoPuppiJets,
                   useJECFromLocalDB
                   ):
 
@@ -144,13 +142,6 @@ def createProcess(isMC, ## isMC flag
     #######################
     ### JET COLLECTIONS ###
     #######################
-
-    # jetsCollections is a dictionnary containing all the informations needed for creating a new jet collection. The format used is :
-    #  "name": {
-    #      "algo": string ; the jet algorithm to use
-    #      "pu_methods" : array of strings ; which PU method to use
-    #      "pu_jet_id": run the pu jet id or not. Very time consuming
-    #  }
 
     if isMC:
         
@@ -298,9 +289,6 @@ def createProcess(isMC, ## isMC flag
                                               cut = cms.string("abs(eta) < %f"%etaCutForMetDiagnostic))
 
 
-    process.load('RecoMET.METProducers.PFMET_cfi')
-    process.pfMet.src = cms.InputTag('pfCandidatesForMET')
-
     ## CHS pat MET; raw PF is the slimmedMet in miniAOD + typeI correction
     from RecoMET.METProducers.PFMET_cfi import pfMet
     process.pfCandidatesForMETCHS = cms.EDFilter("CandPtrSelector",
@@ -346,15 +334,6 @@ def createProcess(isMC, ## isMC flag
                 jetCorrLabel = 'ak4PFL1FastL2L3ResidualCorrector',
                 offsetCorrLabel = 'ak4PFL1FastjetCorrector',
                 )
-
-        
-        
-        process.pfMetT1 = pfMetT1.clone(
-            src = 'pfMet',
-            srcCorrections = [ cms.InputTag("corrPfMetType1","type1") ]
-            )
-        
-
             
     ### CHS TypeI corrected
     if not hasattr(process, 'ak4PFJetsCHS'):
@@ -378,90 +357,75 @@ def createProcess(isMC, ## isMC flag
                 jetCorrLabel    = 'ak4PFCHSL1FastL2L3ResidualCorrector',
                 offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
                 )
-            
+             
         process.pfMetT1CHS = pfMetT1.clone(
-            src = 'pfMetCHS',
-            srcCorrections = [ cms.InputTag("corrPfMetType1CHS","type1") ]
+             src = 'pfMetCHS',
+             srcCorrections = [ cms.InputTag("corrPfMetType1CHS","type1") ]
         )
-
-
-
-    ## Slimmed METs
-    #from PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi import slimmedMETs
-    #if hasattr(slimmedMETs, "caloMET"):
-    #    del slimmedMETs.caloMET
-
-    ## create the Path
+ 
+     ## create the Path
     process.jmfw_analyzers = cms.Sequence()
     process.p = cms.Path(process.jmfw_analyzers)
+ 
+    ## re run HBHE filter
+    process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
+    process.HBHENoiseFilterResultProducer.minZeros = cms.int32(99999)
+ 
+    process.ApplyBaselineHBHENoiseFilter = cms.EDFilter('BooleanFlagFilter',
+                                                        inputLabel = cms.InputTag('HBHENoiseFilterResultProducer','HBHENoiseFilterResult'),
+                                                        reverseDecision = cms.bool(False)
+                                                        )
+ 
+    process.jmfw_analyzers += process.HBHENoiseFilterResultProducer
+    process.jmfw_analyzers += process.ApplyBaselineHBHENoiseFilter 
+ 
+    from JMEAnalysis.JMEValidator.runMVAPUPPET_cff import runMVAPUPPET
+ 
+    runMVAPUPPET( process, 
+                  processName,
+                  isMC,
+                  srcMuons = "slimmedMuons", 
+                  muonTypeID = "Tight", 
+                  iso_map_muons = [], 
+                  typeIsoMuons = "dBeta",
+                  srcElectrons = "slimmedElectrons", 
+                  electronTypeID = "Tight", 
+                  electronID_map = 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight',
+                  iso_map_electrons = [], 
+                  typeIsoElectrons = "rhoCorr",
+                  srcTaus = "slimmedTaus", 
+                  tauTypeID = tauTypeID, 
+                  doTauCleaning = True,
+                  jetCollectionPF    = "selectedPatJetsAK4PF", 
+                  dRCleaning = 0.3, 
+                  jetPtCut = jetPtCut, 
+                  jetEtaCut = 5.,
+                  etaCutForMetDiagnostic = etaCutForMetDiagnostic,
+                  genJetCollection = "ak4GenJetsNoNu",
+                  cleanGenJets = True,
+                  applyZSelections = applyZSelections, 
+                  applyWSelections = applyWSelections
+                  )
+ 
+ 
+    ######## add other specific set of particles and MET collections, in this case not TypeI corrected, but we will still use the same workflow    
+    ## all charge particles from PUPPI : hadrons + leptons (e,mu,tau) --> trak met
+    ## particles for chs 
+ 
+    process.pfChargedPV = cms.EDFilter("CandPtrSelector",
+                                       src = cms.InputTag("chs"),
+                                       cut = cms.string("pt > 0  && charge!=0 && abs(eta) < %f"%etaCutForMetDiagnostic))
 
-    if True :
+    process.pfNeutrals = cms.EDFilter("CandPtrSelector",
+                                      src = cms.InputTag("chs"),
+                                      cut = cms.string("pt > 0 && charge == 0 && abs(eta) < %f"%etaCutForMetDiagnostic))
 
-        ## re run HBHE filter
-        process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
-        process.HBHENoiseFilterResultProducer.minZeros = cms.int32(99999)
+ 
+    process.pfChargedPU = cms.EDFilter("CandPtrSelector",
+                                      cut = cms.string('!fromPV && abs(eta) < %f'%etaCutForMetDiagnostic),
+                                      src = cms.InputTag("packedPFCandidates")
+                                      )
 
-        process.ApplyBaselineHBHENoiseFilter = cms.EDFilter('BooleanFlagFilter',
-                                                            inputLabel = cms.InputTag('HBHENoiseFilterResultProducer','HBHENoiseFilterResult'),
-                                                            reverseDecision = cms.bool(False)
-                                                            )
-
-        process.jmfw_analyzers += process.HBHENoiseFilterResultProducer
-        process.jmfw_analyzers += process.ApplyBaselineHBHENoiseFilter 
-
-        from JMEAnalysis.JMEValidator.runMVAPUPPET_cff import runMVAPUPPET
-
-        runMVAPUPPET( process, 
-                      processName,
-                      isMC,
-                      srcMuons = "slimmedMuons", 
-                      muonTypeID = "Tight", 
-                      iso_map_muons = [], 
-                      typeIsoMuons = "dBeta",
-                      srcElectrons = "slimmedElectrons", 
-                      electronTypeID = "Tight", 
-                      electronID_map = 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight',
-                      iso_map_electrons = [], 
-                      typeIsoElectrons = "rhoCorr",
-                      srcTaus = "slimmedTaus", 
-                      tauTypeID = tauTypeID, 
-                      doTauCleaning = True,
-                      jetCollectionPuppi = "selectedPatJetsAK4PFPuppi", 
-                      jetCollectionPF    = "selectedPatJetsAK4PF", 
-                      dRCleaning = 0.3, 
-                      jetPtCut = jetPtCut, 
-                      jetEtaCut = 5.,
-                      etaCutForMetDiagnostic = etaCutForMetDiagnostic,
-                      genJetCollection = "ak4GenJetsNoNu",
-                      cleanGenJets = True,
-                      applyTypeICorrection = applyJECtoPuppiJets, 
-                      useJECFromLocalDB = useJECFromLocalDB,                      
-                      applyZSelections = applyZSelections, 
-                      applyWSelections = applyWSelections
-                      )
-    
-
-        ######## add other specific set of particles and MET collections, in this case not TypeI corrected, but we will still use the same workflow    
-        ## all charge particles from PUPPI : hadrons + leptons (e,mu,tau) --> trak met
-        ## particles for chs 
-
-        process.pfChargedPV = cms.EDFilter("CandPtrSelector",
-                                           src = cms.InputTag("chs"),
-                                           cut = cms.string("pt > 0  && charge!=0 && abs(eta) < %f"%etaCutForMetDiagnostic))
-
-        process.pfNeutrals = cms.EDFilter("CandPtrSelector",
-                                          src = cms.InputTag("chs"),
-                                          cut = cms.string("pt > 0 && charge == 0 && abs(eta) < %f"%etaCutForMetDiagnostic))
-
-
-        process.pfChargedPU = cms.EDFilter("CandPtrSelector",
-                                           cut = cms.string('!fromPV && abs(eta) < %f'%etaCutForMetDiagnostic),
-                                           src = cms.InputTag("packedPFCandidates")
-                                           )
-
-    if dropAnalyzerDumpEDM:        
-        return process
-   
     # Run
     if isMC:
         process.run = cms.EDAnalyzer('RunAnalyzer')

@@ -29,7 +29,6 @@ def runMVAPUPPET(process,
                  srcTaus = "slimmedTaus",
                  tauTypeID = "Loose",
                  doTauCleaning = True,
-                 jetCollectionPuppi = "selectedPatJetsAK4PFPuppi" , 
                  jetCollectionPF    = "selectedPatJetsAK4PF" , 
                  dRCleaning= 0.3, 
                  jetPtCut = 0., 
@@ -38,22 +37,13 @@ def runMVAPUPPET(process,
                  cleanGenJets = False,
                  etaCutForMetDiagnostic = 10.,
                  applyTypeICorrection = True, 
-                 ptThresholdForTypeIPuppi = 20, 
-                 useJECFromLocalDB = True,                  
                  applyZSelections = True,
                  applyWSelections = False,
-                 putRecoilInsideEvent = True,
-                 runPUPPINoLeptons = True
+                 putRecoilInsideEvent = True
                  ):
 
     relativeIsoCutMuonsLoose = relativeIsoCutMuons+0.05;
     relativeIsoCutEletronsLoose = relativeIsoCutEletrons+0.05;    
-    ## check if puppi is setup or not
-    #if not hasattr(process, 'puppi'):
-    #    process.load('CommonTools.PileupAlgos.Puppi_cff')
-    #    puppi.candName = cms.InputTag('packedPFCandidates')
-    #    puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
-        
 
     ### run Muon ID
     if len(iso_map_muons) < 3 :
@@ -290,18 +280,7 @@ def runMVAPUPPET(process,
 
 
     ## jet lepton cleaning
-    #setattr(getattr(process,jetCollectionPuppi),"cut",cms.string('pt > %f'%jetPtCut))
     setattr(getattr(process,jetCollectionPF),"cut",cms.string('pt > %f'%jetPtCut))
-
-    #cleanJetsFromLeptons(process,
-    #                     label = "Cleaned",
-    #                     jetCollection      = jetCollectionPuppi,
-    #                     muonCollection     = srcMuons+muonTypeID,
-    #                     electronCollection = srcElectrons+electronTypeID,
-    #                     tauCollection      = srcTaus+tauTypeID+"Cleaned",
-    #                     jetPtCut   = jetPtCut,
-    #                     jetEtaCut  = jetEtaCut,
-    #                     dRCleaning = dRCleaning)
 
     cleanJetsFromLeptons(process,
                          label = "Cleaned",
@@ -365,11 +344,6 @@ def runMVAPUPPET(process,
                                                         srcElectrons = cms.InputTag(srcElectrons+electronTypeID),
                                                         srcTaus = cms.InputTag(""))
 
-    #if runPUPPINoLeptons :
-    #    process.puppi.candName = cms.InputTag('packedPFCandidatesNoLepton')
-    
-    #process.pupuppi = process.puppi.clone()
-    #process.pupuppi.invertPuppi = True
     
 
     ### produce the collection neutrals in and out jets passing PU jet id
@@ -382,84 +356,6 @@ def runMVAPUPPET(process,
                                            jetPUDIWP = cms.string("user"),
                                            jetPUIDMapLabel = cms.string("fullDiscriminant"))
 
-    ### puppi raw met                                                                                                                                             
-    #process.pfCandidatesForPuppiMET = cms.EDFilter("CandPtrSelector",
-    #                                               src = cms.InputTag("puppi"),
-    #                                               cut = cms.string("abs(eta) < %f"%etaCutForMetDiagnostic))
-    #process.pfMetPuppi       = pfMet.clone()
-    #process.pfMetPuppi.src   = cms.InputTag("pfCandidatesForPuppiMET")
-    #process.pfMetPuppi.alias = cms.string('pfMetPuppi')
-    
-    ## Type 1 corrections                                                                                                                                                       
-    #if not hasattr(process, 'ak4PFJetsPuppi'):
-    #    print("WARNING: No AK4 puppi jets produced. Type 1 corrections for puppi MET are not available.")
-    """
-    if True:
-        if applyTypeICorrection :
-
-            from CommonTools.RecoAlgos.pfJetSelector_cfi import pfJetSelector
-
-            process.ak4PFJetsPuppiForTypeI = pfJetSelector.clone(
-                src = cms.InputTag( "ak4PFJetsPuppi" ),
-                cut = cms.string( "abs(eta)<%f"%(etaCutForMetDiagnostic) )
-                )
-
-            if useJECFromLocalDB :
-                
-                process.ak4PuppiL1FastjetCorrector = process.ak4PFCHSL1FastjetCorrector.clone(algorithm   = cms.string('AK4PFPuppi'))
-                process.ak4PuppiL2RelativeCorrector = process.ak4PFCHSL2RelativeCorrector.clone(algorithm   = cms.string('AK4PFPuppi'))
-                process.ak4PuppiL3AbsoluteCorrector = process.ak4PFCHSL3AbsoluteCorrector.clone(algorithm   = cms.string('AK4PFPuppi'))
-                process.ak4PuppiL1FastL2L3Corrector = process.ak4PFL1FastL2L3Corrector.clone(
-                    correctors = cms.VInputTag("ak4PuppiL1FastjetCorrector", "ak4PuppiL2RelativeCorrector", "ak4PuppiL3AbsoluteCorrector")
-                    )
-                process.ak4PuppiResidualCorrector = process.ak4PFResidualCorrector.clone( algorithm = 'AK4PFPuppi' )
-                process.ak4PuppiL1FastL2L3ResidualCorrector = process.ak4PFL1FastL2L3ResidualCorrector.clone( 
-                    correctors = cms.VInputTag("ak4PuppiL1FastjetCorrector", "ak4PuppiL2RelativeCorrector", "ak4PuppiL3AbsoluteCorrector", "ak4PuppiResidualCorrector")
-                    )
-
-                if isMC:
-
-                    process.corrPfMetType1Puppi = corrPfMetType1.clone(
-                        src = 'ak4PFJetsPuppiForTypeI',
-                        jetCorrLabel = 'ak4PuppiL1FastL2L3Corrector',
-                        offsetCorrLabel = 'ak4PuppiL1FastjetCorrector',
-                        type1JetPtThreshold = cms.double(ptThresholdForTypeIPuppi)
-                        )
-
-                else:
-                    process.corrPfMetType1Puppi = corrPfMetType1.clone(
-                        src = 'ak4PFJetsPuppiForTypeI',
-                        jetCorrLabel = 'ak4PuppiL1FastL2L3ResidualCorrector',
-                        offsetCorrLabel = 'ak4PuppiL1FastjetCorrector',
-                        type1JetPtThreshold = cms.double(ptThresholdForTypeIPuppi)
-                        )
-
-            else :
-                
-                if isMC :
-                    process.corrPfMetType1Puppi = corrPfMetType1.clone(
-                        src = 'ak4PFJetsPuppiForTypeI',
-                        jetCorrLabel = 'ak4PFCHSL1FastL2L3Corrector', #FIXME: Use PUPPI corrections when available?                                                             
-                        offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
-                        )
-                else:           
-                    process.corrPfMetType1Puppi = corrPfMetType1.clone(
-                        src = 'ak4PFJetsPuppiForTypeI',
-                        jetCorrLabel = 'ak4PFCHSL1FastL2L3ResidualCorrector', #FIXME: Use PUPPI corrections when available?                                                 
-                        offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
-                        )
-                
-
-            process.pfMetT1Puppi = pfMetT1.clone(
-                src = 'pfMetPuppi',
-                srcCorrections = [ cms.InputTag("corrPfMetType1Puppi","type1") ]
-                )
-
-            ## new PAT Met correction                                                                                                                                           
-            #addMETCollection(process, labelName='patMETPuppi', metSource='pfMetT1Puppi') # T1 puppi MET                                                                     
-            #process.patMETPuppi.addGenMET = False
-
-    """
     #### puppi charged particles == charged PV                                                                                                                             
     process.pfAllChargedParticles = cms.EDFilter("CandPtrSelector",
                                                       src = cms.InputTag("packedPFCandidates"),
@@ -540,7 +436,6 @@ def runMVAPUPPET(process,
     setattr(process,"mvaMET", cms.EDProducer("mvaPUPPET",                                                
                                                 referenceMET = cms.InputTag("slimmedMETs"),
                                                 debug = cms.bool(True),
-                                                #srcMETs      = cms.VInputTag(),
                                                 srcMETs      = cms.VInputTag(cms.InputTag("slimmedMETs"),
                                                                              cms.InputTag("patPFMetCHS"),
                                                                              cms.InputTag("patPFMetChargedPVNeutralPVPUJetID"),
@@ -563,45 +458,3 @@ def runMVAPUPPET(process,
                                                 ZbosonLabel = cms.string("ZtagBoson"),
                                                 produceRecoils = cms.bool(putRecoilInsideEvent)
                                                 ))
-
-    #if not runPUPPINoLeptons:
-    #    getattr(process,"mvaPUPPET").inputMETFlags = cms.vint32(1,1,1,1,0,1,0,0,1,0,1)
-
-def configurePFMetForMiniAOD(process, data=False):
-
-	# do produce pfMet and No-HF pfMet, both raw and T1 corrected
-	from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-	jecUncertaintyFile="PhysicsTools/PatUtils/data/Summer15_50nsV4_DATA_UncertaintySources_AK4PFchs.txt"
-
-	runMetCorAndUncFromMiniAOD(process, isData=data, jecUncFile=jecUncertaintyFile )
-
-	process.patPFMet.computeMETSignificance = cms.bool(True)
-	process.patPFMet.srcLeptons = cms.VInputTag("slimmedTaus", "slimmedElectrons", "slimmedMuons")
-	process.pfMet.calculateSignificance = cms.bool(True)
-	from RecoMET.METProducers.METSignificanceParams_cfi import METSignificanceParams
-	process.pfMet.parameters = METSignificanceParams
-	process.pfMet.srcMet = cms.InputTag("pfMet")
-	process.pfMet.srcJets = cms.InputTag("slimmedJets")
-	process.pfMet.srcLeptons = cms.VInputTag("slimmedTaus", "slimmedElectrons", "slimmedMuons")
-
-	# temporary fix from Missing ET mailing list
-	process.patMETs.addGenMET  = cms.bool(False)
-	process.patJets.addGenJetMatch = cms.bool(False)
-	process.patJets.addGenPartonMatch = cms.bool(False)
-	process.patJets.addPartonJetMatch = cms.bool(False)
-
-	# latest Recommendataion https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETRun2Corrections#type_1_PF_MET_recommended
-	process.corrPfMetType1.type1JetPtThreshold = cms.double(15.0)
-	process.patPFMetT1T2Corr.type1JetPtThreshold = cms.double(15.0)
-
-	process.makePFMET = cms.Sequence()
-
-	if not data:
-		process.makePFMET = cms.Sequence( process.genMetExtractor )
-
-	process.makePFMET *= cms.Sequence( 
-		                process.ak4PFJets *
-		                process.pfCHS *
-		                process.ak4PFJetsCHS *
-		                process.pfMet
-		)
