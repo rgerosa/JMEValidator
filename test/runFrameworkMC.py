@@ -65,6 +65,12 @@ process = createProcess(options.isMC, ## MC or data
                         options.useJECFromDB ## JEC
                         );
 
+#process.slimmedMETsCHS.runningOnMiniAOD = cms.bool(True)
+#process.slimmedMETsChargedPVNeutralPV.runningOnMiniAOD = cms.bool(True)
+#process.slimmedMETsChargedPVNeutralPVPUJetID.runningOnMiniAOD = cms.bool(True)
+#process.slimmedMETsChargedPUNeutralPUPUJetID.runningOnMiniAOD = cms.bool(True)
+
+
 ####### files
 if len(options.inputFiles) == 0 and options.isMC == True:
       options.inputFiles.append('/store/mc/RunIISpring15MiniAODv2/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/60000/78750D2F-726D-E511-A7F7-0025905C2CEA.root')

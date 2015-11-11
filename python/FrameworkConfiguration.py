@@ -400,7 +400,7 @@ def createProcess(isMC, ## isMC flag
     
             
     # Create METs from CHS and PUPPI
-    from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
+    #from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
 
     ## Gen MET ###
     ### Copied from https://github.com/cms-sw/cmssw/blob/2b75137e278b50fc967f95929388d430ef64710b/RecoMET/Configuration/python/GenMETParticles_cff.py#L37
@@ -437,8 +437,8 @@ def createProcess(isMC, ## isMC flag
 
     process.load('RecoMET.METProducers.PFMET_cfi')
     process.pfMet.src = cms.InputTag('pfCandidatesForMET')
-    addMETCollection(process, labelName='patPFMet', metSource='pfMet') # RAW MET
-    process.patPFMet.addGenMET = False
+    #addMETCollection(process, labelName='patPFMet', metSource='pfMet') # RAW MET
+    #process.patPFMet.addGenMET = False
 
     ## CHS pat MET; raw PF is the slimmedMet in miniAOD + typeI correction
     from RecoMET.METProducers.PFMET_cfi import pfMet
@@ -450,8 +450,8 @@ def createProcess(isMC, ## isMC flag
     process.pfMetCHS        = pfMet.clone()
     process.pfMetCHS.src    = cms.InputTag("pfCandidatesForMETCHS") ## packed candidates without fromPV < 1
     process.pfMetCHS.alias  = cms.string('pfMetCHS')
-    addMETCollection(process, labelName='patPFMetCHS', metSource='pfMetCHS') # Convert the CHS PFMet in PAT MET
-    process.patPFMetCHS.addGenMET = False
+    #addMETCollection(process, labelName='patPFMetCHS', metSource='pfMetCHS') # Convert the CHS PFMet in PAT MET
+    #process.patPFMetCHS.addGenMET = False
 
     ## Type 1 corrections
     from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import corrPfMetType1
@@ -495,8 +495,8 @@ def createProcess(isMC, ## isMC flag
             srcCorrections = [ cms.InputTag("corrPfMetType1","type1") ]
             )
         
-        addMETCollection(process, labelName='patMET', metSource='pfMetT1') # T1 MET
-        process.patMET.addGenMET = False
+        #addMETCollection(process, labelName='patMET', metSource='pfMetT1') # T1 MET
+        #process.patMET.addGenMET = False
 
             
     ### CHS TypeI corrected
@@ -527,40 +527,17 @@ def createProcess(isMC, ## isMC flag
             srcCorrections = [ cms.InputTag("corrPfMetType1CHS","type1") ]
         )
 
-        addMETCollection(process, labelName='patMETCHS', metSource='pfMetT1CHS') # T1 CHS MET
-        process.patMETCHS.addGenMET = False
+        #addMETCollection(process, labelName='patMETCHS', metSource='pfMetT1CHS') # T1 CHS MET
+        #process.patMETCHS.addGenMET = False
 
 
     ## Slimmed METs
     from PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi import slimmedMETs
     if hasattr(slimmedMETs, "caloMET"):
         del slimmedMETs.caloMET
-    """"
-    ### PUPPI : make slimmed METs in order to embed both corrected and not corrected one after TypeI
-    ### Standard
-    process.slimmedMETs = slimmedMETs.clone()
-    #### CaloMET is not available in MiniAOD
-
-    if hasattr(process, 'patMET'):
-        # Create MET from Type 1 PF collection
-        process.patMET.addGenMET = isMC
-        process.slimmedMETs.src = cms.InputTag("patMET")
-        process.slimmedMETs.rawUncertainties = cms.InputTag("patPFMet") # only central value
-    else:
-        # Create MET from RAW PF collection
-        process.patPFMet.addGenMET = isMC
-        process.slimmedMETs.src = cms.InputTag("patPFMet")
-        if hasattr(process.slimmedMETs, "rawUncertainties"):
-            del process.slimmedMETs.rawUncertainties # not available
-
-    if hasattr(process.slimmedMETs, "type1Uncertainties"):       
-        del process.slimmedMETs.type1Uncertainties # not available
-
-    if hasattr(process.slimmedMETs, "type1p2Uncertainties"):       
-        del process.slimmedMETs.type1p2Uncertainties # not available
-    """
 
     ### CHS
+    """
     process.slimmedMETsCHS = slimmedMETs.clone()
     print "Create MET from RAW PF collection"
     process.patPFMetCHS.addGenMET = isMC
@@ -572,7 +549,7 @@ def createProcess(isMC, ## isMC flag
         del process.slimmedMETsCHS.type1Uncertainties # not available
     if hasattr(process.slimmedMETsCHS, "type1p2Uncertainties"):       
         del process.slimmedMETsCHS.type1p2Uncertainties # not available
-
+    """
     ## create the Path
     process.jmfw_analyzers = cms.Sequence()
     process.p = cms.Path(process.jmfw_analyzers)
@@ -669,15 +646,15 @@ def createProcess(isMC, ## isMC flag
                            srcGenParticles     = cms.InputTag("prunedGenParticles","","PAT"),
                            srcGenEventInfo     = cms.InputTag("generator"),
                            srcPFMet            = cms.InputTag("slimmedMETs"),
-                           srcPFCHSMet         = cms.InputTag("slimmedMETsCHS"),
+                           srcPFCHSMet         = cms.InputTag("patPFMetCHS"),
                            srcPFPuppiMet       = cms.InputTag("slimmedMETsPuppi"),
 
                            srcRecoilPFPuppiMet       = cms.InputTag("mvaMET", "recoilslimmedMETsPuppi"),
                            srcRecoilPFMet      = cms.InputTag("mvaMET","recoilslimmedMETs"),
-                           srcRecoilPFCHSMet   = cms.InputTag("mvaMET","recoilslimmedMETsCHS"),
-                           srcRecoilPFChargedPVNeutralPVPUJetID = cms.InputTag("mvaMET","recoilslimmedMETsChargedPVNeutralPVPUJetID"),
-                           srcRecoilPFChargedPUNeutralPUPUJetID = cms.InputTag("mvaMET","recoilslimmedMETsChargedPUNeutralPUPUJetID"),
-                           srcRecoilPFChargedPVNeutralPV        = cms.InputTag("mvaMET","recoilslimmedMETsChargedPVNeutralPV"),
+                           srcRecoilPFCHSMet   = cms.InputTag("mvaMET","recoilpatPFMetCHS"),
+                           srcRecoilPFChargedPVNeutralPVPUJetID = cms.InputTag("mvaMET","recoilpatPFMetChargedPVNeutralPVPUJetID"),
+                           srcRecoilPFChargedPUNeutralPUPUJetID = cms.InputTag("mvaMET","recoilpatPFMetChargedPUNeutralPUPUJetID"),
+                           srcRecoilPFChargedPVNeutralPV        = cms.InputTag("mvaMET","recoilpatPFMetChargedPVNeutralPV"),
 
                            srcMVAMet     = cms.InputTag("mvaMET","mvaMET"),
                            dRgenMatching = cms.double(0.3),

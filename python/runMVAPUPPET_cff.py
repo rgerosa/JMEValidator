@@ -6,7 +6,7 @@ from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import applyElectronID
 from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import applyTauID
 from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import cleanJetsFromLeptons
 from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import cleanGenJetsFromGenLeptons
-from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
+#from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
 from RecoMET.METProducers.PFMET_cfi import pfMet
 from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import corrPfMetType1
 from PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi import slimmedMETs
@@ -390,8 +390,8 @@ def runMVAPUPPET(process,
     process.pfMetPuppi       = pfMet.clone()
     process.pfMetPuppi.src   = cms.InputTag("pfCandidatesForPuppiMET")
     process.pfMetPuppi.alias = cms.string('pfMetPuppi')
-    addMETCollection(process, labelName='patPFMetPuppi', metSource='pfMetPuppi') # RAW puppi MET                                                                   
-    process.patPFMetPuppi.addGenMET = False
+   # addMETCollection(process, labelName='patPFMetPuppi', metSource='pfMetPuppi') # RAW puppi MET                                                                   
+   # process.patPFMetPuppi.addGenMET = False
     
     ## Type 1 corrections                                                                                                                                                       
     if not hasattr(process, 'ak4PFJetsPuppi'):
@@ -458,8 +458,8 @@ def runMVAPUPPET(process,
                 )
 
             ## new PAT Met correction                                                                                                                                           
-            addMETCollection(process, labelName='patMETPuppi', metSource='pfMetT1Puppi') # T1 puppi MET                                                                     
-            process.patMETPuppi.addGenMET = False
+            #addMETCollection(process, labelName='patMETPuppi', metSource='pfMetT1Puppi') # T1 puppi MET                                                                     
+            #process.patMETPuppi.addGenMET = False
 
 
     #### puppi charged particles == charged PV                                                                                                                             
@@ -510,8 +510,18 @@ def runMVAPUPPET(process,
     process.pfMetChargedPVNeutralPVPUJetID       = pfMet.clone()
     process.pfMetChargedPVNeutralPVPUJetID.src   = cms.InputTag("pfChargedPVNeutralsPVPUJetID")
     process.pfMetChargedPVNeutralPVPUJetID.alias = cms.string('pfMetChargedPVNeutralPVPUJetID')
-    addMETCollection(process, labelName='patPFMetChargedPVNeutralPVPUJetID', metSource='pfMetChargedPVNeutralPVPUJetID')
-    process.patPFMetChargedPVNeutralPVPUJetID.addGenMET = isMC
+    from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import patMETs
+    patMETsForMVA = patMETs.clone()
+    patMETsForMVA.computeMETSignificance = cms.bool(True)
+    patMETsForMVA.addGenMET = cms.bool(False)
+    patMETsForMVA.srcJets = cms.InputTag("selectedPatJetsAK4PF")
+    patMETsForMVA.srcLeptons = cms.InputTag("selectedPatJetsAK4PF")
+    setattr(patMETsForMVA,"srcLeptons", cms.VInputTag(srcMuons+muonTypeID,srcElectrons+electronTypeID,srcTaus+tauTypeID+"Cleaned"))
+    
+    process.patPFMetChargedPVNeutralPVPUJetID = patMETsForMVA.clone()
+    process.patPFMetChargedPVNeutralPVPUJetID.metSource = cms.InputTag("pfMetChargedPVNeutralPVPUJetID")
+    
+    #process.patPFMetChargedPVNeutralPVPUJetID.addGenMET = isMC
     
     process.slimmedMETsChargedPVNeutralPVPUJetID = slimmedMETs.clone()
     process.slimmedMETsChargedPVNeutralPVPUJetID.src = cms.InputTag("patPFMetChargedPVNeutralPVPUJetID")
@@ -526,8 +536,8 @@ def runMVAPUPPET(process,
     process.pfMetChargedPUNeutralPUPUJetID       = pfMet.clone()
     process.pfMetChargedPUNeutralPUPUJetID.src   = cms.InputTag("pfChargedPUNeutralsPUPUJetID")
     process.pfMetChargedPUNeutralPUPUJetID.alias = cms.string('pfMetChargedPUNeutralPUPUJetID')
-    addMETCollection(process, labelName='patPFMetChargedPUNeutralPUPUJetID', metSource='pfMetChargedPUNeutralPUPUJetID')
-    process.patPFMetChargedPUNeutralPUPUJetID.addGenMET = isMC
+    process.patPFMetChargedPUNeutralPUPUJetID = patMETsForMVA.clone()
+    process.patPFMetChargedPUNeutralPUPUJetID.metSource = cms.InputTag("pfMetChargedPUNeutralPUPUJetID")
     
     process.slimmedMETsChargedPUNeutralPUPUJetID = slimmedMETs.clone()
     process.slimmedMETsChargedPUNeutralPUPUJetID.src = cms.InputTag("patPFMetChargedPUNeutralPUPUJetID")
@@ -546,8 +556,8 @@ def runMVAPUPPET(process,
     process.pfMetChargedPVNeutralPV       = pfMet.clone()
     process.pfMetChargedPVNeutralPV.src   = cms.InputTag("pfChargedPVNeutralsPV")
     process.pfMetChargedPVNeutralPV.alias = cms.string('pfMetChargedPVNeutralPV')
-    addMETCollection(process, labelName='patPFMetChargedPVNeutralPV', metSource='pfMetChargedPVNeutralPV')
-    process.patPFMetChargedPVNeutralPV.addGenMET = isMC
+    process.patPFMetChargedPVNeutralPV = patMETsForMVA.clone()
+    process.patPFMetChargedPVNeutralPV.metSource = cms.InputTag("pfMetChargedPVNeutralPV")
     
     process.slimmedMETsChargedPVNeutralPV = slimmedMETs.clone()
     process.slimmedMETsChargedPVNeutralPV.src = cms.InputTag("patPFMetChargedPVNeutralPV")
@@ -557,18 +567,23 @@ def runMVAPUPPET(process,
         del process.slimmedMETsChargedPVNeutralPV.type1Uncertainties # not available                                                                                        
     if hasattr(process.slimmedMETsChargedPVNeutralPV,"type1p2Uncertainties"):
         del process.slimmedMETsChargedPVNeutralPV.type1p2Uncertainties # not available                                                                                        
+
+
+    process.patPFMetCHS = patMETsForMVA.clone()
+    process.patPFMetCHS.metSource = cms.InputTag("pfMetCHS")
+    
     ### MVA PUPPET
     print "process name: " 
     print processName
     setattr(process,"mvaMET", cms.EDProducer("mvaPUPPET",                                                
-                                                referenceMET = cms.InputTag("patPFMet"),
+                                                referenceMET = cms.InputTag("slimmedMETs"),
                                                 debug = cms.bool(True),
                                                 #srcMETs      = cms.VInputTag(),
                                                 srcMETs      = cms.VInputTag(cms.InputTag("slimmedMETs"),
-                                                                             cms.InputTag("slimmedMETsCHS"),
-                                                                             cms.InputTag("slimmedMETsChargedPVNeutralPVPUJetID"),
-                                                                             cms.InputTag("slimmedMETsChargedPUNeutralPUPUJetID"),
-                                                                             cms.InputTag("slimmedMETsChargedPVNeutralPV"),
+                                                                             cms.InputTag("patPFMetCHS"),
+                                                                             cms.InputTag("patPFMetChargedPVNeutralPVPUJetID"),
+                                                                             cms.InputTag("patPFMetChargedPUNeutralPUPUJetID"),
+                                                                             cms.InputTag("patPFMetChargedPVNeutralPV"),
                                                                              cms.InputTag("slimmedMETsPuppi")
  ),
                                                 inputMETFlags = cms.vint32(1,1,1,0,1,0,1),
