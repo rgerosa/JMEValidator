@@ -20,7 +20,6 @@
 //______________________________________________________________________________
 PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
   JME::Analyzer(iConfig){
-  
   if (iConfig.existsAs<edm::InputTag>("srcJet"))
     srcJet_ = iConfig.getParameter<edm::InputTag>("srcJet");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input jet collection not given \n";
@@ -61,47 +60,29 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
     srcGenEventInfo_ = iConfig.getParameter<edm::InputTag>("srcGenEventInfo");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input no gen event info \n";
 
-  if (iConfig.existsAs<edm::InputTag>("srcRecoilPFMet"))
-    srcRecoilPFMet_ = iConfig.getParameter<edm::InputTag>("srcRecoilPFMet");
-  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFMet recoil not given \n";
+//  if (iConfig.existsAs<edm::InputTag>("srcRecoilPFMet"))
+//    srcRecoilPFMet_ = iConfig.getParameter<edm::InputTag>("srcRecoilPFMet");
+//  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFMet recoil not given \n";
 
   if (iConfig.existsAs<edm::InputTag>("srcPFMet"))
     srcPFMet_ = iConfig.getParameter<edm::InputTag>("srcPFMet");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFMet not given \n";
-
+/*
   if (iConfig.existsAs<edm::InputTag>("srcPFCHSMet"))
     srcPFCHSMet_ = iConfig.getParameter<edm::InputTag>("srcPFCHSMet");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFCHSMet not given \n";
-
+*/
   if (iConfig.existsAs<edm::InputTag>("srcPFPuppiMet"))
     srcPFPuppiMet_ = iConfig.getParameter<edm::InputTag>("srcPFPuppiMet");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFPuppiMet not given \n";
-
+/*
   if (iConfig.existsAs<edm::InputTag>("srcRecoilPFCHSMet"))
     srcRecoilPFCHSMet_ = iConfig.getParameter<edm::InputTag>("srcRecoilPFCHSMet");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFCHSMet recoil not given \n";
-
   if (iConfig.existsAs<edm::InputTag>("srcRecoilPFPuppiMet"))
     srcRecoilPFPuppiMet_ = iConfig.getParameter<edm::InputTag>("srcRecoilPFPuppiMet");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFPuppiMet recoil not given \n";
 
-/*
-  if (iConfig.existsAs<edm::InputTag>("srcRecoilPFPuppiMet_ChargedPV"))
-    srcRecoilPFPuppiMet_ChargedPV_ = iConfig.getParameter<edm::InputTag>("srcRecoilPFPuppiMet_ChargedPV");
-  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFPuppiMet_ChargedPV recoil not given \n";
-
-  if (iConfig.existsAs<edm::InputTag>("srcRecoilPFPuppiMet_ChargedPU"))
-    srcRecoilPFPuppiMet_ChargedPU_ = iConfig.getParameter<edm::InputTag>("srcRecoilPFPuppiMet_ChargedPU");
-  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFPuppiMet_ChargedPU recoil not given \n";
-
-  if (iConfig.existsAs<edm::InputTag>("srcRecoilPFPuppiMet_NeutralPV"))
-    srcRecoilPFPuppiMet_NeutralPV_ = iConfig.getParameter<edm::InputTag>("srcRecoilPFPuppiMet_NeutralPV");
-  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFPuppiMet_NeutralPV recoil not given \n";
-
-  if (iConfig.existsAs<edm::InputTag>("srcRecoilPFPuppiMet_NeutralPU"))
-    srcRecoilPFPuppiMet_NeutralPU_ = iConfig.getParameter<edm::InputTag>("srcRecoilPFPuppiMet_NeutralPU");
-  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFPuppiMet_NeutralPU recoil not given \n";
-*/
   if (iConfig.existsAs<edm::InputTag>("srcRecoilPFChargedPVNeutralPVPUJetID"))
    srcRecoilPFChargedPVNeutralPVPUJetID_ = iConfig.getParameter<edm::InputTag>("srcRecoilPFChargedPVNeutralPVPUJetID");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFChargedPVNeutralPVPUJetID recoil not given \n";
@@ -114,6 +95,7 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
    srcRecoilPFChargedPVNeutralPV_ = iConfig.getParameter<edm::InputTag>("srcRecoilPFChargedPVNeutralPV");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input PFChargedPVNeutralPV recoil not given \n";
 
+*/
   if (iConfig.existsAs<edm::InputTag>("srcMVAMet"))
     srcMVAMet_ = iConfig.getParameter<edm::InputTag>("srcMVAMet");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input MVAMet recoil not given \n";
@@ -168,32 +150,21 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
   if(!(srcGenEventInfo_ == edm::InputTag("")) and isMC_)
     srcGenEventInfoToken_ = consumes<GenEventInfoProduct>(srcGenEventInfo_);
 
-  if(!(srcRecoilPFMet_ == edm::InputTag("")))
-    srcRecoilPFMetToken_ = consumes<pat::METCollection>(srcRecoilPFMet_);
-
   if(!(srcPFMet_ == edm::InputTag("")))
     srcPFMetToken_ = consumes<pat::METCollection>(srcPFMet_);
 
-  if(!(srcRecoilPFCHSMet_ == edm::InputTag("")))
-    srcRecoilPFCHSMetToken_ = consumes<pat::METCollection>(srcRecoilPFCHSMet_);
 
-  if(!(srcPFCHSMet_ == edm::InputTag("")))
-    srcPFCHSMetToken_ = consumes<pat::METCollection>(srcPFCHSMet_);
-
-  if(!(srcRecoilPFPuppiMet_ == edm::InputTag("")))
-    srcRecoilPFPuppiMetToken_ = consumes<pat::METCollection>(srcRecoilPFPuppiMet_);
-
-  if(!(srcPFPuppiMet_ == edm::InputTag("")))
-    srcPFPuppiMetToken_ = consumes<pat::METCollection>(srcPFPuppiMet_);
-
-  if(!(srcRecoilPFChargedPVNeutralPVPUJetID_ == edm::InputTag("")))
-    srcRecoilPFChargedPVNeutralPVPUJetIDToken_ = consumes<pat::METCollection>(srcRecoilPFChargedPVNeutralPVPUJetID_);
-
-  if(!(srcRecoilPFChargedPUNeutralPUPUJetID_ == edm::InputTag("")))
-    srcRecoilPFChargedPUNeutralPUPUJetIDToken_ = consumes<pat::METCollection>(srcRecoilPFChargedPUNeutralPUPUJetID_);
-
-  if(!(srcRecoilPFChargedPVNeutralPV_ == edm::InputTag("")))
-    srcRecoilPFChargedPVNeutralPVToken_ = consumes<pat::METCollection>(srcRecoilPFChargedPVNeutralPV_);
+  // save all recoils as specified in config 
+  srcRecoilTags_ = iConfig.getParameter<vInputTag>("srcRecoils");
+  for(vInputTag::const_iterator it=srcRecoilTags_.begin(); it!=srcRecoilTags_.end(); it++)
+  {
+    srcRecoils_.push_back( consumes<pat::METCollection >( *it ) );
+    // set references to write out n-tuple
+    for(auto METAttribute : METAttributes_)
+    {
+      recoilReferences_.push_back(tree[it->instance() + "_" + METAttribute].write<float>());
+    }
+  }
 
   if(!(srcMVAMet_ == edm::InputTag("")))
     srcMVAMetToken_ = consumes<pat::METCollection>(srcMVAMet_);
@@ -206,6 +177,8 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
 
   if(!(srcTriggerPrescales_ == edm::InputTag("")))
     srcTriggerPrescalesToken_ = consumes<pat::PackedTriggerPrescales>(srcTriggerPrescales_);
+
+  // set references to recoils
 
 }
 
@@ -503,8 +476,8 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   }
     
   // reco recoils
-  edm::Handle<std::vector<pat::MET>> RecoilPFMetHandle;
-  iEvent.getByToken(srcRecoilPFMetToken_, RecoilPFMetHandle);
+//  edm::Handle<std::vector<pat::MET>> RecoilPFMetHandle;
+//  iEvent.getByToken(srcRecoilPFMetToken_, RecoilPFMetHandle);
 
   edm::Handle<std::vector<pat::MET>> PFMetHandle;
   iEvent.getByToken(srcPFMetToken_, PFMetHandle);
@@ -517,17 +490,18 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
 //  PFMet_uncorrected_Pt_    = MetPF.uncorrectedPt();
 //  PFMet_uncorrected_Phi_   = MetPF.uncorrectedPhi();
 
-  const pat::MET& recoilMetPF = RecoilPFMetHandle->at(0);
-  recoilPFMet_sumEt_ = recoilMetPF.sumEt();
-  recoilPFMet_Pt_    = recoilMetPF.pt();
-  recoilPFMet_Phi_   = recoilMetPF.phi();
+  //const pat::MET& recoilMetPF = RecoilPFMetHandle->at(0);
+  //recoilPFMet_sumEt_ = recoilMetPF.sumEt();
+  //recoilPFMet_Pt_    = recoilMetPF.pt();
+  //recoilPFMet_Phi_   = recoilMetPF.phi();
 
-  RecoilVec.SetMagPhi(recoilPFMet_Pt_,reco::deltaPhi(recoilPFMet_Phi_ ,Boson_Phi_));
-  recoilPFMet_PerpZ_ = RecoilVec.Py();
-  recoilPFMet_LongZ_ = RecoilVec.Px();
-  BosonVec.SetMagPhi(Boson_Pt_, reco::deltaPhi(Boson_Phi_, recoilPFMet_Phi_ + TMath::Pi()));
-  recoilPFMet_Boson_PerpU_ = - BosonVec.Py();
-  recoilPFMet_Boson_LongU_ = BosonVec.Px() - recoilPFMet_Pt_; 
+//  RecoilVec.SetMagPhi(recoilPFMet_Pt_,reco::deltaPhi(recoilPFMet_Phi_ ,Boson_Phi_));
+ // recoilPFMet_PerpZ_ = RecoilVec.Py();
+ // recoilPFMet_LongZ_ = RecoilVec.Px();
+//  BosonVec.SetMagPhi(Boson_Pt_, reco::deltaPhi(Boson_Phi_, recoilPFMet_Phi_ + TMath::Pi()));
+//  recoilPFMet_Boson_PerpU_ = - BosonVec.Py();
+//  recoilPFMet_Boson_LongU_ = BosonVec.Px() - recoilPFMet_Pt_; 
+
 //  pat::MET recoilMetPF_uncorrected = getUncorrectedRecoil(recoilMetPF);
 //  recoilPFMet_uncorrected_sumEt_ = recoilMetPF_uncorrected.sumEt();
 //  recoilPFMet_uncorrected_Pt_    = recoilMetPF_uncorrected.pt();
@@ -540,7 +514,29 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
 //  recoilPFMet_uncorrected_Boson_PerpU_ = - BosonVec.Py();
 //  recoilPFMet_uncorrected_Boson_LongU_ = BosonVec.Px() - recoilPFMet_uncorrected_Pt_; 
 
-  // reco recoil CHS met
+  // save recoils to Map
+  size_t METAttributeCounter = 0;
+  size_t srcRecoilCounter = 0;
+  for ( std::vector<edm::EDGetTokenT<pat::METCollection> >::const_iterator srcRecoil = srcRecoils_.begin(); srcRecoil != srcRecoils_.end(); ++srcRecoil )
+  {
+    //get inputs
+    edm::Handle<pat::METCollection> vRecoil;
+    iEvent.getByToken(*srcRecoil, vRecoil);
+    assert((*vRecoil).size() == 1 );
+    auto recoil = (*vRecoil)[0];
+    recoilReferences_[METAttributeCounter++].get() = recoil.sumEt();
+    recoilReferences_[METAttributeCounter++].get() = recoil.p4().Pt();
+    recoilReferences_[METAttributeCounter++].get() = recoil.p4().Phi();
+
+    RecoilVec.SetMagPhi(recoil.p4().Pt(), reco::deltaPhi(recoil.p4().Phi(),Boson_Phi_));
+    recoilReferences_[METAttributeCounter++].get() = RecoilVec.Py();
+    recoilReferences_[METAttributeCounter++].get() = RecoilVec.Px();
+
+    BosonVec.SetMagPhi(Boson_Pt_, reco::deltaPhi(Boson_Phi_, recoil.p4().Pt() + TMath::Pi()));
+    recoilReferences_[METAttributeCounter++].get() = BosonVec.Py();
+    recoilReferences_[METAttributeCounter++].get() = BosonVec.Px() - recoil.p4().Pt();
+  }
+/*
   edm::Handle<std::vector<pat::MET>> RecoilPFMetCHSHandle;
   iEvent.getByToken(srcRecoilPFCHSMetToken_, RecoilPFMetCHSHandle);
 
@@ -551,11 +547,11 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   PFCHSMet_sumEt_ = MetCHSPF.sumEt();
   PFCHSMet_Pt_    = MetCHSPF.pt();
   PFCHSMet_Phi_   = MetCHSPF.phi();
+*/
 /*
   PFCHSMet_uncorrected_sumEt_ = MetCHSPF.uncorrectedSumEt();
   PFCHSMet_uncorrected_Pt_    = MetCHSPF.uncorrectedPt();
   PFCHSMet_uncorrected_Phi_   = MetCHSPF.uncorrectedPhi();
-*/
   const pat::MET& recoilMetPFCHS = RecoilPFMetCHSHandle->at(0);
   recoilPFCHSMet_sumEt_ = recoilMetPFCHS.sumEt();
   recoilPFCHSMet_Pt_    = recoilMetPFCHS.pt();
@@ -572,22 +568,26 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   //recoilPFCHSMet_uncorrected_PerpZ_ = RecoilVec.Py();
   //recoilPFCHSMet_uncorrected_LongZ_ = RecoilVec.Px();
 
+*/
   // reco recoil puppi met
-  edm::Handle<std::vector<pat::MET>> RecoilPFMetPuppiHandle;
-  iEvent.getByToken(srcRecoilPFPuppiMetToken_, RecoilPFMetPuppiHandle);
 
-  edm::Handle<std::vector<pat::MET>> PFPuppiMetHandle;
+  //std::vector<edm::Handle<std::vector<pat::MET>>> RecoilMETHandles;
+  //for(size_t i = 0; i < srcRecoils_.size(); ++i)
+ // {
+  //  iEvent.getByToken(srcRecoils_[i], RecoilMETHandles);
+  //}
+
+/*  edm::Handle<std::vector<pat::MET>> PFPuppiMetHandle;
   iEvent.getByToken(srcPFPuppiMetToken_, PFPuppiMetHandle);
 
   const pat::MET& MetPuppiPF = PFPuppiMetHandle->at(0);
   PFPuppiMet_sumEt_ = MetPuppiPF.sumEt();
   PFPuppiMet_Pt_    = MetPuppiPF.pt();
-  PFPuppiMet_Phi_   = MetPuppiPF.phi();
+  PFPuppiMet_Phi_   = MetPuppiPF.phi();*/
 /*
   PFPuppiMet_uncorrected_sumEt_ = MetPuppiPF.uncorrectedSumEt();
   PFPuppiMet_uncorrected_Pt_    = MetPuppiPF.uncorrectedPt();
   PFPuppiMet_uncorrected_Phi_   = MetPuppiPF.uncorrectedPhi();
-*/
   const pat::MET& recoilMetPFPuppi = RecoilPFMetPuppiHandle->at(0);
   recoilPFPuppiMet_sumEt_ = recoilMetPFPuppi.sumEt();
   recoilPFPuppiMet_Pt_    = recoilMetPFPuppi.pt();
@@ -635,6 +635,7 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   recoilPFMet_ChargedPVNeutralPV_PerpZ_ = RecoilVec.Py();
   recoilPFMet_ChargedPVNeutralPV_LongZ_ = RecoilVec.Px();
 
+*/
   // MVA met
   edm::Handle<std::vector<pat::MET>> MVAMetHandle;
   iEvent.getByToken(srcMVAMetToken_, MVAMetHandle);
