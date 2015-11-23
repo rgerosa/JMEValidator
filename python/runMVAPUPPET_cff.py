@@ -337,18 +337,6 @@ def runMVAPUPPET(process,
                                     jetEtaCut        = jetEtaCut,
                                     dRCleaning       = dRCleaning)
 
-    ### puppi setup of PUPPI MET
-    """
-    process.packedPFCandidatesNoLepton = cms.EDProducer("packedCandidateFilterParticles",
-                                                        src      = cms.InputTag("packedPFCandidates"),
-                                                        srcMuons = cms.InputTag(srcMuons+muonTypeID),
-                                                        srcElectrons = cms.InputTag(srcElectrons+electronTypeID),
-                                                        srcTaus = cms.InputTag(""))
-    """
-
-    
-
-
     #### Input definitions like in classic MVA MET
     #### tracks from PV
     process.pfChargedPV = cms.EDFilter("CandPtrSelector",
@@ -386,58 +374,6 @@ def runMVAPUPPET(process,
     ## PU MET
     process.pfPUMETCands = cms.EDProducer("CandViewMerger", src = cms.VInputTag(cms.VInputTag("pfChargedPU",cms.InputTag("neutralInJets","neutralFailingPUIDJets"))))
                                                               
-
-    #### puppi charged particles == charged PV                                                                                                                             
-    """
-    process.pfAllChargedParticles = cms.EDFilter("CandPtrSelector",
-                                                      src = cms.InputTag("packedPFCandidates"),
-                                                      cut = cms.string("charge !=0 && pt > 0 && abs(eta) < %f"%etaCutForMetDiagnostic))
-
-    #### charged particles PU                                                                                                                             
-    process.pfChargedPU = cms.EDFilter("CandPtrSelector",
-                                       cut = cms.string('!fromPV && abs(eta) < %f'%etaCutForMetDiagnostic),
-                                       src = cms.InputTag("packedPFCandidates")
-                                       )
-
-
-    ### neutrals puppi candidate
-    process.pfAllNeutralParticlesPuppi  = cms.EDFilter("CandPtrSelector",
-                                                       src = cms.InputTag("puppi"),
-                                                       cut = cms.string("charge == 0 && pt > 0 && abs(eta) < %f"%etaCutForMetDiagnostic))
-
-    ### particles charged PV + neutrals in jet passing PUJET 
-    process.pfChargedPVNeutralsPVPUJetIDMerge = cms.EDProducer("CandViewMerger",
-                                                               src = cms.VInputTag("pfAllChargedParticles",cms.InputTag("neutralInJets","neutralPassingPUIDJets"))
-                                                               )
-
-    process.pfChargedPVNeutralsPVPUJetID = cms.EDFilter("CandPtrSelector",
-                                                       src = cms.InputTag("pfChargedPVNeutralsPVPUJetIDMerge"),
-                                                       cut = cms.string("pt > 0 && abs(eta) < %f"%etaCutForMetDiagnostic))
-
-    process.pfChargedPUNeutralsPUPUJetIDMerge = cms.EDProducer("CandViewMerger",
-                                                               src = cms.VInputTag("pfChargedPU",cms.InputTag("neutralInJets","neutralFailingPUIDJets"))
-                                                               )
-
-    process.pfChargedPUNeutralsPUPUJetID = cms.EDFilter("CandPtrSelector",
-                                                        src = cms.InputTag("pfChargedPUNeutralsPUPUJetIDMerge"),
-                                                        cut = cms.string("pt > 0 && abs(eta) < %f"%etaCutForMetDiagnostic))
-
-    ## chargePV + all neutrals - PU neutrals
-    process.pfChargedPVNeutralsPVMerge = cms.EDProducer("CandViewMerger",
-                                                        src = cms.VInputTag(cms.InputTag("neutralInJets","neutralParticlesPV"),"pfAllChargedParticles"))
-
-
-    process.pfChargedPVNeutralsPV = cms.EDFilter("CandPtrSelector",
-                                                 src = cms.InputTag("pfChargedPVNeutralsPVMerge"),
-                                                 cut = cms.string("pt > 0 && abs(eta) < %f"%etaCutForMetDiagnostic))
-
-
-    ### last inputs for standard MVA met
-    process.pfMetChargedPVNeutralPVPUJetID       = pfMet.clone()
-    process.pfMetChargedPVNeutralPVPUJetID.src   = cms.InputTag("pfChargedPVNeutralsPVPUJetID")
-    process.pfMetChargedPVNeutralPVPUJetID.alias = cms.string('pfMetChargedPVNeutralPVPUJetID')
-
-    """
     from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import patMETs
     patMETsForMVA = patMETs.clone()
     patMETsForMVA.computeMETSignificance = cms.bool(True)
@@ -456,24 +392,6 @@ def runMVAPUPPET(process,
         setattr(process, "pat"+met, patMETsForMVA.clone())
         setattr(getattr(process, "pat"+met), "metSource", cms.InputTag(met))
 
-    """
-    ### last inputs for standard MVA met
-    process.pfMetChargedPUNeutralPUPUJetID       = pfMet.clone()
-    process.pfMetChargedPUNeutralPUPUJetID.src   = cms.InputTag("pfChargedPUNeutralsPUPUJetID")
-    process.pfMetChargedPUNeutralPUPUJetID.alias = cms.string('pfMetChargedPUNeutralPUPUJetID')
-    process.patPFMetChargedPUNeutralPUPUJetID = patMETsForMVA.clone()
-    process.patPFMetChargedPUNeutralPUPUJetID.metSource = cms.InputTag("pfMetChargedPUNeutralPUPUJetID")
-    
-    ### last inputs for standard MVA met
-    process.pfMetChargedPVNeutralPV       = pfMet.clone()
-    process.pfMetChargedPVNeutralPV.src   = cms.InputTag("pfChargedPVNeutralsPV")
-    process.pfMetChargedPVNeutralPV.alias = cms.string('pfMetChargedPVNeutralPV')
-    process.patPFMetChargedPVNeutralPV = patMETsForMVA.clone()
-    process.patPFMetChargedPVNeutralPV.metSource = cms.InputTag("pfMetChargedPVNeutralPV")
-
-    process.patPFMetCHS = patMETsForMVA.clone()
-    process.patPFMetCHS.metSource = cms.InputTag("pfMetCHS")
-    """ 
     ### MVA PUPPET
     setattr(process,"mvaMET", cms.EDProducer("mvaPUPPET",                                                
                                                 referenceMET = cms.InputTag("slimmedMETs"),
