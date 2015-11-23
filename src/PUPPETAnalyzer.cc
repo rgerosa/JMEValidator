@@ -331,9 +331,9 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
     GenRecoil_PerpZ_ = RecoilVec.Py();
     GenRecoil_LongZ_ = RecoilVec.Px();
     
-    BosonVec.SetMagPhi(GenBoson.pt(),reco::deltaPhi(GenBoson.phi(),GenRecoil_Phi_));
-    GenBoson_PerpU_ = BosonVec.Py();
-    GenBoson_LongU_ = BosonVec.Px() - GenBoson.pt();
+    GenBosonVec.SetMagPhi(GenBoson.pt(),reco::deltaPhi(GenBoson.phi(),GenRecoil_Phi_));
+    GenBoson_PerpU_ = GenBosonVec.Py();
+    GenBoson_LongU_ = GenBosonVec.Px() - GenBoson.pt();
   }
 
 
@@ -402,7 +402,11 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
   Boson_Phi_ = Boson.phi();
   Boson_M_   = Boson.p4().M();
   Boson_daughter_ = Boson.pdgId();
+  BosonVec.SetMagPhi(Boson.pt(), TVector2::Phi_mpi_pi(Boson.phi()));
 
+  rotationMatrix(0,0) = rotationMatrix(1,1) = std::cos( GenBosonVec.Phi());
+  rotationMatrix(0,1) =   std::sin( GenBosonVec.Phi());
+  rotationMatrix(1,0) = - std::sin( GenBosonVec.Phi());
   // Leptons
   edm::Handle<reco::CandidateView> LeptonHandle;
   iEvent.getByToken(srcLeptonsToken_, LeptonHandle);
@@ -456,12 +460,22 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
     recoilReferences_[recoilAttributeCounter++].get() = recoil.p4().Phi();
 
     RecoilVec.SetMagPhi(recoil.p4().Pt(), reco::deltaPhi(recoil.p4().Phi(),Boson_Phi_));
+
+    TVector2 recoilTV2( recoil.p4().Pt(), recoil.p4().Phi());
+    TVector2 recoilOnRecoBoson = recoilTV2.Rotate( - BosonVec.Phi());
     recoilReferences_[recoilAttributeCounter++].get() = RecoilVec.Py();
     recoilReferences_[recoilAttributeCounter++].get() = RecoilVec.Px();
 
-    BosonVec.SetMagPhi(Boson_Pt_, reco::deltaPhi(Boson_Phi_, recoil.p4().Pt() + TMath::Pi()));
-    recoilReferences_[recoilAttributeCounter++].get() = BosonVec.Py();
-    recoilReferences_[recoilAttributeCounter++].get() = BosonVec.Px() - recoil.p4().Pt();
+    TVector2 recoilOnGenBoson = recoilTV2.Rotate( - GenBosonVec.Phi());
+    recoilReferences_[recoilAttributeCounter++].get() = recoilOnGenBoson.Py();
+    recoilReferences_[recoilAttributeCounter++].get() = recoilOnGenBoson.Px() - recoil.p4().Pt();
+
+    // todo: check if to rotate matrix to different reference frame
+    ROOT::Math::SMatrix<double,2> rotatedMatrix = recoil.getSignificanceMatrix();//rotationMatrix * recoil.getSignificanceMatrix();
+    recoilReferences_[recoilAttributeCounter++].get() = rotatedMatrix(1,1);
+    recoilReferences_[recoilAttributeCounter++].get() = rotatedMatrix(0,0);
+    recoilReferences_[recoilAttributeCounter++].get() = rotatedMatrix(0,1);
+    recoilReferences_[recoilAttributeCounter++].get() = rotatedMatrix(1,0);
   }
   // save METs to Map
   size_t METAttributeCounter = 0;
@@ -475,6 +489,12 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
     METReferences_[METAttributeCounter++].get() = Met.sumEt();
     METReferences_[METAttributeCounter++].get() = Met.p4().Pt();
     METReferences_[METAttributeCounter++].get() = Met.p4().Phi();
+    // todo: check if to rotate matrix to different reference frame
+    ROOT::Math::SMatrix<double,2> rotatedMatrix = Met.getSignificanceMatrix(); //rotationMatrix * Met.getSignificanceMatrix();
+    METReferences_[METAttributeCounter++].get() = rotatedMatrix(1,1);
+    METReferences_[METAttributeCounter++].get() = rotatedMatrix(0,0);
+    METReferences_[METAttributeCounter++].get() = rotatedMatrix(0,1);
+    METReferences_[METAttributeCounter++].get() = rotatedMatrix(1,0);
   }
 
   // dump all jet info

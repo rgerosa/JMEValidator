@@ -34,6 +34,8 @@ class PUPPETAnalyzer : public JME::Analyzer {
         bool   isMC_;
         TVector2 RecoilVec;
         TVector2 BosonVec;
+        TVector2 GenBosonVec;
+        ROOT::Math::SMatrix<double,2> rotationMatrix;
 
         edm::InputTag srcJet_;
         edm::InputTag srcJetPF_;
@@ -125,10 +127,10 @@ class PUPPETAnalyzer : public JME::Analyzer {
 
         // recoils
         std::vector<std::reference_wrapper<float>> recoilReferences_; // assign via function
-        std::vector<std::string> recoilAttributes_ = {"sumEt", "Pt", "Phi", "PerpZ", "LongZ", "Boson_PerpU", "Boson_LongU"}; // to be extended?
+        std::vector<std::string> recoilAttributes_ = {"sumEt", "Pt", "Phi", "PerpZ", "LongZ", "Boson_PerpU", "Boson_LongU", "Cov11", "Cov00", "Cov01", "Cov10"}; // to be extended?
     // METs
         std::vector<std::reference_wrapper<float>> METReferences_; // assign via function
-        std::vector<std::string> METAttributes_ = {"sumEt", "Pt", "Phi"}; // to be extended?
+        std::vector<std::string> METAttributes_ = {"sumEt", "Pt", "Phi", "Cov11", "Cov00", "Cov01", "Cov10"}; // to be extended?
 
 
         // jets and boson
