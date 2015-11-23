@@ -21,7 +21,7 @@ class PUPPETAnalyzer : public JME::Analyzer {
         // construction/destruction
         explicit PUPPETAnalyzer(const edm::ParameterSet& iConfig);
         virtual ~PUPPETAnalyzer();
-
+        typedef std::vector<edm::InputTag> vInputTag;
     private:
 
         // member functions
@@ -39,16 +39,7 @@ class PUPPETAnalyzer : public JME::Analyzer {
 	edm::InputTag srcPFPuppiMet_;
 	edm::InputTag srcPFCHSMet_;
 
-	edm::InputTag srcRecoilPFMet_;
-	edm::InputTag srcRecoilPFCHSMet_;
-	edm::InputTag srcRecoilPFPuppiMet_;
-	edm::InputTag srcRecoilPFPuppiMet_ChargedPV_;
-	edm::InputTag srcRecoilPFPuppiMet_ChargedPU_;
-	edm::InputTag srcRecoilPFPuppiMet_NeutralPV_;
-	edm::InputTag srcRecoilPFPuppiMet_NeutralPU_;
-	edm::InputTag srcRecoilPFChargedPVNeutralPVPUJetID_;
-	edm::InputTag srcRecoilPFChargedPUNeutralPUPUJetID_;
-	edm::InputTag srcRecoilPFChargedPVNeutralPV_;
+	//std::vector<edm::InputTag> srcRecoils_;
 
 	edm::InputTag srcJet_;
 	edm::InputTag srcJetPF_;
@@ -75,6 +66,10 @@ class PUPPETAnalyzer : public JME::Analyzer {
 	edm::EDGetTokenT<std::vector<pat::MET>> srcPFCHSMetToken_;
 	edm::EDGetTokenT<std::vector<pat::MET>> srcPFPuppiMetToken_;
 
+
+    std::vector<edm::EDGetTokenT<pat::METCollection > >  srcRecoils_;
+    vInputTag srcRecoilTags_;
+    /*
         edm::EDGetTokenT<std::vector<pat::MET>> srcRecoilPFMetToken_;
         edm::EDGetTokenT<std::vector<pat::MET>> srcRecoilPFCHSMetToken_;
         edm::EDGetTokenT<std::vector<pat::MET>> srcRecoilPFPuppiMetToken_;
@@ -82,6 +77,7 @@ class PUPPETAnalyzer : public JME::Analyzer {
         edm::EDGetTokenT<std::vector<pat::MET>> srcRecoilPFPuppiMet_ChargedPUToken_;
         edm::EDGetTokenT<std::vector<pat::MET>> srcRecoilPFPuppiMet_NeutralPVToken_;
         edm::EDGetTokenT<std::vector<pat::MET>> srcRecoilPFPuppiMet_NeutralPUToken_;
+    */
 	edm::EDGetTokenT<std::vector<pat::MET>> srcRecoilPFChargedPVNeutralPVPUJetIDToken_;
 	edm::EDGetTokenT<std::vector<pat::MET>> srcRecoilPFChargedPUNeutralPUPUJetIDToken_;
 	edm::EDGetTokenT<std::vector<pat::MET>> srcRecoilPFChargedPVNeutralPVToken_;
@@ -152,6 +148,10 @@ class PUPPETAnalyzer : public JME::Analyzer {
         float& GenBoson_LongU_  = tree["GenBoson_LongZ"].write<float>();
 
 	// recoils
+        std::vector<std::reference_wrapper<float>> recoilReferences_; // assign via function
+        std::vector<std::string> METAttributes_ = {"sumEt", "Pt", "Phi", "PerpZ", "LongZ", "Boson_PerpU", "Boson_LongU"}; // to be extended?
+
+/*
         float& recoilPFMet_sumEt_       = tree["recoilPFMet_sumEt"].write<float>();
         float& recoilPFMet_Pt_          = tree["recoilPFMet_Pt"].write<float>();
         float& recoilPFMet_Phi_         = tree["recoilPFMet_Phi"].write<float>();
@@ -159,43 +159,11 @@ class PUPPETAnalyzer : public JME::Analyzer {
         float& recoilPFMet_LongZ_       = tree["recoilPFMet_LongZ"].write<float>();
         float& recoilPFMet_Boson_PerpU_ = tree["recoilPFMet_Boson_PerpU"].write<float>();
         float& recoilPFMet_Boson_LongU_ = tree["recoilPFMet_Boson_LongU"].write<float>();
-
+*/
         float& PFMet_Pt_    = tree["PFMet_Pt"].write<float>();
         float& PFMet_Phi_   = tree["PFMet_Phi"].write<float>();
         float& PFMet_sumEt_ = tree["PFMet_SumEt"].write<float>();
-
-        //float& PFMet_uncorrected_Pt_    = tree["PFMet_uncorrected_Pt"].write<float>();
-        //float& PFMet_uncorrected_Phi_   = tree["PFMet_uncorrected_Phi"].write<float>();
-        //float& PFMet_uncorrected_sumEt_ = tree["PFMet_uncorrected_SumEt"].write<float>();
-
-        //float& recoilPFMet_uncorrected_sumEt_ = tree["recoilPFMet_uncorrected_sumEt"].write<float>();
-        //float& recoilPFMet_uncorrected_Pt_    = tree["recoilPFMet_uncorrected_Pt"].write<float>();
-        //float& recoilPFMet_uncorrected_Phi_   = tree["recoilPFMet_uncorrected_Phi"].write<float>();
-        //float& recoilPFMet_uncorrected_PerpZ_ = tree["recoilPFMet_uncorrected_PerpZ"].write<float>();
-        //float& recoilPFMet_uncorrected_LongZ_ = tree["recoilPFMet_uncorrected_LongZ"].write<float>();
-        //float& recoilPFMet_uncorrected_Boson_PerpU_ = tree["recoilPFMet_uncorrected_Boson_PerpU"].write<float>();
-        //float& recoilPFMet_uncorrected_Boson_LongU_ = tree["recoilPFMet_uncorrected_Boson_LongU"].write<float>();
-
-        float& recoilPFCHSMet_sumEt_ = tree["recoilPFCHSMet_sumEt"].write<float>();
-        float& recoilPFCHSMet_Pt_    = tree["recoilPFCHSMet_Pt"].write<float>();
-        float& recoilPFCHSMet_Phi_   = tree["recoilPFCHSMet_Phi"].write<float>();
-        float& recoilPFCHSMet_PerpZ_ = tree["recoilPFCHSMet_PerpZ"].write<float>();
-        float& recoilPFCHSMet_LongZ_ = tree["recoilPFCHSMet_LongZ"].write<float>();
-
-        float& PFCHSMet_Pt_    = tree["PFCHSMet_Pt"].write<float>();
-        float& PFCHSMet_Phi_   = tree["PFCHSMet_Phi"].write<float>();
-        float& PFCHSMet_sumEt_ = tree["PFCHSMet_SumEt"].write<float>();
-
-        //float& PFCHSMet_uncorrected_Pt_    = tree["PFCHSMet_uncorrected_Pt"].write<float>();
-        //float& PFCHSMet_uncorrected_Phi_   = tree["PFCHSMet_uncorrected_Phi"].write<float>();
-        //float& PFCHSMet_uncorrected_sumEt_ = tree["PFCHSMet_uncorrected_SumEt"].write<float>();
-
-        //float& recoilPFCHSMet_uncorrected_sumEt_ = tree["recoilPFCHSMet_uncorrected_sumEt"].write<float>();
-        //float& recoilPFCHSMet_uncorrected_Pt_    = tree["recoilPFCHSMet_uncorrected_Pt"].write<float>();
-        //float& recoilPFCHSMet_uncorrected_Phi_   = tree["recoilPFCHSMet_uncorrected_Phi"].write<float>();
-        //float& recoilPFCHSMet_uncorrected_PerpZ_ = tree["recoilPFCHSMet_uncorrected_PerpZ"].write<float>();
-        //float& recoilPFCHSMet_uncorrected_LongZ_ = tree["recoilPFCHSMet_uncorrected_LongZ"].write<float>();
-
+/*
         float& recoilPFPuppiMet_sumEt_ = tree["recoilPFPuppiMet_sumEt"].write<float>();
         float& recoilPFPuppiMet_Pt_    = tree["recoilPFPuppiMet_Pt"].write<float>();
         float& recoilPFPuppiMet_Phi_   = tree["recoilPFPuppiMet_Phi"].write<float>();
@@ -203,23 +171,12 @@ class PUPPETAnalyzer : public JME::Analyzer {
         float& recoilPFPuppiMet_LongZ_ = tree["recoilPFPuppiMet_LongZ"].write<float>();
         float& recoilPFPuppiMet_Boson_PerpU_ = tree["recoilPFPuppiMet_Boson_PerpU"].write<float>();
         float& recoilPFPuppiMet_Boson_LongU_ = tree["recoilPFPuppiMet_Boson_LongU"].write<float>();
-
+*/
         float& PFPuppiMet_Pt_    = tree["PFPuppiMet_Pt"].write<float>();
         float& PFPuppiMet_Phi_   = tree["PFPuppiMet_Phi"].write<float>();
         float& PFPuppiMet_sumEt_ = tree["PFPuppiMet_SumEt"].write<float>();
 
-        //float& PFPuppiMet_uncorrected_Pt_    = tree["PFPuppiMet_uncorrected_Pt"].write<float>();
-        //float& PFPuppiMet_uncorrected_Phi_   = tree["PFPuppiMet_uncorrected_Phi"].write<float>();
-        //float& PFPuppiMet_uncorrected_sumEt_ = tree["PFPuppiMet_uncorrected_SumEt"].write<float>();
-
-        //float& recoilPFPuppiMet_uncorrected_sumEt_ = tree["recoilPFPuppiMet_uncorrected_sumEt"].write<float>();
-        //float& recoilPFPuppiMet_uncorrected_Pt_    = tree["recoilPFPuppiMet_uncorrected_Pt"].write<float>();
-        //float& recoilPFPuppiMet_uncorrected_Phi_   = tree["recoilPFPuppiMet_uncorrected_Phi"].write<float>();
-        //float& recoilPFPuppiMet_uncorrected_PerpZ_ = tree["recoilPFPuppiMet_uncorrected_PerpZ"].write<float>();
-        //float& recoilPFPuppiMet_uncorrected_LongZ_ = tree["recoilPFPuppiMet_uncorrected_LongZ"].write<float>();
-        //float& recoilPFPuppiMet_uncorrected_Boson_PerpU_ = tree["recoilPFPuppiMet_uncorrected_Boson_PerpU"].write<float>();
-        //float& recoilPFPuppiMet_uncorrected_Boson_LongU_ = tree["recoilPFPuppiMet_uncorrected_Boson_LongU"].write<float>();
-
+/*
         float& recoilPFMet_ChargedPVNeutralPVPUJetID_sumEt_ = tree["recoilPFMet_ChargedPVNeutralPVPUJetID_sumEt"].write<float>();
         float& recoilPFMet_ChargedPVNeutralPVPUJetID_Pt_    = tree["recoilPFMet_ChargedPVNeutralPVPUJetID_Pt"].write<float>();
         float& recoilPFMet_ChargedPVNeutralPVPUJetID_Phi_   = tree["recoilPFMet_ChargedPVNeutralPVPUJetID_Phi"].write<float>();
@@ -237,7 +194,7 @@ class PUPPETAnalyzer : public JME::Analyzer {
         float& recoilPFMet_ChargedPVNeutralPV_Phi_   = tree["recoilPFMet_ChargedPVNeutralPV_Phi"].write<float>();
         float& recoilPFMet_ChargedPVNeutralPV_PerpZ_ = tree["recoilPFMet_ChargedPVNeutralPV_PerpZ"].write<float>();
         float& recoilPFMet_ChargedPVNeutralPV_LongZ_ = tree["recoilPFMet_ChargedPVNeutralPV_LongZ"].write<float>();
-
+*/
 
 	float& MVAMet_sumEt_ = tree["MVAMet_sumEt"].write<float>();
 	float& MVAMet_Pt_    = tree["MVAMet_Pt"].write<float>();

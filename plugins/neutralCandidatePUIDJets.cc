@@ -32,7 +32,7 @@ class neutralCandidatePUIDJets : public edm::stream::EDProducer<> {
   edm::InputTag srcCandidates_;
   std::string   neutralParticlesPVJets_ ;
   std::string   neutralParticlesPUJets_ ;
-  std::string   neutralParticlesPV_ ;
+  std::string   neutralParticlesUnclustered_ ;
   std::string   jetPUIDWP_;
 
   std::string   jetPUIDMapLabel_ ;
@@ -89,10 +89,10 @@ neutralCandidatePUIDJets::neutralCandidatePUIDJets(const edm::ParameterSet& iCon
   else
     neutralParticlesPUJets_ = "neutralFailingPUIDJets";
 
-  if(iConfig.existsAs<std::string >("neutralParticlesPVLabel"))
-    neutralParticlesPV_ = iConfig.getParameter<std::string>("neutralParticlesPVLabel");
+  if(iConfig.existsAs<std::string >("neutralParticlesUnclusteredLabel"))
+    neutralParticlesUnclustered_ = iConfig.getParameter<std::string>("neutralParticlesUnclusteredLabel");
   else
-    neutralParticlesPV_ = "neutralParticlesPV";
+    neutralParticlesUnclustered_ = "neutralParticlesUnclustered";
 
   if(iConfig.existsAs<std::string >("jetPUDIWP")){
     jetPUIDWP_ = iConfig.getParameter<std::string>("jetPUDIWP");
@@ -118,7 +118,7 @@ neutralCandidatePUIDJets::neutralCandidatePUIDJets(const edm::ParameterSet& iCon
   
   produces<edm::PtrVector<reco::Candidate> >(neutralParticlesPVJets_);
   produces<edm::PtrVector<reco::Candidate> >(neutralParticlesPUJets_);
-  produces<edm::PtrVector<reco::Candidate> >(neutralParticlesPV_);
+  produces<edm::PtrVector<reco::Candidate> >(neutralParticlesUnclustered_);
 
 }
 
@@ -132,42 +132,50 @@ void neutralCandidatePUIDJets::produce(edm::Event& iEvent, const edm::EventSetup
 
   std::auto_ptr<edm::PtrVector<reco::Candidate> > neutralParticlesPVJets(new edm::PtrVector<reco::Candidate>);
   std::auto_ptr<edm::PtrVector<reco::Candidate> > neutralParticlesPUJets(new edm::PtrVector<reco::Candidate>);
-  std::auto_ptr<edm::PtrVector<reco::Candidate> > neutralParticlesPV(new edm::PtrVector<reco::Candidate>);
+  std::auto_ptr<edm::PtrVector<reco::Candidate> > neutralParticlesUnclustered(new edm::PtrVector<reco::Candidate>);
+
 
   // loop on jets
   for(auto jet : *jetCollection){
-
     // look if the value is embedded in pat jets
-    if(!stringInJetCollection_){
-
-      if(jetPUIDWP_ != "user"){
-	for(size_t iJet = 0; iJet < jet.userIntNames().size(); iJet++){
-	  if(jet.userIntNames().at(iJet).find(jetPUIDMapLabel_) != std::string::npos){
-	    stringInJetCollection_ = true;
-	    jetPUIDNameLabel_ = jet.userIntNames().at(iJet);
-	  }
-	}
-	if(stringInJetCollection_ == false)
-	  throw cms::Exception("neutralCandidatePUIDJets")<<" user int related to jetPUID not found ";      
+    if(!stringInJetCollection_)
+    {
+      if(jetPUIDWP_ != "user")
+      {
+        for(size_t iJet = 0; iJet < jet.userIntNames().size(); iJet++)
+        {
+          if(jet.userIntNames().at(iJet).find(jetPUIDMapLabel_) != std::string::npos)
+          {
+            stringInJetCollection_ = true;
+            jetPUIDNameLabel_ = jet.userIntNames().at(iJet);
+          }
+        }
+        if(stringInJetCollection_ == false)
+          throw cms::Exception("neutralCandidatePUIDJets")<<" user int related to jetPUID not found ";      
       }
-      else{
-	for(size_t iJet = 0; iJet < jet.userFloatNames().size(); iJet++){
-	  if(jet.userFloatNames().at(iJet).find(jetPUIDMapLabel_) != std::string::npos){
-	    stringInJetCollection_ = true;
-	    jetPUIDNameLabel_ = jet.userFloatNames().at(iJet);
-	  }
-	}
-	if(stringInJetCollection_ == false)
-	  throw cms::Exception("neutralCandidatePUIDJets")<<" user float related to jetPUID not found ";      	
+      else
+      {
+        for(size_t iJet = 0; iJet < jet.userFloatNames().size(); iJet++)
+        {
+          if(jet.userFloatNames().at(iJet).find(jetPUIDMapLabel_) != std::string::npos)
+          {
+            stringInJetCollection_ = true;
+            jetPUIDNameLabel_ = jet.userFloatNames().at(iJet);
+          }
+        }
+        if(stringInJetCollection_ == false)
+          throw cms::Exception("neutralCandidatePUIDJets")<<" user float related to jetPUID not found ";      	
       }
     }
 
     // evaluate PU JET ID
     bool isPassingPUID = false;
-    if(jetPUIDWP_ != "user"){
+    if(jetPUIDWP_ != "user")
+    {
       isPassingPUID = PileupJetIdentifier::passJetId(jet.userInt(jetPUIDNameLabel_), jetIdSelection_);
     }
-    else{
+    else
+    {
 
       int ptBin = 0; 
       int etaBin = 0;
@@ -181,40 +189,49 @@ void neutralCandidatePUIDJets::produce(edm::Event& iEvent, const edm::EventSetup
 
     }
     // loop on constituents
-    for( auto particle : jet.getJetConstituents()){
+    for( auto particle : jet.getJetConstituents())
+    {
       if(particle->charge() != 0) continue;
       if(isPassingPUID)
-	neutralParticlesPVJets->push_back(particle);
+        neutralParticlesPVJets->push_back(particle);
       else
-	neutralParticlesPUJets->push_back(particle);
+        neutralParticlesPUJets->push_back(particle);
     }
   }
 
   
-  // loop on pfParticles
-  int indexColl = 0;
-  for(reco::CandidateView::const_iterator itCand = candCollection->begin(); itCand != candCollection->end(); itCand++){
-    if(itCand->charge() !=0){
-      indexColl++;
-      continue;
+  // loop on pfParticles to determine if unclustered Neutral
+  size_t indexColl = 0;
+  for(reco::CandidateView::const_iterator itCand = candCollection->begin(); itCand != candCollection->end(); itCand++)
+  {
+    bool clustered = false;
+    for(edm::PtrVector<reco::Candidate>::const_iterator iParticle = neutralParticlesPUJets->begin();  iParticle != neutralParticlesPUJets->end(); iParticle++)
+    {
+      if( itCand->p4() == iParticle->get()->p4())
+      {
+        clustered = true;
+        break;
+      }
     }
-    bool neutralPU = false;
-    for(edm::PtrVector<reco::Candidate>::const_iterator iParticle = neutralParticlesPUJets->begin();  iParticle != neutralParticlesPUJets->end(); iParticle++){
-      if( itCand->p4() == iParticle->get()->p4()){
-	neutralPU = true;
-	break;
+    for(edm::PtrVector<reco::Candidate>::const_iterator iParticle = neutralParticlesPVJets->begin();  iParticle != neutralParticlesPVJets->end(); iParticle++)
+    {
+      if( itCand->p4() == iParticle->get()->p4())
+      {
+        clustered = true;
+        break;
       }
     }
     
-    if(!neutralPU)
-      neutralParticlesPV->push_back(edm::Ptr<reco::Candidate>(candCollection,indexColl));
-    
-    indexColl++;   
+    if(!clustered)
+    {
+      neutralParticlesUnclustered->push_back(edm::Ptr<reco::Candidate>(candCollection, indexColl));
+      indexColl++;
+    }
   }
   
   iEvent.put(neutralParticlesPVJets,neutralParticlesPVJets_);
   iEvent.put(neutralParticlesPUJets,neutralParticlesPUJets_);
-  iEvent.put(neutralParticlesPV,neutralParticlesPV_);
+  iEvent.put(neutralParticlesUnclustered,neutralParticlesUnclustered_);
 
 }
 
