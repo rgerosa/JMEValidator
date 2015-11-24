@@ -259,18 +259,13 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
       }
     }
 
-    if(produceRecoils_){
-      std::auto_ptr<pat::METCollection> patMETRecoilCollection(new pat::METCollection());
-      patMETRecoilCollection->push_back(Recoil);
-      evt.put(patMETRecoilCollection, "recoil"+collection_name);
-    }
-
+    reco::METCovMatrix rotatedCovMatrix = rotateToZFrame * Recoil.getSignificanceMatrix();
+    Recoil.setSignificanceMatrix( rotatedCovMatrix );
     // This only does the PU and PV stuff here
     if (TString(collection_name).Contains(referenceMET_name_) and collection_name != referenceMET_name_){
       TString tempName = Form("%s",collection_name.c_str());
       tempName.ReplaceAll(referenceMET_name_,"");
       collection_name = tempName;
-      reco::METCovMatrix rotatedCovMatrix = rotateToZFrame * Recoil.getSignificanceMatrix();
       addToMap(Recoil.p4(), Recoil.sumEt(), collection_name, reference, 1, rotatedCovMatrix);
     }
     else {
@@ -278,9 +273,15 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
       tempName.ReplaceAll("slimmedMETs","recoilPF");
       tempName = tempName + "Met";
       collection_name = tempName;
-      reco::METCovMatrix rotatedCovMatrix = rotateToZFrame * Recoil.getSignificanceMatrix();
       addToMap(Recoil.p4(), Recoil.sumEt(), "", collection_name, 1, rotatedCovMatrix);
     }
+
+    if(produceRecoils_){
+      std::auto_ptr<pat::METCollection> patMETRecoilCollection(new pat::METCollection());
+      patMETRecoilCollection->push_back(Recoil);
+      evt.put(patMETRecoilCollection, "recoil"+collection_name);
+    }
+
   }
 
   edm::Handle<pat::JetCollection> jets;
