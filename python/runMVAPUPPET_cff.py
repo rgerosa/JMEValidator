@@ -366,7 +366,7 @@ def runMVAPUPPET(process,
     #process.pfMETCands = cms.EDProducer("CandViewMerger", src = cms.VInputTag("pfAllChargedParticles",cms.InputTag("packedPFCandidates"))
     process.pfMETCands = cms.EDProducer("CandViewMerger", src = cms.VInputTag(cms.InputTag("packedPFCandidates")))
     #### Track MET
-    process.pfTrackMETCands = process.pfChargedPU.clone() #cms.EDProducer("CandViewMerger", src = cms.VInputTag("pfAllChargedParticles",cms.InputTag("pfChargedPV"))
+    process.pfTrackMETCands = process.pfChargedPV.clone() #cms.EDProducer("CandViewMerger", src = cms.VInputTag("pfAllChargedParticles",cms.InputTag("pfChargedPV"))
     ## No-PU MET
     process.pfNoPUMETCands = cms.EDProducer("CandViewMerger", src = cms.VInputTag("pfChargedPV",cms.InputTag("neutralInJets","neutralPassingPUIDJets")))
     ## PU corrected MET
@@ -381,9 +381,6 @@ def runMVAPUPPET(process,
     patMETsForMVA.srcJets = cms.InputTag("selectedPatJetsAK4PF")
     patMETsForMVA.srcLeptons = cms.InputTag("selectedPatJetsAK4PF")
     setattr(patMETsForMVA,"srcLeptons", cms.VInputTag(srcMuons+muonTypeID,srcElectrons+electronTypeID,srcTaus+tauTypeID+"Cleaned"))
-    
-    process.patPFMetChargedPVNeutralPVPUJetID = patMETsForMVA.clone()
-    process.patPFMetChargedPVNeutralPVPUJetID.metSource = cms.InputTag("pfMetChargedPVNeutralPVPUJetID")
 
     for met in ["pfMET", "pfTrackMET", "pfNoPUMET", "pfPUCorrectedMET", "pfPUMET"]:
         setattr(process, met, pfMet.clone())

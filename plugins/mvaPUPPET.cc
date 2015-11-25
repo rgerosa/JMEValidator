@@ -218,7 +218,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
     reco::Particle tauJetSpouriousComponents;
     tauJetSpouriousComponents.setP4(reco::Candidate::LorentzVector(0, 0, 0, 0));
 
-    if(collection_name.find("ChargedPV") != std::string::npos)
+    if((*itMETFlags))
     {
       for( auto particle : neutralTauJetCandidates)
       {
@@ -226,7 +226,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
         sumEt_TauJetNeutral += particle->p4().Et();	
       }
     }    
-    else if(collection_name.find("NeutralPV") != std::string::npos)
+    else
     {
       for( auto particle : chargedTauJetCandidates)
       {
@@ -240,29 +240,13 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
 
     if((*itMETFlags))
     {
-      if(collection_name.find("ChargedPV") != std::string::npos)
-      {
-        Recoil.setP4(-Z.p4() +tauJetSpouriousComponents.p4() - (*MET)[0].p4());
-        Recoil.setSumEt((*MET)[0].sumEt()-sumEt_TauJetCharge-sumEt_Leptons);    
-      }
-      else
-      {
-        Recoil.setP4(-Z.p4() - (*MET)[0].p4());
-        Recoil.setSumEt((*MET)[0].sumEt()-sumEt_Leptons);    
-      }
+      Recoil.setP4(-Z.p4() +tauJetSpouriousComponents.p4() - (*MET)[0].p4());
+      Recoil.setSumEt((*MET)[0].sumEt()-sumEt_TauJetCharge-sumEt_Leptons);    
     }
     else
     {
-      if(collection_name.find("NeutralPV") != std::string::npos)
-        {
-          Recoil.setP4(tauJetSpouriousComponents.p4() - (*MET)[0].p4());      
-          Recoil.setSumEt((*MET)[0].sumEt()-sumEt_TauJetNeutral);    
-      }
-      else
-      {
-        Recoil.setP4(-(*MET)[0].p4());
-        Recoil.setSumEt((*MET)[0].sumEt());
-      }
+      Recoil.setP4(tauJetSpouriousComponents.p4() - (*MET)[0].p4());      
+      Recoil.setSumEt((*MET)[0].sumEt()-sumEt_TauJetNeutral);    
     }
 
     reco::METCovMatrix rotatedCovMatrix = rotateToZFrame * Recoil.getSignificanceMatrix();
