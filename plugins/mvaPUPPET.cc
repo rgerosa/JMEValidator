@@ -238,29 +238,42 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
     // calculate recoil    
     pat::MET Recoil((*MET)[0]); 
 
-    if((*itMETFlags)){
-      if(collection_name.find("ChargedPV") != std::string::npos){
-	Recoil.setP4(-Z.p4() +tauJetSpouriousComponents.p4() - (*MET)[0].p4());
+    if((*itMETFlags))
+    {
+      if(collection_name.find("ChargedPV") != std::string::npos)
+      {
+        Recoil.setP4(-Z.p4() +tauJetSpouriousComponents.p4() - (*MET)[0].p4());
         Recoil.setSumEt((*MET)[0].sumEt()-sumEt_TauJetCharge-sumEt_Leptons);    
       }
-      else{
-	Recoil.setP4(-Z.p4() - (*MET)[0].p4());
+      else
+      {
+        Recoil.setP4(-Z.p4() - (*MET)[0].p4());
         Recoil.setSumEt((*MET)[0].sumEt()-sumEt_Leptons);    
       }
     }
-    else{
-      if(collection_name.find("NeutralPV") != std::string::npos){
-	Recoil.setP4(tauJetSpouriousComponents.p4() - (*MET)[0].p4());      
-        Recoil.setSumEt((*MET)[0].sumEt()-sumEt_TauJetNeutral);    
+    else
+    {
+      if(collection_name.find("NeutralPV") != std::string::npos)
+        {
+          Recoil.setP4(tauJetSpouriousComponents.p4() - (*MET)[0].p4());      
+          Recoil.setSumEt((*MET)[0].sumEt()-sumEt_TauJetNeutral);    
       }
-      else{
-	Recoil.setP4(-(*MET)[0].p4());		
-	Recoil.setSumEt((*MET)[0].sumEt());
+      else
+      {
+        Recoil.setP4(-(*MET)[0].p4());
+        Recoil.setSumEt((*MET)[0].sumEt());
       }
     }
 
     reco::METCovMatrix rotatedCovMatrix = rotateToZFrame * Recoil.getSignificanceMatrix();
     Recoil.setSignificanceMatrix( rotatedCovMatrix );
+
+    if(produceRecoils_){
+      std::auto_ptr<pat::METCollection> patMETRecoilCollection(new pat::METCollection());
+      patMETRecoilCollection->push_back(Recoil);
+      evt.put(patMETRecoilCollection, "recoil"+collection_name);
+    }
+
     // This only does the PU and PV stuff here
     if (TString(collection_name).Contains(referenceMET_name_) and collection_name != referenceMET_name_){
       TString tempName = Form("%s",collection_name.c_str());
@@ -274,12 +287,6 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
       tempName = tempName + "Met";
       collection_name = tempName;
       addToMap(Recoil.p4(), Recoil.sumEt(), "", collection_name, 1, rotatedCovMatrix);
-    }
-
-    if(produceRecoils_){
-      std::auto_ptr<pat::METCollection> patMETRecoilCollection(new pat::METCollection());
-      patMETRecoilCollection->push_back(Recoil);
-      evt.put(patMETRecoilCollection, "recoil"+collection_name);
     }
 
   }
