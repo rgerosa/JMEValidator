@@ -225,6 +225,7 @@ def createProcess(isMC, ## isMC flag
     # See https://twiki.cern.ch/twiki/bin/viewauth/CMS/MuonIsolationForRun2 for details
 
     ## Create PF candidate collections from packed PF candidates Using CHS
+    """
     process.pfPileUpIso   = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV <= 1")) ## cut away PV particles
     process.pfNoPileUpIso = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV > 1"))  ## take particles from PV only
 
@@ -238,6 +239,7 @@ def createProcess(isMC, ## isMC flag
                                                  cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 2212 || pdgId == -2212"))
     process.pfPileUpAllChargedParticles = process.pfAllChargedParticles.clone( src = 'pfPileUpIso')
     
+    """
     ## Create pf weighted collections
     process.load('CommonTools.ParticleFlow.deltaBetaWeights_cff')
 
@@ -412,6 +414,7 @@ def createProcess(isMC, ## isMC flag
     ## all charge particles from PUPPI : hadrons + leptons (e,mu,tau) --> trak met
     ## particles for chs 
  
+    """
     process.pfChargedPV = cms.EDFilter("CandPtrSelector",
                                        src = cms.InputTag("chs"),
                                        cut = cms.string("pt > 0  && charge!=0 && abs(eta) < %f"%etaCutForMetDiagnostic))
@@ -425,7 +428,7 @@ def createProcess(isMC, ## isMC flag
                                       cut = cms.string('!fromPV && abs(eta) < %f'%etaCutForMetDiagnostic),
                                       src = cms.InputTag("packedPFCandidates")
                                       )
-
+    """
     # Run
     if isMC:
         process.run = cms.EDAnalyzer('RunAnalyzer')

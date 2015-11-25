@@ -364,15 +364,20 @@ def runMVAPUPPET(process,
     #### Merge collections to produce corresponding METs
     #### PF MET
     #process.pfMETCands = cms.EDProducer("CandViewMerger", src = cms.VInputTag("pfAllChargedParticles",cms.InputTag("packedPFCandidates"))
-    process.pfMETCands = cms.EDProducer("CandViewMerger", src = cms.VInputTag(cms.InputTag("packedPFCandidates")))
+    process.pfMETCands = cms.EDProducer("CandViewMerger", src = cms.VInputTag(            cms.InputTag("packedPFCandidates")))
     #### Track MET
     process.pfTrackMETCands = process.pfChargedPV.clone() #cms.EDProducer("CandViewMerger", src = cms.VInputTag("pfAllChargedParticles",cms.InputTag("pfChargedPV"))
     ## No-PU MET
-    process.pfNoPUMETCands = cms.EDProducer("CandViewMerger", src = cms.VInputTag("pfChargedPV",cms.InputTag("neutralInJets","neutralPassingPUIDJets")))
+    process.pfNoPUMETCands = cms.EDProducer("CandViewMerger", src = cms.VInputTag(        cms.InputTag("pfChargedPV"),
+                                                                                          cms.InputTag("neutralInJets", "neutralPassingPUIDJets")))
     ## PU corrected MET
-    process.pfPUCorrectedMETCands = cms.EDProducer("CandViewMerger", src = cms.VInputTag("pfChargedPV",cms.InputTag("neutralInJets", "neutralPassingPUIDJets"), cms.InputTag("neutralInJets","neutralParticlesUnclustered")))
+    process.pfPUCorrectedMETCands = cms.EDProducer("CandViewMerger", src = cms.VInputTag( cms.InputTag("pfChargedPV"), 
+                                                                                          cms.InputTag("neutralInJets", "neutralPassingPUIDJets"),
+                                                                                          cms.InputTag("neutralInJets", "neutralParticlesUnclustered")))
     ## PU MET
-    process.pfPUMETCands = cms.EDProducer("CandViewMerger", src = cms.VInputTag(cms.VInputTag("pfChargedPU",cms.InputTag("neutralInJets","neutralFailingPUIDJets"))))
+    process.pfPUMETCands = cms.EDProducer("CandViewMerger", src = cms.VInputTag(          cms.InputTag("pfChargedPU"),
+                                                                                          cms.InputTag("neutralInJets", "neutralFailingPUIDJets"),
+                                                                                          cms.InputTag("neutralInJets", "neutralParticlesUnclustered")))
                                                               
     from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import patMETs
     patMETsForMVA = patMETs.clone()
