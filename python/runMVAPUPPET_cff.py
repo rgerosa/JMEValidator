@@ -348,25 +348,36 @@ def runMVAPUPPET(process,
                                        cut = cms.string('!fromPV && charge !=0'),
                                        src = cms.InputTag("packedPFCandidates")
                                        )
+    process.pfNeutrals  = cms.EDFilter("CandPtrSelector",
+                                       cut = cms.string('charge ==0'),
+                                       src = cms.InputTag("packedPFCandidates")
+                                       )
     #### Neutrals in Jets passing PU Jet ID
     #### and Neutrals in Jets not passing PU Jet ID
     ### TODO: unclustered Neutrals
     process.neutralInJets = cms.EDProducer("neutralCandidatePUIDJets",
                                            srcJets = cms.InputTag(jetCollectionPF+"Cleaned"),
-                                           srcCandidates = cms.InputTag("packedPFCandidates"),
+                                           srcCandidates = cms.InputTag("pfNeutrals"),
                                            neutralParticlesPVJetsLabel = cms.string("neutralPassingPUIDJets"),
                                            neutralParticlesPUJetsLabel = cms.string("neutralFailingPUIDJets"),
                                            neutralParticlesUnclustered = cms.string("neutralParticlesUnclustered"),
                                            jetPUDIWP = cms.string("user"),
                                            jetPUIDMapLabel = cms.string("fullDiscriminant"))
-    
+  
 
     #### Merge collections to produce corresponding METs
     #### PF MET
     #process.pfMETCands = cms.EDProducer("CandViewMerger", src = cms.VInputTag("pfAllChargedParticles",cms.InputTag("packedPFCandidates"))
-    process.pfMETCands = cms.EDProducer("CandViewMerger", src = cms.VInputTag(            cms.InputTag("packedPFCandidates")))
+    #process.pfMETCands = cms.EDProducer("CandViewMerger", src = cms.VInputTag(            cms.InputTag("packedPFCandidates")))
+    process.pfMETCands = cms.EDProducer("CandViewMerger", src = cms.VInputTag(          
+                                                                                          cms.InputTag("pfChargedPV"),
+                                                                                          cms.InputTag("pfChargedPU"),
+                                                                                          cms.InputTag("neutralInJets", "neutralPassingPUIDJets"),
+                                                                                          cms.InputTag("neutralInJets", "neutralFailingPUIDJets"),
+                                                                                          cms.InputTag("neutralInJets", "neutralParticlesUnclustered")
+    ))
     #### Track MET
-    process.pfTrackMETCands = process.pfChargedPV.clone() #cms.EDProducer("CandViewMerger", src = cms.VInputTag("pfAllChargedParticles",cms.InputTag("pfChargedPV"))
+    process.pfTrackMETCands = cms.EDProducer("CandViewMerger", src = cms.VInputTag(cms.InputTag("pfChargedPV")))
     ## No-PU MET
     process.pfNoPUMETCands = cms.EDProducer("CandViewMerger", src = cms.VInputTag(        cms.InputTag("pfChargedPV"),
                                                                                           cms.InputTag("neutralInJets", "neutralPassingPUIDJets")))
