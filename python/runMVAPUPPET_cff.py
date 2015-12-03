@@ -394,10 +394,11 @@ def runMVAPUPPET(process,
         setattr(process, "pat"+met, patMETsForMVA.clone())
         setattr(getattr(process, "pat"+met), "metSource", cms.InputTag(met))
 
+
     ### MVA PUPPET
     setattr(process,"mvaMET", cms.EDProducer("mvaPUPPET",                                                
                                                 referenceMET = cms.InputTag("slimmedMETs"),
-                                                debug = cms.bool(True),
+                                                debug = cms.bool(False),
                                                 srcMETs      = cms.VInputTag(cms.InputTag("patpfMET"),
                                                                              cms.InputTag("patpfTrackMET"),
                                                                              cms.InputTag("patpfNoPUMET"),

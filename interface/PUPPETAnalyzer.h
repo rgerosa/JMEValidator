@@ -127,7 +127,7 @@ class PUPPETAnalyzer : public JME::Analyzer {
 
         // recoils
         std::vector<std::reference_wrapper<float>> recoilReferences_; // assign via function
-        std::vector<std::string> recoilAttributes_ = {"sumEt", "Pt", "Phi", "PerpZ", "LongZ", "Boson_PerpU", "Boson_LongU", "Cov11", "Cov00", "Cov01", "Cov10"}; // to be extended?
+        std::vector<std::string> recoilAttributes_ = {"sumEt", "sumEtFraction", "Pt", "Phi", "PerpZ", "LongZ", "Boson_PerpU", "Boson_LongU", "Cov11", "Cov00", "Cov01", "Cov10"}; // to be extended?
     // METs
         std::vector<std::reference_wrapper<float>> METReferences_; // assign via function
         std::vector<std::string> METAttributes_ = {"sumEt", "Pt", "Phi", "Cov11", "Cov00", "Cov01", "Cov10"}; // to be extended?

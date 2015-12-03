@@ -354,13 +354,15 @@ void mvaPUPPET::addToMap(reco::Candidate::LorentzVector p4, double sumEt, const 
   {
     var_[type + "_Pt" ] = p4.pt();
     var_[type + "_Phi" ] = p4.phi();
-    var_[type + "_sumEt" ] = sumEt/divisor;
+    var_[type + "_sumEt" ] = sumEt;
+    var_[type + "_sumEtFraction" ] = sumEt/divisor;
   }
   else
   {
     var_[type + "_" + name + "_Pt" ] = p4.pt();
     var_[type + "_" + name + "_Phi" ] = p4.phi();
     var_[type + "_" + name + "_sumEt" ] = sumEt/divisor;
+    var_[type + "_" + name + "_sumEtFraction" ] = sumEt;
   }
 }
 

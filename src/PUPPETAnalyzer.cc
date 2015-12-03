@@ -447,7 +447,8 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
 
   // save recoils to Map
   size_t recoilAttributeCounter = 0;
-  // size_t srcRecoilCounter = 0;
+  float refRecoil = 1;
+  bool first = true;
   for ( std::vector<edm::EDGetTokenT<pat::METCollection> >::const_iterator srcRecoil = srcRecoils_.begin(); srcRecoil != srcRecoils_.end(); ++srcRecoil )
   {
     //get inputs
@@ -456,6 +457,13 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
     assert((*vRecoil).size() == 1 );
     auto recoil = (*vRecoil)[0];
     recoilReferences_[recoilAttributeCounter++].get() = recoil.sumEt();
+    //if(srcRecoil == srcRecoils_.begin())
+    if(first)
+    {
+      refRecoil = recoil.sumEt();
+      first = false;
+    }
+    recoilReferences_[recoilAttributeCounter++].get() = recoil.sumEt() / refRecoil;
     recoilReferences_[recoilAttributeCounter++].get() = recoil.p4().Pt();
     recoilReferences_[recoilAttributeCounter++].get() = recoil.p4().Phi();
 
