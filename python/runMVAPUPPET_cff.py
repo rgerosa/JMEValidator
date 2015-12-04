@@ -387,8 +387,7 @@ def runMVAPUPPET(process,
                                                                                           cms.InputTag("neutralInJets", "neutralParticlesUnclustered")))
     ## PU MET
     process.pfPUMETCands = cms.EDProducer("CandViewMerger", src = cms.VInputTag(          cms.InputTag("pfChargedPU"),
-                                                                                          cms.InputTag("neutralInJets", "neutralFailingPUIDJets"),
-                                                                                          cms.InputTag("neutralInJets", "neutralParticlesUnclustered")))
+                                                                                          cms.InputTag("neutralInJets", "neutralFailingPUIDJets")))
                                                               
     from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import patMETs
     patMETsForMVA = patMETs.clone()
