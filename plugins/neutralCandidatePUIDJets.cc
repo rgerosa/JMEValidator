@@ -204,8 +204,7 @@ void neutralCandidatePUIDJets::produce(edm::Event& iEvent, const edm::EventSetup
   size_t indexColl = 0;
   for(reco::CandidateView::const_iterator itCand = candCollection->begin(); itCand != candCollection->end(); itCand++)
   {
-    if(itCand->charge() != 0)
-      continue;
+    assert(itCand->charge() == 0);
 
     bool clustered = false;
     for(edm::PtrVector<reco::Candidate>::const_iterator iParticle = neutralParticlesPUJets->begin();  iParticle != neutralParticlesPUJets->end(); iParticle++)
