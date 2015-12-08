@@ -1,0 +1,89 @@
+{
+    "colors": [
+        "black", 
+        "black", 
+        "red", 
+        "red", 
+        "blue", 
+        "blue", 
+        "orange", 
+        "orange", 
+        "green", 
+        "green"
+    ], 
+    "filename": "Longitudinal_Response_pt", 
+    "files": [
+        "/afs/desy.de/user/r/rfriese/dust/classicMVAMET/output6.root", 
+        "/afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/mvaTrainingSample.root"
+    ], 
+    "folders": [
+        "PUPPET/t", 
+        "Flat"
+    ], 
+    "friend_filenames": [
+        "", 
+        "/afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/particleFlowUpdate.root /afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/trackUpdate.root /afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/noPileUpUpdate.root /afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/pileUpCorrectedUpdate.root /afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/pileUpUpdate.root"
+    ], 
+    "friend_treenames": [
+        "", 
+        "particleFlowUpdate trackUpdate noPileUpUpdate pileUpCorrectedUpdate pileUpUpdate"
+    ], 
+    "labels": [
+        "PF", 
+        "PF old", 
+        "Track", 
+        "Track old", 
+        "NoPU", 
+        "NoPU old", 
+        "PU", 
+        "PU old", 
+        "PUPPI", 
+        "PUPPI old"
+    ], 
+    "legend_cols": 2, 
+    "line_styles": [
+        "-", 
+        "--"
+    ], 
+    "markers": [
+        "."
+    ], 
+    "tree_draw_options": [
+        "prof"
+    ], 
+    "weights": [
+        "Boson_daughter==13", 
+        "1"
+    ], 
+    "x_bins": [
+        "20,0,200"
+    ], 
+    "x_errors": [
+        false
+    ], 
+    "x_expressions": [
+        "Boson_Pt", 
+        "z_pT"
+    ], 
+    "x_label": "$p_T^Z$", 
+    "y_errors": [
+        false
+    ], 
+    "y_expressions": [
+        "recoilslimmedMETs_LongZ/-Boson_Pt", 
+        "particleFlowUpdate_Upar/-z_pT", 
+        "recoilpatpfTrackMET_LongZ/-Boson_Pt", 
+        "trackUpdate_Upar/-z_pT", 
+        "recoilpatpfNoPUMET_LongZ/-Boson_Pt", 
+        "noPileUpUpdate_Upar/-z_pT", 
+        "recoilpatpfPUMET_LongZ/-Boson_Pt", 
+        "pileUpUpdate_Upar/-z_pT", 
+        "recoilslimmedMETsPuppi_LongZ/-Boson_Pt", 
+        "0"
+    ], 
+    "y_label": "$U_{\\parallel}/p_T^Z$", 
+    "y_lims": [
+        0.0, 
+        2.0
+    ]
+}
