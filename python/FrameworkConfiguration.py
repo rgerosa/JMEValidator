@@ -58,52 +58,6 @@ def get_jec_levels(pu_method, isMC = True, useJECFromDB = False):
     return jec_levels[pu_method]
 
 
-def useJECFromDB(process, db, postfix = ""):
-
-    process.load("CondCore.DBCommon.CondDBCommon_cfi")
-
-    setattr(process,"jec"+postfix, cms.ESSource("PoolDBESSource",
-                                                DBParameters = cms.PSet(messageLevel = cms.untracked.int32(0)),
-                                                timetype = cms.string('runnumber'),
-                                                toGet = cms.VPSet(),                                        
-                                                connect = cms.string('sqlite:%s' % db)))
-
-    setattr(process,"es_prefer_jec"+postfix, cms.ESPrefer('PoolDBESSource','jec'+postfix))
-
-def checkForTag(db_file, tag):
-
-    import sqlite3
-
-    db_file = db_file.replace('sqlite:', '')
-
-    connection = sqlite3.connect(db_file)
-    
-    res = connection.execute('select TAG_NAME from IOV where TAG_NAME=?', tag).fetchall()
-
-    return len(res) != 0
-
-def appendJECToDB(process, payload, prefix, postfix=""):
-
-    instance = getattr(process,"jec"+postfix);
-
-    for set in instance.toGet:
-        if set.label == payload:
-            return
-
-    tag = 'JetCorrectorParametersCollection_%s_%s' % (prefix, payload)
-    tag = tag.replace('.db','')
-
-    if not checkForTag(instance.connect.value(), (tag,)):
-        print("WARNING: The JEC payload %r is not present in the database you want to use. Corrections for this payload will be loaded from the Global Tag" % payload)
-        return
-
-
-    instance.toGet += [cms.PSet(
-            record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string(tag),
-            label  = cms.untracked.string(payload)
-            )]
-
 
 def createProcess(isMC, ## isMC flag
                   processName,
@@ -129,8 +83,8 @@ def createProcess(isMC, ## isMC flag
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     # Jet corrections
-    process.load('JetMETCorrections.Configuration.JetCorrectorsAllAlgos_cff')
-    
+    #process.load('JetMETCorrections.Configuration.JetCorrectorsAllAlgos_cff')
+    """ 
     # QG tagger
     process.load('RecoJets.JetProducers.QGTagger_cfi')
     # tool box
@@ -170,8 +124,6 @@ def createProcess(isMC, ## isMC flag
             }
 
 
-    # Jet corrections
-    process.load('JetMETCorrections.Configuration.JetCorrectorsAllAlgos_cff')
 
     ## loop on the jet collections : generic container just defined by clustering algorithm and cone dimension
     for name, params in jetsCollections.items():
@@ -181,10 +133,8 @@ def createProcess(isMC, ## isMC flag
 
             jec_payload = get_jec_payload(params['algo'], pu_method)
             jec_levels  = get_jec_levels(pu_method,isMC,useJECFromLocalDB)
-
-            if useJECFromLocalDB:
-                appendJECToDB(process, jec_payload, jec_database_PF.replace("_PFCHS","").replace("_PF",""))
-
+            print jec_payload
+            print jec_levels
             jetToolbox(process, params['algo'], 'dummy', 'out', runOnMC=isMC, PUMethod = pu_method, JETCorrPayload = jec_payload, JETCorrLevels = jec_levels, addPUJetID = True)
 
             algo          = params['algo'].upper()
@@ -207,20 +157,20 @@ def createProcess(isMC, ## isMC flag
 
 
             # Quark / gluon discriminator
-            if 'qg_tagger' in params and params['qg_tagger']:
-
-                taggerPayload = 'QGL_%sPF%s' % (algo, pu_method.lower())
-
-                setattr(process, 'QGTagger%s' % postfix, process.QGTagger.clone(
-                        srcJets = cms.InputTag(jetCollection),
-                        jetsLabel = cms.string(taggerPayload)))
-
-                applyPostfix(process, "patJets", postfix).userData.userFloats.src += ['QGTagger%s:qgLikelihood' % postfix]
+#            if 'qg_tagger' in params and params['qg_tagger']:
+#
+ #               taggerPayload = 'QGL_%sPF%s' % (algo, pu_method.lower())
+#
+ #               setattr(process, 'QGTagger%s' % postfix, process.QGTagger.clone(
+  #                      srcJets = cms.InputTag(jetCollection),
+   #                     jetsLabel = cms.string(taggerPayload)))
+#
+ #               applyPostfix(process, "patJets", postfix).userData.userFloats.src += ['QGTagger%s:qgLikelihood' % postfix]
 
     ######################
     ### MUONS ISOLATION ##
     ######################
-
+    """
     # Compute PF-weighted and PUPPI-weighted isolation
     # See https://twiki.cern.ch/twiki/bin/viewauth/CMS/MuonIsolationForRun2 for details
 
@@ -310,6 +260,7 @@ def createProcess(isMC, ## isMC flag
     ### Standard TypeI correction
     ######
 
+    """ 
     from CommonTools.RecoAlgos.pfJetSelector_cfi import pfJetSelector
 
     if not hasattr(process, 'ak4PFJets'):
@@ -364,7 +315,7 @@ def createProcess(isMC, ## isMC flag
              src = 'pfMetCHS',
              srcCorrections = [ cms.InputTag("corrPfMetType1CHS","type1") ]
         )
- 
+    """ 
      ## create the Path
     process.jmfw_analyzers = cms.Sequence()
     process.p = cms.Path(process.jmfw_analyzers)
@@ -398,37 +349,18 @@ def createProcess(isMC, ## isMC flag
                   srcTaus = "slimmedTaus", 
                   tauTypeID = tauTypeID, 
                   doTauCleaning = True,
-                  jetCollectionPF    = "selectedPatJetsAK4PF", 
+                  jetCollectionPF    = "slimmedJets",#"selectedPatJetsAK4PF", 
                   dRCleaning = 0.3, 
                   jetPtCut = jetPtCut, 
                   jetEtaCut = 5.,
                   etaCutForMetDiagnostic = etaCutForMetDiagnostic,
-                  genJetCollection = "ak4GenJetsNoNu",
+                  #genJetCollection = "ak4GenJetsNoNu",
                   cleanGenJets = True,
                   applyZSelections = applyZSelections, 
                   applyWSelections = applyWSelections
                   )
  
  
-    ######## add other specific set of particles and MET collections, in this case not TypeI corrected, but we will still use the same workflow    
-    ## all charge particles from PUPPI : hadrons + leptons (e,mu,tau) --> trak met
-    ## particles for chs 
- 
-    """
-    process.pfChargedPV = cms.EDFilter("CandPtrSelector",
-                                       src = cms.InputTag("chs"),
-                                       cut = cms.string("pt > 0  && charge!=0 && abs(eta) < %f"%etaCutForMetDiagnostic))
-
-    process.pfNeutrals = cms.EDFilter("CandPtrSelector",
-                                      src = cms.InputTag("chs"),
-                                      cut = cms.string("pt > 0 && charge == 0 && abs(eta) < %f"%etaCutForMetDiagnostic))
-
- 
-    process.pfChargedPU = cms.EDFilter("CandPtrSelector",
-                                      cut = cms.string('!fromPV && abs(eta) < %f'%etaCutForMetDiagnostic),
-                                      src = cms.InputTag("packedPFCandidates")
-                                      )
-    """
     # Run
     if isMC:
         process.run = cms.EDAnalyzer('RunAnalyzer')
@@ -439,14 +371,14 @@ def createProcess(isMC, ## isMC flag
     setattr(process, "PUPPET", 
             cms.EDAnalyzer('PUPPETAnalyzer',
                            isMC      = cms.bool(isMC),
-                           srcJet    = cms.InputTag("selectedPatJetsAK4PFCleaned"),
-                           srcJetPF  = cms.InputTag("selectedPatJetsAK4PFCleaned"),
+                           srcJet    = cms.InputTag("slimmedJetsCleaned"),#"selectedPatJetsAK4PFCleaned"),
+                           srcJetPF  = cms.InputTag("slimmedJetsCleaned"),#"selectedPatJetsAK4PFCleaned"),
                            srcVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
                            srcZboson = cms.InputTag("mvaMET","ZtagBoson"),
                            srcLeptons = cms.InputTag("LeptonMerge"),
                            srcGenMet = cms.InputTag("slimmedMETs","","PAT"),
                            srcGenJets          = cms.InputTag("slimmedGenJets","","PAT"),
-                           srcGenJetsCleaned   = cms.InputTag("selectedPatak4GenJetsNoNuCleaned"),
+                           srcGenJetsCleaned   = cms.InputTag("slimmedGenJets", "", "PAT"),
                            srcGenParticles     = cms.InputTag("prunedGenParticles","","PAT"),
                            srcGenEventInfo     = cms.InputTag("generator"),
 

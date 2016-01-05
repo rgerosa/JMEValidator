@@ -94,8 +94,8 @@ config.Data.publication = False
 config.section_('User')
 config.section_('Site')
 config.Site.storageSite = 'T2_DE_DESY'
-config.Data.outLFNDirBase = '/store/user/rfriese/mvamet/skimming/2015-11-09/'
-config.General.workArea = '/nfs/dust/cms/user/rfriese/crab_mvamet_skim-2015-11-09'
+config.Data.outLFNDirBase = '/store/user/rfriese/mvamet/skimming/2016-01-05/'
+config.General.workArea = '/nfs/dust/cms/user/rfriese/crab_mvamet_skim-2016-01-05'
 
 
 #  LocalWords:  MINIAODSIM

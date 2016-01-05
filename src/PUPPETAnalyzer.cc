@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
 //
 // PUPPETAnalyzer
 // ------------------
@@ -44,9 +44,9 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
     srcGenJets_ = iConfig.getParameter<edm::InputTag>("srcGenJets");
   else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input gen jet collection not given \n";
 
-  if (iConfig.existsAs<edm::InputTag>("srcGenJetsCleaned"))
-    srcGenJetsCleaned_ = iConfig.getParameter<edm::InputTag>("srcGenJetsCleaned");
-  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input gen jet cleaned collection not given \n";
+//  if (iConfig.existsAs<edm::InputTag>("srcGenJetsCleaned"))//    srcGenJetsCleaned_ = iConfig.getParameter<edm::InputTag>("srcGenJetsCleaned");
+//    srcGenJetsCleaned_ = iConfig.getParameter<edm::InputTag>("srcGenJetsCleaned");
+//  else throw cms::Exception("Configuration")<<"[PUPPETAnalyzer] input gen jet cleaned collection not given \n";
 
   if (iConfig.existsAs<edm::InputTag>("srcGenMet"))
     srcGenMet_ = iConfig.getParameter<edm::InputTag>("srcGenMet");
@@ -98,8 +98,8 @@ PUPPETAnalyzer::PUPPETAnalyzer(const edm::ParameterSet& iConfig):
   if(!(srcGenJets_ == edm::InputTag("")) and isMC_)
     srcGenJetsToken_ = consumes<reco::GenJetCollection>(srcGenJets_);
 
-  if(!(srcGenJetsCleaned_ == edm::InputTag("")) and isMC_)
-    srcGenJetsCleanedToken_ = consumes<pat::JetCollection>(srcGenJetsCleaned_);
+//  if(!(srcGenJetsCleaned_ == edm::InputTag("")) and isMC_)
+//    srcGenJetsCleanedToken_ = consumes<pat::JetCollection>(srcGenJetsCleaned_);
 
   if(!(srcGenMet_ == edm::InputTag("")) and isMC_)
     srcGenMetToken_ = consumes<pat::METCollection>(srcGenMet_);
@@ -272,11 +272,11 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
     edm::Handle<reco::GenJetCollection> GenJetsHandle;
     iEvent.getByToken(srcGenJetsToken_, GenJetsHandle);
     
-    edm::Handle<pat::JetCollection> GenJetsCleanedHandle;
-    iEvent.getByToken(srcGenJetsCleanedToken_, GenJetsCleanedHandle);
+//    edm::Handle<pat::JetCollection> GenJetsCleanedHandle;
+//    iEvent.getByToken(srcGenJetsCleanedToken_, GenJetsCleanedHandle);
     
     NGenJets_        = GenJetsHandle->size();
-    NGenJetsCleaned_ = GenJetsHandle->size();
+    //NGenJetsCleaned_ = GenJetsHandle->size();
 
     for( auto GenJet : *GenJetsHandle){     
       if(ijet == 0){
@@ -298,23 +298,23 @@ void PUPPETAnalyzer::analyze(const edm::Event& iEvent,
     
     ijet = 0;
     
-    for( auto GenJet : *GenJetsCleanedHandle){     
-      if(ijet == 0){
-	GenLeadingJetCleaned_Pt_  = GenJet.pt();
-	GenLeadingJetCleaned_Eta_ = GenJet.eta();
-	GenLeadingJetCleaned_Phi_ = GenJet.phi();
-	GenLeadingJetCleaned_M_   = GenJet.mass();
-	ijet++;
-	continue;
-      }
-      else if(ijet == 1){
-	GenTrailingJetCleaned_Pt_  = GenJet.pt();
-	GenTrailingJetCleaned_Eta_ = GenJet.eta();
-	GenTrailingJetCleaned_Phi_ = GenJet.phi();
-	GenTrailingJetCleaned_M_   = GenJet.mass();
-	break;
-      }
-    }
+//    for( auto GenJet : *GenJetsCleanedHandle){     
+ //     if(ijet == 0){
+//	GenLeadingJetCleaned_Pt_  = GenJet.pt();
+//	GenLeadingJetCleaned_Eta_ = GenJet.eta();
+//	GenLeadingJetCleaned_Phi_ = GenJet.phi();
+//	GenLeadingJetCleaned_M_   = GenJet.mass();
+//	ijet++;
+//	continue;
+ //     }
+//      else if(ijet == 1){
+//	GenTrailingJetCleaned_Pt_  = GenJet.pt();
+//	GenTrailingJetCleaned_Eta_ = GenJet.eta();
+//	GenTrailingJetCleaned_Phi_ = GenJet.phi();
+//	GenTrailingJetCleaned_M_   = GenJet.mass();
+//	break;
+ //     }
+  //  }
 
 
     edm::Handle<std::vector<pat::MET>> GenMetHandle;

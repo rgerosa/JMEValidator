@@ -29,7 +29,7 @@ def runMVAPUPPET(process,
                  srcTaus = "slimmedTaus",
                  tauTypeID = "Loose",
                  doTauCleaning = True,
-                 jetCollectionPF    = "selectedPatJetsAK4PF" , 
+                 jetCollectionPF    = "slimmedJets",#"selectedPatJetsAK4PF" , 
                  dRCleaning= 0.3, 
                  jetPtCut = 10, 
                  jetEtaCut =5.,
@@ -280,7 +280,7 @@ def runMVAPUPPET(process,
 
 
     ## jet lepton cleaning
-    setattr(getattr(process,jetCollectionPF),"cut",cms.string('pt > %f'%jetPtCut))
+    #setattr(getattr(process,jetCollectionPF),"cut",cms.string('pt > %f'%jetPtCut))
 
     cleanJetsFromLeptons(process,
                          label = "Cleaned",
@@ -392,8 +392,8 @@ def runMVAPUPPET(process,
     patMETsForMVA = patMETs.clone()
     patMETsForMVA.computeMETSignificance = cms.bool(True)
     patMETsForMVA.addGenMET = cms.bool(False)
-    patMETsForMVA.srcJets = cms.InputTag("selectedPatJetsAK4PF")
-    patMETsForMVA.srcLeptons = cms.InputTag("selectedPatJetsAK4PF")
+    patMETsForMVA.srcJets = cms.InputTag(jetCollectionPF)
+    #patMETsForMVA.srcLeptons = cms.InputTag("selectedPatJetsAK4PF")
     setattr(patMETsForMVA,"srcLeptons", cms.VInputTag(srcMuons+muonTypeID,srcElectrons+electronTypeID,srcTaus+tauTypeID+"Cleaned"))
 
     for met in ["pfMET", "pfTrackMET", "pfNoPUMET", "pfPUCorrectedMET", "pfPUMET"]:
