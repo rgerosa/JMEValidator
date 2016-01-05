@@ -354,7 +354,6 @@ def runMVAPUPPET(process,
                                        )
     #### Neutrals in Jets passing PU Jet ID
     #### and Neutrals in Jets not passing PU Jet ID
-    ### TODO: unclustered Neutrals
     process.neutralInJets = cms.EDProducer("neutralCandidatePUIDJets",
                                            srcJets = cms.InputTag(jetCollectionPF+"Cleaned"),
                                            srcCandidates = cms.InputTag("pfNeutrals"),
