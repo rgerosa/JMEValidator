@@ -5,8 +5,6 @@ from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import applyMuonID
 from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import applyElectronID
 from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import applyTauID
 from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import cleanJetsFromLeptons
-#from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import cleanGenJetsFromGenLeptons
-#from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
 from RecoMET.METProducers.PFMET_cfi import pfMet
 from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import corrPfMetType1
 from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1
@@ -38,7 +36,6 @@ def runMVAPUPPET(process,
                  etaCutForMetDiagnostic = 10.,
                  applyTypeICorrection = True, 
                  applyZSelections = True,
-                 applyWSelections = False,
                  putRecoilInsideEvent = True
                  ):
 
@@ -113,13 +110,6 @@ def runMVAPUPPET(process,
 
 
     ############
-    ############
-
-    if applyZSelections and applyWSelections:
-        sys.exit("Z and W selections cannot be applied at the same time --> exit");
-
-    if not applyZSelections and not applyWSelections:
-        sys.exit("Z and W selections cannot be false at the same time --> exit");
 
     ##### apply Z selection ######
     if applyZSelections :
@@ -185,102 +175,9 @@ def runMVAPUPPET(process,
                                                          ))
         process.jmfw_analyzers += getattr(process,"LeptonMergeFilter");
 
-    if applyWSelections:
-
-        if tauTypeID != "" :
-            setattr(process,"LeptonMerge", cms.EDProducer("CandViewMerger",
-                                                          src = cms.VInputTag(srcMuons+muonTypeID,srcElectrons+electronTypeID,srcTaus+tauTypeID+"Cleaned")))
-
-        else:
-            setattr(process,"LeptonMerge", cms.EDProducer("CandViewMerger",
-                                                          src = cms.VInputTag(srcMuons+muonTypeID,srcElectrons+electronTypeID)))
-
-        process.jmfw_analyzers += getattr(process,"LeptonMerge");
-            
-        setattr(process,"LeptonMergeFilter",cms.EDFilter("PATCandViewCountFilter",
-                                                         minNumber = cms.uint32(1),
-                                                         maxNumber = cms.uint32(1),
-                                                         src = cms.InputTag("LeptonMerge")
-                                                         ))
-
-        process.jmfw_analyzers += getattr(process,"LeptonMergeFilter");
-            
-
-        #### run loose muon selection
-        if len(iso_map_muons) < 3 :
-        
-            applyMuonID(process, 
-                        src   = srcMuons,
-                        label = "Loose", 
-                        iso_map_charged_hadron  = '',
-                        iso_map_neutral_hadron  = '',
-                        iso_map_photon          = '',
-                        typeIso                 = typeIsoMuons,
-                        relativeIsolationCutVal = relativeIsoCutMuonsLoose
-                    )
-        else:
-
-            applyMuonID(process, 
-                        src   = srcMuons, 
-                        label = "Loose", 
-                        iso_map_charged_hadron  = iso_map_muons[0],
-                        iso_map_neutral_hadron  = iso_map_muons[1],
-                        iso_map_photon          = iso_map_muons[2],
-                        rho = 'fixedGridRhoFastjetAll',
-                        typeIso                 = typeIsoMuons,
-                        relativeIsolationCutVal = relativeIsoCutMuonsLoose
-                        )
-
-
-        ### run Electron ID
-        if len(iso_map_electrons) < 3 :
-            applyElectronID(process, 
-                            label = "Loose", 
-                            src   = srcElectrons,
-                            iso_map_charged_hadron  = '',
-                            iso_map_neutral_hadron  = '',
-                            iso_map_photon          = '',
-                            typeIso = typeIsoElectrons,
-                            electron_id_map = electronID_map_loose,
-                            relativeIsolationCutVal = relativeIsoCutEletronsLoose
-                            )
-        else:
-            applyElectronID(process, 
-                            label = "Loose", 
-                            src   = srcElectrons,
-                            iso_map_charged_hadron  = iso_map_electrons[0],
-                            iso_map_neutral_hadron  = iso_map_electrons[1],
-                            iso_map_photon          = iso_map_electrons[2],
-                            typeIso = typeIsoElectrons,
-                            electron_id_map = electronID_map_loose,
-                            relativeIsolationCutVal = relativeIsoCutEletronsLoose
-                            )
-
-
-
-        #### loose lepton veto
-        if tauTypeID != "" :
-            setattr(process,"LeptonMergeLoose", cms.EDProducer("CandViewMerger",
-                                                               src = cms.VInputTag(srcMuons+"Loose",srcElectrons+"Loose",srcTaus+tauTypeID+"Cleaned")))
-
-        else:
-            setattr(process,"LeptonMergeLoose", cms.EDProducer("CandViewMerger",
-                                                               src = cms.VInputTag(srcMuons+"Loose",srcElectrons+"Loose")))
-
-        process.jmfw_analyzers += getattr(process,"LeptonMergeLoose");
-            
-        setattr(process,"LeptonMergeFilterLoose",cms.EDFilter("PATCandViewCountFilter",
-                                                              minNumber = cms.uint32(1),
-                                                              maxNumber = cms.uint32(1),
-                                                              src = cms.InputTag("LeptonMerge")
-                                                              ))
-
-        process.jmfw_analyzers += getattr(process,"LeptonMergeFilterLoose");
-        
 
 
     ## jet lepton cleaning
-    #setattr(getattr(process,jetCollectionPF),"cut",cms.string('pt > %f'%jetPtCut))
 
     cleanJetsFromLeptons(process,
                          label = "Cleaned",
@@ -294,51 +191,6 @@ def runMVAPUPPET(process,
 
 
 
-    ## clean also the related Gen Jet Collection                                                                                                                        
-    """
-    if isMC and cleanGenJets:
-        process.packedGenLeptons = cms.EDFilter("CandPtrSelector",
-                                                cut = cms.string('(abs(pdgId) = 11 || abs(pdgId) = 13) && pt > 10'),
-                                                src = cms.InputTag("packedGenParticles")
-                                                )
- 
-
-        setattr(process,"pat"+genJetCollection, cms.EDProducer("PATJetProducer",
-                                                            jetSource = cms.InputTag(genJetCollection),
-                                                            addJetCorrFactors = cms.bool(False),
-                                                            addJetCharge = cms.bool(False),
-                                                            addGenJetMatch = cms.bool(False),
-                                                            embedGenJetMatch = cms.bool(False),
-                                                            addAssociatedTracks = cms.bool(False),
-                                                            addBTagInfo = cms.bool(False),
-                                                            partonJetSource = cms.InputTag("NOT_IMPLEMENTED"),
-                                                            addGenPartonMatch = cms.bool(False),
-                                                            addTagInfos = cms.bool(False),
-                                                            addPartonJetMatch = cms.bool(False),
-                                                            embedGenPartonMatch = cms.bool(False),
-                                                            useLegacyJetMCFlavour = cms.bool(False),
-                                                            addEfficiencies = cms.bool(False),
-                                                            embedPFCandidates = cms.bool(False),
-                                                            addJetFlavourInfo = cms.bool(False),
-                                                            addResolutions = cms.bool(False),
-                                                            getJetMCFlavour = cms.bool(False),
-                                                            addDiscriminators = cms.bool(False),
-                                                            addJetID = cms.bool(False)
-                                                            ))
-
-        setattr(process,"selectedPat"+genJetCollection,cms.EDFilter("PATJetSelector",
-                                                                    cut = cms.string('pt > %f'%jetPtCut),
-                                                                    src = cms.InputTag("pat"+genJetCollection)
-                                                                    ))
-        
-        cleanGenJetsFromGenLeptons (process,
-                                    jetCollection       = "selectedPat"+genJetCollection,
-                                    genLeptonCollection = "packedGenLeptons",
-                                    jetPtCut         = jetPtCut,
-                                    jetEtaCut        = jetEtaCut,
-                                    dRCleaning       = dRCleaning)
-
-    """
     #### Input definitions like in classic MVA MET
     #### tracks from PV
     process.pfChargedPV = cms.EDFilter("CandPtrSelector",
@@ -367,9 +219,6 @@ def runMVAPUPPET(process,
   
 
     #### Merge collections to produce corresponding METs
-    #### PF MET
-    #process.pfMETCands = cms.EDProducer("CandViewMerger", src = cms.VInputTag("pfAllChargedParticles",cms.InputTag("packedPFCandidates"))
-    #process.pfMETCands = cms.EDProducer("CandViewMerger", src = cms.VInputTag(            cms.InputTag("packedPFCandidates")))
     process.pfMETCands = cms.EDProducer("CandViewMerger", src = cms.VInputTag(          
                                                                                           cms.InputTag("pfChargedPV"),
                                                                                           cms.InputTag("pfChargedPU"),

@@ -3,62 +3,6 @@ import sys
 
 from PhysicsTools.PatAlgos.tools.tauTools import *
 
-def get_cone_size(algo):
-    import re
-    cone_size = re.search('(\d+)$', algo)
-    if cone_size is None:
-        raise ValueError('Cannot extract cone size from algorithm name')
-    
-    return int(cone_size.group(1))
-
-def get_jec_payload(algo, pu_method):
-    
-    # FIXME: Until PUPPI and SK payloads are in the GT, use CHS corrections
-    jec_payloads = {
-                #'Puppi': 'AK%dPFPuppi',
-                'CHS': 'AK%dPFchs',
-                #'SK': 'AK%dPFchs',
-                '': 'AK%dPF',
-                }
-    
-    
-    cone_size = get_cone_size(algo)
-    
-    if not pu_method in jec_payloads:
-        print('WARNING: JEC payload not found for method %r. Using default one.' % pu_method)
-        return 'None'
-    
-    return jec_payloads[pu_method] % cone_size
-
-def get_jec_levels(pu_method, isMC = True, useJECFromDB = False):
-
-    if isMC :
-
-            jec_levels = {
-                #'Puppi': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                'CHS': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                #'SK': ['L2Relative', 'L3Absolute'],
-                '': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                }
-
-    else:
-
-        jec_levels = {
-            #'Puppi': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual'],
-            'CHS': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual'],
-            #'SK': ['L2Relative', 'L3Absolute','L2L3Residual'],
-            '': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual'],
-            }
-    
-        
-    if not pu_method in jec_levels:
-        print('WARNING: JEC levels not found for method %r. Using default ones.' % pu_method)
-        return ['None']
-    
-    return jec_levels[pu_method]
-
-
-
 def createProcess(isMC, ## isMC flag
                   processName,
                   globalTag, ## global tag
@@ -82,132 +26,6 @@ def createProcess(isMC, ## isMC flag
     #! Input
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    # Jet corrections
-    #process.load('JetMETCorrections.Configuration.JetCorrectorsAllAlgos_cff')
-    """ 
-    # QG tagger
-    process.load('RecoJets.JetProducers.QGTagger_cfi')
-    # tool box
-    from JMEAnalysis.JetToolbox.jetToolbox_cff import jetToolbox
-    # manipulate post fix
-    from PhysicsTools.PatAlgos.tools.helpers   import loadWithPostfix, applyPostfix
-
-
-    #######################
-    ### JET COLLECTIONS ###
-    #######################
-
-    if isMC:
-        
-        jetsCollections = {
-            'AK4': {
-                'algo': 'ak4',
-                'pu_methods': ['CHS', ''],
-                'jec_payloads': ['AK4PFchs', 'AK4PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute'],
-                'pu_jet_id': True,
-                'qg_tagger': True,
-                },
-            }
-        
-    else:
-
-        jetsCollections = {
-            'AK4': {
-                'algo': 'ak4',
-                'pu_methods': ['CHS', ''],
-                'jec_payloads': ['AK4PFchs', 'AK4PF'],
-                'jec_levels': ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual'],
-                'pu_jet_id': True,
-                'qg_tagger': True,
-                },
-            }
-
-
-
-    ## loop on the jet collections : generic container just defined by clustering algorithm and cone dimension
-    for name, params in jetsCollections.items():
-        ## loop on the pileup methos
-        for index, pu_method in enumerate(params['pu_methods']):
-            # Add the jet collection
-
-            jec_payload = get_jec_payload(params['algo'], pu_method)
-            jec_levels  = get_jec_levels(pu_method,isMC,useJECFromLocalDB)
-            print jec_payload
-            print jec_levels
-            jetToolbox(process, params['algo'], 'dummy', 'out', runOnMC=isMC, PUMethod = pu_method, JETCorrPayload = jec_payload, JETCorrLevels = jec_levels, addPUJetID = True)
-
-            algo          = params['algo'].upper()
-            jetCollection = '%sPFJets%s' % (params['algo'], pu_method)
-            postfix       = '%sPF%s' % (algo, pu_method)
-            if params['pu_jet_id']:
-
-                # PU jet Id  .. the pileup jet id is run at posteriori since it does not work in the jet tool box for puppi and SK jets
-                loadWithPostfix(process, 'RecoJets.JetProducers.pileupjetidproducer_cfi', postfix)
-                applyPostfix(process, "pileupJetIdEvaluator", postfix).jets      = cms.InputTag(jetCollection)
-                applyPostfix(process, "pileupJetIdCalculator", postfix).jets     = cms.InputTag(jetCollection)
-                applyPostfix(process, "pileupJetIdEvaluator", postfix).rho       = cms.InputTag("fixedGridRhoFastjetAll")
-                applyPostfix(process, "pileupJetIdEvaluator", postfix).vertexes  = cms.InputTag("offlineSlimmedPrimaryVertices")
-                applyPostfix(process, "pileupJetIdCalculator", postfix).rho      = cms.InputTag("fixedGridRhoFastjetAll")
-                applyPostfix(process, "pileupJetIdCalculator", postfix).vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
-
-                # Add informations as userdata: easily accessible
-                applyPostfix(process, 'patJets', postfix).userData.userFloats.src += ['pileupJetIdEvaluator%s:fullDiscriminant' % postfix]
-                applyPostfix(process, 'patJets', postfix).userData.userInts.src   += ['pileupJetIdEvaluator%s:cutbasedId' % postfix, 'pileupJetIdEvaluator%s:fullId' % postfix]
-
-
-            # Quark / gluon discriminator
-#            if 'qg_tagger' in params and params['qg_tagger']:
-#
- #               taggerPayload = 'QGL_%sPF%s' % (algo, pu_method.lower())
-#
- #               setattr(process, 'QGTagger%s' % postfix, process.QGTagger.clone(
-  #                      srcJets = cms.InputTag(jetCollection),
-   #                     jetsLabel = cms.string(taggerPayload)))
-#
- #               applyPostfix(process, "patJets", postfix).userData.userFloats.src += ['QGTagger%s:qgLikelihood' % postfix]
-
-    ######################
-    ### MUONS ISOLATION ##
-    ######################
-    """
-    # Compute PF-weighted and PUPPI-weighted isolation
-    # See https://twiki.cern.ch/twiki/bin/viewauth/CMS/MuonIsolationForRun2 for details
-
-    ## Create PF candidate collections from packed PF candidates Using CHS
-    """
-    process.pfPileUpIso   = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV <= 1")) ## cut away PV particles
-    process.pfNoPileUpIso = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV > 1"))  ## take particles from PV only
-
-    process.pfAllPhotons        = cms.EDFilter("CandPtrSelector", src = cms.InputTag("pfNoPileUpIso"), cut = cms.string("pdgId == 22"))
-    process.pfAllNeutralHadrons = cms.EDFilter("CandPtrSelector", src = cms.InputTag("pfNoPileUpIso"), 
-                                               cut = cms.string("pdgId == 111 || pdgId == 130 || pdgId == 310 || pdgId == 2112"))
-    
-    process.pfAllChargedParticles = cms.EDFilter("CandPtrSelector",src = cms.InputTag("pfNoPileUpIso"),
-                                                 cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 2212 || pdgId == -2212 || pdgId == 11 || pdgId == -11 || pdgId == 13 || pdgId == -13"))
-    process.pfAllChargedHadrons   = cms.EDFilter("CandPtrSelector",src = cms.InputTag("pfNoPileUpIso"), 
-                                                 cut = cms.string("pdgId == 211 || pdgId == -211 || pdgId == 321 || pdgId == -321 || pdgId == 999211 || pdgId == 2212 || pdgId == -2212"))
-    process.pfPileUpAllChargedParticles = process.pfAllChargedParticles.clone( src = 'pfPileUpIso')
-    
-    """
-    ## Create pf weighted collections
-    process.load('CommonTools.ParticleFlow.deltaBetaWeights_cff')
-
-    ## Create isoDeposits with the newly created pf particles collections.
-    """
-    from JMEAnalysis.JMEValidator.MuonIsolationTools import load_muonPFiso_sequence
-
-    ### PF weighted isolation
-    load_muonPFiso_sequence(process, 
-                            'MuonPFIsoSequencePFWGT', 
-                            algo = 'R04PFWGT',
-                            src = "slimmedMuons",
-                            src_neutral_hadron = 'pfWeightedNeutralHadrons',
-                            src_photon         = 'pfWeightedPhotons',
-                            coneR = muonIsoCone
-                            )
-    
-    """
     ###########################
     ## Electrons and photons ##
     ###########################
@@ -233,7 +51,6 @@ def createProcess(isMC, ## isMC flag
     
             
     # Create METs from CHS and PUPPI
-    #from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
 
     ## Raw PF METs
     etaCutForMetDiagnostic = 100
@@ -262,62 +79,6 @@ def createProcess(isMC, ## isMC flag
     ### Standard TypeI correction
     ######
 
-    """ 
-    from CommonTools.RecoAlgos.pfJetSelector_cfi import pfJetSelector
-
-    if not hasattr(process, 'ak4PFJets'):
-        print("WARNING: No AK4 jets produced. Type 1 corrections for MET are not available.")
-    else:        
-
-        
-        process.ak4PFJetsForTypeI = pfJetSelector.clone(
-            src = cms.InputTag( "ak4PFJets" ),
-            cut = cms.string( "abs(eta)< %f"%(etaCutForMetDiagnostic) )
-                )
-        
-        if isMC :
-
-            process.corrPfMetType1 = corrPfMetType1.clone(
-                src = 'ak4PFJetsForTypeI',
-                jetCorrLabel = 'ak4PFL1FastL2L3Corrector',
-                offsetCorrLabel = 'ak4PFL1FastjetCorrector',
-                )
-        else:
-
-            process.corrPfMetType1 = corrPfMetType1.clone(
-                src = 'ak4PFJetsForTypeI',
-                jetCorrLabel = 'ak4PFL1FastL2L3ResidualCorrector',
-                offsetCorrLabel = 'ak4PFL1FastjetCorrector',
-                )
-            
-    ### CHS TypeI corrected
-    if not hasattr(process, 'ak4PFJetsCHS'):
-        print("WARNING: No AK4 CHS jets produced. Type 1 corrections for CHS MET are not available.")
-    else:
-
-        process.ak4PFJetsCHSForTypeI = pfJetSelector.clone(
-            src = cms.InputTag( "ak4PFJetsCHS" ),
-            cut = cms.string( "abs(eta)<%f"%(etaCutForMetDiagnostic) )
-            )
-
-        if isMC:
-            process.corrPfMetType1CHS = corrPfMetType1.clone(
-                src             = 'ak4PFJetsCHSForTypeI',
-                jetCorrLabel    = 'ak4PFCHSL1FastL2L3Corrector',
-                offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
-                )
-        else:
-            process.corrPfMetType1CHS = corrPfMetType1.clone(
-                src             = 'ak4PFJetsCHSForTypeI',
-                jetCorrLabel    = 'ak4PFCHSL1FastL2L3ResidualCorrector',
-                offsetCorrLabel = 'ak4PFCHSL1FastjetCorrector'
-                )
-             
-        process.pfMetT1CHS = pfMetT1.clone(
-             src = 'pfMetCHS',
-             srcCorrections = [ cms.InputTag("corrPfMetType1CHS","type1") ]
-        )
-    """ 
      ## create the Path
     process.jmfw_analyzers = cms.Sequence()
     process.p = cms.Path(process.jmfw_analyzers)
@@ -351,12 +112,11 @@ def createProcess(isMC, ## isMC flag
                   srcTaus = "slimmedTaus", 
                   tauTypeID = tauTypeID, 
                   doTauCleaning = True,
-                  jetCollectionPF    = "slimmedJets",#"selectedPatJetsAK4PF", 
+                  jetCollectionPF    = "slimmedJets",
                   dRCleaning = 0.3, 
                   jetPtCut = jetPtCut, 
                   jetEtaCut = 5.,
                   etaCutForMetDiagnostic = etaCutForMetDiagnostic,
-                  #genJetCollection = "ak4GenJetsNoNu",
                   cleanGenJets = True,
                   applyZSelections = applyZSelections, 
                   applyWSelections = applyWSelections
@@ -373,8 +133,8 @@ def createProcess(isMC, ## isMC flag
     setattr(process, "PUPPET", 
             cms.EDAnalyzer('PUPPETAnalyzer',
                            isMC      = cms.bool(isMC),
-                           srcJet    = cms.InputTag("slimmedJetsCleaned"),#"selectedPatJetsAK4PFCleaned"),
-                           srcJetPF  = cms.InputTag("slimmedJetsCleaned"),#"selectedPatJetsAK4PFCleaned"),
+                           srcJet    = cms.InputTag("slimmedJetsCleaned"),
+                           srcJetPF  = cms.InputTag("slimmedJetsCleaned"),
                            srcVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
                            srcZboson = cms.InputTag("mvaMET","ZtagBoson"),
                            srcLeptons = cms.InputTag("LeptonMerge"),
