@@ -1,0 +1,103 @@
+{
+    "analysis_modules": [
+        "FunctionPlot"
+    ], 
+    "colors": [
+        "darkblue", 
+        "darkgreen", 
+        "darkred", 
+        "royalblue", 
+        "lime"
+    ], 
+    "dict": true, 
+    "filename": "performance_plot2aProf", 
+    "files": [
+        "/afs/desy.de/user/r/rfriese/mvamet/MVAMet/GBRTrain/data/v2p1/pu-weight/DY.root"
+    ], 
+    "fit_backend": "ROOT", 
+    "folders": [
+        "Flat"
+    ], 
+    "formats": [
+        "png"
+    ], 
+    "function_fit": [
+        "not"
+    ], 
+    "function_nicknames": null, 
+    "function_parameters": [
+        "0,0"
+    ], 
+    "function_ranges": [
+        "0,300"
+    ], 
+    "functions": [
+        "1"
+    ], 
+    "input_module": "InputRoot", 
+    "labels": [
+        "PF",
+        "Track",
+        "NoPU",
+        "PU Corrected",
+        "PU",
+        "MVA MET"
+    ]
+    "line_styles": [
+        "-"
+    ], 
+    "markers": [
+        "."
+    ], 
+    "plot_modules": "PlotMpl", 
+    "tree_draw_options": [
+        "prof"
+    ], 
+    "weights": [
+        "1", 
+        "(weight>0)-(weight<0)", 
+        "(weight>0)-(weight<0)", 
+        "1", 
+        "(weight>0)-(weight<0)"
+    ], 
+    "x_bins": [
+        "25,5,250"
+    ], 
+    "x_errors": [
+        false
+    ], 
+    "x_expressions": [
+        "z_pT"
+    ], 
+    "x_label": "$p_t^Z \\mathrm{(GeV)}$", 
+    "x_lims": [
+        0.0, 
+        250.0
+    ], 
+    "y_errors": [
+        true
+    ], 
+    "y_expressions": [
+        "particleFlowUpdate_Upar/-z_pT", 
+        "particleFlowUpdate_Upar/-z_pT", 
+        "RecoilCor_Upar/-z_pT", 
+        "RecoilCor_Upar/-z_pT", 
+        "RecoilCor_Upar/-z_pT"
+    ], 
+    "y_label": "$<u_{\\parallel}-p_T^Z>$ (scale)", 
+    "y_lims": [
+        0.5, 
+        1.5
+    ], 
+    "y_ticks": [
+        0.6, 
+        0.7, 
+        0.8, 
+        0.9, 
+        1.0, 
+        1.1, 
+        1.2, 
+        1.3, 
+        1.4
+    ]
+}

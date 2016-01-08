@@ -1,0 +1,82 @@
+{
+    "analysis_modules": [
+        "ProjectByFit"
+    ], 
+    "dict": true, 
+    "filename": "Transverse_Resolution_pt", 
+    "files": [
+        "/afs/desy.de/user/r/rfriese/dust/classicMVAMET/output1.root"
+    ], 
+    "fit_backend": [
+        "ROOT"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "labels": [
+        "PF", 
+        "PF CHS", 
+        "PF ChargedPVNeutralPVPUJetID", 
+        "PF ChargedPUNeutralPUPUJetID", 
+        "PF ChargedPVNeutralPV", 
+        "PUPPI",
+        "MVA MET"
+    ], 
+    "line_styles": [
+        "-"
+    ], 
+    "log_level": "debug", 
+    "markers": [
+        "."
+    ], 
+    "projection_function": [
+        "gaus"
+    ], 
+    "projection_parameters": [
+        "1000,10,10"
+    ], 
+    "projection_to_nick": [
+        "nick0", 
+        "nick1", 
+        "nick2",
+        "nick3",
+        "nick4",
+        "nick5",
+        "nick6"
+    ], 
+    "projection_to_plot": [
+        "2"
+    ], 
+	"y_lims" : [0,40],
+	"friend_filenames" : ["LongZCorrectedRecoil.root"],
+	"friend_treenames" : ["LongZCorrectedRecoil"],
+    "weights": [
+        "Boson_daughter==13"
+    ], 
+    "x_bins": [
+        "20,0,200"
+    ], 
+    "x_errors": [
+        false
+    ], 
+    "x_expressions": [
+        "Boson_Pt"
+    ], 
+    "x_label": "$p_T^Z$", 
+    "y_bins": [
+        "50,-100,100"
+    ], 
+    "y_errors": [
+        false
+    ], 
+    "y_expressions": [
+        "recoilPFMet_PerpZ", 
+        "recoilPFCHSMet_PerpZ", 
+        "recoilPFMet_ChargedPVNeutralPVPUJetID_PerpZ", 
+        "recoilPFMet_ChargedPUNeutralPUPUJetID_PerpZ", 
+        "recoilPFMet_ChargedPVNeutralPV_PerpZ",
+        "recoilPFPuppiMet_PerpZ",
+        "LongZCorrectedRecoil_PerpZ"
+    ], 
+    "y_label": "Resolution [GeV]"
+}

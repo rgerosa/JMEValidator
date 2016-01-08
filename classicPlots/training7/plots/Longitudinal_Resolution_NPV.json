@@ -1,0 +1,90 @@
+{
+    "analysis_modules": [
+        "ProjectByFit"
+    ], 
+    "dict": true, 
+    "filename": "Longitudinal_Resolution_NPV", 
+    "files": [
+        "/afs/desy.de/user/r/rfriese/dust/classicMVAMET/output7.root"
+    ], 
+    "fit_backend": [
+        "ROOT"
+    ], 
+    "folders": [
+        "PUPPET/t"
+    ], 
+    "friend_filenames": [
+        "LongZCorrectedRecoil.root"
+    ], 
+    "friend_treenames": [
+        "LongZCorrectedRecoil"
+    ], 
+    "labels": [
+        "PF", 
+        "PF CHS", 
+        "PF ChargedPVNeutralPVPUJetID", 
+        "PF ChargedPUNeutralPUPUJetID", 
+        "PF ChargedPVNeutralPV", 
+        "PUPPI", 
+        "MVA MET"
+    ], 
+    "line_styles": [
+        "-"
+    ], 
+    "log_level": "debug", 
+    "markers": [
+        "."
+    ], 
+    "projection_function": [
+        "gaus"
+    ], 
+    "projection_parameters": [
+        "1000,10,10"
+    ], 
+    "projection_to_nick": [
+        "nick0", 
+        "nick1", 
+        "nick2", 
+        "nick3", 
+        "nick4", 
+        "nick5", 
+        "nick6"
+    ], 
+    "projection_to_plot": [
+        "2"
+    ], 
+    "title": "$p_T^Z > 30 \\mathrm{GeV}$", 
+    "weights": [
+        "Boson_daughter==13&&Boson_Pt>30"
+    ], 
+    "x_bins": [
+        "10,5,25"
+    ], 
+    "x_errors": [
+        false
+    ], 
+    "x_expressions": [
+        "NVertex"
+    ], 
+    "x_label": "NPV", 
+    "y_bins": [
+        "50,-100,100"
+    ], 
+    "y_errors": [
+        false
+    ], 
+    "y_expressions": [
+        "recoilPFMet_LongZ+Boson_Pt", 
+        "recoilPFCHSMet_LongZ+Boson_Pt", 
+        "recoilPFMet_ChargedPVNeutralPVPUJetID_LongZ+Boson_Pt", 
+        "recoilPFMet_ChargedPUNeutralPUPUJetID_LongZ+Boson_Pt", 
+        "recoilPFMet_ChargedPVNeutralPV_LongZ+Boson_Pt", 
+        "recoilPFPuppiMet_LongZ+Boson_Pt", 
+        "LongZCorrectedRecoil_LongZ+Boson_Pt"
+    ], 
+    "y_label": "Resolution [GeV]", 
+    "y_lims": [
+        0, 
+        50
+    ]
+}

@@ -1,0 +1,70 @@
+{
+    "colors": [
+         "black", 
+         "black", 
+         "red", 
+         "red", 
+         "blue", 
+         "blue", 
+         "cyan", 
+         "cyan", 
+         "orange", 
+         "orange", 
+         "green",
+         "green"
+    ], 
+    "filename": "pusumET", 
+    "files": [
+        "/afs/desy.de/user/r/rfriese/dust/classicMVAMET/output5.root", 
+        "/afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/mvaTrainingSample.root"
+    ], 
+    "folders": [
+        "PUPPET/t", 
+        "Flat"
+    ], 
+    "friend_filenames": [
+        "", 
+        "/afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/particleFlowUpdate.root /afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/trackUpdate.root /afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/noPileUpUpdate.root /afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/pileUpCorrectedUpdate.root /afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/pileUpUpdate.root"
+    ], 
+    "friend_treenames": [
+        "", 
+        "particleFlowUpdate trackUpdate noPileUpUpdate pileUpCorrectedUpdate pileUpUpdate"
+    ], 
+    "labels": [
+        "PF", "PF old",
+        "Track", "Track old",
+        "NoPU", "NoPU old", 
+        "PU Corrected",  "PU Corrected old",
+        "PU", "PU old",
+        "PUPPI", "PUPPI old"
+    ], 
+    "legend_cols": 2, 
+    "line_styles": [
+        "-", 
+        "--"
+    ], 
+    "markers": [
+        ",", "+"
+    ], 
+    "weights": [
+        "Boson_daughter==13", 
+        "1"
+    ], 
+    "x_errors": [
+        false
+    ], 
+    "x_bins" : ["100,0,1.2"],
+    "x_expressions": [
+        "recoilpatpfMET_sumEtFraction",             "particleFlow_SumET/particleFlow_SumET", 
+        "recoilpatpfTrackMET_sumEtFraction",        "track_SumET",
+        "recoilpatpfNoPUMET_sumEtFraction",         "noPileUp_SumET",
+        "recoilpatpfPUCorrectedMET_sumEtFraction",   "pileUpCorrected_SumET",
+        "recoilpatpfPUMET_sumEtFraction",           "pileUp_SumET",
+        "recoilslimmedMETsPuppi_sumEtFraction",     "0"
+    ], 
+    "x_label": "$p_T^Z$", 
+    "y_errors": [
+        false
+    ], 
+    "y_label": "$U_{\\parallel}/p_T^Z$"
+}
