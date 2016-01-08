@@ -5,7 +5,7 @@ from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import applyMuonID
 from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import applyElectronID
 from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import applyTauID
 from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import cleanJetsFromLeptons
-from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import cleanGenJetsFromGenLeptons
+#from JMEAnalysis.JMEValidator.LeptonSelectionTools_cff import cleanGenJetsFromGenLeptons
 #from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
 from RecoMET.METProducers.PFMET_cfi import pfMet
 from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import corrPfMetType1
@@ -295,6 +295,7 @@ def runMVAPUPPET(process,
 
 
     ## clean also the related Gen Jet Collection                                                                                                                        
+    """
     if isMC and cleanGenJets:
         process.packedGenLeptons = cms.EDFilter("CandPtrSelector",
                                                 cut = cms.string('(abs(pdgId) = 11 || abs(pdgId) = 13) && pt > 10'),
@@ -337,6 +338,7 @@ def runMVAPUPPET(process,
                                     jetEtaCut        = jetEtaCut,
                                     dRCleaning       = dRCleaning)
 
+    """
     #### Input definitions like in classic MVA MET
     #### tracks from PV
     process.pfChargedPV = cms.EDFilter("CandPtrSelector",

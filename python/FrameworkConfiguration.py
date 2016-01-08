@@ -194,6 +194,7 @@ def createProcess(isMC, ## isMC flag
     process.load('CommonTools.ParticleFlow.deltaBetaWeights_cff')
 
     ## Create isoDeposits with the newly created pf particles collections.
+    """
     from JMEAnalysis.JMEValidator.MuonIsolationTools import load_muonPFiso_sequence
 
     ### PF weighted isolation
@@ -206,6 +207,7 @@ def createProcess(isMC, ## isMC flag
                             coneR = muonIsoCone
                             )
     
+    """
     ###########################
     ## Electrons and photons ##
     ###########################

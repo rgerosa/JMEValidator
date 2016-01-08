@@ -71,6 +71,7 @@ def runMuonIsolation(process):
 	# load user-defined particle collections (e.g. PUPPI)
 	
 	# -- PF-Weighted
+	"""
 	process.load('CommonTools.ParticleFlow.deltaBetaWeights_cff')
 	process.pfWeightedPhotons.src = 'pfAllPhotonsPFBRECO'
 	process.pfWeightedPhotons.chargedFromPV = 'pfAllChargedParticlesPFBRECO'
@@ -78,7 +79,7 @@ def runMuonIsolation(process):
 	process.pfWeightedNeutralHadrons.src = 'pfAllNeutralHadronsPFBRECO'
 	process.pfWeightedNeutralHadrons.chargedFromPV = 'pfAllChargedParticlesPFBRECO'
 	process.pfWeightedNeutralHadrons.chargedFromPU = 'pfPileUpAllChargedParticlesPFBRECO'
-
+	"""
 	# -- PUPPI
 	from JMEAnalysis.JMEValidator.pfPUPPISequence_cff import *
 	load_pfPUPPI_sequence(process, 'pfPUPPISequence', algo = 'PUPPI',
@@ -138,14 +139,14 @@ def runMuonIsolation(process):
 	  src_charged_pileup = 'pfCHPUForIso',
 	  coneR = cone_size
 	)
-	
+	"""
 	load_muonPFiso_sequence(process, 'MuonPFIsoSequencePFWGT', algo = 'R04PFWGT',
 	  src = muon_src,
 	  src_neutral_hadron = 'pfWeightedNeutralHadrons',
 	  src_photon         = 'pfWeightedPhotons',
 	  coneR = cone_size
 	)
-	
+	"""
 	load_muonPFiso_sequence(process, 'MuonPFIsoSequencePUPPI', algo = 'R04PUPPI',
 	  src = muon_src,
 	  src_charged_hadron = 'pfPUPPIChargedHadrons',
