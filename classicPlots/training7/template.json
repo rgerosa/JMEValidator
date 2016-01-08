@@ -1,0 +1,46 @@
+{
+    "colors" : [
+         "black", 
+         "black", 
+         "red", 
+         "red", 
+         "blue", 
+         "blue", 
+         "orange", 
+         "orange", 
+         "green",
+         "green"
+    ],
+    "files": [
+        "/afs/desy.de/user/r/rfriese/dust/classicMVAMET/output7.root",
+        "/afs/desy.de/user/r/rfriese//dust/mvamet/data4/mvaTrainingSample-DYSpring15-v2/mvaTrainingSample.root"
+    ], 
+    "friend_treenames" : [ "", "particleFlowUpdate trackUpdate noPileUpUpdate pileUpCorrectedUpdate pileUpUpdate"],
+    "friend_filenames" : [
+        "",
+        "/afs/desy.de/user/r/rfriese//dust/mvamet/data4/mvaTrainingSample-DYSpring15-v2/particleFlowUpdate.root /afs/desy.de/user/r/rfriese//dust/mvamet/data4/mvaTrainingSample-DYSpring15-v2/trackUpdate.root /afs/desy.de/user/r/rfriese//dust/mvamet/data4/mvaTrainingSample-DYSpring15-v2/noPileUpUpdate.root /afs/desy.de/user/r/rfriese//dust/mvamet/data4/mvaTrainingSample-DYSpring15-v2/pileUpCorrectedUpdate.root /afs/desy.de/user/r/rfriese//dust/mvamet/data4/mvaTrainingSample-DYSpring15-v2/pileUpUpdate.root"
+    ],
+    "folders": [
+        "PUPPET/t",
+        "Flat"
+    ], 
+    "labels": [
+        "PF", "PF old",
+        "Track", "Track old",
+        "NoPU", "NoPU old", 
+        "PU", "PU old",
+        "PUPPI", "PUPPI old"
+    ], 
+    "line_styles": [
+        "-", "--"
+    ], 
+    "markers": [
+        "."
+    ], 
+    "x_errors": [
+        false
+    ], 
+    "y_errors": [
+        false
+    ]
+}

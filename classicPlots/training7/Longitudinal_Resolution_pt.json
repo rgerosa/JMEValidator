@@ -2,47 +2,12 @@
     "analysis_modules": [
         "ProjectByFit"
     ], 
-    "colors" : [
-         "black", 
-         "black", 
-         "red", 
-         "red", 
-         "blue", 
-         "blue", 
-         "orange", 
-         "orange", 
-         "green",
-         "green"
-    ],
-    "filename": "Longitudinal_Resolution_pt", 
-    "files": [
-        "/afs/desy.de/user/r/rfriese/dust/classicMVAMET/output7.root",
-        "/afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/mvaTrainingSample.root"
+    "weights": [
+        "Boson_daughter==13", "1"
     ], 
+    "filename": "Longitudinal_Resolution_pt", 
     "fit_backend": [
         "ROOT"
-    ], 
-    "friend_treenames" : [ "", "particleFlowUpdate trackUpdate noPileUpUpdate pileUpCorrectedUpdate pileUpUpdate"],
-    "friend_filenames" : [
-        "",
-        "/afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/particleFlowUpdate.root /afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/trackUpdate.root /afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/noPileUpUpdate.root /afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/pileUpCorrectedUpdate.root /afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/pileUpUpdate.root"
-    ],
-    "folders": [
-        "PUPPET/t",
-        "Flat"
-    ], 
-    "labels": [
-        "PF", "PF old",
-        "Track", "Track old",
-        "NoPU", "NoPU old", 
-        "PU", "PU old",
-        "PUPPI", "PUPPI old"
-    ], 
-    "line_styles": [
-        "-", "--"
-    ], 
-    "markers": [
-        "."
     ], 
     "projection_function": [
         "gaus"
@@ -62,14 +27,8 @@
     "projection_to_plot": [
         "2"
     ], 
-    "weights": [
-        "Boson_daughter==13", "1"
-    ], 
     "x_bins": [
         "10,0,100"
-    ], 
-    "x_errors": [
-        false
     ], 
     "x_expressions": [
         "Boson_Pt", "z_pT"
@@ -77,9 +36,6 @@
     "x_label": "$p_T^Z$", 
     "y_bins": [
         "50,-100,100"
-    ], 
-    "y_errors": [
-        false
     ], 
     "y_expressions": [
         "recoilslimmedMETs_LongZ+Boson_Pt",             "particleFlowUpdate_Upar+z_pT", 

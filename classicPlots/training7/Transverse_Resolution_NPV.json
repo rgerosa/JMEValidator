@@ -2,33 +2,9 @@
     "analysis_modules": [
         "ProjectByFit"
     ], 
-    "dict": true, 
     "filename": "Transverse_Resolution_NPV", 
-    "files": [
-        "/afs/desy.de/user/r/rfriese/dust/classicMVAMET/output7.root"
-    ], 
-	"title": "$p_T^Z > 30 \\mathrm{GeV}$",
     "fit_backend": [
         "ROOT"
-    ], 
-    "folders": [
-        "PUPPET/t"
-    ], 
-    "labels": [
-        "PF", 
-        "PF CHS", 
-        "PF ChargedPVNeutralPVPUJetID", 
-        "PF ChargedPUNeutralPUPUJetID", 
-        "PF ChargedPVNeutralPV", 
-        "PUPPI",
-        "MVA MET"
-    ], 
-    "line_styles": [
-        "-"
-    ], 
-    "log_level": "debug", 
-    "markers": [
-        "."
     ], 
     "projection_function": [
         "gaus"
@@ -43,26 +19,25 @@
         "nick3",
         "nick4",
         "nick5",
-        "nick6"
+        "nick6", "nick7", "nick8", "nick9"
     ], 
     "projection_to_plot": [
         "2"
     ], 
-	"friend_filenames" : ["LongZCorrectedRecoil.root"],
-	"friend_treenames" : ["LongZCorrectedRecoil"],
+	"y_lims" : [0,40],
     "weights": [
-        "Boson_daughter==13&&Boson_Pt>30"
+        "Boson_daughter==13&&Boson_Pt>30", "z_pT>30"
     ], 
     "x_bins": [
-        "10,5,25"
+        "7,5,30"
     ], 
     "x_errors": [
         false
     ], 
     "x_expressions": [
-        "NVertex"
+        "NVertex", "nPV"
     ], 
-    "x_label": "NPV", 
+    "x_label": "$p_T^Z$", 
     "y_bins": [
         "50,-100,100"
     ], 
@@ -70,13 +45,11 @@
         false
     ], 
     "y_expressions": [
-        "recoilPFMet_PerpZ", 
-        "recoilPFCHSMet_PerpZ", 
-        "recoilPFMet_ChargedPVNeutralPVPUJetID_PerpZ", 
-        "recoilPFMet_ChargedPUNeutralPUPUJetID_PerpZ", 
-        "recoilPFMet_ChargedPVNeutralPV_PerpZ",
-        "recoilPFPuppiMet_PerpZ",
-        "LongZCorrectedRecoil_PerpZ"
+        "recoilslimmedMETs_PerpZ",             "particleFlowUpdate_Uperp", 
+        "recoilpatpfTrackMET_PerpZ",        "trackUpdate_Uperp",
+        "recoilpatpfNoPUMET_PerpZ",         "noPileUpUpdate_Uperp",
+        "recoilpatpfPUMET_PerpZ",           "pileUpUpdate_Uperp",
+        "recoilslimmedMETsPuppi_PerpZ",     "0"
     ], 
     "y_label": "Resolution [GeV]"
 }

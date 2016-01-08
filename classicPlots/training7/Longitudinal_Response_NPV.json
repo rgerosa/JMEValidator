@@ -1,30 +1,7 @@
 {
     "filename": "Longitudinal_Response_NPV", 
-    "files": [
-        "/afs/desy.de/user/r/rfriese/dust/classicMVAMET/output7.root",
-        "/afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/mvaTrainingSample.root"
-    ], 
-    "friend_filenames" : [
-        "",
-        "/afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/particleFlowUpdate.root /afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/trackUpdate.root /afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/noPileUpUpdate.root /afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/pileUpCorrectedUpdate.root /afs/desy.de/user/r/rfriese/dust/mvamet/data2/mvaTrainingSample_72X25NS20PU-Phys14_V4/pileUpUpdate.root"
-    ],
-    "friend_treenames" : [ "", "particleFlowUpdate trackUpdate noPileUpUpdate pileUpCorrectedUpdate pileUpUpdate"],
-    "folders": [
-        "PUPPET/t",
-        "Flat"
-    ], 
-    "labels": [
-        "PF", "PF old",
-        "Track", "Track old",
-        "NoPU", "NoPU old", 
-        "PU", "PU old",
-        "PUPPI", "PUPPI old"
-    ], 
     "line_styles": [
         "-", "--"
-    ], 
-    "markers": [
-        "."
     ], 
     "tree_draw_options": [
         "prof"
@@ -35,16 +12,10 @@
     "x_bins": [
         "7,5,30"
     ], 
-    "x_errors": [
-        false
-    ], 
     "x_expressions": [
         "NVertex", "nPV"
     ], 
     "x_label": "NPV", 
-    "y_errors": [
-        false
-    ], 
     "colors" : [
          "black", 
          "black", 
