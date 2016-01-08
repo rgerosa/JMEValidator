@@ -21,7 +21,6 @@ options.register ('electronTypeID',"Medium", VarParsing.multiplicity.singleton, 
 options.register ('tauTypeID',     "Loose",  VarParsing.multiplicity.singleton, VarParsing.varType.string, 'tau ID to be considered for MVA PUPPET analysis ');
 ## selections
 options.register ('applyZSelections',True,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'apply selection for Zll events when runMVAPUPPETAnalysis is true');
-options.register ('applyWSelections',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'apply selection for Wlnu events when runMVAPUPPETAnalysis is true');
 options.register ('jetPtCut',1,VarParsing.multiplicity.singleton, VarParsing.varType.float, 'apply a jet pt cut for mva met input');
 ## JEC
 options.register ('useJECFromDB',         False,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'read JEC from the database for special JEC not in GT');
@@ -30,8 +29,6 @@ options.parseArguments()
 ## import the function to create the process
 from JMEAnalysis.JMEValidator.FrameworkConfiguration import createProcess
 
-if options.applyWSelections and options.applyZSelections :
-      sys.exit("both options applyZSelections and applyWSelections are set to true --> please check")
 
 ## create the process with all the information
 process = createProcess(options.isMC, ## MC or data
@@ -40,7 +37,7 @@ process = createProcess(options.isMC, ## MC or data
                         options.muonTypeID, options.muonIsoCone,## muons
                         options.electronTypeID, ## electrons
                         options.tauTypeID,## taus
-                        options.applyZSelections, options.applyWSelections, ## special flags for PUPPI analysis
+                        options.applyZSelections,
                         options.jetPtCut,
                         options.useJECFromDB ## JEC
                         );

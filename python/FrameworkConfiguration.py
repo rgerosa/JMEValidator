@@ -9,7 +9,7 @@ def createProcess(isMC, ## isMC flag
                   muonTypeID, muonIsoCone, ## muons
                   electronTypeID, ## electrons
                   tauTypeID, ## taus
-                  applyZSelections,applyWSelections, ## special settings for PUPPET
+                  applyZSelections, ## special settings for PUPPET
                   jetPtCut,
                   useJECFromLocalDB
                   ):
@@ -118,8 +118,7 @@ def createProcess(isMC, ## isMC flag
                   jetEtaCut = 5.,
                   etaCutForMetDiagnostic = etaCutForMetDiagnostic,
                   cleanGenJets = True,
-                  applyZSelections = applyZSelections, 
-                  applyWSelections = applyWSelections
+                  applyZSelections = applyZSelections
                   )
  
  
