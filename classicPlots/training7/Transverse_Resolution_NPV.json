@@ -1,38 +1,11 @@
 {
-    "analysis_modules": [
-        "ProjectByFit"
-    ], 
     "filename": "Transverse_Resolution_NPV", 
-    "fit_backend": [
-        "ROOT"
-    ], 
-    "projection_function": [
-        "gaus"
-    ], 
-    "projection_parameters": [
-        "1000,10,10"
-    ], 
-    "projection_to_nick": [
-        "nick0", 
-        "nick1", 
-        "nick2",
-        "nick3",
-        "nick4",
-        "nick5",
-        "nick6", "nick7", "nick8", "nick9"
-    ], 
-    "projection_to_plot": [
-        "2"
-    ], 
 	"y_lims" : [0,40],
     "weights": [
         "Boson_daughter==13&&Boson_Pt>30", "z_pT>30"
     ], 
     "x_bins": [
         "7,5,30"
-    ], 
-    "x_errors": [
-        false
     ], 
     "x_expressions": [
         "NVertex", "nPV"
@@ -41,15 +14,13 @@
     "y_bins": [
         "50,-100,100"
     ], 
-    "y_errors": [
-        false
-    ], 
     "y_expressions": [
         "recoilslimmedMETs_PerpZ",             "particleFlowUpdate_Uperp", 
         "recoilpatpfTrackMET_PerpZ",        "trackUpdate_Uperp",
         "recoilpatpfNoPUMET_PerpZ",         "noPileUpUpdate_Uperp",
         "recoilpatpfPUMET_PerpZ",           "pileUpUpdate_Uperp",
-        "recoilslimmedMETsPuppi_PerpZ",     "0"
+        "recoilslimmedMETsPuppi_PerpZ",     "0",
+        "LongZCorrectedRecoil_PerpZ",     "RecoilCor_Uperp"
     ], 
     "y_label": "Resolution [GeV]"
 }

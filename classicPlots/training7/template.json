@@ -9,16 +9,18 @@
          "orange", 
          "orange", 
          "green",
-         "green"
+         "green",
+         "goldenrod",
+         "goldenrod"
     ],
     "files": [
         "/afs/desy.de/user/r/rfriese/dust/classicMVAMET/output7.root",
         "/afs/desy.de/user/r/rfriese//dust/mvamet/data4/mvaTrainingSample-DYSpring15-v2/mvaTrainingSample.root"
     ], 
-    "friend_treenames" : [ "", "particleFlowUpdate trackUpdate noPileUpUpdate pileUpCorrectedUpdate pileUpUpdate"],
+    "friend_treenames" : [ "LongZCorrectedRecoil", "particleFlowUpdate trackUpdate noPileUpUpdate pileUpCorrectedUpdate pileUpUpdate RecoilCor"],
     "friend_filenames" : [
-        "",
-        "/afs/desy.de/user/r/rfriese//dust/mvamet/data4/mvaTrainingSample-DYSpring15-v2/particleFlowUpdate.root /afs/desy.de/user/r/rfriese//dust/mvamet/data4/mvaTrainingSample-DYSpring15-v2/trackUpdate.root /afs/desy.de/user/r/rfriese//dust/mvamet/data4/mvaTrainingSample-DYSpring15-v2/noPileUpUpdate.root /afs/desy.de/user/r/rfriese//dust/mvamet/data4/mvaTrainingSample-DYSpring15-v2/pileUpCorrectedUpdate.root /afs/desy.de/user/r/rfriese//dust/mvamet/data4/mvaTrainingSample-DYSpring15-v2/pileUpUpdate.root"
+        "/afs/desy.de/user/r/rfriese//dust/classicMVAMET/training7/LongZCorrectedRecoil.root",
+        "/afs/desy.de/user/r/rfriese//dust/mvamet/data4/mvaTrainingSample-DYSpring15-v2/particleFlowUpdate.root /afs/desy.de/user/r/rfriese//dust/mvamet/data4/mvaTrainingSample-DYSpring15-v2/trackUpdate.root /afs/desy.de/user/r/rfriese//dust/mvamet/data4/mvaTrainingSample-DYSpring15-v2/noPileUpUpdate.root /afs/desy.de/user/r/rfriese//dust/mvamet/data4/mvaTrainingSample-DYSpring15-v2/pileUpCorrectedUpdate.root /afs/desy.de/user/r/rfriese//dust/mvamet/data4/mvaTrainingSample-DYSpring15-v2/pileUpUpdate.root /afs/desy.de/user/r/rfriese//dust/mvamet/data4/mvaTrainingSample-DYSpring15-v2/RecoilCor.root"
     ],
     "folders": [
         "PUPPET/t",
@@ -29,7 +31,8 @@
         "Track", "Track old",
         "NoPU", "NoPU old", 
         "PU", "PU old",
-        "PUPPI", "PUPPI old"
+        "PUPPI", "PUPPI old",
+        "MVA", "MVA old"
     ], 
     "line_styles": [
         "-", "--"

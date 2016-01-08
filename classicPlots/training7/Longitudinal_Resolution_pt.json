@@ -1,32 +1,8 @@
 {
-    "analysis_modules": [
-        "ProjectByFit"
-    ], 
     "weights": [
         "Boson_daughter==13", "1"
     ], 
     "filename": "Longitudinal_Resolution_pt", 
-    "fit_backend": [
-        "ROOT"
-    ], 
-    "projection_function": [
-        "gaus"
-    ], 
-    "projection_parameters": [
-        "1000,10,10"
-    ], 
-    "projection_to_nick": [
-        "nick0", 
-        "nick1", 
-        "nick2",
-        "nick3",
-        "nick4",
-        "nick5",
-        "nick6", "nick7", "nick8", "nick9"
-    ], 
-    "projection_to_plot": [
-        "2"
-    ], 
     "x_bins": [
         "10,0,100"
     ], 
@@ -42,7 +18,8 @@
         "recoilpatpfTrackMET_LongZ+Boson_Pt",        "trackUpdate_Upar+z_pT",
         "recoilpatpfNoPUMET_LongZ+Boson_Pt",         "noPileUpUpdate_Upar+z_pT",
         "recoilpatpfPUMET_LongZ+Boson_Pt",           "pileUpUpdate_Upar+z_pT",
-        "recoilslimmedMETsPuppi_LongZ+Boson_Pt",     "0"
+        "recoilslimmedMETsPuppi_LongZ+Boson_Pt",     "0",
+        "LongZCorrectedRecoil_LongZ+Boson_Pt",     "RecoilCor_Upar+z_pT"
     ], 
     "y_label": "Resolution [GeV]",
 	"y_lims" : [0, 50]

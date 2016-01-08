@@ -16,24 +16,13 @@
         "NVertex", "nPV"
     ], 
     "x_label": "NPV", 
-    "colors" : [
-         "black", 
-         "black", 
-         "red", 
-         "red", 
-         "blue", 
-         "blue", 
-         "orange", 
-         "orange", 
-         "green",
-         "green"
-    ],
     "y_expressions": [
         "recoilslimmedMETs_LongZ/-Boson_Pt",             "particleFlowUpdate_Upar/-z_pT", 
         "recoilpatpfTrackMET_LongZ/-Boson_Pt",        "trackUpdate_Upar/-z_pT",
         "recoilpatpfNoPUMET_LongZ/-Boson_Pt",         "noPileUpUpdate_Upar/-z_pT",
         "recoilpatpfPUMET_LongZ/-Boson_Pt",           "pileUpUpdate_Upar/-z_pT",
-        "recoilslimmedMETsPuppi_LongZ/-Boson_Pt",     "0"
+        "recoilslimmedMETsPuppi_LongZ/-Boson_Pt",     "0",
+        "LongZCorrectedRecoil_LongZ/-Boson_Pt",     "RecoilCor_Upar/-z_pT"
     ], 
     "y_label": "$U_{\\parallel}/p_T^Z$", 
     "y_lims": [
