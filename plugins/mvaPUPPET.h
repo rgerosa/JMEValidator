@@ -53,6 +53,7 @@ class mvaPUPPET : public edm::stream::EDProducer<> {
   void addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &name, const std::string &type, double divisor, reco::METCovMatrix &covMatrix);
 
 
+  void calculateRecoil(edm::Handle<pat::METCollection> MET, reco::Particle Z, reco::Particle tauJetSpouriousComponents, float sumEt_TauJetCharge, float sumEt_TauJetNeutral, float sumEt_Leptons, int METFlag, edm::Event &evt, std::string collection_name);
 private:
 
   std::string mvaMETLabel_;
@@ -83,11 +84,14 @@ private:
   
   
   std::vector<std::string> variablesForPhiTraining_  = {};
-
   std::vector<std::string> variablesForRecoilTraining_  = {};
-	
+  std::vector<std::string> variablesForCovU1_  = {};
+  std::vector<std::string> variablesForCovU2_  = {};
+
   const GBRForest* mvaReaderPhiCorrection_;
   const GBRForest* mvaReaderRecoilCorrection_;
+  const GBRForest* mvaReaderCovU1_;
+  const GBRForest* mvaReaderCovU2_;
 
   bool debug_;
   bool produceRecoils_;

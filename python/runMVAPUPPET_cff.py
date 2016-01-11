@@ -265,19 +265,14 @@ def runMVAPUPPET(process,
                                                                              cms.InputTag("patpfPUCorrectedMET"),
                                                                              cms.InputTag("patpfPUMET"),
                                                                              cms.InputTag("slimmedMETsPuppi"),
-                                                                             cms.InputTag("slimmedMETs")
- ),
-                                                inputMETFlags = cms.vint32(1,1,1,1,1,0,1,1),
+                                                                             cms.InputTag("slimmedMETs") ),
+                                                inputMETFlags = cms.vint32(0,0,1,1,1,2,1,1),
                                                 srcJets        = cms.InputTag(jetCollectionPF+"Cleaned"),
                                                 srcVertices    = cms.InputTag("offlineSlimmedPrimaryVertices"),
                                                 srcTaus        = cms.InputTag(srcTaus+tauTypeID+"Cleaned"),
                                                 srcMuons       = cms.InputTag(srcMuons+muonTypeID),
-                                                inputFileNames = cms.PSet(
-                #PhiCorrectionWeightFile = cms.FileInPath('JMEAnalysis/JMEValidator/data/PhiCorrection_PUPPI.root'),                                    
-                #RecoilCorrectionWeightFile  = cms.FileInPath('JMEAnalysis/JMEValidator/data/RecoilCorrection_PUPPI.root')                           
-                                    ),
+                                                weightFile     = cms.FileInPath('JMEAnalysis/JMEValidator/data/weightfile.root'),
                                                 srcLeptons  = cms.VInputTag("LeptonMerge"),
-                                                mvaMETLabel = cms.string("mvaMET"),
                                                 ZbosonLabel = cms.string("ZtagBoson"),
                                                 produceRecoils = cms.bool(putRecoilInsideEvent)
                                                 ))

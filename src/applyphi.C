@@ -7,7 +7,7 @@ applyTraining::applyTraining(std::string name, std::string apply_MVA_to, std::st
   // Forest
   _lFForest(new TFile(_iTrain.c_str())),
   _lForest( (GBRForest*) _lFForest->Get(_mvaResponseName.c_str()) ),
-  _lVars( (std::vector<std::string>*) _lFForest->Get("varlist") ),
+  _lVars( (std::vector<std::string>*) _lFForest->Get((_mvaResponseName + "varlist").c_str()) ),
   _lN(_lVars->size()),
   _lFVars(new TTreeFormula*[_lN]),
   _lVals(new Float_t[_lN]),
@@ -31,7 +31,7 @@ applyTraining::applyTraining(boost::property_tree::ptree &pt, TTree *inputTree) 
   // Forest
   _lFForest((_mode>0) ? new TFile(_iTrain.c_str()) : NULL),
   _lForest((_mode>0)  ? (GBRForest*)_lFForest->Get(_mvaResponseName.c_str()) : NULL),
-  _lVars((_mode>0) ? (std::vector<std::string>*)_lFForest->Get("varlist"): NULL ),
+  _lVars((_mode>0) ? (std::vector<std::string>*)_lFForest->Get((_mvaResponseName + "varlist").c_str()): NULL ),
   _lN((_mode>0) ? _lVars->size() : 0),
   _lFVars(new TTreeFormula*[_lN]),
   _lVals(new Float_t[_lN]),
@@ -61,7 +61,7 @@ applyTraining::applyTraining(boost::property_tree::ptree &pt, TTree *inputTree, 
   // Forest
   _lFForest((_mode>0) ? new TFile(_iTrain.c_str()) : NULL),
   _lForest((_mode>0)  ? (GBRForest*)_lFForest->Get(_mvaResponseName.c_str()) : NULL),
-  _lVars((_mode>0) ? (std::vector<std::string>*)_lFForest->Get("varlist"): NULL ),
+  _lVars((_mode>0) ? (std::vector<std::string>*)_lFForest->Get((_mvaResponseName +"varlist").c_str()): NULL ),
   _lN((_mode>0) ? _lVars->size() : 0),
   _lFVars(new TTreeFormula*[_lN]),
   _lVals(new Float_t[_lN]),

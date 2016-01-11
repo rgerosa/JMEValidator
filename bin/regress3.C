@@ -18,7 +18,7 @@
 
 using namespace std;
 
-void doTraining(boost::property_tree::ptree &pt, TTree* lRegress)
+void doTraining(boost::property_tree::ptree &pt, TTree* lRegress, TFile *fout)
 {
 
 	// adding friends. Important for trainings with several stages
@@ -56,11 +56,9 @@ void doTraining(boost::property_tree::ptree &pt, TTree* lRegress)
 	std::cout << pt.get<std::string>("desc") << std::endl;
 	const GBRForest *forest = train->TrainForest( pt.get<int>("nTrees"));
 	//ROOT::Cintex::Cintex::Enable();
-	TFile *fout = new TFile(pt.get<std::string>("weightfilename").c_str(),"RECREATE");    
 	std::string mvaResponseName = pt.get<std::string>("name");
-	fout->WriteObject(lVec, "varlist");
+	fout->WriteObject(lVec, (mvaResponseName + "varlist").c_str());
 	fout->WriteObject(forest, mvaResponseName.c_str());
-	fout->Close();
 
 
 
@@ -98,6 +96,8 @@ int main(int argc, char* argv[] ) {
 	}
 
 	std::string inputFilename = pt.get<std::string>("inputFile");
+	std::string weightfilename = pt.get<std::string>("weightfilename");
+	TFile *fout = new TFile(weightfilename.c_str(),"RECREATE");    
 
 	TFile *inputFile = TFile::Open(inputFilename.c_str());
 	std::string Treename = pt.get<std::string>("Folder");
@@ -119,15 +119,17 @@ int main(int argc, char* argv[] ) {
 		int mode = trainingProperties[iTrain].get<int>("mode");
 		if( mode > 0)
 		{
-			doTraining(trainingProperties[iTrain], inputTree);
+			doTraining(trainingProperties[iTrain], inputTree, fout);
 		}
 
 		std::string friendFilename;
 		std::string friendTreename;
 		{
+			trainingProperties[iTrain].put("weightfilename", weightfilename);
 			applyTraining user = applyTraining(trainingProperties[iTrain], inputTree, friendFilename, friendTreename);
 			user.getResults();
 		}
 		inputTree->AddFriend(friendTreename.c_str(), friendFilename.c_str());
 	}
+	fout->Close();
 }

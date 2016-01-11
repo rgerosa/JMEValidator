@@ -25,7 +25,7 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg){
     if(produceRecoils_)
       produces<pat::METCollection>( "recoil"+(*it).label() );
   }
-
+  
   // take flags for the met
   if (cfg.existsAs<std::vector<int> >("inputMETFlags"))
     srcMETFlags_ = cfg.getParameter<std::vector<int>>("inputMETFlags");
@@ -55,18 +55,14 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg){
   srcMuons_     = consumes<pat::MuonCollection>(cfg.getParameter<edm::InputTag>("srcMuons"));
 
   // load weight files
-  edm::ParameterSet cfgInputFileNames = cfg.getParameter<edm::ParameterSet>("inputFileNames");
-  
-  if(cfgInputFileNames.existsAs<edm::FileInPath>("PhiCorrectionWeightFile")){
-    inputFileNamePhiCorrection_ = cfgInputFileNames.getParameter<edm::FileInPath>("PhiCorrectionWeightFile");
-    mvaReaderPhiCorrection_     = loadMVAfromFile(inputFileNamePhiCorrection_, variablesForPhiTraining_, "PhiCorrectedRecoil");
-  }
-  
-  if(cfgInputFileNames.existsAs<edm::FileInPath>("RecoilCorrectionWeightFile")){
-    inputFileNameRecoilCorrection_ = cfgInputFileNames.getParameter<edm::FileInPath>("RecoilCorrectionWeightFile");
-    mvaReaderRecoilCorrection_  = loadMVAfromFile(inputFileNameRecoilCorrection_, variablesForRecoilTraining_, "LongZCorrectedRecoil");
-  }
-  
+  //edm::ParameterSet cfgInputFileNames = cfg.getParameter<edm::ParameterSet>("inputFileNames");
+  edm::FileInPath weightFile; 
+  if(cfg.existsAs<edm::FileInPath>("weightFile"))
+    weightFile = cfg.getParameter<edm::FileInPath>("weightFile");
+  mvaReaderPhiCorrection_     = loadMVAfromFile(weightFile, variablesForPhiTraining_, "PhiCorrectedRecoil"); 
+  mvaReaderRecoilCorrection_  = loadMVAfromFile(weightFile, variablesForRecoilTraining_, "LongZCorrectedRecoil");
+  mvaReaderCovU1_             = loadMVAfromFile(weightFile, variablesForCovU1_, "CovU1");
+  mvaReaderCovU2_             = loadMVAfromFile(weightFile, variablesForCovU2_, "CovU2");
   // prepare for saving the final mvaMET to the event
   if(cfg.existsAs<std::string>("mvaMETLabel"))
     mvaMETLabel_ = cfg.getParameter<std::string>("mvaMETLabel");
@@ -74,6 +70,8 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg){
     mvaMETLabel_ = "mvaMET";
 
   produces<pat::METCollection>(mvaMETLabel_);
+  if(produceRecoils_)
+      produces<pat::METCollection>( "recoil"+mvaMETLabel_ );
 
   // produce Zboson tag
   if(cfg.existsAs<std::string>("ZbosonLabel"))
@@ -86,6 +84,57 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg){
 }
 
 mvaPUPPET::~mvaPUPPET(){}
+
+void mvaPUPPET::calculateRecoil(edm::Handle<pat::METCollection> MET, reco::Particle Z, reco::Particle tauJetSpouriousComponents, float sumEt_TauJetCharge, float sumEt_TauJetNeutral, float sumEt_Leptons , int METFlag, edm::Event& evt, std::string collection_name)
+{
+
+    reco::METCovMatrix rotateToZFrame;
+    rotateToZFrame(0,0) = rotateToZFrame(1,1) = std::cos(- Z.p4().Phi());
+    rotateToZFrame(0,1) =   std::sin(- Z.p4().Phi());
+    rotateToZFrame(1,0) = - std::sin(- Z.p4().Phi());
+
+    pat::MET Recoil((*MET)[0]); 
+
+    Recoil.setP4(tauJetSpouriousComponents.p4() - (*MET)[0].p4());
+    Recoil.setSumEt((*MET)[0].sumEt());    
+    // subtract Z-Boson if contained in MET to get recoil
+    if (!(METFlag==2))
+    {
+      Recoil.setP4(Recoil.p4()-Z.p4());
+      Recoil.setSumEt(Recoil.sumEt()-sumEt_TauJetCharge-sumEt_Leptons);    
+    }
+ 
+    if (!(METFlag==1))
+    {
+      Recoil.setSumEt(Recoil.sumEt()-sumEt_TauJetNeutral);    
+    }
+
+    reco::METCovMatrix rotatedCovMatrix = rotateToZFrame * Recoil.getSignificanceMatrix();
+    Recoil.setSignificanceMatrix( rotatedCovMatrix );
+
+    if(produceRecoils_){
+      std::auto_ptr<pat::METCollection> patMETRecoilCollection(new pat::METCollection());
+      patMETRecoilCollection->push_back(Recoil);
+      evt.put(patMETRecoilCollection, "recoil"+collection_name);
+    }
+
+    // This only does the PU and PV stuff here
+    //if (TString(collection_name).Contains(referenceMET_name_) and collection_name != referenceMET_name_){
+    //  TString tempName = Form("%s",collection_name.c_str());
+    //  tempName.ReplaceAll(referenceMET_name_,"");
+    //  collection_name = tempName;
+    //  std::string reference = "recoilPFPuppiMet";
+    //  addToMap(Recoil.p4(), Recoil.sumEt(), collection_name, reference, 1, rotatedCovMatrix);
+    //}
+    //else {
+      //TString tempName = Form("%s",collection_name.c_str());
+      //tempName.ReplaceAll("slimmedMETs","recoilPF");
+      //tempName = tempName + "Met";
+      //collection_name = tempName;
+      addToMap(Recoil.p4(), Recoil.sumEt(), "", collection_name, 1, rotatedCovMatrix);
+    //}
+
+}
 
 void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
 
@@ -145,7 +194,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
 			Z.setPdgId(abs(lepton->pdgId()));
 			for(std::vector<pat::Tau>::const_iterator tau = tauCollection.begin(); tau!= tauCollection.end(); ++tau)
 			{
-				if(lepton->p4() != tau->p4()) 				
+				if(lepton->p4() != tau->p4())
 					continue;
 					
 					// take the PF constituents of tau lepton
@@ -165,15 +214,6 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
 		}
 	}
 
-	reco::METCovMatrix rotateToZFrame;
-	rotateToZFrame(0,0) = rotateToZFrame(1,1) = std::cos(- Z.p4().Phi());
-	rotateToZFrame(0,1) =   std::sin(- Z.p4().Phi());
-	rotateToZFrame(1,0) = - std::sin(- Z.p4().Phi());
-
-  // add the Z-boson kinematic information
-  // var_["z_pT"]  = Z.pt();
-  // var_["z_Phi"] = Z.phi();
-  // var_["z_m"]   = Z.mass();
 
   // and save the Z back to the event 
   if(produceRecoils_){
@@ -193,7 +233,6 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
   else
     referenceRecoil = - referenceMET.p4();
 
-  std::string reference = "recoilPFPuppiMet";
   
   // calculate the recoils and save them to MET objects
   int i = 0;
@@ -217,16 +256,8 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
 
     reco::Particle tauJetSpouriousComponents;
     tauJetSpouriousComponents.setP4(reco::Candidate::LorentzVector(0, 0, 0, 0));
-
-    if((*itMETFlags))
-    {
-      for( auto particle : neutralTauJetCandidates)
-      {
-        tauJetSpouriousComponents.setP4(tauJetSpouriousComponents.p4()+particle->p4());            
-        sumEt_TauJetNeutral += particle->p4().Et();	
-      }
-    }    
-    else
+    // charged components
+    if ( ((*itMETFlags)==0) or ((*itMETFlags)==1) )
     {
       for( auto particle : chargedTauJetCandidates)
       {
@@ -234,45 +265,18 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
         sumEt_TauJetCharge += particle->p4().Et();
       }
     }
-
-    // calculate recoil    
-    pat::MET Recoil((*MET)[0]); 
-
-    if((*itMETFlags))
+    // neutral components
+    if ( ((*itMETFlags)==0) or ((*itMETFlags)==2) )
     {
-      Recoil.setP4(-Z.p4() +tauJetSpouriousComponents.p4() - (*MET)[0].p4());
-      Recoil.setSumEt((*MET)[0].sumEt()-sumEt_TauJetCharge-sumEt_Leptons);    
-    }
-    else
-    {
-      Recoil.setP4(tauJetSpouriousComponents.p4() - (*MET)[0].p4());      
-      Recoil.setSumEt((*MET)[0].sumEt()-sumEt_TauJetNeutral);    
-    }
+      for( auto particle : neutralTauJetCandidates)
+      {
+        tauJetSpouriousComponents.setP4(tauJetSpouriousComponents.p4()+particle->p4());            
+        sumEt_TauJetNeutral += particle->p4().Et();	
+      }
+    }    
 
-    reco::METCovMatrix rotatedCovMatrix = rotateToZFrame * Recoil.getSignificanceMatrix();
-    Recoil.setSignificanceMatrix( rotatedCovMatrix );
-
-    if(produceRecoils_){
-      std::auto_ptr<pat::METCollection> patMETRecoilCollection(new pat::METCollection());
-      patMETRecoilCollection->push_back(Recoil);
-      evt.put(patMETRecoilCollection, "recoil"+collection_name);
-    }
-
-    // This only does the PU and PV stuff here
-    if (TString(collection_name).Contains(referenceMET_name_) and collection_name != referenceMET_name_){
-      TString tempName = Form("%s",collection_name.c_str());
-      tempName.ReplaceAll(referenceMET_name_,"");
-      collection_name = tempName;
-      addToMap(Recoil.p4(), Recoil.sumEt(), collection_name, reference, 1, rotatedCovMatrix);
-    }
-    else {
-      TString tempName = Form("%s",collection_name.c_str());
-      tempName.ReplaceAll("slimmedMETs","recoilPF");
-      tempName = tempName + "Met";
-      collection_name = tempName;
-      addToMap(Recoil.p4(), Recoil.sumEt(), "", collection_name, 1, rotatedCovMatrix);
-    }
-
+    // calculate recoil   
+    calculateRecoil(MET, Z, tauJetSpouriousComponents, sumEt_TauJetCharge, sumEt_TauJetNeutral, sumEt_Leptons, (*itMETFlags), evt, collection_name);
   }
 
   edm::Handle<pat::JetCollection> jets;
@@ -317,13 +321,23 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
   if(inputFileNameRecoilCorrection_.fullPath() != "")
     RecoilCorrection = GetResponse(mvaReaderRecoilCorrection_, variablesForRecoilTraining_);
   refRecoil *= RecoilCorrection;
+
+
+  // create pat::MET from recoil
+  pat::MET recoilmvaMET(referenceMET);
+  reco::Candidate::LorentzVector recoilP4(refRecoil.Px(), refRecoil.Py(), 0, referenceMET.sumEt());
+  recoilmvaMET.setP4(recoilP4);
   
+  //// save results to event
+  std::auto_ptr<pat::METCollection> recoilpatMETCollection(new pat::METCollection());
+  recoilpatMETCollection->push_back(recoilmvaMET);
+  evt.put(recoilpatMETCollection,"recoilmvaMET");
+
   // calculate new mvaMET
   pat::MET mvaMET(referenceMET);
-  reco::Candidate::LorentzVector recoilP4(refRecoil.Px(), refRecoil.Py(), 0, referenceMET.sumEt());
   reco::Candidate::LorentzVector metP4 = - Z.p4() + recoilP4;
   mvaMET.setP4(metP4);
-  
+
   //// save results to event
   std::auto_ptr<pat::METCollection> patMETCollection(new pat::METCollection());
   patMETCollection->push_back(mvaMET);
@@ -394,8 +408,8 @@ const GBRForest* mvaPUPPET::loadMVAfromFile(const edm::FileInPath& inputFileName
     throw cms::Exception("PFMETAlgorithmMVA::loadMVA") << " Failed to find File = " << inputFileName << " !!\n";
   
   TFile* inputFile = new TFile(inputFileName.fullPath().data());
-  
-  std::vector<std::string> *lVec = (std::vector<std::string>*)inputFile->Get("varlist");
+  std::string variableListName = mvaName + "varlist";
+  std::vector<std::string> *lVec = (std::vector<std::string>*)inputFile->Get(variableListName.c_str());
 
   for(unsigned int i=0; i< lVec->size();++i)
   {
