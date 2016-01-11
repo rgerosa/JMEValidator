@@ -318,15 +318,26 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
 
   // evaluate second training and apply recoil correction
   Float_t RecoilCorrection = 1.0;
-  if(inputFileNameRecoilCorrection_.fullPath() != "")
-    RecoilCorrection = GetResponse(mvaReaderRecoilCorrection_, variablesForRecoilTraining_);
+  RecoilCorrection = GetResponse(mvaReaderRecoilCorrection_, variablesForRecoilTraining_);
   refRecoil *= RecoilCorrection;
 
+  // evaluate covariance matrix regression
+  Float_t CovU1 = 0;
+  Float_t CovU2 = 0;
+  CovU1 = GetResponse(mvaReaderCovU1_, variablesForCovU1_);
+  CovU2 = GetResponse(mvaReaderCovU2_, variablesForCovU2_);
+  std::cout << ", return from mva: " << CovU1 << " / " << CovU2 << std::endl;
 
   // create pat::MET from recoil
   pat::MET recoilmvaMET(referenceMET);
   reco::Candidate::LorentzVector recoilP4(refRecoil.Px(), refRecoil.Py(), 0, referenceMET.sumEt());
   recoilmvaMET.setP4(recoilP4);
+
+  reco::METCovMatrix recoilmvaMETCov;
+  recoilmvaMETCov(0, 0) =  std::pow(CovU1, 2);
+  recoilmvaMETCov(0, 1) =  recoilmvaMETCov(1, 0) = 0;
+  recoilmvaMETCov(1, 1) = std::pow(CovU2, 2);
+  recoilmvaMET.setSignificanceMatrix(recoilmvaMETCov);
   
   //// save results to event
   std::auto_ptr<pat::METCollection> recoilpatMETCollection(new pat::METCollection());
@@ -337,6 +348,16 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
   pat::MET mvaMET(referenceMET);
   reco::Candidate::LorentzVector metP4 = - Z.p4() + recoilP4;
   mvaMET.setP4(metP4);
+
+  reco::METCovMatrix mvaMETCov;
+  double cosPhi =  std::cos(refRecoil.Phi());
+  double sinPhi =  std::sin(refRecoil.Phi());
+  mvaMETCov(0, 0) =  std::pow(CovU1, 2)*cosPhi*cosPhi + std::pow(CovU2, 2)*sinPhi*sinPhi;
+  mvaMETCov(0, 1) = -std::pow(CovU1, 2) * sinPhi*cosPhi + std::pow(CovU2, 2) * sinPhi*cosPhi;
+  mvaMETCov(1, 0) =  mvaMETCov(0, 1);
+  mvaMETCov(1, 1) =  std::pow(CovU1, 2) * sinPhi*sinPhi + std::pow(CovU2, 2) * cosPhi*cosPhi;
+  std::cout << "significance matrix: " << mvaMETCov(0, 0) << ", " << mvaMETCov(1, 0) << ", " << mvaMETCov(1, 1) << std::endl;
+  mvaMET.setSignificanceMatrix(mvaMETCov);
 
   //// save results to event
   std::auto_ptr<pat::METCollection> patMETCollection(new pat::METCollection());
