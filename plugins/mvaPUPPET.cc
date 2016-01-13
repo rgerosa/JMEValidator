@@ -214,10 +214,10 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
   assert((*referenceMETs).size() == 1);
   auto referenceMET = (*referenceMETs)[0];
   reco::Candidate::LorentzVector referenceRecoil;
-  if(srcMETFlags_.at(0))
-    referenceRecoil = - referenceMET.p4() - Z.p4();
-  else
+  if ( srcMETFlags_.at(0) == 2 )
     referenceRecoil = - referenceMET.p4();
+  else
+    referenceRecoil = - referenceMET.p4() - Z.p4();
 
   
   // calculate the recoils and save them to MET objects
