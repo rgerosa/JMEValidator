@@ -143,22 +143,24 @@ def createProcess(isMC, ## isMC flag
                            srcGenParticles     = cms.InputTag("prunedGenParticles","","PAT"),
                            srcGenEventInfo     = cms.InputTag("generator"),
 
-                           srcMETs             = cms.VInputTag(cms.InputTag("patpfMET"),
+                           srcMETs             = cms.VInputTag(
+                                                 cms.InputTag("slimmedMETs"),
+                                                 cms.InputTag("patpfMET"),
                                                  cms.InputTag("patpfTrackMET"),
                                                  cms.InputTag("patpfNoPUMET"),
                                                  cms.InputTag("patpfPUCorrectedMET"),
                                                  cms.InputTag("patpfPUMET"),
                                                  cms.InputTag("slimmedMETsPuppi"),
-                                                 cms.InputTag("slimmedMETs"),
                                                  cms.InputTag("mvaMET", "mvaMET") 
 ),
-                           srcRecoils          = cms.VInputTag(cms.InputTag("mvaMET", "recoilpatpfMET"),
+                           srcRecoils          = cms.VInputTag(
+                                                               cms.InputTag("mvaMET", "recoilslimmedMETs"),
+                                                               cms.InputTag("mvaMET", "recoilpatpfMET"),
                                                                cms.InputTag("mvaMET", "recoilpatpfTrackMET"),
                                                                cms.InputTag("mvaMET", "recoilpatpfNoPUMET"),
                                                                cms.InputTag("mvaMET", "recoilpatpfPUCorrectedMET"),
                                                                cms.InputTag("mvaMET", "recoilpatpfPUMET"),
                                                                cms.InputTag("mvaMET", "recoilslimmedMETsPuppi"),
-                                                               cms.InputTag("mvaMET", "recoilslimmedMETs"),
                                                                cms.InputTag("mvaMET", "recoilmvaMET")
                            ),
                            dRgenMatching = cms.double(0.3),
