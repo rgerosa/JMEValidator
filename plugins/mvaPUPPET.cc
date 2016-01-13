@@ -118,7 +118,7 @@ void mvaPUPPET::calculateRecoil(edm::Handle<pat::METCollection> MET, reco::Parti
       evt.put(patMETRecoilCollection, "recoil"+collection_name);
     }
 
-    addToMap(Recoil.p4(), Recoil.sumEt(), "", "recoil"+ collection_name, divisor, rotatedCovMatrix);
+    addToMap(Recoil.p4(), Recoil.sumEt(), "recoil"+ collection_name, divisor, rotatedCovMatrix);
 
 }
 
@@ -298,7 +298,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
   auto refRecoil = TVector2(referenceRecoil.px(), referenceRecoil.py());
   refRecoil = refRecoil.Rotate(PhiAngle);
   reco::Candidate::LorentzVector phiCorrectedRecoil(refRecoil.Px(), refRecoil.Py(), 0, referenceMET.sumEt());
-  addToMap(phiCorrectedRecoil, referenceMET.sumEt(), "", "PhiCorrectedRecoil", 1); //, referenceMET.sumEt());
+  addToMap(phiCorrectedRecoil, referenceMET.sumEt(), "PhiCorrectedRecoil", 1); //, referenceMET.sumEt());
   
   var_["PhiCorrectedRecoil_Phi"] = TVector2::Phi_mpi_pi(refRecoil.Phi());
 
@@ -312,7 +312,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
   pat::MET recoilmvaMET(referenceMET);
   reco::Candidate::LorentzVector recoilP4(refRecoil.Px(), refRecoil.Py(), 0, referenceMET.sumEt());
   recoilmvaMET.setP4(recoilP4);
-  addToMap(recoilP4, referenceMET.sumEt(), "", "LongZCorrectedRecoil", 1); //, referenceMET.sumEt());
+  addToMap(recoilP4, referenceMET.sumEt(), "LongZCorrectedRecoil", 1); //, referenceMET.sumEt());
 
   // evaluate covariance matrix regression
   Float_t CovU1 = 0;
@@ -351,35 +351,19 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
 
 }
 
-void mvaPUPPET::addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &name, const std::string &type, double divisor, reco::METCovMatrix &covMatrix){
-  addToMap(p4, sumEt, name, type, divisor);
-  if(name == "")
-  {
-    var_[type + "_Cov00" ] = covMatrix(0,0);
-    var_[type + "_Cov11" ] = covMatrix(1,1);
-  }
-  else
-  {
-    var_[type +  "_Cov00" ] = covMatrix(0,0);
-    var_[type +  "_Cov11" ] = covMatrix(1,1);
-  }
+void mvaPUPPET::addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &type, double divisor, reco::METCovMatrix &covMatrix)
+{
+  addToMap(p4, sumEt, type, divisor);
+  var_[type +  "_Cov00" ] = covMatrix(0,0);
+  var_[type +  "_Cov11" ] = covMatrix(1,1);
 }
 
-void mvaPUPPET::addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &name, const std::string &type, double divisor){
-  if(name == "")
-  {
-    var_[type + "_Pt" ] = p4.pt();
-    var_[type + "_Phi" ] = p4.phi();
-    var_[type + "_sumEt" ] = sumEt;
-    var_[type + "_sumEtFraction" ] = sumEt/divisor;
-  }
-  else
-  {
-    var_[type +  name + "_Pt" ] = p4.pt();
-    var_[type +  name + "_Phi" ] = p4.phi();
-    var_[type +  name + "_sumEt" ] = sumEt/divisor;
-    var_[type +  name + "_sumEtFraction" ] = sumEt;
-  }
+void mvaPUPPET::addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &type, double divisor)
+{
+  var_[type + "_Pt" ] = p4.pt();
+  var_[type + "_Phi" ] = p4.phi();
+  var_[type + "_sumEt" ] = sumEt;
+  var_[type + "_sumEtFraction" ] = sumEt/divisor;
 }
 
 unsigned int mvaPUPPET::countVertices(const reco::VertexCollection& vertices){

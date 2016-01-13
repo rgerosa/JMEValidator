@@ -49,8 +49,8 @@ class mvaPUPPET : public edm::stream::EDProducer<> {
 
   // to correctly create the map of regression input vriables
   //void addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &name, const std::string &type);
-  void addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &name, const std::string &type, double divisor);
-  void addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &name, const std::string &type, double divisor, reco::METCovMatrix &covMatrix);
+  void addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &type, double divisor);
+  void addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &type, double divisor, reco::METCovMatrix &covMatrix);
 
 
   void calculateRecoil(edm::Handle<pat::METCollection> MET, reco::Particle Z, reco::Particle tauJetSpouriousComponents, float sumEt_TauJetCharge, float sumEt_TauJetNeutral, float sumEt_Leptons, int METFlag, edm::Event &evt, std::string collection_name, float divisor);
