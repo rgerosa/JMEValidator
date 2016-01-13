@@ -55,7 +55,6 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg){
   srcMuons_     = consumes<pat::MuonCollection>(cfg.getParameter<edm::InputTag>("srcMuons"));
 
   // load weight files
-  //edm::ParameterSet cfgInputFileNames = cfg.getParameter<edm::ParameterSet>("inputFileNames");
   edm::FileInPath weightFile; 
   if(cfg.existsAs<edm::FileInPath>("weightFile"))
     weightFile = cfg.getParameter<edm::FileInPath>("weightFile");
@@ -63,6 +62,7 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg){
   mvaReaderRecoilCorrection_  = loadMVAfromFile(weightFile, variablesForRecoilTraining_, "LongZCorrectedRecoil");
   mvaReaderCovU1_             = loadMVAfromFile(weightFile, variablesForCovU1_, "CovU1");
   mvaReaderCovU2_             = loadMVAfromFile(weightFile, variablesForCovU2_, "CovU2");
+
   // prepare for saving the final mvaMET to the event
   if(cfg.existsAs<std::string>("mvaMETLabel"))
     mvaMETLabel_ = cfg.getParameter<std::string>("mvaMETLabel");
@@ -85,7 +85,7 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg){
 
 mvaPUPPET::~mvaPUPPET(){}
 
-void mvaPUPPET::calculateRecoil(edm::Handle<pat::METCollection> MET, reco::Particle Z, reco::Particle tauJetSpouriousComponents, float sumEt_TauJetCharge, float sumEt_TauJetNeutral, float sumEt_Leptons , int METFlag, edm::Event& evt, std::string collection_name)
+void mvaPUPPET::calculateRecoil(edm::Handle<pat::METCollection> MET, reco::Particle Z, reco::Particle tauJetSpouriousComponents, float sumEt_TauJetCharge, float sumEt_TauJetNeutral, float sumEt_Leptons , int METFlag, edm::Event& evt, std::string collection_name, float divisor)
 {
 
     reco::METCovMatrix rotateToZFrame;
@@ -118,7 +118,7 @@ void mvaPUPPET::calculateRecoil(edm::Handle<pat::METCollection> MET, reco::Parti
       evt.put(patMETRecoilCollection, "recoil"+collection_name);
     }
 
-    addToMap(Recoil.p4(), Recoil.sumEt(), "", "recoil"+ collection_name, 1, rotatedCovMatrix);
+    addToMap(Recoil.p4(), Recoil.sumEt(), "", "recoil"+ collection_name, divisor, rotatedCovMatrix);
 
 }
 
@@ -262,7 +262,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
     }    
 
     // calculate recoil   
-    calculateRecoil(MET, Z, tauJetSpouriousComponents, sumEt_TauJetCharge, sumEt_TauJetNeutral, sumEt_Leptons, (*itMETFlags), evt, collection_name);
+    calculateRecoil(MET, Z, tauJetSpouriousComponents, sumEt_TauJetCharge, sumEt_TauJetNeutral, sumEt_Leptons, (*itMETFlags), evt, collection_name, referenceMET.sumEt());
   }
 
   edm::Handle<pat::JetCollection> jets;
