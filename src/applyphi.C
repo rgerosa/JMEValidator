@@ -15,14 +15,14 @@ applyTraining::applyTraining(std::string name, std::string apply_MVA_to, std::st
   _lTree(inputTree),
   _lNEvents(_lTree->GetEntries()),
   //outputs
-  _outputFilename(input_filename + "_" + _mvaResponseName + ".root"),
+  _outputFilename(_mvaResponseName + ".root"),
   _lOFile(new TFile( _outputFilename.c_str(),"RECREATE")),
   _lOTree(_lTree)
 {
   std::cout << "new constructur" << std::endl;
   _lOTree = _lTree->CloneTree(0);
 }
-
+/*
 applyTraining::applyTraining(boost::property_tree::ptree &pt, TTree *inputTree) :
   _mode(pt.get<int>("mode")),
   _iTrain((_mode>0) ? pt.get<std::string>("weightfilename") : "" ),
@@ -52,6 +52,7 @@ applyTraining::applyTraining(boost::property_tree::ptree &pt, TTree *inputTree) 
 
 }
 
+*/
 
 applyTraining::applyTraining(boost::property_tree::ptree &pt, TTree *inputTree, std::string &friendFilename, std::string &friendTreename):
   _mode(pt.get<int>("mode")),
@@ -117,7 +118,7 @@ void applyTraining::eventLoop()
 
   for (Long64_t i0=0; i0<_lNEvents;i0++)
     {
-      if (i0 % 2000000 == 0) std::cout << "--- ... Processing event: " << double(i0)/double(_lNEvents) << std::endl;
+      if (i0 % 200000 == 0) std::cout << "--- ... Processing event: " << double(i0)/double(_lNEvents) << std::endl;
       _lTree->GetEntry(i0);
       for(int i1 = 0; i1 < _lN; i1++)
       { 

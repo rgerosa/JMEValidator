@@ -65,6 +65,7 @@ int main(int argc, char* argv[] ) {
   }
 
   std::string inputFilename = pt.get<std::string>("inputFile");
+  std::string weightfilename = pt.get<std::string>("weightfilename");
 
   TFile *inputFile = TFile::Open(inputFilename.c_str());
   TTree *inputTree = (TTree*)(inputFile->Get("PUPPET/t"));
@@ -73,7 +74,19 @@ int main(int argc, char* argv[] ) {
   std::cout << "This many: " << trainingProperties.size() << std::endl;
   for(size_t iTrain = 0; iTrain < trainingProperties.size(); ++iTrain)
   {
-    applyTraining *user = new applyTraining(trainingProperties[iTrain], inputTree);
+    //applyTraining *user = new applyTraining(trainingProperties[iTrain], inputTree);
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, trainingProperties[iTrain].get_child("friends"))
+    {
+      assert(v.first.empty());
+      std::string friendName = v.second.data();
+      inputTree->AddFriend("t", (friendName + ".root").c_str());
+    }
+    applyTraining *user = new applyTraining(trainingProperties[iTrain].get<std::string>("name"), 
+                                            trainingProperties[iTrain].get<std::string>("apply_MVA_to"),
+                                            weightfilename,
+                                            trainingProperties[iTrain].get<int>("mode"),
+                                            inputTree,
+                                            inputFilename);
     std::cout << "Initialized." << std::endl;
     user->getResults();
     delete user;
