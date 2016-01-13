@@ -10,7 +10,6 @@ mvaPUPPET::mvaPUPPET(const edm::ParameterSet& cfg){
 
   // get MET that the mva is applied on
   referenceMET_      = consumes<pat::METCollection>(cfg.getParameter<edm::InputTag>("referenceMET"));
-  referenceMET_name_ = cfg.getParameter<edm::InputTag>("referenceMET").label();
 
   if (cfg.existsAs<bool>("produceRecoils"))
     produceRecoils_ = cfg.getParameter<bool>("produceRecoils");
