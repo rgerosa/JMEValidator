@@ -212,12 +212,16 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
   evt.getByToken(referenceMET_, referenceMETs);
   assert((*referenceMETs).size() == 1);
   auto referenceMET = (*referenceMETs)[0];
-  reco::Candidate::LorentzVector referenceRecoil;
+  pat::MET referenceRecoil(referenceMET);
   if ( srcMETFlags_.at(0) == 2 )
-    referenceRecoil = - referenceMET.p4();
+  {
+    referenceRecoil.setP4(- referenceMET.p4());
+  }
   else
-    referenceRecoil = - referenceMET.p4() - Z.p4();
-
+  {
+    referenceRecoil.setP4( - referenceMET.p4() - Z.p4() );
+    referenceRecoil.setSumEt( referenceMET.sumEt() - sumEt_Leptons);
+  }
   
   // calculate the recoils and save them to MET objects
   int i = 0;
@@ -261,7 +265,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
     }    
 
     // calculate recoil   
-    calculateRecoil(MET, Z, tauJetSpouriousComponents, sumEt_TauJetCharge, sumEt_TauJetNeutral, sumEt_Leptons, (*itMETFlags), evt, collection_name, referenceMET.sumEt());
+    calculateRecoil(MET, Z, tauJetSpouriousComponents, sumEt_TauJetCharge, sumEt_TauJetNeutral, sumEt_Leptons, (*itMETFlags), evt, collection_name, referenceRecoil.sumEt());
   }
 
   edm::Handle<pat::JetCollection> jets;
@@ -294,7 +298,7 @@ void mvaPUPPET::produce(edm::Event& evt, const edm::EventSetup& es){
   if(inputFileNamePhiCorrection_.fullPath() != "")
     PhiAngle = GetResponse(mvaReaderPhiCorrection_, variablesForPhiTraining_);
 
-  auto refRecoil = TVector2(referenceRecoil.px(), referenceRecoil.py());
+  auto refRecoil = TVector2(referenceRecoil.p4().px(), referenceRecoil.p4().py());
   refRecoil = refRecoil.Rotate(PhiAngle);
   reco::Candidate::LorentzVector phiCorrectedRecoil(refRecoil.Px(), refRecoil.Py(), 0, referenceMET.sumEt());
   addToMap(phiCorrectedRecoil, referenceMET.sumEt(), "PhiCorrectedRecoil", 1); //, referenceMET.sumEt());
