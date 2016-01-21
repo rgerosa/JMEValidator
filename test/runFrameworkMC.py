@@ -33,7 +33,7 @@ from JMEAnalysis.JMEValidator.FrameworkConfiguration import createProcess
 process = createProcess(options.isMC, ## MC or data
                         options.processName,
                         options.globalTag, ## GT
-                        options.muonTypeID, options.muonIsoCone,## muons
+                        options.muonTypeID, 0.4,## muons
                         options.electronTypeID, ## electrons
                         options.tauTypeID,## taus
                         options.applyZSelections,

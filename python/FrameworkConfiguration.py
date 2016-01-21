@@ -29,7 +29,7 @@ def createProcess(isMC, ## isMC flag
     ###########################
     ## Electrons and photons ##
     ###########################
-    
+    """    
     from PhysicsTools.SelectorUtils.tools.vid_id_tools import switchOnVIDElectronIdProducer, switchOnVIDPhotonIdProducer, DataFormat, setupAllVIDIdsInModule, setupVIDElectronSelection, setupVIDPhotonSelection
 
     if not hasattr(process,"egmGsfElectronIDs"):
@@ -48,52 +48,10 @@ def createProcess(isMC, ## isMC flag
 
         for idMod in photonIdModules:
             setupAllVIDIdsInModule(process, idMod, setupVIDPhotonSelection)
-    
-            
-    # Create METs from CHS and PUPPI
-
-    ## Raw PF METs
-    etaCutForMetDiagnostic = 100
-    ## make a selection on eta according to the value defined
-    process.pfCandidatesForMET = cms.EDFilter("CandPtrSelector",
-                                              src = cms.InputTag("packedPFCandidates"),
-                                              cut = cms.string("abs(eta) < %f"%etaCutForMetDiagnostic))
-
-
-    ## CHS pat MET; raw PF is the slimmedMet in miniAOD + typeI correction
-    from RecoMET.METProducers.PFMET_cfi import pfMet
-    process.pfCandidatesForMETCHS = cms.EDFilter("CandPtrSelector",
-                                                 src = cms.InputTag("chs"),
-                                                 cut = cms.string("abs(eta) < %f"%etaCutForMetDiagnostic))
-
-
-    process.pfMetCHS        = pfMet.clone()
-    process.pfMetCHS.src    = cms.InputTag("pfCandidatesForMETCHS") ## packed candidates without fromPV < 1
-    process.pfMetCHS.alias  = cms.string('pfMetCHS')
-
-    ## Type 1 corrections
-    from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import corrPfMetType1
-    from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1
-
-    ######
-    ### Standard TypeI correction
-    ######
-
+    """
      ## create the Path
     process.jmfw_analyzers = cms.Sequence()
     process.p = cms.Path(process.jmfw_analyzers)
- 
-    ## re run HBHE filter
-    process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
-    process.HBHENoiseFilterResultProducer.minZeros = cms.int32(99999)
- 
-    process.ApplyBaselineHBHENoiseFilter = cms.EDFilter('BooleanFlagFilter',
-                                                        inputLabel = cms.InputTag('HBHENoiseFilterResultProducer','HBHENoiseFilterResult'),
-                                                        reverseDecision = cms.bool(False)
-                                                        )
- 
-    process.jmfw_analyzers += process.HBHENoiseFilterResultProducer
-    process.jmfw_analyzers += process.ApplyBaselineHBHENoiseFilter 
  
     from JMEAnalysis.JMEValidator.runMVAMET_cff import runMVAMET
  
@@ -116,7 +74,7 @@ def createProcess(isMC, ## isMC flag
                   dRCleaning = 0.3, 
                   jetPtCut = jetPtCut, 
                   jetEtaCut = 5.,
-                  etaCutForMetDiagnostic = etaCutForMetDiagnostic,
+                  etaCutForMetDiagnostic = 1000,
                   cleanGenJets = True,
                   applyZSelections = applyZSelections
                   )
