@@ -23,6 +23,7 @@ options.register ('jetPtCut',1,VarParsing.multiplicity.singleton, VarParsing.var
 options.register ('useJECFromDB',         False,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'read JEC from the database for special JEC not in GT');
 options.parseArguments()
 
+options.maxEvents = 1000
 ## import the function to create the process
 from JMEAnalysis.JMEValidator.FrameworkConfiguration import createProcess
 

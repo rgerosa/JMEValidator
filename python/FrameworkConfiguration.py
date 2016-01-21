@@ -107,8 +107,8 @@ def createProcess(isMC, ## isMC flag
                                                  cms.InputTag("patpfPUCorrectedMET"),
                                                  cms.InputTag("patpfPUMET"),
                                                  cms.InputTag("slimmedMETsPuppi"),
-                                                 cms.InputTag("MVAMET") 
-),
+                                                 cms.InputTag("MVAMET", "MVAMET") 
+                                                 ),
                            srcRecoils          = cms.VInputTag(
                                                                cms.InputTag("MVAMET", "recoilslimmedMETs"),
                                                                cms.InputTag("MVAMET", "recoilpatpfMET"),

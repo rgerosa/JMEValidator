@@ -63,10 +63,10 @@ MVAMET::MVAMET(const edm::ParameterSet& cfg){
   mvaReaderCovU2_             = loadMVAfromFile(weightFile, variablesForCovU2_, "CovU2");
 
   // prepare for saving the final mvaMET to the event
-  if(cfg.existsAs<std::string>("mvaMETLabel"))
-    mvaMETLabel_ = cfg.getParameter<std::string>("mvaMETLabel");
+  if(cfg.existsAs<std::string>("MVAMETLabel"))
+    mvaMETLabel_ = cfg.getParameter<std::string>("MVAMETLabel");
   else
-    mvaMETLabel_ = "mvaMET";
+    mvaMETLabel_ = "MVAMET";
 
   produces<pat::METCollection>(mvaMETLabel_);
   if(produceRecoils_)
@@ -350,7 +350,7 @@ void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
   //// save results to event
   std::auto_ptr<pat::METCollection> patMETCollection(new pat::METCollection());
   patMETCollection->push_back(mvaMET);
-  evt.put(patMETCollection,"mvaMET");
+  evt.put(patMETCollection,"MVAMET");
 
 }
 
