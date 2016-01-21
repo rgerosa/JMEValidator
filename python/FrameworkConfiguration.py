@@ -29,7 +29,6 @@ def createProcess(isMC, ## isMC flag
     ###########################
     ## Electrons and photons ##
     ###########################
-    """    
     from PhysicsTools.SelectorUtils.tools.vid_id_tools import switchOnVIDElectronIdProducer, switchOnVIDPhotonIdProducer, DataFormat, setupAllVIDIdsInModule, setupVIDElectronSelection, setupVIDPhotonSelection
 
     if not hasattr(process,"egmGsfElectronIDs"):
@@ -48,7 +47,6 @@ def createProcess(isMC, ## isMC flag
 
         for idMod in photonIdModules:
             setupAllVIDIdsInModule(process, idMod, setupVIDPhotonSelection)
-    """
      ## create the Path
     process.jmfw_analyzers = cms.Sequence()
     process.p = cms.Path(process.jmfw_analyzers)
@@ -87,13 +85,13 @@ def createProcess(isMC, ## isMC flag
     
 
 
-    setattr(process, "MVAMET", 
+    setattr(process, "MVAMETAnalyzer", 
             cms.EDAnalyzer('METAnalyzer',
                            isMC      = cms.bool(isMC),
                            srcJet    = cms.InputTag("slimmedJetsCleaned"),
                            srcJetPF  = cms.InputTag("slimmedJetsCleaned"),
                            srcVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
-                           srcZboson = cms.InputTag("mvaMET","ZtagBoson"),
+                           srcZboson = cms.InputTag("MVAMET","ZtagBoson"),
                            srcLeptons = cms.InputTag("LeptonMerge"),
                            srcGenMet = cms.InputTag("slimmedMETs","","PAT"),
                            srcGenJets          = cms.InputTag("slimmedGenJets","","PAT"),
@@ -109,28 +107,22 @@ def createProcess(isMC, ## isMC flag
                                                  cms.InputTag("patpfPUCorrectedMET"),
                                                  cms.InputTag("patpfPUMET"),
                                                  cms.InputTag("slimmedMETsPuppi"),
-                                                 cms.InputTag("mvaMET", "mvaMET") 
+                                                 cms.InputTag("MVAMET") 
 ),
                            srcRecoils          = cms.VInputTag(
-                                                               cms.InputTag("mvaMET", "recoilslimmedMETs"),
-                                                               cms.InputTag("mvaMET", "recoilpatpfMET"),
-                                                               cms.InputTag("mvaMET", "recoilpatpfTrackMET"),
-                                                               cms.InputTag("mvaMET", "recoilpatpfNoPUMET"),
-                                                               cms.InputTag("mvaMET", "recoilpatpfPUCorrectedMET"),
-                                                               cms.InputTag("mvaMET", "recoilpatpfPUMET"),
-                                                               cms.InputTag("mvaMET", "recoilslimmedMETsPuppi"),
-                                                               cms.InputTag("mvaMET", "recoilmvaMET")
+                                                               cms.InputTag("MVAMET", "recoilslimmedMETs"),
+                                                               cms.InputTag("MVAMET", "recoilpatpfMET"),
+                                                               cms.InputTag("MVAMET", "recoilpatpfTrackMET"),
+                                                               cms.InputTag("MVAMET", "recoilpatpfNoPUMET"),
+                                                               cms.InputTag("MVAMET", "recoilpatpfPUCorrectedMET"),
+                                                               cms.InputTag("MVAMET", "recoilpatpfPUMET"),
+                                                               cms.InputTag("MVAMET", "recoilslimmedMETsPuppi"),
+                                                               cms.InputTag("MVAMET", "recoilMVAMET")
                            ),
-                           dRgenMatching = cms.double(0.3),
-                           srcMetFiltersBits = cms.InputTag("TriggerResults","","PAT"),
-                           srcTriggerBits = cms.InputTag("TriggerResults","","HLT"),
-                           srcTriggerPrescales = cms.InputTag('patTrigger')
+                           dRgenMatching = cms.double(0.3)
                            )
             )
-    
-    if not isMC:
-        getattr(process,"MVAMET").srcMetFiltersBits = cms.InputTag("TriggerResults","","RECO")
 
-    process.jmfw_analyzers += getattr(process,"MVAMET")
+    process.jmfw_analyzers += getattr(process,"MVAMETAnalyzer")
 
     return process

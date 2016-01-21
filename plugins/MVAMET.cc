@@ -331,7 +331,7 @@ void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
   //// save results to event
   std::auto_ptr<pat::METCollection> recoilpatMETCollection(new pat::METCollection());
   recoilpatMETCollection->push_back(recoilmvaMET);
-  evt.put(recoilpatMETCollection,"recoilmvaMET");
+  evt.put(recoilpatMETCollection,"recoilMVAMET");
 
   // calculate new mvaMET
   pat::MET mvaMET(referenceMET);
