@@ -9,7 +9,7 @@ from RecoMET.METProducers.PFMET_cfi import pfMet
 from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import corrPfMetType1
 from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1
 
-def runMVAPUPPET(process,
+def runMVAMET(process,
                  processName,
                  isMC,
                  srcMuons =  "slimmedMuons", ## inputMuonCollection
@@ -255,8 +255,8 @@ def runMVAPUPPET(process,
         setattr(getattr(process, "pat"+met), "metSource", cms.InputTag(met))
 
 
-    ### MVA PUPPET
-    setattr(process,"mvaMET", cms.EDProducer("mvaPUPPET",                                                
+    ### MVA MET
+    setattr(process,"MVAMET", cms.EDProducer("MVAMET",                                                
                                                 referenceMET = cms.InputTag("slimmedMETs"),
                                                 debug = cms.bool(False),
                                                 srcMETs      = cms.VInputTag(
