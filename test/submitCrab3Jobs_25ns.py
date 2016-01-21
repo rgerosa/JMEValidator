@@ -5,7 +5,7 @@ datasets = {
   'DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8' : '/DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v2/MINIAODSIM',
   'DYJetsToLL_M-50_HT-600toinf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8' :'/DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM' 
 }
-sample=3
+sample=4
 import sys
 
 from WMCore.Configuration import Configuration
@@ -49,8 +49,8 @@ config.Data.publication = False
 config.section_('User')
 config.section_('Site')
 config.Site.storageSite = 'T2_DE_DESY'
-config.Data.outLFNDirBase = '/store/user/rfriese/mvamet/skimming/2016-01-11/'
-config.General.workArea = '/nfs/dust/cms/user/rfriese/crab_mvamet_skim-2016-01-11'
+config.Data.outLFNDirBase = '/store/user/rfriese/mvamet/skimming/2016-01-13/'
+config.General.workArea = '/nfs/dust/cms/user/rfriese/crab_mvamet_skim-2016-01-13'
 
 
 #  LocalWords:  MINIAODSIM

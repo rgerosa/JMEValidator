@@ -13,14 +13,13 @@ options.register ('isMC',True,VarParsing.multiplicity.singleton,VarParsing.varTy
 options.register ('processName','JRA',VarParsing.multiplicity.singleton,VarParsing.varType.string,'process name to be considered');
 ## conditions
 options.register ('globalTag',"MCRUN2_74_V9",VarParsing.multiplicity.singleton,VarParsing.varType.string,'input global tag to be used');
-options.register ('muonIsoCone',0.4,VarParsing.multiplicity.singleton, VarParsing.varType.float,  'value to be used for muon isolation cone');
 
 ## Lepton ID
-options.register ('muonTypeID',    "Tight",  VarParsing.multiplicity.singleton, VarParsing.varType.string, 'muon ID to be considered for MVA PUPPET analysis ');
-options.register ('electronTypeID',"Medium", VarParsing.multiplicity.singleton, VarParsing.varType.string, 'electron ID to be considered for MVA PUPPET analysis ');
-options.register ('tauTypeID',     "Loose",  VarParsing.multiplicity.singleton, VarParsing.varType.string, 'tau ID to be considered for MVA PUPPET analysis ');
+options.register ('muonTypeID',    "Tight",  VarParsing.multiplicity.singleton, VarParsing.varType.string, 'muon ID to be considered for MVA MET analysis ');
+options.register ('electronTypeID',"Medium", VarParsing.multiplicity.singleton, VarParsing.varType.string, 'electron ID to be considered for MVA MET analysis ');
+options.register ('tauTypeID',     "Loose",  VarParsing.multiplicity.singleton, VarParsing.varType.string, 'tau ID to be considered for MVA MET analysis ');
 ## selections
-options.register ('applyZSelections',True,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'apply selection for Zll events when runMVAPUPPETAnalysis is true');
+options.register ('applyZSelections',True,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'apply selection for Zll events');
 options.register ('jetPtCut',1,VarParsing.multiplicity.singleton, VarParsing.varType.float, 'apply a jet pt cut for mva met input');
 ## JEC
 options.register ('useJECFromDB',         False,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'read JEC from the database for special JEC not in GT');
@@ -54,14 +53,6 @@ elif options.isMC == False:
 process.source = cms.Source("PoolSource")
 process.source.fileNames = cms.untracked.vstring(inputFiles);
 
-## count the number of events
-process.AllEvents = cms.EDFilter("PassFilter",
-    srcGenEventInfo   = cms.InputTag("generator"),
-    isMC      = cms.bool(options.isMC)                              
-  )
-process.counterPath = cms.Path(process.AllEvents)
-## set max events 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(options.maxEvents))
 ## output name
 process.load('CommonTools.UtilAlgos.TFileService_cfi')
 process.TFileService.fileName = cms.string('output.root')
@@ -79,39 +70,8 @@ process.options.allowUnscheduled = cms.untracked.bool(True)
 """
     process.output = cms.OutputModule("PoolOutputModule",
                                       fileName = cms.untracked.string('output_particles.root'),
-                                      outputCommands = cms.untracked.vstring('keep *_slimmedMuons'+options.muonTypeID+'*_*_*',
-                                                                             'keep *_slimmedElectrons'+options.electronTypeID+'*_*_*',
-                                                                             'keep *_*selectedPatJets*_*_*',
-                                                                             'keep *_*selectedPatJets*Cleaned*_*_*',
-                                                                             'keep *_slimmed*Taus*'+options.tauTypeID+'*_*_*',
-                                                                             'keep *_slimmed*MET*_*_*',
-                                                                             'keep *_*mvaPUPPET*_*_*',
-                                                                             'keep *_*recoil*_*_*',
-                                                                             'keep *_*ZdiLepton*_*_*',
-                                                                             'keep *_*LeptonMerge*_*_*',
-                                                                             'keep *_*ZtagBoson*_*_*',
-                                                                             'keep *_*ak4GenJetsNoNu*_*_*',
-                                                                             'keep *_*offlineSlimmedPrimaryVertices*_*_*',
-                                                                             'keep *_*packedGenLeptons*_*_*',
-                                                                             'keep *_*puppi*_*_*',
-                                                                             'keep *_*pfAllChargedParticlesPuppi*_*_*',
-                                                                             'keep *_*pfPileUpIso*_*_*',
-                                                                             'keep *_*pfNoPileUpIso*_*_*',
-                                                                             'keep *_*pfAllNeutralParticlesPuppi*_*_*',
-                                                                             'keep *_*pupuppi*_*_*',
-                                                                             'keep *_*pfPuppi*_*_*',
-                                                                             'keep *_*pfPUPuppi*_*_*',
-                                                                             'keep *_*pfPUPuppiCharge*_*_*',
-                                                                             'keep *_*pfAllNeutralParticlesPuppiPU*_*_*',
-                                                                             'keep *_*pfChargedPV*_*_*',
-                                                                             'keep *_*pfNeutrals*_*_*',
-                                                                             'keep *_*pfChargedPU*_*_*',
-                                                                             'keep *_*pfCandidatesForMET*_*_*',
-                                                                             'keep *_*pfCandidatesForMETCH*_*_*',
-                                                                             'keep *_*packed*Candidates*_*_*',
-                                                                             'keep *_*Met*_*_*',
-                                                                             'keep *_*TriggerResults*_*_*',
-                                                                             'keep *_*neutral*_*_*',
+                                      outputCommands = cms.untracked.vstring(
+                                                                             'keep patMET_*_*_*'
                                                                              ),        
                                       SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring('p'))
                                       )

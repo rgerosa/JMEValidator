@@ -9,7 +9,7 @@ def createProcess(isMC, ## isMC flag
                   muonTypeID, muonIsoCone, ## muons
                   electronTypeID, ## electrons
                   tauTypeID, ## taus
-                  applyZSelections, ## special settings for PUPPET
+                  applyZSelections, 
                   jetPtCut,
                   useJECFromLocalDB
                   ):
@@ -95,9 +95,9 @@ def createProcess(isMC, ## isMC flag
     process.jmfw_analyzers += process.HBHENoiseFilterResultProducer
     process.jmfw_analyzers += process.ApplyBaselineHBHENoiseFilter 
  
-    from JMEAnalysis.JMEValidator.runMVAPUPPET_cff import runMVAPUPPET
+    from JMEAnalysis.JMEValidator.runMVAMET_cff import runMVAMET
  
-    runMVAPUPPET( process, 
+    runMVAMET( process, 
                   processName,
                   isMC,
                   srcMuons = "slimmedMuons", 
@@ -129,8 +129,8 @@ def createProcess(isMC, ## isMC flag
     
 
 
-    setattr(process, "PUPPET", 
-            cms.EDAnalyzer('PUPPETAnalyzer',
+    setattr(process, "MVAMET", 
+            cms.EDAnalyzer('METAnalyzer',
                            isMC      = cms.bool(isMC),
                            srcJet    = cms.InputTag("slimmedJetsCleaned"),
                            srcJetPF  = cms.InputTag("slimmedJetsCleaned"),
@@ -171,8 +171,8 @@ def createProcess(isMC, ## isMC flag
             )
     
     if not isMC:
-        getattr(process,"PUPPET").srcMetFiltersBits = cms.InputTag("TriggerResults","","RECO")
+        getattr(process,"MVAMET").srcMetFiltersBits = cms.InputTag("TriggerResults","","RECO")
 
-    process.jmfw_analyzers += getattr(process,"PUPPET")
+    process.jmfw_analyzers += getattr(process,"MVAMET")
 
     return process
