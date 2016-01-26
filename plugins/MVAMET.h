@@ -56,6 +56,7 @@ class MVAMET : public edm::stream::EDProducer<> {
   void calculateRecoil(edm::Handle<pat::METCollection> MET, reco::Particle Z, reco::Particle tauJetSpouriousComponents, float sumEt_TauJetCharge, float sumEt_TauJetNeutral, float sumEt_Leptons, int METFlag, edm::Event &evt, std::string collection_name, float divisor);
 private:
 
+  void saveMap(edm::Event& evt);
   std::string mvaMETLabel_;
   std::string ZbosonLabel_;
 
@@ -91,6 +92,7 @@ private:
   const GBRForest* mvaReaderCovU2_;
 
   bool debug_;
+  bool saveMap_;
   bool produceRecoils_;
 }; 
 #endif

@@ -276,5 +276,5 @@ def runMVAMET(process,
                                                 weightFile     = cms.FileInPath('JMEAnalysis/JMEValidator/data/weightfile.root'),
                                                 srcLeptons  = cms.VInputTag("LeptonMerge"),
                                                 ZbosonLabel = cms.string("ZtagBoson"),
-                                                produceRecoils = cms.bool(putRecoilInsideEvent)
+                                                saveMap = cms.bool(True)
                                                 ))

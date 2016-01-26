@@ -48,8 +48,8 @@ def createProcess(isMC, ## isMC flag
         for idMod in photonIdModules:
             setupAllVIDIdsInModule(process, idMod, setupVIDPhotonSelection)
      ## create the Path
-    process.jmfw_analyzers = cms.Sequence()
-    process.p = cms.Path(process.jmfw_analyzers)
+    #process.jmfw_analyzers = cms.Sequence()
+    #process.p = cms.Path(process.jmfw_analyzers)
  
     from JMEAnalysis.JMEValidator.runMVAMET_cff import runMVAMET
  
@@ -78,6 +78,7 @@ def createProcess(isMC, ## isMC flag
                   )
  
  
+    """
     # Run
     if isMC:
         process.run = cms.EDAnalyzer('RunAnalyzer')
@@ -124,5 +125,5 @@ def createProcess(isMC, ## isMC flag
             )
 
     process.jmfw_analyzers += getattr(process,"MVAMETAnalyzer")
-
+    """
     return process

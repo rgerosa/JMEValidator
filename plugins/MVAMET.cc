@@ -8,14 +8,13 @@ typedef std::vector<reco::Particle> ParticleCollection;
 
 MVAMET::MVAMET(const edm::ParameterSet& cfg){
 
+  produces<std::vector<std::string>>();
+  produces<std::vector<Float_t>>();
   // get MET that the mva is applied on
   referenceMET_      = consumes<pat::METCollection>(cfg.getParameter<edm::InputTag>("referenceMET"));
 
-  if (cfg.existsAs<bool>("produceRecoils"))
-    produceRecoils_ = cfg.getParameter<bool>("produceRecoils");
-  else
-    produceRecoils_ = false;
-
+  produceRecoils_ = (cfg.existsAs<bool>("produceRecoils")) ? cfg.getParameter<bool>("produceRecoils") : false;
+  saveMap_ = (cfg.existsAs<bool>("saveMap")) ? cfg.getParameter<bool>("saveMap") : false;
 
   // get tokens for input METs and prepare for saving the corresponding recoils to the event
   srcMETTags_   = cfg.getParameter<vInputTag>("srcMETs");
@@ -350,7 +349,22 @@ void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
   //// save results to event
   std::auto_ptr<pat::METCollection> patMETCollection(new pat::METCollection());
   patMETCollection->push_back(mvaMET);
+
   evt.put(patMETCollection,"MVAMET");
+  saveMap(evt);
+}
+
+void MVAMET::saveMap(edm::Event& evt)
+{
+  std::auto_ptr<std::vector<std::string>> variableNames(new std::vector<std::string>);
+  std::auto_ptr<std::vector<Float_t> > variables(new std::vector<Float_t>);
+  for(auto entry : var_){
+    variableNames->push_back(entry.first);
+    variables->push_back(entry.second);
+  }
+
+  evt.put(variableNames);
+  evt.put(variables);
 
 }
 
