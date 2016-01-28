@@ -25,6 +25,16 @@
 #include <TLorentzVector.h>
 #include <TMath.h>
 
+class recoilingBoson : public reco::Particle {
+  recoilingBoson()
+  {
+    sumEt_Leptons = 0;
+  }
+  std::vector<reco::CandidatePtr> chargedTauJetCandidates;
+  std::vector<reco::CandidatePtr> neutralTauJetCandidates;
+  float sumEt_Leptons;
+};
+
 class MVAMET : public edm::stream::EDProducer<> {
 
  public:
@@ -55,8 +65,9 @@ class MVAMET : public edm::stream::EDProducer<> {
 
   void calculateRecoil(edm::Handle<pat::METCollection> MET, reco::Particle Z, reco::Particle tauJetSpouriousComponents, float sumEt_TauJetCharge, float sumEt_TauJetNeutral, float sumEt_Leptons, int METFlag, edm::Event &evt, std::string collection_name, float divisor);
 private:
-
+  void doCombinations(int offset, int k);
   void saveMap(edm::Event& evt);
+  void calculateRecoilingObjects(edm::Event& evt);
   std::string mvaMETLabel_;
   std::string ZbosonLabel_;
 
@@ -70,6 +81,7 @@ private:
   std::vector<edm::EDGetTokenT<reco::CandidateView > > srcLeptons_;
   edm::EDGetTokenT<pat::TauCollection>                 srcTaus_;
   edm::EDGetTokenT<pat::MuonCollection>                srcMuons_;
+//  edm::EDGetTokenT<pat::ElectronCollection>            srcElectrons_;
   
   std::string referenceMET_name_;
   
@@ -79,7 +91,10 @@ private:
   
   edm::FileInPath inputFileNamePhiCorrection_;
   edm::FileInPath inputFileNameRecoilCorrection_;
-  
+ 
+  std::vector<const reco::Candidate*> allLeptons_;
+  std::vector<std::vector<const reco::Candidate*>> combinations_;
+  std::vector<const reco::Candidate*> combination_;
   
   std::vector<std::string> variablesForPhiTraining_  = {};
   std::vector<std::string> variablesForRecoilTraining_  = {};
@@ -94,5 +109,6 @@ private:
   bool debug_;
   bool saveMap_;
   bool produceRecoils_;
+  std::vector<recoilingBoson> Bosons_;
 }; 
 #endif

@@ -37,20 +37,13 @@ MVAMET::MVAMET(const edm::ParameterSet& cfg){
     srcLeptons_.push_back( consumes<reco::CandidateView >( *it ) );
   }
     
-  // get debug flags
-  if (cfg.existsAs<bool>("debug"))
-    debug_ = cfg.getParameter<bool>("debug");
-  else
-    debug_ = false;
+  debug_ = (cfg.existsAs<bool>("debug")) ? cfg.getParameter<bool>("debug") : false;
 
-  // get vertices
   srcVertices_  = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("srcVertices"));
-  // get jets 
   srcJets_      = consumes<pat::JetCollection>(cfg.getParameter<edm::InputTag>("srcJets"));
-  // get taus
   srcTaus_      = consumes<pat::TauCollection>(cfg.getParameter<edm::InputTag>("srcTaus"));
-  // get muons
   srcMuons_     = consumes<pat::MuonCollection>(cfg.getParameter<edm::InputTag>("srcMuons"));
+//  srcElectrons_ = consumes<pat::ElectronCollection>(cfg.getParameter<edm::InputTag>("srcElectrons"));
 
   // load weight files
   edm::FileInPath weightFile; 
@@ -120,38 +113,48 @@ void MVAMET::calculateRecoil(edm::Handle<pat::METCollection> MET, reco::Particle
 
 }
 
-void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
+void MVAMET::doCombinations(int offset, int k)
+{ 
+  if (k == 0) {
+    combinations_.push_back(combination_);
+    combination_.clear();
+    return;
+  }
+  for (size_t i = offset; i <= allLeptons_.size() - k; ++i)
+  {
+    combination_.push_back(allLeptons_[i]);
+    doCombinations(i+1, k-1);
+    combination_.pop_back();
+  }
+}
 
-  var_.clear();
-  
-  // calculate Z for recoil
-  reco::Particle Z;
-  Z.setP4(reco::Candidate::LorentzVector(0, 0, 0, 0));
-  
-  // take the tau lepton collection
-  edm::Handle<pat::TauCollection> tauCollectionHandle;
-  evt.getByToken(srcTaus_, tauCollectionHandle);
-  const pat::TauCollection tauCollection = *(tauCollectionHandle.product());
 
-  // take mu lepton collection
-  edm::Handle<pat::MuonCollection> muCollectionHandle;
-  evt.getByToken(srcMuons_, muCollectionHandle);
-  const pat::MuonCollection muCollection = *(muCollectionHandle.product());
 
-  
-  // vector of packed candidates to store charged and neutral particles belonging to the tau jets
-  std::vector<reco::CandidatePtr> chargedTauJetCandidates;
-  std::vector<reco::CandidatePtr> neutralTauJetCandidates;
-
+void MVAMET::calculateRecoilingObjects(edm::Event &evt)
+{
   // loop on the indentified leptons
-  float sumEt_Leptons = 0;
-	for ( std::vector<edm::EDGetTokenT<reco::CandidateView > >::const_iterator srcLeptons_i = srcLeptons_.begin(); srcLeptons_i != srcLeptons_.end(); ++srcLeptons_i )
-	{
-		edm::Handle<reco::CandidateView> leptons;		
-		evt.getByToken(*srcLeptons_i, leptons);
-		for ( reco::CandidateView::const_iterator lepton = leptons->begin();
-			lepton != leptons->end(); ++lepton )
-		{
+
+  size_t combineNLeptons = 2;
+  bool requireOS = true;
+
+  // alle leptonen in einen vector stecken allLeptons
+  // combinations_ vector haelt combination
+
+  for ( std::vector<edm::EDGetTokenT<reco::CandidateView > >::const_iterator srcLeptons_i = srcLeptons_.begin(); srcLeptons_i != srcLeptons_.end(); ++srcLeptons_i )
+  {
+    edm::Handle<reco::CandidateView> leptons;
+    evt.getByToken(*srcLeptons_i, leptons);
+    for ( reco::CandidateView::const_iterator lepton = leptons->begin(); lepton != leptons->end(); ++lepton )
+    {
+      allLeptons_.push_back(&(*lepton));
+    }
+  }
+  doCombinations(0, combineNLeptons);
+
+  std::cout << "combinations: " <<  combinations_.size() << std::endl;
+  if(requireOS) {}
+
+/*
 				math::PtEtaPhiELorentzVectorD p4Photon;      
 				for (auto muon : muCollection)
 				{
@@ -197,14 +200,51 @@ void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
 			}      
 		}
 	}
+*/
+}
+
+void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
+
+  var_.clear();
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// replace this part with combinatorial approach
+// read in all threee lepton collections
+// create vector of pairs
+//
+//
+  // calculate Z for recoil
+  // take the tau lepton collection
+  edm::Handle<pat::TauCollection> tauCollectionHandle;
+  evt.getByToken(srcTaus_, tauCollectionHandle);
+  const pat::TauCollection tauCollection = *(tauCollectionHandle.product());
+
+  // take mu lepton collection
+  edm::Handle<pat::MuonCollection> muCollectionHandle;
+  evt.getByToken(srcMuons_, muCollectionHandle);
+  const pat::MuonCollection muCollection = *(muCollectionHandle.product());
+
+  // take e lepton collection
+//  edm::Handle<pat::ElectronCollection> eCollectionHandle;
+//  evt.getByToken(srcElectrons_, eCollectionHandle);
+//  const pat::MuonCollection eCollection = *(eCollectionHandle.product());
+
+  
+
+  void calculateRecoilingObject(edm::Event& evt);
+  //reco::Particle Z;
+  //Z.setP4(reco::Candidate::LorentzVector(0, 0, 0, 0));
+  
 
 
   // and save the Z back to the event 
-  if(produceRecoils_){
-    std::auto_ptr<ParticleCollection> recoZParticleCollection(new ParticleCollection());
-    recoZParticleCollection->push_back(Z);
-    evt.put(recoZParticleCollection,ZbosonLabel_);
-  }
+//  if(produceRecoils_){
+//    std::auto_ptr<ParticleCollection> recoZParticleCollection(new ParticleCollection());
+//    recoZParticleCollection->push_back(Z);
+//    evt.put(recoZParticleCollection,ZbosonLabel_);
+//  }
+
+/*
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // get reference MET and calculate its recoil
   edm::Handle<pat::METCollection> referenceMETs;
@@ -352,6 +392,7 @@ void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
 
   evt.put(patMETCollection,"MVAMET");
   saveMap(evt);
+*/
 }
 
 void MVAMET::saveMap(edm::Event& evt)
