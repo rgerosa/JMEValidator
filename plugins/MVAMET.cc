@@ -196,6 +196,8 @@ void MVAMET::calculateRecoilingObjects(edm::Event &evt, const pat::MuonCollectio
     evt.getByToken(*srcLeptons_i, leptons);
     for ( reco::CandidateView::const_iterator lepton = leptons->begin(); lepton != leptons->end(); ++lepton )
     {
+      leptonPtr_ = leptons->ptrAt(0);
+      std::cout << leptonPtr_->p4().pt() << std::endl;
       allLeptons_.push_back(&(*lepton));
     }
   }
@@ -415,11 +417,11 @@ void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
     mvaMET.setSignificanceMatrix(mvaMETCov);
 
     // add constituent info to pat::MET
-    size_t iCount;
+    size_t iCount=0;
     for(auto lepton: Z.leptons)
     {
-      reco::CandidatePtr ptr(*lepton);
-      mvaMET.addUserCand("lepton" + std::to_string(iCount++), ptr);
+      lepton->p4().pt();
+      mvaMET.addUserCand("lepton" + std::to_string(iCount++), leptonPtr_);
     }
 
     patMETCollection->push_back(mvaMET);

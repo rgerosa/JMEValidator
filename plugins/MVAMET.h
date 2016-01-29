@@ -117,6 +117,7 @@ private:
   std::vector<std::string> variablesForRecoilTraining_  = {};
   std::vector<std::string> variablesForCovU1_  = {};
   std::vector<std::string> variablesForCovU2_  = {};
+  edm::Ptr<reco::Candidate> leptonPtr_;
 
   const GBRForest* mvaReaderPhiCorrection_;
   const GBRForest* mvaReaderRecoilCorrection_;
