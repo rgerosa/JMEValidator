@@ -124,7 +124,8 @@ process.MAPAnalyzer =cms.EDAnalyzer('MAPAnalyzer',
                                                             "recoilslimmedMETs_sumEtFraction"
                                                                ) )
 process.p = cms.Path()
-process.skimmvamet = cms.Sequence( process.MVAMET * process.MAPAnalyzer)
+#process.skimmvamet = cms.Sequence( process.MVAMET * process.MAPAnalyzer)
+process.skimmvamet = cms.Sequence( process.MVAMET)
 process.p *= (process.skimmvamet)
 ## logger
 process.load('FWCore.MessageLogger.MessageLogger_cfi')

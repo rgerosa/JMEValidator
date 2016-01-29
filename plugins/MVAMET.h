@@ -25,7 +25,18 @@
 #include <TLorentzVector.h>
 #include <TMath.h>
 
+class metPlus : public pat::MET {
+  
+  float sumEt_TauJetCharge  = 0;
+  float sumEt_TauJetNeutral = 0;
+  int METFlag;
+  std::string collection_name;
+  reco::Particle tauJetSpouriousComponents;
+  // datentyp: sumEt_TauJetCharge, TauJetNeutral, metflat, collectionname
+};
+
 class recoilingBoson : public reco::Particle {
+  public: 
   recoilingBoson()
   {
     sumEt_Leptons = 0;
@@ -33,6 +44,8 @@ class recoilingBoson : public reco::Particle {
   std::vector<reco::CandidatePtr> chargedTauJetCandidates;
   std::vector<reco::CandidatePtr> neutralTauJetCandidates;
   float sumEt_Leptons;
+  std::vector<int> pdgIds;
+  std::vector<const reco::Candidate*> leptons;
 };
 
 class MVAMET : public edm::stream::EDProducer<> {
@@ -63,11 +76,15 @@ class MVAMET : public edm::stream::EDProducer<> {
   void addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &type, double divisor, reco::METCovMatrix &covMatrix);
 
 
-  void calculateRecoil(edm::Handle<pat::METCollection> MET, reco::Particle Z, reco::Particle tauJetSpouriousComponents, float sumEt_TauJetCharge, float sumEt_TauJetNeutral, float sumEt_Leptons, int METFlag, edm::Event &evt, std::string collection_name, float divisor);
+  void calculateRecoil(metPlus* MET, recoilingBoson *Z, edm::Event& evt, float divisor);
 private:
   void doCombinations(int offset, int k);
   void saveMap(edm::Event& evt);
-  void calculateRecoilingObjects(edm::Event& evt);
+  void calculateRecoilingObjects(edm::Event& evt, const pat::MuonCollection&, const pat::TauCollection& );
+  void cleanLeptonsFromSS();
+  void handleMuons(const reco::Candidate* lepton, recoilingBoson& Z, const pat::MuonCollection& );
+  void handleTaus(const reco::Candidate* lepton, recoilingBoson& Z, const pat::TauCollection& );
+  void fillEventInformation();
   std::string mvaMETLabel_;
   std::string ZbosonLabel_;
 

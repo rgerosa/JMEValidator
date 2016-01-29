@@ -7,7 +7,7 @@
 typedef std::vector<reco::Particle> ParticleCollection;
 
 MVAMET::MVAMET(const edm::ParameterSet& cfg){
-
+  std::cout << "lade" << std::endl;
   produces<std::vector<std::string>>();
   produces<std::vector<Float_t>>();
   // get MET that the mva is applied on
@@ -76,28 +76,28 @@ MVAMET::MVAMET(const edm::ParameterSet& cfg){
 
 MVAMET::~MVAMET(){}
 
-void MVAMET::calculateRecoil(edm::Handle<pat::METCollection> MET, reco::Particle Z, reco::Particle tauJetSpouriousComponents, float sumEt_TauJetCharge, float sumEt_TauJetNeutral, float sumEt_Leptons , int METFlag, edm::Event& evt, std::string collection_name, float divisor)
+void MVAMET::calculateRecoil(metPlus* MET, recoilingBoson *Z, edm::Event& evt, float divisor)
 {
 
     reco::METCovMatrix rotateToZFrame;
-    rotateToZFrame(0,0) = rotateToZFrame(1,1) = std::cos(- Z.p4().Phi());
-    rotateToZFrame(0,1) =   std::sin(- Z.p4().Phi());
-    rotateToZFrame(1,0) = - std::sin(- Z.p4().Phi());
+    rotateToZFrame(0,0) = rotateToZFrame(1,1) = std::cos(- Z->p4().Phi());
+    rotateToZFrame(0,1) =   std::sin(- Z->p4().Phi());
+    rotateToZFrame(1,0) = - std::sin(- Z->p4().Phi());
 
-    pat::MET Recoil((*MET)[0]); 
+    pat::MET Recoil((*MET)); 
 
-    Recoil.setP4(tauJetSpouriousComponents.p4() - (*MET)[0].p4());
-    Recoil.setSumEt((*MET)[0].sumEt());    
+    Recoil.setP4(MET->tauJetSpouriousComponents.p4() - *MET->p4());
+    Recoil.setSumEt(MET->sumEt());    
     // subtract Z-Boson if contained in MET to get recoil
-    if (!(METFlag==2))
+    if (!(MET->METFlag==2))
     {
       Recoil.setP4(Recoil.p4()-Z.p4());
-      Recoil.setSumEt(Recoil.sumEt()-sumEt_TauJetCharge-sumEt_Leptons);    
+      Recoil.setSumEt(Recoil.sumEt()-MET->sumEt_TauJetCharge-Z->sumEt_Leptons);    
     }
  
-    if (!(METFlag==1))
+    if (!(MET->METFlag==1))
     {
-      Recoil.setSumEt(Recoil.sumEt()-sumEt_TauJetNeutral);    
+      Recoil.setSumEt(Recoil.sumEt()-MET->sumEt_TauJetNeutral);    
     }
 
     reco::METCovMatrix rotatedCovMatrix = rotateToZFrame * Recoil.getSignificanceMatrix();
@@ -106,10 +106,10 @@ void MVAMET::calculateRecoil(edm::Handle<pat::METCollection> MET, reco::Particle
     if(produceRecoils_){
       std::auto_ptr<pat::METCollection> patMETRecoilCollection(new pat::METCollection());
       patMETRecoilCollection->push_back(Recoil);
-      evt.put(patMETRecoilCollection, "recoil"+collection_name);
+      evt.put(patMETRecoilCollection, "recoil"+MET->collection_name);
     }
 
-    addToMap(Recoil.p4(), Recoil.sumEt(), "recoil"+ collection_name, divisor, rotatedCovMatrix);
+    addToMap(Recoil.p4(), Recoil.sumEt(), "recoil"+ MET->collection_name, divisor, rotatedCovMatrix);
 
 }
 
@@ -117,29 +117,79 @@ void MVAMET::doCombinations(int offset, int k)
 { 
   if (k == 0) {
     combinations_.push_back(combination_);
-    combination_.clear();
+    combination_.pop_back();
     return;
   }
   for (size_t i = offset; i <= allLeptons_.size() - k; ++i)
   {
     combination_.push_back(allLeptons_[i]);
     doCombinations(i+1, k-1);
-    combination_.pop_back();
+  }
+    combination_.clear();
+}
+
+void MVAMET::cleanLeptonsFromSS()
+{
+  combinations_.erase(std::remove_if(combinations_.begin(), combinations_.end(), [](std::vector<const reco::Candidate*> pair) { return pair[0]->charge() == pair[1]->charge(); }), combinations_.end());
+}
+
+void MVAMET::handleTaus(const reco::Candidate* lepton, recoilingBoson& Z, const pat::TauCollection& tauCollection)
+{
+  for(auto tau : tauCollection)
+  {
+    if(lepton->p4() != tau.p4())
+      continue;
+
+    for(auto candidate : tau.signalCands())
+    {
+      if(abs(candidate->pdgId()) > 11 and abs(candidate->pdgId()) < 16)
+        continue;
+      if(candidate->charge() !=0)
+      {
+        Z.chargedTauJetCandidates.push_back(candidate);
+      }
+      else
+      {
+        Z.neutralTauJetCandidates.push_back(candidate);
+      }
+    }
+  }      
+}
+
+void MVAMET::handleMuons(const reco::Candidate* lepton, recoilingBoson& Z, const pat::MuonCollection& muCollection)
+{
+  math::PtEtaPhiELorentzVectorD p4Photon;      
+  for (auto muon : muCollection)
+  {
+    if( muon.p4() == lepton->p4())
+    {
+      p4Photon.SetPt(muon.pfEcalEnergy()/TMath::CosH(muon.p4().eta()));
+      p4Photon.SetEta(muon.p4().eta());
+      p4Photon.SetPhi(muon.p4().phi());
+      p4Photon.SetE(muon.pfEcalEnergy());
+    }
+  }
+
+  if(p4Photon.E() > 0 )
+  {
+    Z.setP4(Z.p4()+ lepton->p4()+p4Photon);
+    Z.sumEt_Leptons += lepton->p4().Et()+p4Photon.Et();
+  }
+  else
+  {
+    Z.setP4(Z.p4()+ lepton->p4());
+    Z.sumEt_Leptons += lepton->p4().Et();
   }
 }
 
-
-
-void MVAMET::calculateRecoilingObjects(edm::Event &evt)
+void MVAMET::calculateRecoilingObjects(edm::Event &evt, const pat::MuonCollection& muCollection, const pat::TauCollection& tauCollection)
 {
   // loop on the indentified leptons
-
   size_t combineNLeptons = 2;
   bool requireOS = true;
-
-  // alle leptonen in einen vector stecken allLeptons
-  // combinations_ vector haelt combination
-
+  assert( (requireOS = true) ^ (combineNLeptons !=2));
+  allLeptons_.clear();
+  combinations_.clear();
   for ( std::vector<edm::EDGetTokenT<reco::CandidateView > >::const_iterator srcLeptons_i = srcLeptons_.begin(); srcLeptons_i != srcLeptons_.end(); ++srcLeptons_i )
   {
     edm::Handle<reco::CandidateView> leptons;
@@ -149,62 +199,60 @@ void MVAMET::calculateRecoilingObjects(edm::Event &evt)
       allLeptons_.push_back(&(*lepton));
     }
   }
-  doCombinations(0, combineNLeptons);
 
-  std::cout << "combinations: " <<  combinations_.size() << std::endl;
-  if(requireOS) {}
+  if(allLeptons_.size() > combineNLeptons )
+    doCombinations(0, combineNLeptons);
 
-/*
-				math::PtEtaPhiELorentzVectorD p4Photon;      
-				for (auto muon : muCollection)
-				{
-					if( muon.p4() == lepton->p4())
-					{
-						p4Photon.SetPt(muon.pfEcalEnergy()/TMath::CosH(muon.p4().eta()));
-						p4Photon.SetEta(muon.p4().eta());
-						p4Photon.SetPhi(muon.p4().phi());
-						p4Photon.SetE(muon.pfEcalEnergy());
-					}
-				}
+  for(auto leptonpair : combinations_)
+  {
+  std::cout << "comb: ";
+    for(auto lep : leptonpair)
+    {
+      std::cout << lep->charge() << ", " << lep->p4().pt() << " / ";
+    }
+  std::cout << std::endl;
+  }
 
-				if(p4Photon.E() > 0 )
-				{
-					Z.setP4(Z.p4()+ lepton->p4()+p4Photon);
-					sumEt_Leptons += lepton->p4().Et()+p4Photon.Et();
-				}
-			else
-			{
-				Z.setP4(Z.p4()+ lepton->p4());
-				sumEt_Leptons += lepton->p4().Et();
-			}
+  if(requireOS)
+    cleanLeptonsFromSS();
+  std::cout << "OS combinations: " <<  combinations_.size() << std::endl;
 
-			Z.setPdgId(abs(lepton->pdgId()));
-			for(std::vector<pat::Tau>::const_iterator tau = tauCollection.begin(); tau!= tauCollection.end(); ++tau)
-			{
-				if(lepton->p4() != tau->p4())
-					continue;
-					
-					// take the PF constituents of tau lepton
-				for(auto candidate : tau->signalCands())
-				{
-					if(abs(candidate->pdgId()) > 11 and abs(candidate->pdgId()) < 16) continue;
-					if(candidate->charge() !=0)
-					{
-						chargedTauJetCandidates.push_back(candidate);
-					}
-					else
-					{
-						neutralTauJetCandidates.push_back(candidate);
-					}
-				}
-			}      
-		}
-	}
-*/
+  for(auto leptonpair: combinations_)
+  {
+    recoilingBoson Z;
+    for(auto lepton : leptonpair)
+    {
+      Z.pdgIds.push_back(lepton->pdgId());
+      handleMuons( lepton, Z, muCollection);
+      handleTaus( lepton, Z, tauCollection);
+    }
+    Bosons_.push_back(Z);
+  } 
+}
+
+void MVAMET::fillEventInformation()
+{
+  edm::Handle<pat::JetCollection> jets;
+  evt.getByToken(srcJets_, jets);
+  size_t jetsSize = jets->size();
+  for( size_t iJet = 0; iJet <= 1; iJet++)
+  {
+    var_["Jet" + std::to_string(iJet)+ "_Pt"]  = (jetsSize > iJet) ? jets->at(iJet).p4().pt() : 0;
+    var_["Jet" + std::to_string(iJet)+ "_Eta"] = (jetsSize > iJet) ? jets->at(iJet).p4().Eta() : 0;
+    var_["Jet" + std::to_string(iJet)+ "_Phi"] = (jetsSize > iJet) ? jets->at(iJet).p4().Phi() : 0;
+    var_["Jet" + std::to_string(iJet)+ "_M"]   = (jetsSize > iJet) ? jets->at(iJet).p4().M() : 0;
+  }
+
+  var_["NCleanedJets"] = countJets(*jets, 5);
+
+  // treat other collections and save to map
+  edm::Handle<reco::VertexCollection> vertices;
+  evt.getByToken(srcVertices_, vertices);
+  var_["NVertex"] = countVertices(*vertices);
 }
 
 void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
-
+  std::cout << "producing" << std::endl; 
   var_.clear();
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // replace this part with combinatorial approach
@@ -230,12 +278,16 @@ void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
 
   
 
-  void calculateRecoilingObject(edm::Event& evt);
-  //reco::Particle Z;
-  //Z.setP4(reco::Candidate::LorentzVector(0, 0, 0, 0));
-  
+  calculateRecoilingObjects(evt, muCollection, tauCollection);
 
-
+  fillEventInformation();
+  // create output collections
+  std::auto_ptr<pat::METCollection> recoilpatMETCollection(new pat::METCollection());
+  std::auto_ptr<pat::METCollection> patMETCollection(new pat::METCollection());
+  edm::Handle<pat::METCollection> referenceMETs;
+  evt.getByToken(referenceMET_, referenceMETs);
+  assert((*referenceMETs).size() == 1);
+  auto referenceMET = (*referenceMETs)[0];
   // and save the Z back to the event 
 //  if(produceRecoils_){
 //    std::auto_ptr<ParticleCollection> recoZParticleCollection(new ParticleCollection());
@@ -243,95 +295,81 @@ void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
 //    evt.put(recoZParticleCollection,ZbosonLabel_);
 //  }
 
-/*
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+  // calculate additional information from METs -> save to vector (own type?)
+  // loop on Zs, within :
+  //     calculate reference MET
+  //     loop on METs
+
+
   // get reference MET and calculate its recoil
-  edm::Handle<pat::METCollection> referenceMETs;
-  evt.getByToken(referenceMET_, referenceMETs);
-  assert((*referenceMETs).size() == 1);
-  auto referenceMET = (*referenceMETs)[0];
-  pat::MET referenceRecoil(referenceMET);
-  if ( srcMETFlags_.at(0) == 2 )
-  {
-    referenceRecoil.setP4(- referenceMET.p4());
-  }
-  else
-  {
-    referenceRecoil.setP4( - referenceMET.p4() - Z.p4() );
-    referenceRecoil.setSumEt( referenceMET.sumEt() - sumEt_Leptons);
-  }
-  
+ 
+
+/// hier loop ueber Zs 
   // calculate the recoils and save them to MET objects
+  // datentyp: sumEt_TauJetCharge, TauJetNeutral, metflat, collectionname
+  // erbt von pat::MET
+  std::vector<metPlus> METs; 
   int i = 0;
-  float sumEt_TauJetCharge  = 0;
-  float sumEt_TauJetNeutral = 0;
   std::vector<int>::const_iterator itMETFlags = srcMETFlags_.begin();
   itMETFlags++;
   for ( std::vector<edm::EDGetTokenT<pat::METCollection> >::const_iterator srcMET = srcMETs_.begin(); srcMET != srcMETs_.end() && itMETFlags!=srcMETFlags_.end(); ++srcMET, ++itMETFlags )
   {
-    //get inputs
-    std::string collection_name = srcMETTags_[i++].label();
-    if(debug_) 
-      std::cout << "colname: " << collection_name << std::endl;
+    edm::Handle<pat::METCollection> METhandle;
+    evt.getByToken(*srcMET, METhandle);
+    assert((*METhandle).size() == 1 );
+    metPlus MET(METhandle);
+    METs.collection_name = srcMETTags_[i++].label();
+    METs.METFlag = (*itMETFlags);
+    MET.tauJetSpouriousComponents.setP4(reco::Candidate::LorentzVector(0, 0, 0, 0));
 
-    edm::Handle<pat::METCollection> MET;
-    evt.getByToken(*srcMET, MET);
-    assert((*MET).size() == 1 );
-
-    if(debug_)
-      std::cout << "tomap: " << collection_name << std::endl;
-
-    reco::Particle tauJetSpouriousComponents;
-    tauJetSpouriousComponents.setP4(reco::Candidate::LorentzVector(0, 0, 0, 0));
     // charged components
     if ( ((*itMETFlags)==0) or ((*itMETFlags)==1) )
     {
       for( auto particle : chargedTauJetCandidates)
       {
-        tauJetSpouriousComponents.setP4(tauJetSpouriousComponents.p4()+particle->p4());            
-        sumEt_TauJetCharge += particle->p4().Et();
+        MET.tauJetSpouriousComponents.setP4(MET.tauJetSpouriousComponents.p4()+particle->p4());            
+        MET.sumEt_TauJetCharge += particle->p4().Et();
+        }
       }
-    }
     // neutral components
     if ( ((*itMETFlags)==0) or ((*itMETFlags)==2) )
     {
       for( auto particle : neutralTauJetCandidates)
       {
-        tauJetSpouriousComponents.setP4(tauJetSpouriousComponents.p4()+particle->p4());            
-        sumEt_TauJetNeutral += particle->p4().Et();	
+        MET.tauJetSpouriousComponents.setP4(MET.tauJetSpouriousComponents.p4()+particle->p4());            
+        MET.sumEt_TauJetNeutral += particle->p4().Et();
       }
     }    
-
-    // calculate recoil   
-    calculateRecoil(MET, Z, tauJetSpouriousComponents, sumEt_TauJetCharge, sumEt_TauJetNeutral, sumEt_Leptons, (*itMETFlags), evt, collection_name, referenceRecoil.sumEt());
   }
 
-  edm::Handle<pat::JetCollection> jets;
-  evt.getByToken(srcJets_, jets);
-  size_t jetsSize = jets->size();
-  for( size_t iJet = 0; iJet <= 1; iJet++)
+
+
+  for(auto Z: Bosons_)
   {
-    var_["Jet" + std::to_string(iJet)+ "_Pt"]  = (jetsSize > iJet) ? jets->at(iJet).p4().pt() : 0;
-    var_["Jet" + std::to_string(iJet)+ "_Eta"] = (jetsSize > iJet) ? jets->at(iJet).p4().Eta() : 0;
-    var_["Jet" + std::to_string(iJet)+ "_Phi"] = (jetsSize > iJet) ? jets->at(iJet).p4().Phi() : 0;
-    var_["Jet" + std::to_string(iJet)+ "_M"]   = (jetsSize > iJet) ? jets->at(iJet).p4().M() : 0;
-  }
+    pat::MET referenceRecoil(referenceMET);
+    if ( srcMETFlags_.at(0) == 2 )
+    {
+      referenceRecoil.setP4(- referenceMET.p4());
+    }
+    else
+    {
+      referenceRecoil.setP4( - referenceMET.p4() - Z.p4() );
+      referenceRecoil.setSumEt( referenceMET.sumEt() - sumEt_Leptons);
+    }
+    for(auto MET: METs)
+    {
+      calculateRecoil(MET, Z, evt, referenceRecoil.sumEt());
+    }
+    // print whole map
+    for(auto entry : var_){
+      if(debug_)
+        std::cout << "map " << entry.first << "/" << entry.second << std::endl;
+    }
 
-  var_["NCleanedJets"] = countJets(*jets, 5);
 
-  // treat other collections and save to map
-  edm::Handle<reco::VertexCollection> vertices;
-  evt.getByToken(srcVertices_, vertices);
-  var_["NVertex"] = countVertices(*vertices);
-  
-
-  // print whole map
-  for(auto entry : var_){
-    if(debug_)
-      std::cout << "map " << entry.first << "/" << entry.second << std::endl;
-  }
-  
   // evaluate phi training and apply angular correction
   Float_t PhiAngle = 0.;
   if(inputFileNamePhiCorrection_.fullPath() != "")
@@ -357,20 +395,13 @@ void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
   addToMap(recoilP4, referenceMET.sumEt(), "LongZCorrectedRecoil", 1); //, referenceMET.sumEt());
 
   // evaluate covariance matrix regression
-  Float_t CovU1 = 0;
-  Float_t CovU2 = 0;
-  CovU1 = GetResponse(mvaReaderCovU1_, variablesForCovU1_) * refRecoil.Mod();
-  CovU2 = GetResponse(mvaReaderCovU2_, variablesForCovU2_) * refRecoil.Mod();
-  reco::METCovMatrix recoilmvaMETCov;
-  recoilmvaMETCov(0, 0) =  std::pow(CovU1, 2);
-  recoilmvaMETCov(0, 1) =  recoilmvaMETCov(1, 0) = 0;
-  recoilmvaMETCov(1, 1) = std::pow(CovU2, 2);
-  recoilmvaMET.setSignificanceMatrix(recoilmvaMETCov);
+  Float_t CovU1 = GetResponse(mvaReaderCovU1_, variablesForCovU1_) * refRecoil.Mod();
+  Float_t CovU2 = GetResponse(mvaReaderCovU2_, variablesForCovU2_) * refRecoil.Mod();
   
   //// save results to event
-  std::auto_ptr<pat::METCollection> recoilpatMETCollection(new pat::METCollection());
   recoilpatMETCollection->push_back(recoilmvaMET);
-  evt.put(recoilpatMETCollection,"recoilMVAMET");
+  if(produceRecoils_)
+    evt.put(recoilpatMETCollection,"recoilMVAMET");
 
   // calculate new mvaMET
   pat::MET mvaMET(referenceMET);
@@ -386,13 +417,17 @@ void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
   mvaMETCov(1, 1) =  std::pow(CovU1, 2) * sinPhi*sinPhi + std::pow(CovU2, 2) * cosPhi*cosPhi;
   mvaMET.setSignificanceMatrix(mvaMETCov);
 
-  //// save results to event
-  std::auto_ptr<pat::METCollection> patMETCollection(new pat::METCollection());
-  patMETCollection->push_back(mvaMET);
+  // add constituent info to pat::MET
+  size_t iCount;
+  for(auto lepton: Z.leptons)
+    mvaMET.addUserCand("lepton" + std::to_str(iCount++), lepton);
 
+  patMETCollection->push_back(mvaMET);
+  }
+
+  std::cout << "producing METs: " << (*patMETCollection).size() << std::endl;
   evt.put(patMETCollection,"MVAMET");
   saveMap(evt);
-*/
 }
 
 void MVAMET::saveMap(edm::Event& evt)

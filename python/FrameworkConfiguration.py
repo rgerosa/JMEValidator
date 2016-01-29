@@ -48,8 +48,8 @@ def createProcess(isMC, ## isMC flag
         for idMod in photonIdModules:
             setupAllVIDIdsInModule(process, idMod, setupVIDPhotonSelection)
      ## create the Path
-    #process.jmfw_analyzers = cms.Sequence()
-    #process.p = cms.Path(process.jmfw_analyzers)
+    process.jmfw_analyzers = cms.Sequence()
+    process.p = cms.Path(process.jmfw_analyzers)
  
  
     runMVAMET( process, 
@@ -354,7 +354,8 @@ def runMVAMET(process,
                                                 srcMuons       = cms.InputTag(srcMuons+muonTypeID),
                                                 srcElectrons   = cms.InputTag("slimmedElectrons"),
                                                 weightFile     = cms.FileInPath('JMEAnalysis/JMEValidator/data/weightfile.root'),
-                                                srcLeptons  = cms.VInputTag("LeptonMerge"),
+                                                #srcLeptons  = cms.VInputTag("LeptonMerge"),
+                                                srcLeptons  = cms.VInputTag("slimmedMuons", "slimmedElectrons", "slimmedTaus"),
                                                 ZbosonLabel = cms.string("ZtagBoson"),
                                                 saveMap = cms.bool(True)
                                                 ))
