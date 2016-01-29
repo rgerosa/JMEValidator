@@ -49,6 +49,7 @@ class recoilingBoson : public reco::Particle {
   {
     sumEt_Leptons = 0;
   }
+  float dZMass() { return std::abs(91.0 - p4().M()); }
   std::vector<reco::CandidatePtr> chargedTauJetCandidates;
   std::vector<reco::CandidatePtr> neutralTauJetCandidates;
   float sumEt_Leptons;
@@ -73,11 +74,10 @@ class MVAMET : public edm::stream::EDProducer<> {
   
   void produce(edm::Event&, const edm::EventSetup&);
   typedef std::vector<edm::InputTag> vInputTag;
-
+  float bestMass_;
   // create a vector given input variables
   Float_t* createFloatVector(std::vector<std::string> variableNames);
 
-  unsigned int countVertices(const reco::VertexCollection& vertices);
   unsigned int countJets(const pat::JetCollection& jets, const float maxPt);
 
   // load MVA file produced in the training
@@ -86,14 +86,14 @@ class MVAMET : public edm::stream::EDProducer<> {
   const Float_t GetResponse(const GBRForest * Reader,std::vector<std::string> &variableNames );
 
   // to correctly create the map of regression input vriables
-  //void addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &name, const std::string &type);
   void addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &type, double divisor);
   void addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &type, double divisor, reco::METCovMatrix &covMatrix);
+  void addToMap(recoilingBoson &Z);
 
 
   void calculateRecoil(metPlus* MET, recoilingBoson &Z, edm::Event& evt, float divisor);
+  void TagZ();
 private:
-  int nDiMuons;
   void doCombinations(int offset, int k);
   void saveMap(edm::Event& evt);
   void calculateRecoilingObjects(edm::Event& evt, const pat::MuonCollection&, const pat::TauCollection& );
@@ -102,8 +102,6 @@ private:
   void handleTaus(edm::Ptr<reco::Candidate> lepton, recoilingBoson& Z, const pat::TauCollection& );
   void fillEventInformation(edm::Event&);
   std::string mvaMETLabel_;
-  std::string ZbosonLabel_;
-
 
   vInputTag srcMETTags_;
   
@@ -122,9 +120,6 @@ private:
   
   std::map<std::string, Float_t> var_;
   
-  edm::FileInPath inputFileNamePhiCorrection_;
-  edm::FileInPath inputFileNameRecoilCorrection_;
- 
   std::vector<edm::Ptr<reco::Candidate>> allLeptons_;
   std::vector<std::vector<edm::Ptr<reco::Candidate>>> combinations_;
   std::vector<edm::Ptr<reco::Candidate>> combination_;
@@ -143,5 +138,7 @@ private:
   bool saveMap_;
   bool produceRecoils_;
   std::vector<recoilingBoson> Bosons_;
+  size_t combineNLeptons_;
+  bool requireOS_;
 }; 
 #endif

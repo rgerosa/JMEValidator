@@ -7,7 +7,6 @@
 typedef std::vector<reco::Particle> ParticleCollection;
 
 MVAMET::MVAMET(const edm::ParameterSet& cfg){
-  std::cout << "lade" << std::endl;
   produces<std::vector<std::string>>();
   produces<std::vector<Float_t>>();
   // get MET that the mva is applied on
@@ -38,7 +37,8 @@ MVAMET::MVAMET(const edm::ParameterSet& cfg){
   }
     
   debug_ = (cfg.existsAs<bool>("debug")) ? cfg.getParameter<bool>("debug") : false;
-
+  combineNLeptons_ = cfg.getParameter<int>("combineNLeptons");
+  requireOS_ = cfg.getParameter<bool>("requireOS");
   srcVertices_  = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("srcVertices"));
   srcJets_      = consumes<pat::JetCollection>(cfg.getParameter<edm::InputTag>("srcJets"));
   srcTaus_      = consumes<pat::TauCollection>(cfg.getParameter<edm::InputTag>("srcTaus"));
@@ -64,14 +64,6 @@ MVAMET::MVAMET(const edm::ParameterSet& cfg){
   if(produceRecoils_)
       produces<pat::METCollection>( "recoil"+mvaMETLabel_ );
 
-  // produce Zboson tag
-  if(cfg.existsAs<std::string>("ZbosonLabel"))
-    ZbosonLabel_ = cfg.getParameter<std::string>("ZbosonLabel");
-  else
-    ZbosonLabel_ = "ZtagBoson";
-  
-  if(produceRecoils_)
-    produces<ParticleCollection>(ZbosonLabel_);
 }
 
 MVAMET::~MVAMET(){}
@@ -185,9 +177,7 @@ void MVAMET::handleMuons(edm::Ptr<reco::Candidate> lepton, recoilingBoson& Z, co
 void MVAMET::calculateRecoilingObjects(edm::Event &evt, const pat::MuonCollection& muCollection, const pat::TauCollection& tauCollection)
 {
   // loop on all the indentified leptons and put them in a common vector allLeptons_
-  size_t combineNLeptons = 2;
-  bool requireOS = true;
-  assert( (requireOS = true) ^ (combineNLeptons !=2));
+  assert( (requireOS_ = true) ^ (combineNLeptons_ !=2));
   allLeptons_.clear();
   combinations_.clear();
   for ( std::vector<edm::EDGetTokenT<reco::CandidateView > >::const_iterator srcLeptons_i = srcLeptons_.begin(); srcLeptons_i != srcLeptons_.end(); ++srcLeptons_i )
@@ -200,22 +190,11 @@ void MVAMET::calculateRecoilingObjects(edm::Event &evt, const pat::MuonCollectio
     }
   }
 
-  if(allLeptons_.size() > combineNLeptons )
-    doCombinations(0, combineNLeptons);
+  if(allLeptons_.size() > combineNLeptons_ )
+    doCombinations(0, combineNLeptons_);
 
-  for(auto leptonpair : combinations_)
-  {
-  std::cout << "comb: ";
-    for(auto lep : leptonpair)
-    {
-      std::cout << lep->charge() << ", " << lep->p4().pt() << " / ";
-    }
-  std::cout << std::endl;
-  }
-
-  if(requireOS)
+  if(requireOS_)
     cleanLeptonsFromSS();
-  std::cout << "OS combinations: " <<  combinations_.size() << std::endl;
 
   for(auto leptonpair: combinations_)
   {
@@ -227,8 +206,6 @@ void MVAMET::calculateRecoilingObjects(edm::Event &evt, const pat::MuonCollectio
       handleTaus( lepton, Z, tauCollection);
     }
     Bosons_.push_back(Z);
-    //count number of encountered di-muon systems for training
-    if(Z.isDiMuon()) nDiMuons++;
   } 
 }
 
@@ -245,19 +222,30 @@ void MVAMET::fillEventInformation(edm::Event& evt)
     var_["Jet" + std::to_string(iJet)+ "_M"]   = (jetsSize > iJet) ? jets->at(iJet).p4().M() : 0;
   }
 
-  var_["NCleanedJets"] = countJets(*jets, 5);
+  var_["NCleanedJets"] = countJets(*jets, 10);
+  var_["nCombinations"] = combinations_.size();
 
   // treat other collections and save to map
   edm::Handle<reco::VertexCollection> vertices;
   evt.getByToken(srcVertices_, vertices);
-  var_["NVertex"] = countVertices(*vertices);
+  var_["NVertex"] = vertices->size();
+}
+
+void MVAMET::TagZ()
+{
+  // method used to selection di-muon combination closest to Z-Mass
+  bestMass_ = 10000;
+  for(auto Z: Bosons_)
+  {
+    float tmpMass = Z.dZMass();
+    if(tmpMass < bestMass_)
+      bestMass_ = tmpMass;
+  }
 }
 
 void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
-  std::cout << "producing" << std::endl; 
   var_.clear();
   Bosons_.clear();
-  nDiMuons = 0;
 
   edm::Handle<pat::TauCollection> tauCollectionHandle;
   evt.getByToken(srcTaus_, tauCollectionHandle);
@@ -267,11 +255,22 @@ void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
   edm::Handle<pat::MuonCollection> muCollectionHandle;
   evt.getByToken(srcMuons_, muCollectionHandle);
   const pat::MuonCollection muCollection = *(muCollectionHandle.product());
+
   //fill allLeptons_
   calculateRecoilingObjects(evt, muCollection, tauCollection);
 
   fillEventInformation(evt);
 
+  // stop execution if no recoiling object has been found
+  if(Bosons_.size() == 0)
+  {
+    if(saveMap_)
+      saveMap(evt);
+    return;
+  }
+
+  if(saveMap_)
+    TagZ();
   // create output collections
   std::auto_ptr<pat::METCollection> recoilpatMETCollection(new pat::METCollection());
   std::auto_ptr<pat::METCollection> patMETCollection(new pat::METCollection());
@@ -279,7 +278,7 @@ void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
   evt.getByToken(referenceMET_, referenceMETs);
   assert((*referenceMETs).size() == 1);
   auto referenceMET = (*referenceMETs)[0];
-  
+ 
   for(auto Z: Bosons_)
   {
     pat::MET referenceRecoil(referenceMET);
@@ -327,39 +326,25 @@ void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
       calculateRecoil(&MET, Z, evt, referenceRecoil.sumEt());
     }
 
-
-
-
-    // print whole map
-    for(auto entry : var_){
-      if(debug_)
-        std::cout << "map " << entry.first << "/" << entry.second << std::endl;
-    }
-
-
     // evaluate phi training and apply angular correction
-    Float_t PhiAngle = 0.;
-    if(inputFileNamePhiCorrection_.fullPath() != "")
-      PhiAngle = GetResponse(mvaReaderPhiCorrection_, variablesForPhiTraining_);
+    Float_t PhiAngle = GetResponse(mvaReaderPhiCorrection_, variablesForPhiTraining_);
 
     auto refRecoil = TVector2(referenceRecoil.p4().px(), referenceRecoil.p4().py());
     refRecoil = refRecoil.Rotate(PhiAngle);
     reco::Candidate::LorentzVector phiCorrectedRecoil(refRecoil.Px(), refRecoil.Py(), 0, referenceMET.sumEt());
-    addToMap(phiCorrectedRecoil, referenceMET.sumEt(), "PhiCorrectedRecoil", 1); //, referenceMET.sumEt());
+    addToMap(phiCorrectedRecoil, referenceMET.sumEt(), "PhiCorrectedRecoil", 1);
   
     var_["PhiCorrectedRecoil_Phi"] = TVector2::Phi_mpi_pi(refRecoil.Phi());
 
     // evaluate second training and apply recoil correction
-    Float_t RecoilCorrection = 1.0;
-    RecoilCorrection = GetResponse(mvaReaderRecoilCorrection_, variablesForRecoilTraining_);
+    Float_t RecoilCorrection = GetResponse(mvaReaderRecoilCorrection_, variablesForRecoilTraining_);
     refRecoil *= RecoilCorrection;
-
 
     // create pat::MET from recoil
     pat::MET recoilmvaMET(referenceMET);
     reco::Candidate::LorentzVector recoilP4(refRecoil.Px(), refRecoil.Py(), 0, referenceMET.sumEt());
     recoilmvaMET.setP4(recoilP4);
-    addToMap(recoilP4, referenceMET.sumEt(), "LongZCorrectedRecoil", 1); //, referenceMET.sumEt());
+    addToMap(recoilP4, referenceMET.sumEt(), "LongZCorrectedRecoil", 1);
 
     // evaluate covariance matrix regression
     Float_t CovU1 = GetResponse(mvaReaderCovU1_, variablesForCovU1_) * refRecoil.Mod();
@@ -393,14 +378,16 @@ void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
     patMETCollection->push_back(mvaMET);
 
    // muon selection for training
-    if(saveMap_ and nDiMuons == 1)
+    if(saveMap_)
     {
-      if(Z.isDiMuon())
+      if(bestMass_ == Z.dZMass())
+      {
+        addToMap(Z);
         saveMap(evt);
+      }
     }
   }
 
-  std::cout << "producing METs: " << (*patMETCollection).size() << std::endl;
   evt.put(patMETCollection,"MVAMET");
   if(produceRecoils_)
     evt.put(recoilpatMETCollection,"recoilMVAMET");
@@ -427,16 +414,23 @@ void MVAMET::addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std
   var_[type +  "_Cov11" ] = covMatrix(1,1);
 }
 
+void MVAMET::addToMap(recoilingBoson &Z)
+{
+  var_["Boson_Pt"] = Z.p4().pt();
+  var_["Boson_Phi"] = Z.p4().Phi();
+  var_["Boson_Eta"] = Z.p4().Eta();
+  var_["Boson_M"] = Z.p4().M();
+  var_["Boson_sumET"] = Z.sumEt_Leptons;
+  var_["Boson_daughter"] = std::abs(float(Z.pdgIds[1]));
+  
+}
+
 void MVAMET::addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &type, double divisor)
 {
   var_[type + "_Pt" ] = p4.pt();
   var_[type + "_Phi" ] = p4.phi();
   var_[type + "_sumEt" ] = sumEt;
   var_[type + "_sumEtFraction" ] = sumEt/divisor;
-}
-
-unsigned int MVAMET::countVertices(const reco::VertexCollection& vertices){
-  return vertices.size();
 }
 
 unsigned int MVAMET::countJets(const pat::JetCollection& jets, const float maxPt){
@@ -469,8 +463,6 @@ const GBRForest* MVAMET::loadMVAfromFile(const edm::FileInPath& inputFileName, s
   for(unsigned int i=0; i< lVec->size();++i)
   {
     trainingVariableNames.push_back(lVec->at(i));
-    if(debug_) 
-      std::cout << "training variable " << i << ":" << lVec->at(i) << std::endl;
   }
   const GBRForest* mva = (GBRForest*)inputFile->Get(mvaName.data());
   if ( !mva )

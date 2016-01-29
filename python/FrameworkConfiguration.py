@@ -1,81 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
-from PhysicsTools.PatAlgos.tools.tauTools import *
-
-def createProcess(isMC, ## isMC flag
-                  processName,
-                  globalTag, ## global tag
-                  muonTypeID, muonIsoCone, ## muons
-                  electronTypeID, ## electrons
-                  tauTypeID, ## taus
-                  applyZSelections, 
-                  jetPtCut,
-                  useJECFromLocalDB
-                  ):
-
-    process = cms.Process(processName)
-
-    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-    process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-    process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-
-    process.GlobalTag.globaltag = globalTag
-
-    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    #! Input
-    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    ###########################
-    ## Electrons and photons ##
-    ###########################
-    from PhysicsTools.SelectorUtils.tools.vid_id_tools import switchOnVIDElectronIdProducer, switchOnVIDPhotonIdProducer, DataFormat, setupAllVIDIdsInModule, setupVIDElectronSelection, setupVIDPhotonSelection
-
-    if not hasattr(process,"egmGsfElectronIDs"):
-        electronIdModules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff',
-                             'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV51_cff']
-
-        switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
-
-        for idMod in electronIdModules:
-            setupAllVIDIdsInModule(process, idMod, setupVIDElectronSelection)
-
-    if not hasattr(process,"VersionedPhotonIdProducer"):
-        switchOnVIDPhotonIdProducer(process, DataFormat.MiniAOD)
-
-        photonIdModules = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_PHYS14_PU20bx25_V2_cff']
-
-        for idMod in photonIdModules:
-            setupAllVIDIdsInModule(process, idMod, setupVIDPhotonSelection)
-     ## create the Path
-    process.jmfw_analyzers = cms.Sequence()
-    process.p = cms.Path(process.jmfw_analyzers)
- 
- 
-    runMVAMET( process, 
-                  processName,
-                  isMC,
-                  srcMuons = "slimmedMuons", 
-                  muonTypeID = "Tight", 
-                  iso_map_muons = [], 
-                  typeIsoMuons = "dBeta",
-                  srcElectrons = "slimmedElectrons", 
-                  electronTypeID = "Tight", 
-                  electronID_map = 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight',
-                  iso_map_electrons = [], 
-                  typeIsoElectrons = "rhoCorr",
-                  srcTaus = "slimmedTaus", 
-                  tauTypeID = tauTypeID, 
-                  doTauCleaning = True,
-                  jetCollectionPF    = "slimmedJets",
-                  dRCleaning = 0.3, 
-                  jetPtCut = jetPtCut, 
-                  jetEtaCut = 5.,
-                  etaCutForMetDiagnostic = 1000,
-                  cleanGenJets = True,
-                  applyZSelections = applyZSelections
-                  )
-    return process
 
 import FWCore.ParameterSet.Config as cms
 import sys
@@ -171,8 +96,6 @@ def runMVAMET(process,
                         relativeIsolationCutVal = relativeIsoCutEletrons
                         )
 
-
-
     ### run tau ID                                        
     if doTauCleaning :
         applyTauID( process, 
@@ -186,75 +109,6 @@ def runMVAMET(process,
                     src = srcTaus,
                     muonCollection     = "",
                     electronCollection = "")
-
-
-    ############
-
-    ##### apply Z selection ######
-    if applyZSelections :
-        
-        setattr(process,"ZdiMuon"+muonTypeID,cms.EDProducer("CandViewCombiner",
-                                                            decay       = cms.string(srcMuons+muonTypeID+"@+ "+srcMuons+muonTypeID+"@-"),
-                                                            checkCharge = cms.bool(True),
-                                                            cut         = cms.string("mass > 70 && mass < 110 & charge=0")))
-        
-        setattr(process,"ZdiElectron"+electronTypeID,cms.EDProducer("CandViewCombiner",
-                                                                    decay       = cms.string(srcElectrons+electronTypeID+"@+ "+srcElectrons+electronTypeID+"@-"),
-                                                                    checkCharge = cms.bool(True),
-                                                                    cut         = cms.string("mass > 70 && mass < 110 & charge=0"),
-                                                                    ))
-
-        process.jmfw_analyzers += getattr(process,"ZdiMuon"+muonTypeID);
-        process.jmfw_analyzers += getattr(process,"ZdiElectron"+electronTypeID);
-
-        if tauTypeID != "":
-                
-            setattr(process,"ZdiTau"+tauTypeID,cms.EDProducer("CandViewCombiner",
-                                                              decay       = cms.string(srcTaus+tauTypeID+"Cleaned@+ "+srcTaus+tauTypeID+"Cleaned@-"),
-                                                              checkCharge = cms.bool(True),
-                                                              cut         = cms.string("mass > 70 && mass < 110 & charge=0")))
-
-            process.jmfw_analyzers += getattr(process,"ZdiTau"+tauTypeID);
-
-            ## merge all the Z canddates and ask for only one candidate per event                                                                                            
-            setattr(process,"ZdiLepton", cms.EDProducer("CandViewMerger",
-                                                        src = cms.VInputTag("ZdiMuon"+muonTypeID,"ZdiElectron"+electronTypeID,"ZdiTau"+tauTypeID)))
- 
-        else:
-
-                ## merge all the Z canddates and ask for only one candidate per event                                                                                           
-                setattr(process,"ZdiLepton", cms.EDProducer("CandViewMerger",
-                                                            src = cms.VInputTag("ZdiMuon"+muonTypeID,"ZdiElectron"+electronTypeID)))
-
-        process.jmfw_analyzers += getattr(process,"ZdiLepton");
-
-        
-        setattr(process,"ZdiLeptonFilter",cms.EDFilter("PATCandViewCountFilter",
-                                                       minNumber = cms.uint32(1),
-                                                       maxNumber = cms.uint32(1),
-                                                       src = cms.InputTag("ZdiLepton")))
-        
-        process.jmfw_analyzers += getattr(process,"ZdiLeptonFilter");
-
-        ### count the number of leptons        
-        if tauTypeID != "" :
-            setattr(process,"LeptonMerge", cms.EDProducer("CandViewMerger",
-                                                          src = cms.VInputTag(srcMuons+muonTypeID,srcElectrons+electronTypeID,srcTaus+tauTypeID+"Cleaned")))
-
-        else:
-            setattr(process,"LeptonMerge", cms.EDProducer("CandViewMerger",
-                                                          src = cms.VInputTag(srcMuons+muonTypeID,srcElectrons+electronTypeID)))
-            
-        process.jmfw_analyzers += getattr(process,"LeptonMerge");
-            
-        setattr(process,"LeptonMergeFilter",cms.EDFilter("PATCandViewCountFilter",
-                                                         minNumber = cms.uint32(2),
-                                                         maxNumber = cms.uint32(2),
-                                                         src = cms.InputTag("LeptonMerge")
-                                                         ))
-        process.jmfw_analyzers += getattr(process,"LeptonMergeFilter");
-
-
 
     ## jet lepton cleaning
 
@@ -338,6 +192,8 @@ def runMVAMET(process,
     setattr(process,"MVAMET", cms.EDProducer("MVAMET",                                                
                                                 referenceMET = cms.InputTag("slimmedMETs"),
                                                 debug = cms.bool(False),
+                                                requireOS = cms.bool(True),
+                                                combineNLeptons = cms.int32(2),
                                                 srcMETs      = cms.VInputTag(
                                                                              cms.InputTag("slimmedMETs"),
                                                                              cms.InputTag("patpfMET"),
@@ -355,7 +211,8 @@ def runMVAMET(process,
                                                 srcElectrons   = cms.InputTag("slimmedElectrons"),
                                                 weightFile     = cms.FileInPath('JMEAnalysis/JMEValidator/data/weightfile.root'),
                                                 #srcLeptons  = cms.VInputTag("LeptonMerge"),
-                                                srcLeptons  = cms.VInputTag("slimmedMuons", "slimmedElectrons", "slimmedTaus"),
-                                                ZbosonLabel = cms.string("ZtagBoson"),
+                                                #srcLeptons  = cms.VInputTag("slimmedMuons", "slimmedElectrons", "slimmedTaus"),
+                                                srcLeptons  = cms.VInputTag("slimmedMuons"),
+                                                #srcLeptons  = cms.VInputTag(cms.InputTag(srcMuons+muonTypeID)),
                                                 saveMap = cms.bool(True)
                                                 ))

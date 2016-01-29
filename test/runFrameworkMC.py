@@ -1,4 +1,58 @@
 import sys
+
+def createProcess(isMC, ## isMC flag
+                  processName,
+                  globalTag, ## global tag
+                  muonTypeID, muonIsoCone, ## muons
+                  electronTypeID, ## electrons
+                  tauTypeID, ## taus
+                  applyZSelections, 
+                  jetPtCut,
+                  useJECFromLocalDB
+                  ):
+
+    process = cms.Process(processName)
+
+    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+    process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+    process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+
+    process.GlobalTag.globaltag = globalTag
+
+    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    #! Input
+    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    ###########################
+    ## Electrons and photons ##
+    ###########################
+    from PhysicsTools.SelectorUtils.tools.vid_id_tools import switchOnVIDElectronIdProducer, switchOnVIDPhotonIdProducer, DataFormat, setupAllVIDIdsInModule, setupVIDElectronSelection, setupVIDPhotonSelection
+
+    if not hasattr(process,"egmGsfElectronIDs"):
+        electronIdModules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff',
+                             'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV51_cff']
+
+        switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
+
+        for idMod in electronIdModules:
+            setupAllVIDIdsInModule(process, idMod, setupVIDElectronSelection)
+
+    if not hasattr(process,"VersionedPhotonIdProducer"):
+        switchOnVIDPhotonIdProducer(process, DataFormat.MiniAOD)
+
+        photonIdModules = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_PHYS14_PU20bx25_V2_cff']
+
+        for idMod in photonIdModules:
+            setupAllVIDIdsInModule(process, idMod, setupVIDPhotonSelection)
+     ## create the Path
+    process.jmfw_analyzers = cms.Sequence()
+    process.p = cms.Path(process.jmfw_analyzers)
+
+    return process 
+
+
+### sample configuration
+
 if not hasattr(sys, 'argv'):
   sys.argv = ["cmsRun", "runFrameworkMC.py"]
 
@@ -24,7 +78,7 @@ options.register ('useJECFromDB',         False,VarParsing.multiplicity.singleto
 options.parseArguments()
 
 ## import the function to create the process
-from JMEAnalysis.JMEValidator.FrameworkConfiguration import createProcess
+from PhysicsTools.PatAlgos.tools.tauTools import *
 
 
 ## create the process with all the information
@@ -38,7 +92,26 @@ process = createProcess(options.isMC, ## MC or data
                         options.jetPtCut,
                         options.useJECFromDB ## JEC
                         );
+from JMEAnalysis.JMEValidator.FrameworkConfiguration import runMVAMET
 
+runMVAMET( process, 
+                  "MVAMET",
+                  options.isMC,
+                  srcMuons = "slimmedMuons", 
+                  muonTypeID = "Tight", 
+                  iso_map_muons = [], 
+                  typeIsoMuons = "dBeta",
+                  srcElectrons = "slimmedElectrons", 
+                  electronTypeID = "Tight", 
+                  electronID_map = 'egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight',
+                  iso_map_electrons = [], 
+                  typeIsoElectrons = "rhoCorr",
+                  srcTaus = "slimmedTaus", 
+                  tauTypeID = "Loose",
+                  doTauCleaning = True,
+                  jetCollectionPF    = "slimmedJets",
+                  dRCleaning = 0.3
+                  )
 ####### files
 inputFiles = []
 if options.isMC == True:
@@ -70,10 +143,10 @@ process.MAPAnalyzer =cms.EDAnalyzer('MAPAnalyzer',
                                                             "Jet1_Pt",
                                                             "Jet2_Eta",
                                                             "Jet2_Pt",
-                                                            "LongZCorrectedRecoil_Phi",
-                                                            "LongZCorrectedRecoil_Pt",
-                                                            "LongZCorrectedRecoil_sumEt",
-                                                            "LongZCorrectedRecoil_sumEtFraction",
+                                                            #"LongZCorrectedRecoil_Phi",
+                                                            #"LongZCorrectedRecoil_Pt",
+                                                            #"LongZCorrectedRecoil_sumEt",
+                                                            #"LongZCorrectedRecoil_sumEtFraction",
                                                             "NCleanedJets",
                                                             "NVertex",
                                                             "PhiCorrectedRecoil_Phi",
@@ -121,11 +194,12 @@ process.MAPAnalyzer =cms.EDAnalyzer('MAPAnalyzer',
                                                             "recoilslimmedMETs_Phi",
                                                             "recoilslimmedMETs_Pt",
                                                             "recoilslimmedMETs_sumEt",
-                                                            "recoilslimmedMETs_sumEtFraction"
+                                                            "recoilslimmedMETs_sumEtFraction",
+                                                            "Boson_Pt", "Boson_Phi", "Boson_M", "Boson_Eta", "Boson_sumET", "Boson_daughter",
+                                                            "nCombinations"
                                                                ) )
 process.p = cms.Path()
 process.skimmvamet = cms.Sequence( process.MVAMET * process.MAPAnalyzer)
-#process.skimmvamet = cms.Sequence( process.MVAMET)
 process.p *= (process.skimmvamet)
 ## logger
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
@@ -135,22 +209,15 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 50
 process.options   = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 process.options.allowUnscheduled = cms.untracked.bool(True)
 
-
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(1000)
 ) 
-"""
-    process.output = cms.OutputModule("PoolOutputModule",
+process.output = cms.OutputModule("PoolOutputModule",
                                       fileName = cms.untracked.string('output_particles.root'),
                                       outputCommands = cms.untracked.vstring(
-                                                                             'keep patMET_*_*_*'
+                                                                             'keep *_*_*_*'
                                                                              ),        
                                       SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring('p'))
                                       )
     
-    process.out = cms.EndPath(process.output)
-    
-
-"""
-processDumpFile = open('processDump.py', 'w')
-print >> processDumpFile, process.dumpPython()
+process.out = cms.EndPath(process.output)
