@@ -76,23 +76,23 @@ MVAMET::MVAMET(const edm::ParameterSet& cfg){
 
 MVAMET::~MVAMET(){}
 
-void MVAMET::calculateRecoil(metPlus* MET, recoilingBoson *Z, edm::Event& evt, float divisor)
+void MVAMET::calculateRecoil(metPlus* MET, recoilingBoson &Z, edm::Event& evt, float divisor)
 {
 
     reco::METCovMatrix rotateToZFrame;
-    rotateToZFrame(0,0) = rotateToZFrame(1,1) = std::cos(- Z->p4().Phi());
-    rotateToZFrame(0,1) =   std::sin(- Z->p4().Phi());
-    rotateToZFrame(1,0) = - std::sin(- Z->p4().Phi());
+    rotateToZFrame(0,0) = rotateToZFrame(1,1) = std::cos(- Z.p4().Phi());
+    rotateToZFrame(0,1) =   std::sin(- Z.p4().Phi());
+    rotateToZFrame(1,0) = - std::sin(- Z.p4().Phi());
 
     pat::MET Recoil((*MET)); 
 
-    Recoil.setP4(MET->tauJetSpouriousComponents.p4() - *MET->p4());
+    Recoil.setP4(MET->tauJetSpouriousComponents.p4() - MET->p4());
     Recoil.setSumEt(MET->sumEt());    
     // subtract Z-Boson if contained in MET to get recoil
     if (!(MET->METFlag==2))
     {
       Recoil.setP4(Recoil.p4()-Z.p4());
-      Recoil.setSumEt(Recoil.sumEt()-MET->sumEt_TauJetCharge-Z->sumEt_Leptons);    
+      Recoil.setSumEt(Recoil.sumEt()-MET->sumEt_TauJetCharge-Z.sumEt_Leptons);    
     }
  
     if (!(MET->METFlag==1))
@@ -230,7 +230,7 @@ void MVAMET::calculateRecoilingObjects(edm::Event &evt, const pat::MuonCollectio
   } 
 }
 
-void MVAMET::fillEventInformation()
+void MVAMET::fillEventInformation(edm::Event& evt)
 {
   edm::Handle<pat::JetCollection> jets;
   evt.getByToken(srcJets_, jets);
@@ -280,7 +280,7 @@ void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
 
   calculateRecoilingObjects(evt, muCollection, tauCollection);
 
-  fillEventInformation();
+  fillEventInformation(evt);
   // create output collections
   std::auto_ptr<pat::METCollection> recoilpatMETCollection(new pat::METCollection());
   std::auto_ptr<pat::METCollection> patMETCollection(new pat::METCollection());
@@ -311,42 +311,7 @@ void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
   // calculate the recoils and save them to MET objects
   // datentyp: sumEt_TauJetCharge, TauJetNeutral, metflat, collectionname
   // erbt von pat::MET
-  std::vector<metPlus> METs; 
-  int i = 0;
-  std::vector<int>::const_iterator itMETFlags = srcMETFlags_.begin();
-  itMETFlags++;
-  for ( std::vector<edm::EDGetTokenT<pat::METCollection> >::const_iterator srcMET = srcMETs_.begin(); srcMET != srcMETs_.end() && itMETFlags!=srcMETFlags_.end(); ++srcMET, ++itMETFlags )
-  {
-    edm::Handle<pat::METCollection> METhandle;
-    evt.getByToken(*srcMET, METhandle);
-    assert((*METhandle).size() == 1 );
-    metPlus MET(METhandle);
-    METs.collection_name = srcMETTags_[i++].label();
-    METs.METFlag = (*itMETFlags);
-    MET.tauJetSpouriousComponents.setP4(reco::Candidate::LorentzVector(0, 0, 0, 0));
-
-    // charged components
-    if ( ((*itMETFlags)==0) or ((*itMETFlags)==1) )
-    {
-      for( auto particle : chargedTauJetCandidates)
-      {
-        MET.tauJetSpouriousComponents.setP4(MET.tauJetSpouriousComponents.p4()+particle->p4());            
-        MET.sumEt_TauJetCharge += particle->p4().Et();
-        }
-      }
-    // neutral components
-    if ( ((*itMETFlags)==0) or ((*itMETFlags)==2) )
-    {
-      for( auto particle : neutralTauJetCandidates)
-      {
-        MET.tauJetSpouriousComponents.setP4(MET.tauJetSpouriousComponents.p4()+particle->p4());            
-        MET.sumEt_TauJetNeutral += particle->p4().Et();
-      }
-    }    
-  }
-
-
-
+  
   for(auto Z: Bosons_)
   {
     pat::MET referenceRecoil(referenceMET);
@@ -357,12 +322,46 @@ void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
     else
     {
       referenceRecoil.setP4( - referenceMET.p4() - Z.p4() );
-      referenceRecoil.setSumEt( referenceMET.sumEt() - sumEt_Leptons);
+      referenceRecoil.setSumEt( referenceMET.sumEt() - Z.sumEt_Leptons);
     }
-    for(auto MET: METs)
+    int i = 0;
+    std::vector<int>::const_iterator itMETFlags = srcMETFlags_.begin();
+    itMETFlags++;
+    for ( std::vector<edm::EDGetTokenT<pat::METCollection> >::const_iterator srcMET = srcMETs_.begin(); srcMET != srcMETs_.end() && itMETFlags!=srcMETFlags_.end(); ++srcMET, ++itMETFlags )
     {
-      calculateRecoil(MET, Z, evt, referenceRecoil.sumEt());
+      edm::Handle<pat::METCollection> METhandle;
+      evt.getByToken(*srcMET, METhandle);
+      assert((*METhandle).size() == 1 );
+      //metPlus MET((*METhandle)[0]);
+      metPlus MET;
+      MET.collection_name = srcMETTags_[i++].label();
+      MET.METFlag = (*itMETFlags);
+      MET.tauJetSpouriousComponents.setP4(reco::Candidate::LorentzVector(0, 0, 0, 0));
+
+      // charged components
+      if ( ((*itMETFlags)==0) or ((*itMETFlags)==1) )
+      {
+        for( auto particle : Z.chargedTauJetCandidates)
+        {
+          MET.tauJetSpouriousComponents.setP4(MET.tauJetSpouriousComponents.p4()+particle->p4());            
+          MET.sumEt_TauJetCharge += particle->p4().Et();
+        }
+      }
+      // neutral components
+      if ( ((*itMETFlags)==0) or ((*itMETFlags)==2) )
+      {
+        for( auto particle : Z.neutralTauJetCandidates)
+        {
+          MET.tauJetSpouriousComponents.setP4(MET.tauJetSpouriousComponents.p4()+particle->p4());            
+          MET.sumEt_TauJetNeutral += particle->p4().Et();
+        }
+      }    
+      calculateRecoil(&MET, Z, evt, referenceRecoil.sumEt());
     }
+
+
+
+
     // print whole map
     for(auto entry : var_){
       if(debug_)
@@ -370,64 +369,68 @@ void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
     }
 
 
-  // evaluate phi training and apply angular correction
-  Float_t PhiAngle = 0.;
-  if(inputFileNamePhiCorrection_.fullPath() != "")
-    PhiAngle = GetResponse(mvaReaderPhiCorrection_, variablesForPhiTraining_);
+    // evaluate phi training and apply angular correction
+    Float_t PhiAngle = 0.;
+    if(inputFileNamePhiCorrection_.fullPath() != "")
+      PhiAngle = GetResponse(mvaReaderPhiCorrection_, variablesForPhiTraining_);
 
-  auto refRecoil = TVector2(referenceRecoil.p4().px(), referenceRecoil.p4().py());
-  refRecoil = refRecoil.Rotate(PhiAngle);
-  reco::Candidate::LorentzVector phiCorrectedRecoil(refRecoil.Px(), refRecoil.Py(), 0, referenceMET.sumEt());
-  addToMap(phiCorrectedRecoil, referenceMET.sumEt(), "PhiCorrectedRecoil", 1); //, referenceMET.sumEt());
+    auto refRecoil = TVector2(referenceRecoil.p4().px(), referenceRecoil.p4().py());
+    refRecoil = refRecoil.Rotate(PhiAngle);
+    reco::Candidate::LorentzVector phiCorrectedRecoil(refRecoil.Px(), refRecoil.Py(), 0, referenceMET.sumEt());
+    addToMap(phiCorrectedRecoil, referenceMET.sumEt(), "PhiCorrectedRecoil", 1); //, referenceMET.sumEt());
   
-  var_["PhiCorrectedRecoil_Phi"] = TVector2::Phi_mpi_pi(refRecoil.Phi());
+    var_["PhiCorrectedRecoil_Phi"] = TVector2::Phi_mpi_pi(refRecoil.Phi());
 
-  // evaluate second training and apply recoil correction
-  Float_t RecoilCorrection = 1.0;
-  RecoilCorrection = GetResponse(mvaReaderRecoilCorrection_, variablesForRecoilTraining_);
-  refRecoil *= RecoilCorrection;
+    // evaluate second training and apply recoil correction
+    Float_t RecoilCorrection = 1.0;
+    RecoilCorrection = GetResponse(mvaReaderRecoilCorrection_, variablesForRecoilTraining_);
+    refRecoil *= RecoilCorrection;
 
 
-  // create pat::MET from recoil
-  pat::MET recoilmvaMET(referenceMET);
-  reco::Candidate::LorentzVector recoilP4(refRecoil.Px(), refRecoil.Py(), 0, referenceMET.sumEt());
-  recoilmvaMET.setP4(recoilP4);
-  addToMap(recoilP4, referenceMET.sumEt(), "LongZCorrectedRecoil", 1); //, referenceMET.sumEt());
+    // create pat::MET from recoil
+    pat::MET recoilmvaMET(referenceMET);
+    reco::Candidate::LorentzVector recoilP4(refRecoil.Px(), refRecoil.Py(), 0, referenceMET.sumEt());
+    recoilmvaMET.setP4(recoilP4);
+    addToMap(recoilP4, referenceMET.sumEt(), "LongZCorrectedRecoil", 1); //, referenceMET.sumEt());
 
-  // evaluate covariance matrix regression
-  Float_t CovU1 = GetResponse(mvaReaderCovU1_, variablesForCovU1_) * refRecoil.Mod();
-  Float_t CovU2 = GetResponse(mvaReaderCovU2_, variablesForCovU2_) * refRecoil.Mod();
+    // evaluate covariance matrix regression
+    Float_t CovU1 = GetResponse(mvaReaderCovU1_, variablesForCovU1_) * refRecoil.Mod();
+    Float_t CovU2 = GetResponse(mvaReaderCovU2_, variablesForCovU2_) * refRecoil.Mod();
   
-  //// save results to event
-  recoilpatMETCollection->push_back(recoilmvaMET);
-  if(produceRecoils_)
-    evt.put(recoilpatMETCollection,"recoilMVAMET");
+    //// save results to event
+    recoilpatMETCollection->push_back(recoilmvaMET);
 
-  // calculate new mvaMET
-  pat::MET mvaMET(referenceMET);
-  reco::Candidate::LorentzVector metP4 = - Z.p4() + recoilP4;
-  mvaMET.setP4(metP4);
+    // calculate new mvaMET
+    pat::MET mvaMET(referenceMET);
+    reco::Candidate::LorentzVector metP4 = - Z.p4() + recoilP4;
+    mvaMET.setP4(metP4);
 
-  reco::METCovMatrix mvaMETCov;
-  double cosPhi =  std::cos(refRecoil.Phi());
-  double sinPhi =  std::sin(refRecoil.Phi());
-  mvaMETCov(0, 0) =  std::pow(CovU1, 2)*cosPhi*cosPhi + std::pow(CovU2, 2)*sinPhi*sinPhi;
-  mvaMETCov(0, 1) = -std::pow(CovU1, 2) * sinPhi*cosPhi + std::pow(CovU2, 2) * sinPhi*cosPhi;
-  mvaMETCov(1, 0) =  mvaMETCov(0, 1);
-  mvaMETCov(1, 1) =  std::pow(CovU1, 2) * sinPhi*sinPhi + std::pow(CovU2, 2) * cosPhi*cosPhi;
-  mvaMET.setSignificanceMatrix(mvaMETCov);
+    reco::METCovMatrix mvaMETCov;
+    double cosPhi =  std::cos(refRecoil.Phi());
+    double sinPhi =  std::sin(refRecoil.Phi());
+    mvaMETCov(0, 0) =  std::pow(CovU1, 2)*cosPhi*cosPhi + std::pow(CovU2, 2)*sinPhi*sinPhi;
+    mvaMETCov(0, 1) = -std::pow(CovU1, 2) * sinPhi*cosPhi + std::pow(CovU2, 2) * sinPhi*cosPhi;
+    mvaMETCov(1, 0) =  mvaMETCov(0, 1);
+    mvaMETCov(1, 1) =  std::pow(CovU1, 2) * sinPhi*sinPhi + std::pow(CovU2, 2) * cosPhi*cosPhi;
+    mvaMET.setSignificanceMatrix(mvaMETCov);
 
-  // add constituent info to pat::MET
-  size_t iCount;
-  for(auto lepton: Z.leptons)
-    mvaMET.addUserCand("lepton" + std::to_str(iCount++), lepton);
+    // add constituent info to pat::MET
+    size_t iCount;
+    for(auto lepton: Z.leptons)
+    {
+      reco::CandidatePtr ptr(*lepton);
+      mvaMET.addUserCand("lepton" + std::to_string(iCount++), ptr);
+    }
 
-  patMETCollection->push_back(mvaMET);
+    patMETCollection->push_back(mvaMET);
   }
 
   std::cout << "producing METs: " << (*patMETCollection).size() << std::endl;
   evt.put(patMETCollection,"MVAMET");
-  saveMap(evt);
+  if(produceRecoils_)
+    evt.put(recoilpatMETCollection,"recoilMVAMET");
+  if(saveMap_)
+    saveMap(evt);
 }
 
 void MVAMET::saveMap(edm::Event& evt)

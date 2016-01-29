@@ -26,7 +26,7 @@
 #include <TMath.h>
 
 class metPlus : public pat::MET {
-  
+public: 
   float sumEt_TauJetCharge  = 0;
   float sumEt_TauJetNeutral = 0;
   int METFlag;
@@ -76,7 +76,7 @@ class MVAMET : public edm::stream::EDProducer<> {
   void addToMap(reco::Candidate::LorentzVector p4, double sumEt, const std::string &type, double divisor, reco::METCovMatrix &covMatrix);
 
 
-  void calculateRecoil(metPlus* MET, recoilingBoson *Z, edm::Event& evt, float divisor);
+  void calculateRecoil(metPlus* MET, recoilingBoson &Z, edm::Event& evt, float divisor);
 private:
   void doCombinations(int offset, int k);
   void saveMap(edm::Event& evt);
@@ -84,7 +84,7 @@ private:
   void cleanLeptonsFromSS();
   void handleMuons(const reco::Candidate* lepton, recoilingBoson& Z, const pat::MuonCollection& );
   void handleTaus(const reco::Candidate* lepton, recoilingBoson& Z, const pat::TauCollection& );
-  void fillEventInformation();
+  void fillEventInformation(edm::Event&);
   std::string mvaMETLabel_;
   std::string ZbosonLabel_;
 
