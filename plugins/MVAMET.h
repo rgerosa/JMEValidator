@@ -26,13 +26,21 @@
 #include <TMath.h>
 
 class metPlus : public pat::MET {
-public: 
-  float sumEt_TauJetCharge  = 0;
-  float sumEt_TauJetNeutral = 0;
+public:
+  float sumEt_TauJetCharge;
+  float sumEt_TauJetNeutral;
   int METFlag;
   std::string collection_name;
   reco::Particle tauJetSpouriousComponents;
-  // datentyp: sumEt_TauJetCharge, TauJetNeutral, metflat, collectionname
+  metPlus() {}
+  metPlus(pat::MET mother) : pat::MET(mother), 
+      sumEt_TauJetCharge(0),
+      sumEt_TauJetNeutral(0),
+      METFlag(-1),
+      collection_name("unset")
+  {
+      tauJetSpouriousComponents.setP4(reco::Candidate::LorentzVector(0, 0, 0, 0));
+  }
 };
 
 class recoilingBoson : public reco::Particle {
@@ -45,7 +53,7 @@ class recoilingBoson : public reco::Particle {
   std::vector<reco::CandidatePtr> neutralTauJetCandidates;
   float sumEt_Leptons;
   std::vector<int> pdgIds;
-  std::vector<const reco::Candidate*> leptons;
+  std::vector<edm::Ptr<reco::Candidate>> leptons;
 };
 
 class MVAMET : public edm::stream::EDProducer<> {
@@ -82,8 +90,8 @@ private:
   void saveMap(edm::Event& evt);
   void calculateRecoilingObjects(edm::Event& evt, const pat::MuonCollection&, const pat::TauCollection& );
   void cleanLeptonsFromSS();
-  void handleMuons(const reco::Candidate* lepton, recoilingBoson& Z, const pat::MuonCollection& );
-  void handleTaus(const reco::Candidate* lepton, recoilingBoson& Z, const pat::TauCollection& );
+  void handleMuons(edm::Ptr<reco::Candidate> lepton, recoilingBoson& Z, const pat::MuonCollection& );
+  void handleTaus(edm::Ptr<reco::Candidate> lepton, recoilingBoson& Z, const pat::TauCollection& );
   void fillEventInformation(edm::Event&);
   std::string mvaMETLabel_;
   std::string ZbosonLabel_;
@@ -109,15 +117,14 @@ private:
   edm::FileInPath inputFileNamePhiCorrection_;
   edm::FileInPath inputFileNameRecoilCorrection_;
  
-  std::vector<const reco::Candidate*> allLeptons_;
-  std::vector<std::vector<const reco::Candidate*>> combinations_;
-  std::vector<const reco::Candidate*> combination_;
+  std::vector<edm::Ptr<reco::Candidate>> allLeptons_;
+  std::vector<std::vector<edm::Ptr<reco::Candidate>>> combinations_;
+  std::vector<edm::Ptr<reco::Candidate>> combination_;
   
   std::vector<std::string> variablesForPhiTraining_  = {};
   std::vector<std::string> variablesForRecoilTraining_  = {};
   std::vector<std::string> variablesForCovU1_  = {};
   std::vector<std::string> variablesForCovU2_  = {};
-  edm::Ptr<reco::Candidate> leptonPtr_;
 
   const GBRForest* mvaReaderPhiCorrection_;
   const GBRForest* mvaReaderRecoilCorrection_;
