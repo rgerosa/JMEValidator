@@ -124,8 +124,8 @@ process.MAPAnalyzer =cms.EDAnalyzer('MAPAnalyzer',
                                                             "recoilslimmedMETs_sumEtFraction"
                                                                ) )
 process.p = cms.Path()
-#process.skimmvamet = cms.Sequence( process.MVAMET * process.MAPAnalyzer)
-process.skimmvamet = cms.Sequence( process.MVAMET)
+process.skimmvamet = cms.Sequence( process.MVAMET * process.MAPAnalyzer)
+#process.skimmvamet = cms.Sequence( process.MVAMET)
 process.p *= (process.skimmvamet)
 ## logger
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
@@ -134,7 +134,11 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 50
 #! Output and Log                                                                                                                                                            
 process.options   = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 process.options.allowUnscheduled = cms.untracked.bool(True)
- 
+
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(100)
+) 
 """
     process.output = cms.OutputModule("PoolOutputModule",
                                       fileName = cms.untracked.string('output_particles.root'),

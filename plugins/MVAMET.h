@@ -54,6 +54,13 @@ class recoilingBoson : public reco::Particle {
   float sumEt_Leptons;
   std::vector<int> pdgIds;
   std::vector<edm::Ptr<reco::Candidate>> leptons;
+  bool isDiMuon()
+  {
+    if(pdgIds.size() == 2)
+      return (std::abs(pdgIds[0]) == 13 and std::abs(pdgIds[1]) == 13);
+    else
+      return false;
+  }
 };
 
 class MVAMET : public edm::stream::EDProducer<> {
@@ -86,6 +93,7 @@ class MVAMET : public edm::stream::EDProducer<> {
 
   void calculateRecoil(metPlus* MET, recoilingBoson &Z, edm::Event& evt, float divisor);
 private:
+  int nDiMuons;
   void doCombinations(int offset, int k);
   void saveMap(edm::Event& evt);
   void calculateRecoilingObjects(edm::Event& evt, const pat::MuonCollection&, const pat::TauCollection& );

@@ -227,6 +227,8 @@ void MVAMET::calculateRecoilingObjects(edm::Event &evt, const pat::MuonCollectio
       handleTaus( lepton, Z, tauCollection);
     }
     Bosons_.push_back(Z);
+    //count number of encountered di-muon systems for training
+    if(Z.isDiMuon()) nDiMuons++;
   } 
 }
 
@@ -254,6 +256,8 @@ void MVAMET::fillEventInformation(edm::Event& evt)
 void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
   std::cout << "producing" << std::endl; 
   var_.clear();
+  Bosons_.clear();
+  nDiMuons = 0;
 
   edm::Handle<pat::TauCollection> tauCollectionHandle;
   evt.getByToken(srcTaus_, tauCollectionHandle);
@@ -387,14 +391,19 @@ void MVAMET::produce(edm::Event& evt, const edm::EventSetup& es){
     }
 
     patMETCollection->push_back(mvaMET);
+
+   // muon selection for training
+    if(saveMap_ and nDiMuons == 1)
+    {
+      if(Z.isDiMuon())
+        saveMap(evt);
+    }
   }
 
   std::cout << "producing METs: " << (*patMETCollection).size() << std::endl;
   evt.put(patMETCollection,"MVAMET");
   if(produceRecoils_)
     evt.put(recoilpatMETCollection,"recoilMVAMET");
-  if(saveMap_)
-    saveMap(evt);
 }
 
 void MVAMET::saveMap(edm::Event& evt)
